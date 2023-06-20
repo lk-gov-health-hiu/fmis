@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets" 
+      xmlns:h="http://xmlns.jcp.org/jsf/html" 
+      xmlns:f="http://xmlns.jcp.org/jsf/core" 
+      xmlns:p="http://primefaces.org/ui" 
+      xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+    <h:body>
+        <ui:composition template="/template1.xhtml">
+            <ui:define name="title" >
+                Letter
+            </ui:define>
+            <ui:define name="content">
+                <h:form >
+                    <div class="text-center fw-bold w-100" >
+                        <h4 class="text-center fw-bold">Letter</h4>
+
+                        <h:panelGrid columns="3"  class="text-left  fw-bold w-75 mx-auto" >
+                            <h:outputLabel for="letterDate"  >Letter Date 
+                                <small class="px-2 text-muted">Required</small>
+                            </h:outputLabel>
+                            <h:panelGroup layout="block" class="w-50" >
+                                <p:datePicker id="letterDate" 
+                                              value="#{letterController.selected.documentDate}" 
+                                              monthNavigator="true"
+                                              yearNavigator="true"
+                                              class="w-50"
+                                              required="true" pattern="dd/MM/yyyy" 
+                                              requiredMessage="Need a Letter Date">
+                                </p:datePicker>
+                            </h:panelGroup>
+
+                            <h:message class="text-danger small" for="letterDate"></h:message>
+
+                            <h:outputLabel for="receivedDate"  >Stamp Date 
+                                <small class="px-2 text-muted">Required</small></h:outputLabel>
+                            <h:panelGroup layout="block" class="w-50" >
+                                <p:datePicker id="receivedDate"  value="#{letterController.selected.documentDate}" 
+                                              required="true" pattern="dd/MM/yyyy" requiredMessage="Need a Received Date"
+                                              monthNavigator="true"
+                                              yearNavigator="true">
+                                </p:datePicker>
+                            </h:panelGroup>
+                            <h:message class="text-danger small" for="receivedDate"></h:message>
+
+
+
+                            <h:outputLabel for="method"  >Received method </h:outputLabel>
+                            <h:panelGroup class="d-inline-box">
+                                <h:selectOneMenu id="method"  value="#{letterController.selected.receivedAs}" 
+                                                 class="form-control w-50 float-left"
+                                                 >
+                                    <f:ajax execute="method" render="regNo" event="blur" ></f:ajax>
+                                    <f:ajax execute="method" render="regNo" event="change" ></f:ajax>
+                                    <f:selectItem itemLabel="Select" ></f:selectItem>
+                                    <f:selectItems value="#{itemApplicationController.letterReceiveCategories}"
+                                                   var="i"
+                                                   itemLabel="#{i.name}"
+                                                   itemValue="#{i}" ></f:selectItems>
+                                </h:selectOneMenu>
+                                <h:panelGroup id="regNo" class="w-25 float-left" >
+                                    <h:inputText  a:placeholder="Enter Registration No." 
+                                                  class="form-control"
+                                                  rendered="#{letterController.selected.receivedAs.code eq 'letter_receive_category_registered_post'}"
+                                                  value="#{letterController.selected.registrationNo}" ></h:inputText>
+                                </h:panelGroup>
+
+                            </h:panelGroup>
+
+                            <h:message class="text-danger small" for="method"></h:message>
+
+                            <h:outputLabel for="lang"  >Language </h:outputLabel>
+                            <h:panelGroup layout="block" class="w-50" >
+                                <h:selectOneMenu id="lang"  
+                                                 value="#{letterController.selected.documentLanguage}" 
+                                                 class="form-control"
+                                                 >
+                                    <f:selectItem itemLabel="Select" ></f:selectItem>
+                                    <f:selectItems value="#{itemApplicationController.documentLanguages}"
+                                                   var="d"
+                                                   itemLabel="#{d.name}"
+                                                   itemValue="#{d}" ></f:selectItems>
+                                </h:selectOneMenu>
+                            </h:panelGroup>
+                            <h:message class="text-danger small" for="method"></h:message>
+
+
+                            <h:outputLabel for="title"  >Letter Number </h:outputLabel>
+                            <h:panelGroup layout="block" class="w-75" >
+                                <h:inputText id="title" 
+                                             autocomplete="off"
+                                             value="#{letterController.selected.documentNumber}" class="form-control"
+                                             >
+                                </h:inputText>
+                            </h:panelGroup>
+                            <h:message class="text-danger small" for="title"></h:message>
+
+                            <h:outputLabel for="topic"  >Letter Title 
+                                <small class="px-2 text-muted">Required</small></h:outputLabel>
+                            <h:panelGroup layout="block" class="w-100" >
+                                <h:inputText id="topic" 
+                                             autocomplete="off"
+                                             value="#{letterController.selected.documentName}" class="form-control"
+                                             required="true" requiredMessage="Need a Title">
+                                </h:inputText>
+                            </h:panelGroup>
+                            <h:message class="text-danger small" for="topic"></h:message>
+
+                            <h:outputLabel for="from"  >From 
+                            </h:outputLabel>
+
+                            <h:panelGroup layout="block" class="w-100" >
+
+                                <p:autoComplete id="from"  value="#{letterController.selected.fromInstitution}" 
+                                                class="form-control"
+                                                completeMethod="#{institutionController.completeInstitutionsByWords}"
+                                                var="insf"
+                                                forceSelection="true"
+                                                required="true"
+                                                requiredMessage="Need to select"
+                                                maxResults="30"
+                                                itemLabel="#{insf.name}"
+                                                itemValue="#{insf}"
+                                                >
+                                    <f:ajax execute="method" render="fromPerson" event="blur" ></f:ajax>
+                                    <f:ajax execute="method" render="fromPerson" event="itemSelect" ></f:ajax>
+                                    
+                                </p:autoComplete>
+                                <h:panelGroup id="fromPerson" class="w-25 float-left" >
+                                    <h:inputText  a:placeholder="Enter Persons Name" 
+                                                  class="form-control"
+                                                  rendered="#{letterController.selected.fromInstitution.name eq 'Personal'}"
+                                                  value="#{letterController.selected.senderName}" ></h:inputText>
+                                </h:panelGroup>
+                            </h:panelGroup>
+                            <p:spacer></p:spacer>
+
+                            <h:outputLabel for="comments"  >Letter Details 
+                            </h:outputLabel>
+                            <h:inputTextarea id="comments"  value="#{letterController.selected.comments}" class="form-control"
+                                             >
+                            </h:inputTextarea>
+
+                            <f:facet name="footer" class="m-2 p-2" >
+
+                                <h:commandButton tabindex="10" class="btn btn-primary fw-bold m-2 "
+                                                 action="#{letterController.saveAndNew()}" value="SAVE &amp; New">
+                                </h:commandButton>
+                                <h:commandButton id="btnSaveAdd" tabindex="10" class="btn btn-success fw-bold m-2 "
+                                                 action="#{letterController.saveAndView()}" value="SAVE &amp; View">
+                                </h:commandButton>
+                                <p:messages class="m-1 col"></p:messages>
+                                <p:defaultCommand target="btnSaveAdd" />
+
+                            </f:facet>
+
+                        </h:panelGrid>
+
+
+
+                    </div>
+
+
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

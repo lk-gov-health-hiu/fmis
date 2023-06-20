@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <!-- INTERFACE -->
+    <cc:interface>
+    </cc:interface>
+    <!-- IMPLEMENTATION -->
+    <cc:implementation>
+        <h:form>
+            <p:menubar id="main-menu">
+                <p:menuitem class="text-white" ajax="false" value="Home" icon="ui-icon-home" action="#{menuController.toIndex()}" />
+                <p:submenu class="submenu" label="Files" >
+                    <p:menuitem class="submenu-item" ajax="false" value="New File" action="#{menuController.toFileAddNew()}"  />
+                    <p:menuitem class="submenu-item" ajax="false" value="Search File" action="#{menuController.toFileSearch()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="File Ledger" action="#{menuController.toFileSearch()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Receive Files" action="#{menuController.toFileSearch()}" />
+                </p:submenu>
+                <p:menuitem class="submenu-item" ajax="false" value="Search Letters" action="#{menuController.toLetterSearch()}" />
+
+                <p:submenu class="submenu" label="Receive Letters" >
+                    <p:menuitem class="submenu-item" ajax="false" value="Record A New Received Letter"
+                                action="#{menuController.toUnitLetterAdd()}"  />
+                    <p:menuitem class="submenu-item" ajax="false" value="New Letter Registry" action="#{letterController.toNewLetterRegistry()}"  />
+                    <p:menuitem class="submenu-item" ajax="false" value="To Receive Letters List" action="#{letterController.toReceiveLetters()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Received Letter Registry" action="#{letterController.toReceivedLetterRegistry()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Accept Letters" action="#{letterController.toAcceptLettersToInstitution()}" />
+
+                </p:submenu>
+
+                <p:submenu class="submenu" label="Letters Actions" >
+                    <p:menuitem class="submenu-item" ajax="false" value="Assign Letters" action="#{letterController.toAssignMultipleLetters()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Assigned Registry" action="#{letterController.toAssignMultipleLetters()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Copy/Forward Registry" action="#{letterController.toAcceptCopyForwardedLettersToMe()}" />
+                </p:submenu>
+
+                <p:submenu class="submenu" label="Mail Branch" >
+                    <p:menuitem class="submenu-item" ajax="false" value="New Letter"
+                                action="#{menuController.toLetterMailBranchAddNew()}"  />
+                    <p:menuitem class="submenu-item" ajax="false" value="Mail Register" 
+                                action="#{letterController.toRegisterMailBranch()}"  />
+                </p:submenu>
+
+                <p:submenu class="submenu" label="Create" >
+                    <p:menuitem class="submenu-item" ajax="false" value="New Letter"
+                                action="#{menuController.toLetterGenerateNew()}"  />
+                    <p:menuitem class="submenu-item" ajax="false" value="New Internal Memo" action="#{menuController.toLetterAddNewReceivedLetter()}"  />
+                    <p:menuitem class="submenu-item" ajax="false" value="Letter Creation Registry" action="#{letterController.toAcceptCopyForwardedLettersToMe()}" />
+                </p:submenu>
+
+
+                <p:submenu class="submenu" label="My Letters" >
+                    <p:menuitem class="submenu-item" ajax="false" value="Accept Assigned Letters" action="#{letterController.toAcceptMyAssignedLetters()}"  />
+                    <p:menuitem class="submenu-item" ajax="false" value="My Assigned &amp; Accepted Letter List" action="#{letterController.toAcceptedMyAssignedLetters()}" />
+                    <p:separator/>
+                    <p:menuitem class="submenu-item" ajax="false" value="Receive Copy / Forwarded Letters" action="#{letterController.toAcceptCopyForwardedLettersToMe()}" />
+
+                    <p:menuitem class="submenu-item" ajax="false" value="My Received Copy / Forwarded Letters" action="#{letterController.toAcceptedCopyForwardedLettersToMe()}" />
+                </p:submenu>
+                <p:menuitem class="text-white" ajax="false" value="Reports" action="#{menuController.toReportsIndex()}" />
+                <p:menuitem class="text-white" ajax="false" value="Administration" action="#{menuController.toAdministrationIndex()}" />
+                <p:submenu class="submenu mx-2" label="Help" >
+                    <p:menuitem value="User Manual" action="/wiki"   ajax="false" />
+                    <p:menuitem value="Feedback" action="/feedback"   ajax="false" />
+                    <p:menuitem value="Contact us" action="/contact"   ajax="false" />
+                    <p:menuitem value="About" action="/about_us"   ajax="false" />
+                </p:submenu>
+            </p:menubar>
+        </h:form>
+    </cc:implementation>
+</html>

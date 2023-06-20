@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+        <ui:composition template="/national/admin/index.xhtml">
+            <ui:define name="admin">
+                <h:form>    
+                    <p:dataTable resizableColumns="true" multiViewState="true" resizeMode="expand" 
+                                 id="tbl" value="#{institutionController.items}" var="item"
+                                 selectionMode="single" selection="#{institutionController.selected}"
+                                 rows="10"
+                                 rowKey="#{item.id}"
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                 rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
+                                 >
+
+                        <p:column sortBy="#{item.name}" filterBy="#{item.name}" filterMatchMode="contains" >
+                            <f:facet name="header">
+                                <h:outputText value="Name"/>
+                            </f:facet>
+                            <h:outputText value="#{item.name}"/>
+                        </p:column>
+                       
+                         <p:column  >
+                            <f:facet name="header">
+                                
+                                <h:outputText value="Users Seperated By Commas"/>
+                            </f:facet>
+                             <h:outputText value="#{webUserController.displayUsers(item)}"/>
+                        </p:column>
+                        <p:column  >
+                            <f:facet name="header">
+                                <h:outputText value="POI"/>
+                            </f:facet>
+                            <h:outputText value="Own POI : "/>
+                            <h:outputText value="#{item.poiNumber}"/>
+                            <br/><!-- comment -->
+                            <h:outputText value="Another POI Institution : "/>
+                            <h:outputText value="#{item.poiInstitution.name}"/>
+                            <h:outputText value=" ("/>
+                            <h:outputText value="#{item.poiInstitution.poiNumber}"/>
+                            <h:outputText value=" )"/>
+                        </p:column>
+                        <p:column headerText="Actions" >
+                            <h:commandLink class="btn btn-primary m-2" id="editButton"
+                                           value="Edit"
+                                           action="#{menuController.toEditInstitution()}">
+                                <f:setPropertyActionListener value="#{item}" target="#{institutionController.selected}" ></f:setPropertyActionListener>
+                                <i class="bi bi-pencil m-2"></i>
+                            </h:commandLink>
+                            <h:commandLink class="btn btn-primary m-2" id="deleteButton" onclick="if (!confirm('Are you sure you want to delete?'))
+                                        return false"                                                        
+                                           value="Delete"
+                                           action="#{institutionController.deleteInstitution()}" 
+                                           >
+                                <f:setPropertyActionListener value="#{item}" target="#{institutionController.deleting}" ></f:setPropertyActionListener>
+                                <i class="bi bi-trash m-2"></i>
+                            </h:commandLink>
+                        </p:column>
+                    </p:dataTable>
+
+
+                    <h:commandButton value="Download" >
+                        <p:dataExporter target="tbl" type="xlsx" fileName="institutions and users" ></p:dataExporter>
+                    </h:commandButton>
+                    
+                   
+
+
+                </h:form>
+            </ui:define>
+        </ui:composition>
+
+    </body>
+</html>

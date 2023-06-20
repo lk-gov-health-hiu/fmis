@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+
+    <h:body>
+
+        <ui:composition template="/template1.xhtml">
+            <ui:define name="title">
+                Letter Search
+            </ui:define>
+            <ui:define name="content">
+                <p:growl class="card bg-danger form-control" ></p:growl>
+
+                <div class="card my-3 w-100">
+                    <h5 class="card-header bg-success">
+                        <p:outputLabel class="text-white fs-5 fw-bold my-2" value="Letter Search" ></p:outputLabel>
+                    </h5>
+                    <div class="card-body">
+
+                        <h:form >
+
+
+
+                            <div class="row card-body">
+                                <div class="col-1" >
+                                    <h:outputLabel  value="Search Term:"></h:outputLabel>
+                                </div>
+                                <div class="col-8" >
+                                    <h:inputText class="form form-control w-100" autocomplete="off" style="width: 40em;"
+                                                 value="#{letterController.searchTerm}"
+                                                 a:placeholder="Search Letters by ID or Title or Number of Registration Number"
+                                                 >
+                                    </h:inputText>
+                                </div>
+                                <div class="col-3" >
+                                    <h:commandButton value="Search" 
+                                                     action="#{letterController.searchLetter}"  class="btn btn-success fw-bold"></h:commandButton>
+                                </div>
+
+
+                            </div>
+
+                        </h:form>
+
+                        <h:form >
+                            <div class="row card-body">
+                                <div class="col-1" >
+                                    <h:outputLabel  value="Search From:"></h:outputLabel>
+                                </div>
+                                <div class="col-8" >
+                                    <p:autoComplete  value="#{letterController.searchUserOrIns}" 
+                                                     class="from form-control w-100"
+                                                     completeMethod="#{letterController.completeInsOrUsersByWords}"
+                                                     var="insf"
+                                                     forceSelection="true"
+                                                     required="true"
+                                                     requiredMessage="Need to select"
+                                                     maxResults="10" inputStyle="color:red;"
+                                                     itemLabel="#{insf.displayName}"
+                                                     itemValue="#{insf}"
+                                                     placeholder="Search by From"
+                                                     >
+                                    </p:autoComplete>
+                                </div>
+                                <div class="col-3" >
+                                    <h:commandButton value="Search" 
+                                                     action="#{letterController.searchLetterByInsOrUser}"  class="btn btn-success fw-bold"></h:commandButton>
+                                </div>
+
+
+                            </div>
+                        </h:form>
+
+
+
+                        <h:form >
+                            <p:dataTable value="#{letterController.items}"
+                                         var="h" 
+                                         rowKey="#{h.id}"
+                                         id="tbl"
+                                         class="w-100 me-auto"
+                                         rows="10"
+                                         paginator="true"
+                                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                         currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                         rowsPerPageTemplate="5,10,{ShowAll|'All'}"
+                                         >
+
+                                <p:column headerText="Letter ID" sortBy="#{h.id}" filterBy="#{h.id}" filterMatchMode="contains" style="width: 8em;">
+                                    <h:outputText value="#{h.id}" >
+                                    </h:outputText>
+                                </p:column>
+
+                                <p:column headerText="Letter Date" sortBy="#{h.documentDate}" style="width: 8em;">
+                                    <h:outputText value="#{h.documentDate}" >
+                                        <f:convertDateTime pattern="dd MMM yyyy" ></f:convertDateTime>
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Received Date" sortBy="#{h.receivedDate}"  style="width: 8em;">
+                                    <h:outputText value="#{h.receivedDate}" >
+                                        <f:convertDateTime pattern="dd MMM yyyy" ></f:convertDateTime>
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Receive Method"  style="width: 8em;" sortBy="#{h.receivedAs.name}" 
+                                          filterBy="#{h.receivedAs.name}" filterMatchMode="contains">
+                                    <h:outputText value="#{h.receivedAs.name}" ></h:outputText>
+                                </p:column>
+                                <p:column headerText="Number"  style="width: 12em;" sortBy="#{h.documentNumber}" filterBy="#{h.documentNumber}" filterMatchMode="contains">
+                                    <h:outputText value="#{h.documentNumber}" ></h:outputText>
+                                </p:column>
+                                <p:column headerText="Title"  sortBy="#{h.documentName}" filterBy="#{h.documentName}" filterMatchMode="contains">>
+                                    <h:outputText value="#{h.documentName}" ></h:outputText>
+                                </p:column>
+                                <p:column headerText="From"  sortBy="#{h.fromInstitution.name}" filterBy="#{h.fromInstitution.name}" filterMatchMode="contains">>
+                                    <h:panelGroup rendered="#{h.fromInstitution.name eq 'Personal'}" >
+                                        <h:outputLabel value="#{h.senderName}"></h:outputLabel>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{h.fromInstitution.name ne 'Personal'}" >
+                                        <h:outputLabel value="#{h.fromInstitution.name}"></h:outputLabel>
+                                    </h:panelGroup>
+                                    <h:outputLabel value="#{h.fromWebUser.person.nameWithTitle}"></h:outputLabel>
+                                </p:column>
+                                <p:column headerText="Actions" exportable="false">
+                                    <h:commandButton value="View" action="#{letterController.toLetterView()}"  class="btn btn-success fw-bold w-100 ">
+                                        <f:setPropertyActionListener value="#{h}" target="#{letterController.selected}" ></f:setPropertyActionListener>
+                                    </h:commandButton>
+                                </p:column>
+                            </p:dataTable>
+                        </h:form>
+
+
+
+                    </div>
+                </div>
+
+
+
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
