@@ -30,14 +30,6 @@
                             <h:inputText class="form-control" id="username" value="#{webUserController.selected.name}" title="#{bundleClinical.EditWebUserTitle_name}"
                                          readonly="false" required="true" requiredMessage="#{bundleClinical.EditWebUserRequiredMessage_name}"/>
 
-                            <p:outputLabel value="Title" for="title" />
-                            <h:selectOneMenu class="form-select" id="title"  value="#{webUserController.selected.person.title}"  >
-                                <f:selectItem itemLabel="Select" ></f:selectItem>
-                                <f:selectItems value="#{itemController.titles}" var="t" itemLabel="#{t.name}"
-                                               itemValue="#{t}" ></f:selectItems>
-                                <f:ajax execute="@this" ></f:ajax>
-                            </h:selectOneMenu>
-
                             <p:outputLabel value="Name" for="name" />
                             <h:inputText class="form-control"
                                          autocomplete="off" 

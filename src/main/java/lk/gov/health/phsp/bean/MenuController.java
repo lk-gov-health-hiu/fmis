@@ -61,6 +61,8 @@ public class MenuController implements Serializable {
     @Inject
     InstitutionController institutionController;
     @Inject
+    VehicleController vehicleController;
+    @Inject
     PreferenceController preferenceController;
     @Inject
     DashboardController dashboardController;
@@ -308,7 +310,7 @@ public class MenuController implements Serializable {
     }
     
     public String toAddNewVehicle() {
-        institutionController.prepareToAddNewInstitution();
+        vehicleController.prepareToAddNewVehicle();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case NATIONAL:
             case CTB:
@@ -370,13 +372,13 @@ public class MenuController implements Serializable {
     }
     
     public String toListVehicles() {
-        institutionController.prepareToListInstitution();
+        vehicleController.prepareToListVehicle();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case CTB:
             case HEALTH_INSTITUTION:
-                return "/institution/admin/institution_list";
+                return "/institution/admin/vehicle_list";
             case NATIONAL:
-                return "/national/admin/institution_list";
+                return "/national/admin/vehicle_list";
             default:
                 return "";
         }
@@ -434,6 +436,18 @@ public class MenuController implements Serializable {
                 return "/institution/admin/institution";
             case NATIONAL:
                 return "/national/admin/institution";
+            default:
+                return "";
+        }
+    }
+    
+    public String toEditVehicle() {
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case HEALTH_INSTITUTION:
+            case CTB:
+                return "/institution/admin/vehicle";
+            case NATIONAL:
+                return "/national/admin/vehicle";
             default:
                 return "";
         }

@@ -375,13 +375,13 @@ public class VehicleController implements Serializable {
             JsfUtil.addErrorMessage("Nothing to select");
             return;
         }
-        if (selected.getName() == null || selected.getName().trim().equals("")) {
-            JsfUtil.addErrorMessage("Name is required");
+        if (selected.getVehicleNumber() == null || selected.getVehicleNumber().trim().equals("")) {
+            JsfUtil.addErrorMessage("Number is required");
             return;
         }
 
-        if (selected.getVehicleNumber()== null || selected.getVehicleNumber().trim().equals("")) {
-            selected.setVehicleNumber(selected.getName());
+        if (selected.getName()== null || selected.getName().trim().equals("")) {
+            selected.setName(selected.getVehicleNumber());
         }
 
 

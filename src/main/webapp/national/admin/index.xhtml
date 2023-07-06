@@ -14,7 +14,6 @@
                     <div class="row">
                         <div class="col-3">
                             <h:form>
-
                                 <div class="list-group mt-3">
 
                                     <h:commandButton value="New User" 
@@ -49,29 +48,8 @@
                                                      action="#{menuController.toAddNewVehicle()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
                                     <h:commandButton value="List Vehicles"
-                                                     action="#{menuController.toListInstitutions()}"
+                                                     action="#{menuController.toListVehicles()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
-                                    <h:commandButton value="List Institutions &amp; Vehicles"
-                                                     action="#{menuController.toListInstitutionsWithUsers()}"
-                                                     class="list-group-item list-group-item-action"></h:commandButton>
-                                </div>
-                                <div class="list-group mt-3">
-                                    <h:commandButton value="Add Area" action="#{areaController.toAddArea()}"
-                                                     class="list-group-item list-group-item-action"></h:commandButton>
-                                    <h:commandButton value="List Area" action="#{areaController.toListAreasForSysAdmin()}"
-                                                     class="list-group-item list-group-item-action"></h:commandButton>
-                                    <h:commandButton value="Adding MOH with Users"
-                                                     action="/national/admin/add_multiple_moh_areas_with_users"
-                                                     class="list-group-item list-group-item-action"></h:commandButton>
-                                    <h:commandButton value="Reload Areas"
-                                                     action="#{areaApplicationController.invalidateItems()}"
-                                                     class="list-group-item list-group-item-action"></h:commandButton>
-                                </div>
-                                <div class="list-group mt-3">
-                                    <h:commandButton value="Add Institution to Upload"
-                                                     class="list-group-item list-group-item-action"
-                                                     action="#{letterController.tmpAddInsToUpload()}"></h:commandButton>
-
                                 </div>
                             </h:form>
                         </div>
