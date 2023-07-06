@@ -34,6 +34,7 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import lk.gov.health.phsp.entity.Person;
 import lk.gov.health.phsp.entity.UserPrivilege;
+import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.enums.InstitutionType;
 import lk.gov.health.phsp.enums.Privilege;
 import lk.gov.health.phsp.enums.PrivilegeTreeNode;
@@ -86,6 +87,8 @@ public class WebUserController implements Serializable {
     @Inject
     InstitutionApplicationController institutionApplicationController;
     @Inject
+    VehicleApplicationController vehicleApplicationController;
+    @Inject
     WebUserApplicationController webUserApplicationController;
     @Inject
     DashboardApplicationController dashboardApplicationController;
@@ -110,6 +113,8 @@ public class WebUserController implements Serializable {
     private List<Institution> loggableInstitutions;
     private List<Institution> loggablePmcis;
     private List<Institution> loggableMailBranchDepartments;
+    
+    private List<Vehicle> managableVehicles;
 
     private List<Area> loggableGnAreas;
     private WebUserRole userRole;
@@ -317,6 +322,18 @@ public class WebUserController implements Serializable {
         }
         ins.add(loggedUser.getInstitution());
         ins.addAll(institutionApplicationController.findChildrenInstitutions(loggedUser.getInstitution()));
+        return ins;
+    }
+    
+    public List<Vehicle> findAutherizedVehicles() {
+        List<Vehicle> ins = new ArrayList<>();
+        if (loggedUser == null) {
+            return ins;
+        }
+        if (loggedUser.getInstitution() == null) {
+            return ins;
+        }
+        ins.addAll(vehicleApplicationController.getVehicles());
         return ins;
     }
 
@@ -750,6 +767,31 @@ public class WebUserController implements Serializable {
         }
         return ins;
     }
+    
+    public List<Vehicle> completeManagableVehicles(String qry) {
+        List<Vehicle> ins = new ArrayList<>();
+        if (qry == null) {
+            return ins;
+        }
+        if (qry.trim().equals("")) {
+            return ins;
+        }
+        qry = qry.trim().toLowerCase();
+        for (Vehicle i : getManagableVehicles()) {
+            if (i.getName() == null) {
+                continue;
+            }
+            if (i.getName().toLowerCase().contains(qry)) {
+                ins.add(i);
+            }
+            if (i.getVehicleNumber().toLowerCase().contains(qry)) {
+                ins.add(i);
+            }
+        }
+        return ins;
+    }
+    
+    
 
     public List<Institution> completeLoggableMailBranchInstitutions(String qry) {
         List<Institution> ins = new ArrayList<>();
@@ -803,6 +845,7 @@ public class WebUserController implements Serializable {
 
     public String login(boolean withoutPassword) {
         loggableInstitutions = null;
+        managableVehicles = null;
         loggableMailBranchDepartments = null;
         loggablePmcis = null;
         loggableGnAreas = null;
@@ -835,6 +878,7 @@ public class WebUserController implements Serializable {
     public String loginNew() {
         System.out.println("loginNew - " + new Date());
         loggableInstitutions = null;
+        managableVehicles = null;
         loggableMailBranchDepartments = null;
         loggablePmcis = null;
         loggableGnAreas = null;
@@ -1464,7 +1508,7 @@ public class WebUserController implements Serializable {
                 newIns.setName(line);
                 newIns.setTname(line);
                 newIns.setSname(line);
-                newIns.setVehiclesModel(CommonController.prepareAsCode(line));
+                newIns.setCode(CommonController.prepareAsCode(line));
                 newIns.setParent(institution);
                 newIns.setDistrict(institution.getDistrict());
                 newIns.setInstitutionType(institutionType);
@@ -2378,6 +2422,14 @@ public class WebUserController implements Serializable {
 
     public void setLoggableMailBranchDepartments(List<Institution> loggableMailBranchDepartments) {
         this.loggableMailBranchDepartments = loggableMailBranchDepartments;
+    }
+
+    public List<Vehicle> getManagableVehicles() {
+        return managableVehicles;
+    }
+
+    public void setManagableVehicles(List<Vehicle> managableVehicles) {
+        this.managableVehicles = managableVehicles;
     }
 
     @FacesConverter(forClass = WebUser.class)

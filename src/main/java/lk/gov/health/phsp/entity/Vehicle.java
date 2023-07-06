@@ -59,7 +59,7 @@ public class Vehicle implements Serializable, Nameable {
     private String name;
     private String vehicleNumber;
     private String vehicleMake;
-    private String vehiclesModel;
+    private String vehicleModel;
     @Lob
     private String details;
 
@@ -163,13 +163,13 @@ public class Vehicle implements Serializable, Nameable {
     }
 
   
-    public String getVehiclesModel() {
-        return vehiclesModel;
+    public String getVehicleModel() {
+        return vehicleModel;
     }
 
 
-    public void setVehiclesModel(String vehiclesModel) {
-        this.vehiclesModel = vehiclesModel;
+    public void setVehicleModel(String vehicleModel) {
+        this.vehicleModel = vehicleModel;
     }
 
     public String getDetails() {

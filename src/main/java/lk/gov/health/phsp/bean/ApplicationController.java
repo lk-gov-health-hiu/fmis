@@ -41,6 +41,7 @@ import lk.gov.health.phsp.enums.AreaType;
 import lk.gov.health.phsp.facade.AreaFacade;
 import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.InstitutionType;
+import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.enums.WebUserRole;
 import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 import lk.gov.health.phsp.facade.InstitutionFacade;
@@ -82,9 +83,9 @@ public class ApplicationController {
     // </editor-fold>
     public ApplicationController() {
     }
-    
+
     public Long getNationalTestCount() {
-        if (nationalTestCount == null){
+        if (nationalTestCount == null) {
             nationalTestCount = getNationalCounts(FuelTransactionType.FuelIssue);
         }
         return nationalTestCount;
@@ -93,20 +94,18 @@ public class ApplicationController {
     public void setNationalTestCount(Long nationalTestCount) {
         this.nationalTestCount = nationalTestCount;
     }
-    
+
     public Long getNationalCaseCount() {
-        if(nationalCaseCount == null){            
+        if (nationalCaseCount == null) {
             nationalCaseCount = getNationalCounts(FuelTransactionType.FuelRequest);
         }
         return nationalCaseCount;
     }
-    
+
     public void setNationalCaseCount(Long nationalCaseCount) {
         this.nationalCaseCount = nationalCaseCount;
     }
 
-    
-    
     // <editor-fold defaultstate="collapsed" desc="Functions">
     public String createNewPersonalHealthNumber(Institution pins) {
         if (pins == null) {
@@ -133,14 +132,14 @@ public class ApplicationController {
 
     public String createNewPersonalHealthNumberformat(Institution pins) {
         if (pins == null) {
-            pins=institutionApplicationController.findMinistryOfHealth();
-        }else{
+            pins = institutionApplicationController.findMinistryOfHealth();
+        } else {
             pins = institutionApplicationController.findMinistryOfHealth();
         }
         Institution ins = getInstitutionFacade().find(pins.getId());
         if (ins == null) {
-            ins=institutionApplicationController.findMinistryOfHealth();
-        }else{
+            ins = institutionApplicationController.findMinistryOfHealth();
+        } else {
             ins = institutionApplicationController.findMinistryOfHealth();
         }
         String alpha = "BCDFGHJKMPQRTVWXY";
@@ -165,8 +164,6 @@ public class ApplicationController {
 
         return phn;
     }
-
- 
 
     public boolean validateHin(String validatingHin) {
         if (validatingHin == null) {
@@ -209,12 +206,14 @@ public class ApplicationController {
         return digit.substring(digit.length() - 1);
     }
 
- 
-
     // </editor-fold>
 // <editor-fold defaultstate="collapsed" desc="Enums">
     public InstitutionType[] getInstitutionTypes() {
         return InstitutionType.values();
+    }
+
+    public VehicleType[] getVehicleTypes() {
+        return VehicleType.values();
     }
 
     public WebUserRole[] getWebUserRoles() {
@@ -244,8 +243,6 @@ public class ApplicationController {
         this.versionNo = versionNo;
     }
 
-  
-
     public List<String> getUserTransactionTypes() {
         return userTransactionTypes;
     }
@@ -262,7 +259,7 @@ public class ApplicationController {
         this.production = production;
     }
 
-     public FuelTransactionHistoryFacade getEncounterFacade() {
+    public FuelTransactionHistoryFacade getEncounterFacade() {
         return encounterFacade;
     }
 
@@ -270,15 +267,14 @@ public class ApplicationController {
         this.encounterFacade = encounterFacade;
     }
 
-   
-    private Long getNationalCounts(FuelTransactionType countType) {        
+    private Long getNationalCounts(FuelTransactionType countType) {
         String jpql = "SELECT count(e) FROM Encounter e "
                 + " WHERE e.retired=:ret "
                 + " AND e.encounterType=:encounterType ";
-        
+
         Map m = new HashMap();
         m.put("ret", false);
         m.put("encounterType", countType);
-        return encounterFacade.countByJpql(jpql, m);        
+        return encounterFacade.countByJpql(jpql, m);
     }
 }

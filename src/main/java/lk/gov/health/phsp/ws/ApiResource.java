@@ -399,7 +399,7 @@ public class ApiResource {
         for (Institution a : ds) {
             JSONObject ja = new JSONObject();
             ja.put("institute_id", a.getId());
-            ja.put("institute_code", a.getVehiclesModel());
+            ja.put("institute_code", a.getCode());
             ja.put("name", a.getName());
             ja.put("hin", a.getPoiNumber());
            ja.put("address", a.getAddress());
@@ -746,9 +746,9 @@ public class ApiResource {
 
             for (Institution i_ : instList) {
                 if (childInstitions == null) {
-                    childInstitions = institution.getVehiclesModel() + ":" + i_.getVehiclesModel();
+                    childInstitions = institution.getCode()+ ":" + i_.getCode();
                 } else {
-                    childInstitions += "^" + institution.getVehiclesModel() + ":" + i_.getVehiclesModel();
+                    childInstitions += "^" + institution.getCode() + ":" + i_.getCode();
                 }
             }
         }

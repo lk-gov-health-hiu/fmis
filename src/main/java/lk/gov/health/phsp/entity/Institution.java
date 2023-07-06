@@ -241,18 +241,6 @@ public class Institution implements Serializable, Nameable {
         this.web = web;
     }
 
-    public String getVehiclesModel() {
-        if (code == null || code.trim().equals("")) {
-            String tmpName = name + "    ";
-            code = tmpName.substring(0, 3);
-        }
-        return code;
-    }
-
-    public void setVehiclesModel(String code) {
-        this.code = code;
-    }
-
     public WebUser getCreater() {
         return creater;
     }
@@ -441,8 +429,6 @@ public class Institution implements Serializable, Nameable {
         this.mohArea = mohArea;
     }
 
-   
-
     public String getDisplayName() {
         if (this.name == null) {
             displayName = "";
@@ -469,6 +455,10 @@ public class Institution implements Serializable, Nameable {
     }
 
     public String getCode() {
+        if (code == null || code.trim().equals("")) {
+            String tmpName = name + "    ";
+            code = tmpName.substring(0, 3);
+        }
         return code;
     }
 
@@ -483,7 +473,5 @@ public class Institution implements Serializable, Nameable {
     public void setInsName(String insName) {
         this.insName = insName;
     }
-
-    
 
 }
