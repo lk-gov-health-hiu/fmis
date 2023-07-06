@@ -1426,10 +1426,6 @@ public class WebUserController implements Serializable {
             JsfUtil.addErrorMessage("Institution?");
             return "";
         }
-        if (area == null) {
-            JsfUtil.addErrorMessage("Area?");
-            return "";
-        }
         if (userRole == null) {
             JsfUtil.addErrorMessage("Institution?");
             return "";
