@@ -319,7 +319,7 @@ public class InstitutionApplicationController {
             covidDataHirachiInstitutions.add(InstitutionType.Ministry_of_Health);
             covidDataHirachiInstitutions.add(InstitutionType.Provincial_Department_of_Health_Services);
             covidDataHirachiInstitutions.add(InstitutionType.Regional_Department_of_Health_Department);
-            covidDataHirachiInstitutions.add(InstitutionType.MOH_Office);
+            covidDataHirachiInstitutions.add(InstitutionType.CTB_Head_Office);
         }
         return covidDataHirachiInstitutions;
     }

@@ -24,25 +24,34 @@
 package lk.gov.health.phsp.enums;
 
 /**
- *
+ * Web User Role Enum
+ * 
+ * Represents the roles assigned to web users.
+ * 
  * @author Dr M H B Ariyaratne
  */
 public enum WebUserRole {
-    //National
-    System_Administrator("System Administrator"),
-    Super_User("Super User"),
-    User("User"),
-    //Institutional Level
-    Institutional_Administrator("Institution Administrator"),
-    Institutional_Super_User("Institution Super User"),
-    Institutional_User("Institution User"),
-    //Mail Branch
-    //Institutional Level
-    Postal_Branch_Administrator("Mail Branch Administrator"),
-    Postal_Branch_Super_User("Mail Branch Super User"),
-    Postal_Branch_User("Mail Branch User"),
-    ;
-   //
+    // National
+    SYSTEM_ADMINISTRATOR("System Administrator"),
+    SUPER_USER("Super User"),
+    USER("User"),
+    // Health Institutional Level
+    INSTITUTION_ADMINISTRATOR("Institution Administrator"),
+    INSTITUTION_SUPER_USER("Institution Super User"),
+    INSTITUTION_USER("Institution User"),
+    // CTB Level
+    CTB_ADMINISTRATOR("CTB Administrator"),
+    CTB_SUPER_USER("CTB Super User"),
+    CTB_USER("CTB User"),
+    // Donor Level
+    DONOR_ADMINISTRATOR("Donor Administrator"),
+    DONOR_SUPER_USER("Donor Super User"),
+    DONOR_USER("Donor User"),
+    // Auditor Level
+    AUDITOR_ADMINISTRATOR("Auditor Administrator"),
+    AUDITOR_SUPER_USER("Auditor Super User"),
+    AUDITOR_USER("Auditor User");
+
     private final String label;
 
     private WebUserRole(String label) {
@@ -52,5 +61,4 @@ public enum WebUserRole {
     public String getLabel() {
         return label;
     }
-
 }

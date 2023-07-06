@@ -21,28 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package lk.gov.health.phsp.facade;
 
-package lk.gov.health.phsp.enums;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import lk.gov.health.phsp.entity.FuelTransaction;
 
 /**
  *
- * @author User
+ * @author Dr M H B Ariyaratne<buddhika.ari@gmail.com>
  */
-public enum DocumentType {
-    File("File"),
-    Letter("Letter"),
-    Internal_Memo("Internal Memo"),
-    Register("Register"),
-    Other("Other");
-    
-    private final String label;    
-    private DocumentType(String label){
-        this.label = label;
+@Stateless
+public class FuelTransactionHistoryFacade extends AbstractFacade<FuelTransaction> {
+
+    @PersistenceContext(unitName = "hmisPU")
+    private EntityManager em;
+
+    @Override
+    protected EntityManager getEntityManager() {
+        return em;
+    }
+
+    public FuelTransactionHistoryFacade() {
+        super(FuelTransaction.class);
     }
     
-    public String getLabel(){
-        return label;
-    }
-    
-   
 }

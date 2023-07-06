@@ -25,7 +25,7 @@ import java.util.List;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
 import lk.gov.health.phsp.bean.util.JsfUtil;
-import lk.gov.health.phsp.entity.Document;
+import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.enums.HistoryType;
 import lk.gov.health.phsp.enums.ComponentSex;
 import lk.gov.health.phsp.enums.DataCompletionStrategy;
@@ -65,9 +65,9 @@ import org.joda.time.PeriodType;
 @SessionScoped
 public class CommonController implements Serializable {
 
-    private Document encounter;
-    private Document request;
-    private Document result;
+    private FuelTransaction encounter;
+    private FuelTransaction request;
+    private FuelTransaction result;
 
     private static final long serialVersionUID = 1L;
 
@@ -125,11 +125,11 @@ public class CommonController implements Serializable {
             return "";
         }
         switch (encounter.getDocumentType()) {
-            case File:
+            case FuelRequest:
                 return toViewCaseIx();
-            case Letter:
+            case FuelIssue:
                 return toViewTest();
-            case Register:
+            case FuelEstimate:
                 return "";
         }
         return "";
@@ -1235,27 +1235,27 @@ public class CommonController implements Serializable {
         return after.toLowerCase();
     }
 
-    public Document getEncounter() {
+    public FuelTransaction getEncounter() {
         return encounter;
     }
 
-    public void setEncounter(Document encounter) {
+    public void setEncounter(FuelTransaction encounter) {
         this.encounter = encounter;
     }
 
-    public Document getRequest() {
+    public FuelTransaction getRequest() {
         return request;
     }
 
-    public void setRequest(Document request) {
+    public void setRequest(FuelTransaction request) {
         this.request = request;
     }
 
-    public Document getResult() {
+    public FuelTransaction getResult() {
         return result;
     }
 
-    public void setResult(Document result) {
+    public void setResult(FuelTransaction result) {
         this.result = result;
     }
 

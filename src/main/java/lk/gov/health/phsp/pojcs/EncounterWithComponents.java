@@ -25,7 +25,7 @@ package lk.gov.health.phsp.pojcs;
 
 import java.util.ArrayList;
 import java.util.List;
-import lk.gov.health.phsp.entity.Document;
+import lk.gov.health.phsp.entity.FuelTransaction;
 
 /**
  *

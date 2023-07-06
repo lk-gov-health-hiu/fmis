@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import lk.gov.health.phsp.bean.CommonController;
-import lk.gov.health.phsp.entity.Document;
+import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.entity.Institution;
 
 /**
@@ -35,7 +35,7 @@ import lk.gov.health.phsp.entity.Institution;
  * @author buddhika
  */
 public class ReportHolder {
-    private List<Document> encounters;
+    private List<FuelTransaction> encounters;
     private Institution ins;
     private Date dateOfReceipt;
     private Date dateOfReport;
@@ -46,14 +46,14 @@ public class ReportHolder {
 
     
     
-    public List<Document> getEncounters() {
+    public List<FuelTransaction> getEncounters() {
         if(encounters==null){
             encounters = new ArrayList<>();
         }
         return encounters;
     }
 
-    public void setEncounters(List<Document> encounters) {
+    public void setEncounters(List<FuelTransaction> encounters) {
         this.encounters = encounters;
     }
 

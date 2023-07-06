@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import lk.gov.health.phsp.entity.Document;
+import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Item;
 
@@ -52,8 +52,8 @@ public class SessionController implements Serializable {
     public SessionController() {
     }
 
-    private Document lastRat;
-    private Document lastPcr;
+    private FuelTransaction lastRat;
+    private FuelTransaction lastPcr;
     private Item lastRatOrderingCategory;
     private Item lastPcrOrdringCategory;
     private String lastWardUnit;
@@ -65,19 +65,19 @@ public class SessionController implements Serializable {
     private String lastContactOfWorkplaceDetails;
     private UUID appKey;
 
-    private Map<Long, Document> rats;
-    private Map<Long, Document> pcrs;
+    private Map<Long, FuelTransaction> rats;
+    private Map<Long, FuelTransaction> pcrs;
 
 
-    public Document getLastRat() {
+    public FuelTransaction getLastRat() {
         return lastRat;
     }
 
-    public void setLastRat(Document lastRat) {
+    public void setLastRat(FuelTransaction lastRat) {
         this.lastRat = lastRat;
     }
 
-    public Document getLastPcr() {
+    public FuelTransaction getLastPcr() {
         return lastPcr;
     }
 
@@ -90,7 +90,7 @@ public class SessionController implements Serializable {
         this.appKey = uuid;
     }
 
-    public void setLastPcr(Document lastPcr) {
+    public void setLastPcr(FuelTransaction lastPcr) {
         this.lastPcr = lastPcr;
     }
 
@@ -112,25 +112,25 @@ public class SessionController implements Serializable {
         this.lastPcrOrdringCategory = lastPcrOrdringCategory;
     }
 
-    public Map<Long, Document> getRats() {
+    public Map<Long, FuelTransaction> getRats() {
         if (rats == null) {
             rats = new HashMap<>();
         }
         return rats;
     }
 
-    public Map<Long, Document> getPcrs() {
+    public Map<Long, FuelTransaction> getPcrs() {
         if (pcrs == null) {
             pcrs = new HashMap<>();
         }
         return pcrs;
     }
 
-    public List<Document> getPcrList() {
+    public List<FuelTransaction> getPcrList() {
         return new ArrayList<>(getPcrs().values());
     }
 
-    public List<Document> getRatList() {
+    public List<FuelTransaction> getRatList() {
         return new ArrayList<>(getRats().values());
     }
 

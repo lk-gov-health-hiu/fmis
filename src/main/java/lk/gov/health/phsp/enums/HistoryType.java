@@ -28,6 +28,7 @@ package lk.gov.health.phsp.enums;
  *
  * @author User
  */
+@Deprecated
 public enum HistoryType {
     From_List("From List"),
     To_List("To List"),

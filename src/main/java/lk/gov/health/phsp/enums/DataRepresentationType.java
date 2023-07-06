@@ -27,6 +27,7 @@ package lk.gov.health.phsp.enums;
  *
  * @author Dr M H B Ariyaratne<buddhika.ari@gmail.com>
  */
+@Deprecated
 public enum DataRepresentationType {
     Client("Client"),
     Encounter("Encounter");

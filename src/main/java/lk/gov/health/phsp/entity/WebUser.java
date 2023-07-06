@@ -303,19 +303,22 @@ public class WebUser implements Serializable, Nameable {
         if (assumedRole != null) {
             return assumedRole;
         }
+        if (webUserRole == null) {
+            webUserRole = WebUserRole.SYSTEM_ADMINISTRATOR;
+        }
         return webUserRole;
     }
 
     public void setWebUserRole(WebUserRole webUserRole) {
         this.webUserRole = webUserRole;
     }
-    
-    @Override
+
+   
     public Boolean getInstitute() {
         return false;
     }
 
-    @Override
+   
     public Boolean getWebUser() {
         return true;
     }
@@ -348,41 +351,41 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-    public String getCode() {
+    public String getVehiclesModel() {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setVehiclesModel(String code) {
         this.code = code;
     }
 
     public boolean isSystemAdministrator() {
-        systemAdministrator = getWebUserRole() == WebUserRole.System_Administrator;
+        systemAdministrator = getWebUserRole() == WebUserRole.SYSTEM_ADMINISTRATOR;
         return systemAdministrator;
     }
 
     public boolean isSuperUser() {
-        superUser = getWebUserRole() == WebUserRole.Super_User;
+        superUser = getWebUserRole() == WebUserRole.SUPER_USER;
         return superUser;
     }
 
     public boolean isUser() {
-        user = getWebUserRole() == WebUserRole.User;
+        user = getWebUserRole() == WebUserRole.USER;
         return user;
     }
 
     public boolean isInstitutionUser() {
-        institutionUser = getWebUserRole() == WebUserRole.Institutional_Administrator;
+        institutionUser = getWebUserRole() == WebUserRole.INSTITUTION_USER;
         return institutionUser;
     }
 
     public boolean isInstitutionAdministrator() {
-        institutionAdministrator = getWebUserRole() == WebUserRole.Institutional_Administrator;
+        institutionAdministrator = getWebUserRole() == WebUserRole.INSTITUTION_ADMINISTRATOR;
         return institutionAdministrator;
     }
 
     public boolean isAuthorityUser() {
-        authorityUser = getWebUserRole() == WebUserRole.User;
+        authorityUser = getWebUserRole() == WebUserRole.USER;
         return authorityUser;
     }
 
@@ -398,7 +401,7 @@ public class WebUser implements Serializable, Nameable {
     }
 
     public boolean isInstitutionSuperUser() {
-        if (getWebUserRole() == WebUserRole.Institutional_Super_User) {
+        if (getWebUserRole() == WebUserRole.INSTITUTION_SUPER_USER) {
             institutionSuperUser = true;
         } else {
             institutionSuperUser = false;
@@ -458,9 +461,9 @@ public class WebUser implements Serializable, Nameable {
             return restrictedToInstitution;
         }
         switch (ur) {
-            case Institutional_Administrator:
-            case System_Administrator:
-            case Super_User:
+            case SYSTEM_ADMINISTRATOR:
+            case USER:
+            case SUPER_USER:
                 restrictedToInstitution = false;
                 break;
             default:
@@ -478,20 +481,21 @@ public class WebUser implements Serializable, Nameable {
     }
 
     public WebUserRoleLevel getWebUserRoleLevel() {
-        if (webUserRole == null) {
+        if (getWebUserRole() == null) {
             return webUserRoleLevel = null;
         } else {
-            switch (webUserRole) {
-                case System_Administrator:
-                case Super_User:
-                case User:
-                    webUserRoleLevel = WebUserRoleLevel.National;
+            switch (getWebUserRole()) {
+                case SYSTEM_ADMINISTRATOR:
+                case SUPER_USER:
+                case USER:
+                    webUserRoleLevel = WebUserRoleLevel.NATIONAL;
                     break;
-                case Institutional_Administrator:
-                case Institutional_Super_User:
-                case Institutional_User:
-                    webUserRoleLevel = WebUserRoleLevel.Institutional;
+                case INSTITUTION_ADMINISTRATOR:
+                case INSTITUTION_SUPER_USER:
+                case INSTITUTION_USER:
+                    webUserRoleLevel = WebUserRoleLevel.HEALTH_INSTITUTION;
                     break;
+                    
             }
         }
         return webUserRoleLevel;
@@ -505,7 +509,7 @@ public class WebUser implements Serializable, Nameable {
         this.loginIPs = loginIPs;
     }
 
-    @Override
+   
     public String getAddress() {
         if (person != null) {
             return person.getAddress();
@@ -514,14 +518,14 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-    @Override
+   
     public void setAddress(String address) {
         if (person != null) {
             person.setAddress(address);
         }
     }
 
-    @Override
+   
     public String getFax() {
         if (person != null) {
             return person.getFax();
@@ -530,14 +534,14 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-    @Override
+   
     public void setFax(String fax) {
         if (person != null) {
             person.setFax(fax);
         }
     }
 
-    @Override
+   
     public String getPhone() {
         if (person != null) {
             return person.getPhone2();
@@ -546,14 +550,14 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-    @Override
+   
     public void setPhone(String phone) {
         if (person != null) {
             person.setPhone2(phone);
         }
     }
 
-    @Override
+  
     public String getMobile() {
         if (person != null) {
             return person.getPhone1();
@@ -562,15 +566,15 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-    @Override
+  
     public void setMobile(String mobile) {
         if (person != null) {
             person.setPhone1(mobile);
         }
     }
 
-    @Override
-    public String getTname() {
+   
+    public String getVehicleNumber() {
         if (person != null) {
             return person.getTname();
         } else {
@@ -578,15 +582,15 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-    @Override
-    public void setTname(String tname) {
+    
+    public void setVehicleNumber(String tname) {
         if (person != null) {
             person.setTname(tname);
         }
     }
 
-    @Override
-    public String getSname() {
+   
+    public String getVehicleMake() {
         if (person != null) {
             return person.getSname();
         } else {
@@ -594,8 +598,8 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-    @Override
-    public void setSname(String sname) {
+  
+    public void setVehicleMake(String sname) {
         if (person != null) {
             person.setSname(sname);
         }
@@ -610,7 +614,7 @@ public class WebUser implements Serializable, Nameable {
         return webUserPersonName;
     }
 
-    @Override
+  
     public String getDisplayName() {
         if (this.person == null) {
             displayName = "";
@@ -628,7 +632,7 @@ public class WebUser implements Serializable, Nameable {
         this.publiclyListed = publiclyListed;
     }
 
-    @Override
+   
     public String getInsName() {
         if (institution != null) {
             if (institution.getDisplayName() != null) {
@@ -640,7 +644,7 @@ public class WebUser implements Serializable, Nameable {
         return insName;
     }
 
-    @Override
+   
     public void setInsName(String insName) {
         this.insName = insName;
     }

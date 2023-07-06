@@ -17,34 +17,12 @@ public enum InstitutionType {
     Base_Hospital("Base Hospital"),
     Divisional_Hospital("Divisional Hospital"),
     Primary_Medical_Care_Unit("Primary Medical Care Unit"),
-    MOH_Office("MOH Office"),
-    Clinic("Clinic"),
-    OPD("OPD"),
-    MailBranch("Mail Branch"),
-    @Deprecated
-    Medical_Clinic("Medical Clinic"),
-    @Deprecated
-    Surgical_Clinic("Surgical Clinic"),
-    @Deprecated
-    Cardiology_Clinic("Cardiology Clinic"),
-    @Deprecated
-    Other_Clinic("Other Clinic"),
-    Intermediate_Care_Centre("Intermediate Care Centre"),
-    Unit("Unit"),
-    Ward("Ward"),
-    @Deprecated
-    Procedure_Room("Procedure Room"),
-    @Deprecated
-    Pharmacy("Pharmacy"),
-    Lab("Laboratory"),
-    Mobile_Lab("Mobile Lab"),
-    Stake_Holder("Stake Holder"),
-    Partner("Partner"),
-    Private_Sector_Institute("Private Sector Institute"),
-    Private_Sector_Labatory("Private Sector Laboratory"),
-    Other("Other"),
-    @Deprecated
-    Ward_Clinic("Ward Clinic");
+    CTB_Head_Office("CTB Headoffice"),
+    CTB_Depot("CTB Depot"),
+    Donar("Donar"),
+    DistrictSecretariat("District Secretariat"),
+    Audit("Unit"),
+    Other("Ward");
 
     private final String label;
 

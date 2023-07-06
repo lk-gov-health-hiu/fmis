@@ -39,10 +39,10 @@ import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Item;
 import lk.gov.health.phsp.enums.AreaType;
 import lk.gov.health.phsp.facade.AreaFacade;
-import lk.gov.health.phsp.enums.DocumentType;
+import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.InstitutionType;
 import lk.gov.health.phsp.enums.WebUserRole;
-import lk.gov.health.phsp.facade.DocumentFacade;
+import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 import lk.gov.health.phsp.facade.InstitutionFacade;
 // </editor-fold>
 
@@ -58,7 +58,7 @@ public class ApplicationController {
     @EJB
     private InstitutionFacade institutionFacade;
     @EJB
-    private DocumentFacade encounterFacade;
+    private FuelTransactionHistoryFacade encounterFacade;
     // </editor-fold>    
     @Inject
     private UserTransactionController userTransactionController;
@@ -85,7 +85,7 @@ public class ApplicationController {
     
     public Long getNationalTestCount() {
         if (nationalTestCount == null){
-            nationalTestCount = getNationalCounts(DocumentType.Letter);
+            nationalTestCount = getNationalCounts(FuelTransactionType.FuelIssue);
         }
         return nationalTestCount;
     }
@@ -96,7 +96,7 @@ public class ApplicationController {
     
     public Long getNationalCaseCount() {
         if(nationalCaseCount == null){            
-            nationalCaseCount = getNationalCounts(DocumentType.File);
+            nationalCaseCount = getNationalCounts(FuelTransactionType.FuelRequest);
         }
         return nationalCaseCount;
     }
@@ -262,16 +262,16 @@ public class ApplicationController {
         this.production = production;
     }
 
-     public DocumentFacade getEncounterFacade() {
+     public FuelTransactionHistoryFacade getEncounterFacade() {
         return encounterFacade;
     }
 
-    public void setEncounterFacade(DocumentFacade encounterFacade) {
+    public void setEncounterFacade(FuelTransactionHistoryFacade encounterFacade) {
         this.encounterFacade = encounterFacade;
     }
 
    
-    private Long getNationalCounts(DocumentType countType) {        
+    private Long getNationalCounts(FuelTransactionType countType) {        
         String jpql = "SELECT count(e) FROM Encounter e "
                 + " WHERE e.retired=:ret "
                 + " AND e.encounterType=:encounterType ";

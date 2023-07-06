@@ -44,8 +44,6 @@ import lk.gov.health.phsp.pojcs.Nameable;
  * @author Dr M H B Ariyaratne, buddhika.ari@gmail.com
  */
 @Entity
-@XmlRootElement
-@Table
 public class Institution implements Serializable, Nameable {
 
     private static final long serialVersionUID = 1L;
@@ -119,6 +117,7 @@ public class Institution implements Serializable, Nameable {
     @Transient
     private String insName;
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -128,27 +127,17 @@ public class Institution implements Serializable, Nameable {
             institutionTypeRootTrans = InstitutionType.Other;
         }
         switch (getInstitutionType()) {
-            case MOH_Office:
-            case Regional_Department_of_Health_Department:
-            case Provincial_Department_of_Health_Services:
-                institutionTypeRootTrans = InstitutionType.MOH_Office;
-                break;
             case Base_Hospital:
-            case Cardiology_Clinic:
-            case Clinic:
             case District_General_Hospital:
             case Divisional_Hospital:
             case Hospital:
-            case Lab:
-            case Medical_Clinic:
             case Ministry_of_Health:
             case National_Hospital:
-            case Other:
-            case Other_Clinic:
-            case Partner:
+            case Teaching_Hospital:
+            case Provincial_General_Hospital:
                 institutionTypeRootTrans = InstitutionType.Hospital;
             default:
-                institutionTypeRootTrans = InstitutionType.Hospital;
+                institutionTypeRootTrans = getInstitutionType();
         }
         return institutionTypeRootTrans;
     }
@@ -194,10 +183,12 @@ public class Institution implements Serializable, Nameable {
         this.institutionType = institutionType;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -250,7 +241,7 @@ public class Institution implements Serializable, Nameable {
         this.web = web;
     }
 
-    public String getCode() {
+    public String getVehiclesModel() {
         if (code == null || code.trim().equals("")) {
             String tmpName = name + "    ";
             code = tmpName.substring(0, 3);
@@ -258,7 +249,7 @@ public class Institution implements Serializable, Nameable {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setVehiclesModel(String code) {
         this.code = code;
     }
 
@@ -450,6 +441,17 @@ public class Institution implements Serializable, Nameable {
         this.mohArea = mohArea;
     }
 
+   
+
+    public String getDisplayName() {
+        if (this.name == null) {
+            displayName = "";
+        } else {
+            displayName = this.name;
+        }
+        return displayName;
+    }
+
     public String getTname() {
         return tname;
     }
@@ -466,35 +468,22 @@ public class Institution implements Serializable, Nameable {
         this.sname = sname;
     }
 
-    public String getDisplayName() {
-        if (this.name == null) {
-            displayName = "";
-        } else {
-            displayName = this.name;
-        }
-        return displayName;
+    public String getCode() {
+        return code;
     }
 
-    @Override
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public String getInsName() {
-        insName = name;
         return insName;
     }
 
-    @Override
-    public void setInsName(String name) {
-        this.insName = name;
-        this.name = this.insName;
+    public void setInsName(String insName) {
+        this.insName = insName;
     }
 
-    @Override
-    public Boolean getInstitute() {
-        return true;
-    }
-
-    @Override
-    public Boolean getWebUser() {
-        return false;
-    }
+    
 
 }

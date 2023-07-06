@@ -37,6 +37,7 @@ import lk.gov.health.phsp.entity.UserPrivilege;
 import lk.gov.health.phsp.enums.InstitutionType;
 import lk.gov.health.phsp.enums.Privilege;
 import lk.gov.health.phsp.enums.PrivilegeTreeNode;
+import lk.gov.health.phsp.facade.PersonFacade;
 import lk.gov.health.phsp.facade.UserPrivilegeFacade;
 import org.primefaces.event.ColumnResizeEvent;
 import org.primefaces.model.StreamedContent;
@@ -60,6 +61,8 @@ public class WebUserController implements Serializable {
     private UploadFacade uploadFacade;
     @EJB
     private UserPrivilegeFacade userPrivilegeFacade;
+    @EJB
+    PersonFacade personFacade;
     /*
     Controllers
      */
@@ -316,7 +319,7 @@ public class WebUserController implements Serializable {
         ins.addAll(institutionApplicationController.findChildrenInstitutions(loggedUser.getInstitution()));
         return ins;
     }
-    
+
     public List<Institution> findMailBranchInstitutions() {
         List<Institution> ins = new ArrayList<>();
         if (loggedUser == null) {
@@ -325,7 +328,7 @@ public class WebUserController implements Serializable {
         if (loggedUser.getInstitution() == null) {
             return ins;
         }
-        if(loggedUser.getInstitution().getParent()==null){
+        if (loggedUser.getInstitution().getParent() == null) {
             return ins;
         }
         ins.add(loggedUser.getInstitution().getParent());
@@ -472,10 +475,10 @@ public class WebUserController implements Serializable {
         }
         String url = "";
         switch (loggedUser.getWebUserRoleLevel()) {
-            case Institutional:
+            case HEALTH_INSTITUTION:
                 url = "/provincial/administration/index";
                 break;
-            case National:
+            case NATIONAL:
                 url = "/regional/administration/index";
                 break;
             default:
@@ -747,7 +750,7 @@ public class WebUserController implements Serializable {
         }
         return ins;
     }
-    
+
     public List<Institution> completeLoggableMailBranchInstitutions(String qry) {
         List<Institution> ins = new ArrayList<>();
         if (qry == null) {
@@ -773,7 +776,7 @@ public class WebUserController implements Serializable {
             JsfUtil.addErrorMessage("Passwords are not matching. Please retry.");
             return "";
         }
-        current.setWebUserRole(WebUserRole.Institutional_Administrator);
+        current.setWebUserRole(WebUserRole.INSTITUTION_ADMINISTRATOR);
         try {
             getFacade().create(current);
         } catch (Exception e) {
@@ -800,7 +803,7 @@ public class WebUserController implements Serializable {
 
     public String login(boolean withoutPassword) {
         loggableInstitutions = null;
-        loggableMailBranchDepartments=null;
+        loggableMailBranchDepartments = null;
         loggablePmcis = null;
         loggableGnAreas = null;
         institutionController.setMyClinics(null);
@@ -832,7 +835,7 @@ public class WebUserController implements Serializable {
     public String loginNew() {
         System.out.println("loginNew - " + new Date());
         loggableInstitutions = null;
-        loggableMailBranchDepartments=null;
+        loggableMailBranchDepartments = null;
         loggablePmcis = null;
         loggableGnAreas = null;
         loggedInstitution = null;
@@ -892,6 +895,10 @@ public class WebUserController implements Serializable {
         }
         Collections.sort(usersForMyInstitute, Comparator.comparing(WebUser::getWebUserPersonName));
     }
+    
+    public void fillAllUsers() {
+        items = getFacade().findAll();
+    }
 
     private boolean checkLoginNew() {
         if (getFacade() == null) {
@@ -899,8 +906,12 @@ public class WebUserController implements Serializable {
             return false;
         }
 
+        if (thisIsFirstLogin()) {
+            createFirstUser();
+        }
+
         String temSQL;
-        temSQL = "SELECT u FROM WebUser u WHERE lower(u.name)=:userName and u.retired =:ret";
+        temSQL = "SELECT u FROM WebUser u WHERE u.name=:userName and u.retired =:ret";
         Map m = new HashMap();
         m.put("userName", userName.trim().toLowerCase());
         m.put("ret", false);
@@ -970,7 +981,7 @@ public class WebUserController implements Serializable {
                 word = word.trim().toLowerCase();
                 if (i.getName() != null && i.getName().toLowerCase().contains(word)) {
                     thisWordMatch = true;
-                } else if (i.getCode() != null && i.getCode().toLowerCase().contains(word)) {
+                } else if (i.getVehiclesModel() != null && i.getVehiclesModel().toLowerCase().contains(word)) {
                     thisWordMatch = true;
                 } else if (i.getPerson() != null && i.getPerson().getName() != null && i.getPerson().getName().toLowerCase().contains(word)) {
                     thisWordMatch = true;
@@ -1020,17 +1031,45 @@ public class WebUserController implements Serializable {
 
     }
 
+    private boolean thisIsFirstLogin() {
+        String temSQL;
+        temSQL = "SELECT u "
+                + " FROM WebUser u ";
+        loggedUser = getFacade().findFirstByJpql(temSQL);
+        return loggedUser == null;
+    }
+
+    private void createFirstUser() {
+        Institution ins = new Institution();
+        ins.setName("Institution");
+        getInstitutionFacade().create(ins);
+
+        Person p = new Person();
+        p.setName(userName);
+        personFacade.create(p);
+
+        WebUser u = new WebUser();
+        u.setName(userName);
+        u.setActivated(true);
+        u.setWebUserPassword(commonController.hash(password));
+        u.setPerson(p);
+
+        getFacade().create(u);
+        JsfUtil.addSuccessMessage("A First Login Detected. A new User Created. Please login now.");
+
+    }
+
     List<Privilege> getInitialPrivileges(WebUserRole role) {
         List<Privilege> wups = new ArrayList<>();
         if (role == null) {
             return wups;
         }
         switch (role) {
-            case Institutional_Administrator:
+            case INSTITUTION_ADMINISTRATOR:
                 wups.add(Privilege.Manage_Institution_Users);
                 wups.add(Privilege.Manage_Authorised_Institutions);
-            case Institutional_Super_User:
-            case Institutional_User:
+            case INSTITUTION_SUPER_USER:
+            case INSTITUTION_USER:
                 //Menu
                 wups.add(Privilege.File_Management);
                 wups.add(Privilege.Institutional_Mail_Management);
@@ -1038,11 +1077,7 @@ public class WebUserController implements Serializable {
                 wups.add(Privilege.Search_File);
                 wups.add(Privilege.Retire_File);
                 break;
-            case System_Administrator:
-            case Super_User:
-                //Menu
-                wups.add(Privilege.Manage_Users);
-            case User:
+            case SYSTEM_ADMINISTRATOR:
                 wups.add(Privilege.Monitoring_and_evaluation);
                 wups.add(Privilege.Monitoring_and_evaluation_reports);
                 wups.add(Privilege.View_aggragate_date);
@@ -1059,7 +1094,6 @@ public class WebUserController implements Serializable {
                 wups.add(Privilege.View_aggragate_date);
 
                 break;
-
 
         }
         return wups;
@@ -1428,9 +1462,9 @@ public class WebUserController implements Serializable {
             if (newIns == null) {
                 newIns = new Institution();
                 newIns.setName(line);
-                newIns.setSname(line);
                 newIns.setTname(line);
-                newIns.setCode(CommonController.prepareAsCode(line));
+                newIns.setSname(line);
+                newIns.setVehiclesModel(CommonController.prepareAsCode(line));
                 newIns.setParent(institution);
                 newIns.setDistrict(institution.getDistrict());
                 newIns.setInstitutionType(institutionType);
@@ -1725,9 +1759,9 @@ public class WebUserController implements Serializable {
 
     public WebUserRole[] getWebUserRolesForInstitutionAdmin() {
         List<WebUserRole> urs = new ArrayList<>();
-        urs.add(WebUserRole.Institutional_Administrator);
-        urs.add(WebUserRole.Institutional_Super_User);
-        urs.add(WebUserRole.Institutional_User);
+        urs.add(WebUserRole.INSTITUTION_ADMINISTRATOR);
+        urs.add(WebUserRole.INSTITUTION_SUPER_USER);
+        urs.add(WebUserRole.INSTITUTION_USER);
         WebUserRole[] rs = urs.toArray(new WebUserRole[0]);
         return rs;
     }
@@ -1735,26 +1769,26 @@ public class WebUserController implements Serializable {
     private List<WebUserRole> findManagableRoles(WebUserRole ur) {
         List<WebUserRole> urs = new ArrayList<>();
         switch (ur) {
-            case System_Administrator:
+            case SYSTEM_ADMINISTRATOR:
                 urs.addAll(Arrays.asList(WebUserRole.values()));
                 break;
-            case Super_User:
+            case SUPER_USER:
                 urs.addAll(Arrays.asList(WebUserRole.values()));
-                urs.remove(WebUserRole.System_Administrator);
+                urs.remove(WebUserRole.SYSTEM_ADMINISTRATOR);
                 break;
-            case Institutional_Administrator:
-                urs.add(WebUserRole.Institutional_Administrator);
-                urs.add(WebUserRole.Institutional_Super_User);
-                urs.add(WebUserRole.Institutional_User);
+            case INSTITUTION_ADMINISTRATOR:
+                urs.add(WebUserRole.INSTITUTION_ADMINISTRATOR);
+                urs.add(WebUserRole.INSTITUTION_SUPER_USER);
+                urs.add(WebUserRole.INSTITUTION_USER);
                 break;
-            case Institutional_Super_User:
-                urs.add(WebUserRole.Institutional_Super_User);
-                urs.add(WebUserRole.Institutional_User);
+            case INSTITUTION_SUPER_USER:
+                urs.add(WebUserRole.INSTITUTION_SUPER_USER);
+                urs.add(WebUserRole.INSTITUTION_USER);
                 break;
-            case Institutional_User:
-                urs.add(WebUserRole.Institutional_User);
+            case INSTITUTION_USER:
+                urs.add(WebUserRole.INSTITUTION_USER);
                 break;
-            case User:
+            case USER:
                 urs.add(ur);
         }
         return urs;
@@ -2129,8 +2163,6 @@ public class WebUserController implements Serializable {
     public void setLoggableInstitutions(List<Institution> loggableInstitutions) {
         this.loggableInstitutions = loggableInstitutions;
     }
-    
-    
 
     public UploadedFile getFile() {
         return file;
@@ -2338,7 +2370,7 @@ public class WebUserController implements Serializable {
     }
 
     public List<Institution> getLoggableMailBranchDepartments() {
-        if(loggableMailBranchDepartments==null){
+        if (loggableMailBranchDepartments == null) {
             loggableMailBranchDepartments = findMailBranchInstitutions();
         }
         return loggableMailBranchDepartments;

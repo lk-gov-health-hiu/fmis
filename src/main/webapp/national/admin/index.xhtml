@@ -1,13 +1,15 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:p="http://primefaces.org/ui" xmlns:h="http://xmlns.jcp.org/jsf/html">
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui" 
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
     <h:body>
         <ui:composition template="/template1.xhtml">
             <ui:define name="content">
 
-                <h:panelGroup rendered="#{webUserController.hasPrivilege('System_Administration')}">
+                <h:panelGroup rendered="#{webUserController.loggedUser.systemAdministrator}">
 
                     <div class="row">
                         <div class="col-3">
@@ -15,22 +17,14 @@
 
                                 <div class="list-group mt-3">
 
-                                    <h:commandButton value="New User" action="#{menuController.toAddNewUser()}"
+                                    <h:commandButton value="New User" 
+                                                     action="#{menuController.toAddNewUser()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
-                                    <h:commandButton value="View Users" action="#{menuController.toListUsers()}"
+                                    <h:commandButton value="View Users" 
+                                                     action="#{menuController.toListUsers()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
-                                    <h:commandButton value="Reload" action="#{webUserApplicationController.resetWebUsers()}"
-                                                     class="list-group-item list-group-item-action"></h:commandButton>
-
-                                    <h:commandButton value="Add Multiple Users" action="/national/admin/add_multiple_users"
-                                                     class="list-group-item list-group-item-action"></h:commandButton>
-                                    <h:commandButton value="Set User Privilages" action="#{webUserController.toSetUserPrivilages()}"
-                                                     class="list-group-item list-group-item-action"></h:commandButton>
-                                    <h:commandButton value="View Transactions"
-                                                     action="#{userTransactionController.toSearchUserTransactions()}"
-                                                     class="list-group-item list-group-item-action"></h:commandButton>
-                                    <h:commandButton value="Suspicious Login Attempts"
-                                                     action="#{userTransactionController.toSuspiciousLoginAttempts()}"
+                                    <h:commandButton value="Add Multiple Users" 
+                                                     action="#{menuController.toAddMultipleUsers()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
                                 </div>
                                 <div class="list-group mt-3">
@@ -44,10 +38,21 @@
                                                      action="#{menuController.toListInstitutionsWithUsers()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
                                     <h:commandButton value="Add Multiple new Institutions and Users"
-                                                     action="/national/admin/add_multiple_institutions_with_a_user"
+                                                     action="#{menuController.toAddMultipleNewInstitutions()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
                                     <h:commandButton value="Relod Institutions"
                                                      action="#{institutionController.resetAllInstitutions()}"
+                                                     class="list-group-item list-group-item-action"></h:commandButton>
+                                </div>
+                                <div class="list-group mt-3">
+                                    <h:commandButton value="New Vehicle"
+                                                     action="#{menuController.toAddNewVehicle()}"
+                                                     class="list-group-item list-group-item-action"></h:commandButton>
+                                    <h:commandButton value="List Vehicles"
+                                                     action="#{menuController.toListInstitutions()}"
+                                                     class="list-group-item list-group-item-action"></h:commandButton>
+                                    <h:commandButton value="List Institutions &amp; Vehicles"
+                                                     action="#{menuController.toListInstitutionsWithUsers()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
                                 </div>
                                 <div class="list-group mt-3">
@@ -63,17 +68,6 @@
                                                      class="list-group-item list-group-item-action"></h:commandButton>
                                 </div>
                                 <div class="list-group mt-3">
-                                    <h:commandButton value="Manage Metadata" class="list-group-item list-group-item-action"
-                                                     action="/systemAdmin/manage_metadata_index"></h:commandButton>
-                                    <h:commandButton value="Manage Data" class="list-group-item list-group-item-action"
-                                                     action="/systemAdmin/manage_data_index"></h:commandButton>
-                                    <h:commandButton value="Manage Preferences"
-                                                     class="list-group-item list-group-item-action"
-                                                     action="#{preferenceController.toManagePreferences()}"></h:commandButton>
-                                    <p:commandButton value="Add Ins to Doc Hx" 
-                                                     class="list-group-item list-group-item-action"
-                                                     action="#{letterController.tmpAddInsToDocHx()}"    ajax="false" />
-
                                     <h:commandButton value="Add Institution to Upload"
                                                      class="list-group-item list-group-item-action"
                                                      action="#{letterController.tmpAddInsToUpload()}"></h:commandButton>

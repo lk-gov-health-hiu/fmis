@@ -98,18 +98,13 @@ public class InstitutionController implements Serializable {
             case Teaching_Hospital:
             case Primary_Medical_Care_Unit:
                 return unit;
-            case Clinic:
-            case MOH_Office:
+            case CTB_Depot:
+            case CTB_Head_Office:
             case Ministry_of_Health:
             case Other:
-            case Partner:
-
-            case Private_Sector_Institute:
             case Provincial_Department_of_Health_Services:
             case Regional_Department_of_Health_Department:
-            case Stake_Holder:
-            case Unit:
-            case Ward:
+            case Audit:
             default:
                 if (unit.getParent() != null) {
                     return findHospital(unit.getParent());
@@ -366,28 +361,23 @@ public class InstitutionController implements Serializable {
     }
 
     public List<Institution> completeHlClinics(String nameQry) {
-        return fillInstitutions(InstitutionType.Clinic, nameQry, null);
+        return fillInstitutions(InstitutionType.CTB_Depot, nameQry, null);
     }
 
     public List<Institution> completeClinics(String qry) {
         List<InstitutionType> its = new ArrayList<>();
-        its.add(InstitutionType.Clinic);
-        its.add(InstitutionType.Cardiology_Clinic);
-        its.add(InstitutionType.Medical_Clinic);
-        its.add(InstitutionType.Other_Clinic);
-        its.add(InstitutionType.Surgical_Clinic);
+        its.add(InstitutionType.CTB_Depot);
         return fillInstitutions(its, qry, null);
     }
 
     public List<Institution> completeLab(String qry) {
         List<InstitutionType> its = new ArrayList<>();
-        its.add(InstitutionType.Lab);
         return fillInstitutions(its, qry, null);
     }
 
     public List<Institution> completeMohs(String qry) {
         List<InstitutionType> its = new ArrayList<>();
-        its.add(InstitutionType.MOH_Office);
+        its.add(InstitutionType.CTB_Head_Office);
         return fillInstitutions(its, qry, null);
     }
 
@@ -400,7 +390,6 @@ public class InstitutionController implements Serializable {
                 case District_General_Hospital:
                 case National_Hospital:
                 case Primary_Medical_Care_Unit:
-                case Private_Sector_Institute:
                 case Teaching_Hospital:
                 case Divisional_Hospital:
                     ts.add(t);
@@ -423,7 +412,7 @@ public class InstitutionController implements Serializable {
     }
 
     public List<Institution> completeProcedureRooms(String nameQry) {
-        return fillInstitutions(InstitutionType.Procedure_Room, nameQry, null);
+        return fillInstitutions(InstitutionType.CTB_Depot, nameQry, null);
     }
 
     public Institution findInstitutionByName(String name) {
@@ -594,9 +583,9 @@ public class InstitutionController implements Serializable {
                 word = word.trim().toLowerCase();
                 if (i.getName() != null  && i.getName().toLowerCase().contains(word)) {
                     thisWordMatch = true;
-                }else if (i.getSname() != null  && i.getSname().toLowerCase().contains(word)) {
+                }else if (i.getTname()!= null  && i.getTname().toLowerCase().contains(word)) {
                     thisWordMatch = true;
-                }else if (i.getTname() != null  && i.getTname().toLowerCase().contains(word)) {
+                }else if (i.getSname()!= null  && i.getSname().toLowerCase().contains(word)) {
                     thisWordMatch = true;
                 }else{
                     thisWordMatch=false;
@@ -627,13 +616,16 @@ public class InstitutionController implements Serializable {
         if (webUserController.getLoggedUser() == null) {
             items = null;
         }
-        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.National
-                || webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.Institutional) {
+        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.NATIONAL) {
             items = institutionApplicationController.getInstitutions();
         } else {
             items = webUserController.findAutherizedInstitutions();
         }
     }
+    
+   
+    
+    
 
     public void saveOrUpdateInstitution() {
         if (selected == null) {
@@ -645,12 +637,12 @@ public class InstitutionController implements Serializable {
             return;
         }
 
-        if (selected.getTname() == null || selected.getTname().trim().equals("")) {
-            selected.setTname(selected.getName());
+        if (selected.getSname()== null || selected.getSname().trim().equals("")) {
+            selected.setSname(selected.getName());
         }
 
-        if (selected.getSname() == null || selected.getSname().trim().equals("")) {
-            selected.setSname(selected.getName());
+        if (selected.getTname()== null || selected.getTname().trim().equals("")) {
+            selected.setTname(selected.getName());
         }
 
         if (selected.getId() == null) {
@@ -763,12 +755,12 @@ public class InstitutionController implements Serializable {
             myClinics = new ArrayList<>();
             int count = 0;
             for (Institution i : webUserController.getLoggableInstitutions()) {
-                if (i.getInstitutionType().equals(InstitutionType.Clinic)
-                        || i.getInstitutionType().equals(InstitutionType.Medical_Clinic)
-                        || i.getInstitutionType().equals(InstitutionType.Surgical_Clinic)
-                        || i.getInstitutionType().equals(InstitutionType.Other_Clinic)
-                        || i.getInstitutionType().equals(InstitutionType.Cardiology_Clinic)
-                        || i.getInstitutionType().equals(InstitutionType.Ward_Clinic)) {
+                if (i.getInstitutionType().equals(InstitutionType.CTB_Depot)
+                        || i.getInstitutionType().equals(InstitutionType.CTB_Depot)
+                        || i.getInstitutionType().equals(InstitutionType.Audit)
+                        || i.getInstitutionType().equals(InstitutionType.Audit)
+                        || i.getInstitutionType().equals(InstitutionType.Base_Hospital)
+                        || i.getInstitutionType().equals(InstitutionType.CTB_Depot)) {
                     myClinics.add(i);
                     count++;
                 }

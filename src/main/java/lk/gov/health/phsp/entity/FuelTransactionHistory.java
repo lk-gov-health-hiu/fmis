@@ -28,7 +28,7 @@ import lk.gov.health.phsp.pojcs.Nameable;
  */
 @Entity
 @XmlRootElement
-public class DocumentHistory implements Serializable {
+public class FuelTransactionHistory implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -98,7 +98,7 @@ public class DocumentHistory implements Serializable {
     private WebUser completedBy;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private Document document;
+    private FuelTransaction document;
 
     @Transient
     private Nameable fromInsOrUser;
@@ -173,11 +173,11 @@ public class DocumentHistory implements Serializable {
 
     }
 
-    public Document getDocument() {
+    public FuelTransaction getDocument() {
         return document;
     }
 
-    public void setDocument(Document document) {
+    public void setDocument(FuelTransaction document) {
         this.document = document;
     }
 

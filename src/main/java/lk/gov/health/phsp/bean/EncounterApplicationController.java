@@ -29,8 +29,8 @@ import javax.ejb.EJB;
 import javax.inject.Named;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import lk.gov.health.phsp.entity.Document;
-import lk.gov.health.phsp.facade.DocumentFacade;
+import lk.gov.health.phsp.entity.FuelTransaction;
+import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 
 /**
  *
@@ -41,7 +41,7 @@ import lk.gov.health.phsp.facade.DocumentFacade;
 public class EncounterApplicationController {
 
     @EJB
-    DocumentFacade encounterFacade;
+    FuelTransactionHistoryFacade encounterFacade;
 
     /**
      * Creates a new instance of EncounterApplicationController
@@ -49,7 +49,7 @@ public class EncounterApplicationController {
     public EncounterApplicationController() {
     }
 
-    public void save(Document e) {
+    public void save(FuelTransaction e) {
         if (e == null) {
             return;
         }
@@ -60,11 +60,11 @@ public class EncounterApplicationController {
         }
     }
 
-    public Document getEncounter(Long id) {
+    public FuelTransaction getEncounter(Long id) {
         System.out.println("getEncounter");
         System.out.println("id = " + id);
         
-        Document e = null;
+        FuelTransaction e = null;
         if (id == null) {
             return e;
         }

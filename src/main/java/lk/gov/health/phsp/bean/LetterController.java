@@ -1,12 +1,11 @@
 package lk.gov.health.phsp.bean;
 
-import com.sun.jmx.remote.internal.ArrayQueue;
 import java.io.IOException;
 import java.io.InputStream;
-import lk.gov.health.phsp.entity.Document;
+import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.bean.util.JsfUtil.PersistAction;
-import lk.gov.health.phsp.facade.DocumentFacade;
+import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,15 +29,15 @@ import javax.faces.convert.FacesConverter;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.inject.Inject;
 import javax.persistence.TemporalType;
-import lk.gov.health.phsp.entity.DocumentHistory;
+import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Item;
 import lk.gov.health.phsp.entity.Upload;
 import lk.gov.health.phsp.entity.WebUser;
-import lk.gov.health.phsp.enums.DocumentType;
+import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.HistoryType;
 import lk.gov.health.phsp.enums.SearchFilterType;
-import lk.gov.health.phsp.facade.DocumentHistoryFacade;
+import lk.gov.health.phsp.facade.FuelTrnasactionFacade;
 import lk.gov.health.phsp.facade.InstitutionFacade;
 import lk.gov.health.phsp.facade.UploadFacade;
 import lk.gov.health.phsp.facade.WebUserFacade;
@@ -52,10 +51,10 @@ import org.primefaces.model.file.UploadedFile;
 public class LetterController implements Serializable {
 
     @EJB
-    private DocumentFacade documentFacade;
+    private FuelTransactionHistoryFacade documentFacade;
 
     @EJB
-    DocumentHistoryFacade documentHxFacade;
+    FuelTrnasactionFacade documentHxFacade;
 
     @EJB
     InstitutionFacade institutionFacade;
@@ -66,15 +65,15 @@ public class LetterController implements Serializable {
     @EJB
     UploadFacade uploadFacade;
 
-    private List<Document> items = null;
-    private List<Document> selectedItems = null;
-    private Document selected;
-    private DocumentHistory selectedHistory;
-    private DocumentHistory deletingHistory;
-    private List<DocumentHistory> selectedDocumentHistories;
-    private List<DocumentHistory> selectedFromList;
-    private List<DocumentHistory> selectedToList;
-    private List<DocumentHistory> selectedThroughList;
+    private List<FuelTransaction> items = null;
+    private List<FuelTransaction> selectedItems = null;
+    private FuelTransaction selected;
+    private FuelTransactionHistory selectedHistory;
+    private FuelTransactionHistory deletingHistory;
+    private List<FuelTransactionHistory> selectedDocumentHistories;
+    private List<FuelTransactionHistory> selectedFromList;
+    private List<FuelTransactionHistory> selectedToList;
+    private List<FuelTransactionHistory> selectedThroughList;
     private List<Nameable> fromInsOrUser;
     private List<Nameable> toInsOrUser;
     private List<Nameable> throughInsOrUser;
@@ -84,10 +83,10 @@ public class LetterController implements Serializable {
     private Map<Long, Nameable> throughInsOrUserMap;
 
     private List<Upload> selectedUploads;
-    private List<DocumentHistory> documentHistories;
-    private List<DocumentHistory> listedToAcceptCopyForwards;
+    private List<FuelTransactionHistory> documentHistories;
+    private List<FuelTransactionHistory> listedToAcceptCopyForwards;
     private List<InstitutionCount> institutionCounts;
-    private DocumentHistory selectedToAcceptCopyForwards;
+    private FuelTransactionHistory selectedToAcceptCopyForwards;
     @Inject
     private WebUserController webUserController;
     @Inject
@@ -167,9 +166,9 @@ public class LetterController implements Serializable {
                 word = word.trim().toLowerCase();
                 if (i.getName() != null && i.getName().toLowerCase().contains(word)) {
                     thisWordMatch = true;
-                } else if (i.getSname() != null && i.getSname().toLowerCase().contains(word)) {
+                } else if (i.getSname()!= null && i.getSname().toLowerCase().contains(word)) {
                     thisWordMatch = true;
-                } else if (i.getTname() != null && i.getTname().toLowerCase().contains(word)) {
+                } else if (i.getTname()!= null && i.getTname().toLowerCase().contains(word)) {
                     thisWordMatch = true;
                 } else {
                     thisWordMatch = false;
@@ -196,7 +195,7 @@ public class LetterController implements Serializable {
                     word = word.trim().toLowerCase();
                     if (i.getName() != null && i.getName().toLowerCase().contains(word)) {
                         thisWordMatch = true;
-                    } else if (i.getCode() != null && i.getCode().toLowerCase().contains(word)) {
+                    } else if (i.getVehiclesModel() != null && i.getVehiclesModel().toLowerCase().contains(word)) {
                         thisWordMatch = true;
                     } else if (i.getPerson() != null && i.getPerson().getName() != null && i.getPerson().getName().toLowerCase().contains(word)) {
                         thisWordMatch = true;
@@ -313,7 +312,7 @@ public class LetterController implements Serializable {
                 + " order by d.documentDate desc";
 
         m = new HashMap();
-        m.put("dt", DocumentType.Letter);
+        m.put("dt", FuelTransactionType.FuelIssue);
         m.put("dn", searchTerm.trim());
         items = documentFacade.findByJpql(j, m);
         System.out.println("By Name");
@@ -338,7 +337,7 @@ public class LetterController implements Serializable {
                 + " order by d.documentDate desc";
 
         m = new HashMap();
-        m.put("dt", DocumentType.Letter);
+        m.put("dt", FuelTransactionType.FuelIssue);
         m.put("ins", webUserController.getLoggedInstitution());
         m.put("dn", "%" + searchTerm.trim() + "%");
         System.out.println("m = " + m);
@@ -363,7 +362,7 @@ public class LetterController implements Serializable {
                 + " and d.institution=:ins ";
 
         m.put("ins", webUserController.getLoggedInstitution());
-        m.put("dt", DocumentType.Letter);
+        m.put("dt", FuelTransactionType.FuelIssue);
         if (searchUserOrIns instanceof WebUser) {
             j += " and d.fromUser=:fu ";
             m.put("fu", (WebUser) searchUserOrIns);
@@ -400,7 +399,7 @@ public class LetterController implements Serializable {
         j += " and (d." + searchFilterType.getCode() + " between :fd and :td ) ";
         j += " order by d." + searchFilterType.getCode();
         Map m = new HashMap();
-        m.put("dt", DocumentType.Letter);
+        m.put("dt", FuelTransactionType.FuelIssue);
         m.put("ins", webUserController.getLoggedInstitution());
         m.put("fd", getFromDate());
         m.put("td", getToDate());
@@ -418,7 +417,7 @@ public class LetterController implements Serializable {
         j += " and (d." + searchFilterType.getCode() + " between :fd and :td ) ";
         j += " order by d.id desc";
         Map m = new HashMap();
-        m.put("dt", DocumentType.Letter);
+        m.put("dt", FuelTransactionType.FuelIssue);
         m.put("ins", webUserController.getLoggedInstitution());
         m.put("fd", CommonController.startOfYesterday());
         m.put("td", CommonController.endOfYear());
@@ -666,11 +665,11 @@ public class LetterController implements Serializable {
         selected = null;
     }
 
-    public Document getSelected() {
+    public FuelTransaction getSelected() {
         return selected;
     }
 
-    public void setSelected(Document selected) {
+    public void setSelected(FuelTransaction selected) {
         this.selected = selected;
     }
 
@@ -680,12 +679,12 @@ public class LetterController implements Serializable {
     protected void initializeEmbeddableKey() {
     }
 
-    private DocumentFacade getFacade() {
+    private FuelTransactionHistoryFacade getFacade() {
         return documentFacade;
     }
 
-    public Document prepareCreate() {
-        selected = new Document();
+    public FuelTransaction prepareCreate() {
+        selected = new FuelTransaction();
         initializeEmbeddableKey();
         return selected;
     }
@@ -704,7 +703,7 @@ public class LetterController implements Serializable {
             return "";
         }
 
-        DocumentHistory docHx = new DocumentHistory();
+        FuelTransactionHistory docHx = new FuelTransactionHistory();
         docHx.setHistoryType(HistoryType.Letter_Sent);
         docHx.setDocument(selected);
         docHx.setFromInstitution(selected.getCurrentInstitution());
@@ -727,7 +726,7 @@ public class LetterController implements Serializable {
             return "";
         }
 
-        DocumentHistory docHx = new DocumentHistory();
+        FuelTransactionHistory docHx = new FuelTransactionHistory();
         docHx.setHistoryType(HistoryType.Letter_Assigned);
         docHx.setDocument(selected);
         docHx.setFromUser(selected.getCurrentOwner());
@@ -757,8 +756,8 @@ public class LetterController implements Serializable {
             return "";
         }
 
-        for (DocumentHistory lds : selectedDocumentHistories) {
-            DocumentHistory docHx = new DocumentHistory();
+        for (FuelTransactionHistory lds : selectedDocumentHistories) {
+            FuelTransactionHistory docHx = new FuelTransactionHistory();
             docHx.setHistoryType(HistoryType.Letter_Assigned);
             docHx.setDocument(lds.getDocument());
             docHx.setToUser(webUser);
@@ -787,7 +786,7 @@ public class LetterController implements Serializable {
             return "";
         }
         save(selected);
-        DocumentHistory docHx = new DocumentHistory();
+        FuelTransactionHistory docHx = new FuelTransactionHistory();
         docHx.setHistoryType(HistoryType.Letter_Copy_or_Forward);
         docHx.setDocument(selected);
         docHx.setFromUser(selected.getCurrentOwner());
@@ -818,7 +817,7 @@ public class LetterController implements Serializable {
             return "";
         }
 
-        DocumentHistory docHx = new DocumentHistory();
+        FuelTransactionHistory docHx = new FuelTransactionHistory();
         docHx.setHistoryType(HistoryType.Letter_Copy_or_Forward);
         docHx.setDocument(selected);
         docHx.setFromUser(selected.getCurrentOwner());
@@ -850,7 +849,7 @@ public class LetterController implements Serializable {
             return "";
         }
 
-        DocumentHistory docHx = new DocumentHistory();
+        FuelTransactionHistory docHx = new FuelTransactionHistory();
         docHx.setHistoryType(HistoryType.Letter_Action_Taken);
         docHx.setDocument(selected);
         docHx.setComments(comments);
@@ -870,7 +869,7 @@ public class LetterController implements Serializable {
         save(selected);
         if (newHx) {
             if (selectedHistory == null) {
-                selectedHistory = new DocumentHistory();
+                selectedHistory = new FuelTransactionHistory();
                 selectedHistory.setHistoryType(HistoryType.Letter_Created);
                 selectedHistory.setInstitution(webUserController.getLoggedInstitution());
 
@@ -895,7 +894,7 @@ public class LetterController implements Serializable {
         selected.setToInstitution(webUserController.getLoggedInstitution());
         save(selected);
 
-        selectedHistory = new DocumentHistory();
+        selectedHistory = new FuelTransactionHistory();
         selectedHistory.setHistoryType(HistoryType.Letter_Created);
         selectedHistory.setInstitution(webUserController.getLoggedInstitution());
         selectedHistory.setToInstitution(webUserController.getLoggedInstitution());
@@ -916,7 +915,7 @@ public class LetterController implements Serializable {
         selected.setToInstitution(webUserController.getLoggedInstitution());
         save(selected);
 
-        selectedHistory = new DocumentHistory();
+        selectedHistory = new FuelTransactionHistory();
         selectedHistory.setHistoryType(HistoryType.Letter_Created);
         selectedHistory.setInstitution(webUserController.getLoggedInstitution());
         selectedHistory.setToInstitution(webUserController.getLoggedInstitution());
@@ -936,7 +935,7 @@ public class LetterController implements Serializable {
         save(selected);
         if (newHx) {
             if (selectedHistory == null) {
-                selectedHistory = new DocumentHistory();
+                selectedHistory = new FuelTransactionHistory();
                 selectedHistory.setHistoryType(HistoryType.Letter_added_by_mail_branch);
             }
             selectedHistory.setInstitution(webUserController.getLoggedInstitution());
@@ -972,7 +971,7 @@ public class LetterController implements Serializable {
         }
         if (newHx) {
             if (selectedHistory == null) {
-                selectedHistory = new DocumentHistory();
+                selectedHistory = new FuelTransactionHistory();
                 selectedHistory.setHistoryType(HistoryType.Letter_Generated);
                 selectedHistory.setInstitution(webUserController.getLoggedInstitution());
             }
@@ -987,7 +986,7 @@ public class LetterController implements Serializable {
             saveDocumentHx(selectedHistory);
 
             for (Nameable toui : getToInsOrUserMap().values()) {
-                DocumentHistory ndhx = new DocumentHistory();
+                FuelTransactionHistory ndhx = new FuelTransactionHistory();
                 ndhx.setHistoryType(HistoryType.To_List);
                 ndhx.setInstitution(webUserController.getLoggedInstitution());
                 ndhx.setFromInstitution(webUserController.getLoggedInstitution());
@@ -1013,9 +1012,9 @@ public class LetterController implements Serializable {
             m.put("ret", true);
             m.put("doc", selected);
             m.put("hxt", HistoryType.To_List);
-            List<DocumentHistory> toDxHxs = documentHxFacade.findByJpql(j, m);
+            List<FuelTransactionHistory> toDxHxs = documentHxFacade.findByJpql(j, m);
             for (Nameable toui : getToInsOrUserMap().values()) {
-                for (DocumentHistory dhx : toDxHxs) {
+                for (FuelTransactionHistory dhx : toDxHxs) {
                     boolean found = false;
                     if (toui instanceof Institution && dhx.getToInstitution() != null) {
                         if (dhx.getToInstitution().equals((Institution) toui)) {
@@ -1027,7 +1026,7 @@ public class LetterController implements Serializable {
                         }
                     }
                     if (!found) {
-                        DocumentHistory ndhx = new DocumentHistory();
+                        FuelTransactionHistory ndhx = new FuelTransactionHistory();
                         ndhx.setHistoryType(HistoryType.To_List);
                         ndhx.setInstitution(webUserController.getLoggedInstitution());
                         ndhx.setFromInstitution(webUserController.getLoggedInstitution());
@@ -1044,7 +1043,7 @@ public class LetterController implements Serializable {
                     }
                 }
             }
-            for (DocumentHistory dhx : toDxHxs) {
+            for (FuelTransactionHistory dhx : toDxHxs) {
                 boolean found = false;
                 for (Nameable toui : getToInsOrUserMap().values()) {
                     if (toui instanceof Institution) {
@@ -1074,7 +1073,7 @@ public class LetterController implements Serializable {
         save(selected);
         if (newHx) {
             if (selectedHistory == null) {
-                selectedHistory = new DocumentHistory();
+                selectedHistory = new FuelTransactionHistory();
                 selectedHistory.setHistoryType(HistoryType.Letter_Created);
                 selectedHistory.setInstitution(webUserController.getLoggedInstitution());
             }
@@ -1099,7 +1098,7 @@ public class LetterController implements Serializable {
         selected.setToInstitution(webUserController.getLoggedInstitution());
         save(selected);
 
-        selectedHistory = new DocumentHistory();
+        selectedHistory = new FuelTransactionHistory();
         selectedHistory.setHistoryType(HistoryType.Letter_Created);
         selectedHistory.setInstitution(webUserController.getLoggedInstitution());
         selectedHistory.setToInstitution(webUserController.getLoggedInstitution());
@@ -1118,7 +1117,7 @@ public class LetterController implements Serializable {
         selected.setToInstitution(webUserController.getLoggedInstitution());
         save(selected);
 
-        selectedHistory = new DocumentHistory();
+        selectedHistory = new FuelTransactionHistory();
         selectedHistory.setHistoryType(HistoryType.Letter_Created);
         selectedHistory.setInstitution(webUserController.getLoggedInstitution());
         selectedHistory.setToInstitution(webUserController.getLoggedInstitution());
@@ -1135,7 +1134,7 @@ public class LetterController implements Serializable {
         }
         save(selected);
         if (selectedHistory == null) {
-            selectedHistory = new DocumentHistory();
+            selectedHistory = new FuelTransactionHistory();
             selectedHistory.setHistoryType(HistoryType.Letter_added_by_mail_branch);
         }
         selectedHistory.setInstitution(webUserController.getLoggedInstitution());
@@ -1160,7 +1159,7 @@ public class LetterController implements Serializable {
         save(selected);
         if (newHx) {
             if (selectedHistory == null) {
-                selectedHistory = new DocumentHistory();
+                selectedHistory = new FuelTransactionHistory();
                 selectedHistory.setHistoryType(HistoryType.Letter_Generated);
             }
             selectedHistory.setToInstitution(selected.getToInstitution());
@@ -1175,7 +1174,7 @@ public class LetterController implements Serializable {
         return menuController.toLetterGenerateNew();
     }
 
-    public void saveDocumentHx(DocumentHistory hx) {
+    public void saveDocumentHx(FuelTransactionHistory hx) {
         if (hx == null) {
             return;
         }
@@ -1343,7 +1342,7 @@ public class LetterController implements Serializable {
         m.put("fd", fromDate);
         m.put("td", toDate);
 
-        List<DocumentHistory> tdhx = documentHxFacade.findByJpql(j, m, TemporalType.TIMESTAMP);
+        List<FuelTransactionHistory> tdhx = documentHxFacade.findByJpql(j, m, TemporalType.TIMESTAMP);
 
         if (tdhx != null) {
             documentHistories.addAll(tdhx);
@@ -1409,7 +1408,7 @@ public class LetterController implements Serializable {
         selectedHistory.setCompletedBy(webUserController.getLoggedUser());
         saveDocumentHx(selectedHistory);
 
-        DocumentHistory ndh = new DocumentHistory();
+        FuelTransactionHistory ndh = new FuelTransactionHistory();
         ndh.setDocument(selectedHistory.getDocument());
         ndh.setHistoryType(HistoryType.Letter_Copy_or_Forward_Accepted);
         ndh.setInstitution(webUserController.getLoggedInstitution());
@@ -1495,7 +1494,7 @@ public class LetterController implements Serializable {
         System.out.println("j = " + j);
         System.out.println("m = " + m);
 
-        List<DocumentHistory> uihxs = documentHxFacade.findByJpql(j, m, TemporalType.TIMESTAMP);
+        List<FuelTransactionHistory> uihxs = documentHxFacade.findByJpql(j, m, TemporalType.TIMESTAMP);
         if (uihxs != null) {
             documentHistories.addAll(uihxs);
         }
@@ -1572,14 +1571,14 @@ public class LetterController implements Serializable {
         System.out.println("j = " + j);
         System.out.println("m = " + m);
 
-        List<DocumentHistory> uihxs = documentHxFacade.findByJpql(j, m, TemporalType.TIMESTAMP);
+        List<FuelTransactionHistory> uihxs = documentHxFacade.findByJpql(j, m, TemporalType.TIMESTAMP);
         if (uihxs != null) {
             documentHistories.addAll(uihxs);
         }
 
     }
 
-    public List<DocumentHistory> findDocumentHistories(Date fd, Date td, HistoryType ht, Institution i, Nameable u) {
+    public List<FuelTransactionHistory> findDocumentHistories(Date fd, Date td, HistoryType ht, Institution i, Nameable u) {
         List<HistoryType> hts = new ArrayList<>();
         if (ht != null) {
             hts.add(ht);
@@ -1589,7 +1588,7 @@ public class LetterController implements Serializable {
         return findDocumentHistories(fd, td, hts, i, u);
     }
 
-    public List<DocumentHistory> findDocumentHistories(Date fd, Date td, List<HistoryType> hts, Institution i, Nameable u) {
+    public List<FuelTransactionHistory> findDocumentHistories(Date fd, Date td, List<HistoryType> hts, Institution i, Nameable u) {
         Map m = new HashMap();
         String j = "select h "
                 + " from DocumentHistory h "
@@ -1696,7 +1695,7 @@ public class LetterController implements Serializable {
 
         toInsOrUserMap = new HashMap<>();
         if (selectedDocumentHistories != null) {
-            for (DocumentHistory tdhx : selectedDocumentHistories) {
+            for (FuelTransactionHistory tdhx : selectedDocumentHistories) {
                 if (tdhx.getHistoryType() != null && tdhx.getHistoryType().equals(HistoryType.To_List)) {
 //                    selectedDocumentHistories.remove(tdhx);
                     selectedToList.add(tdhx);
@@ -1800,7 +1799,7 @@ public class LetterController implements Serializable {
         m.put("doc", selected);
         m.put("ht", HistoryType.Letter_Assigned);
         m.put("tu", webUserController.getLoggedUser());
-        DocumentHistory dh = documentHxFacade.findFirstByJpql(j, m);
+        FuelTransactionHistory dh = documentHxFacade.findFirstByJpql(j, m);
         if (dh != null) {
             dh.setCompleted(true);
             dh.setCompletedAt(new Date());
@@ -1912,7 +1911,7 @@ public class LetterController implements Serializable {
         m.put("doc", selected);
         m.put("ht", HistoryType.Letter_Assigned);
         m.put("tu", webUserController.getLoggedUser());
-        DocumentHistory dh = documentHxFacade.findFirstByJpql(j, m);
+        FuelTransactionHistory dh = documentHxFacade.findFirstByJpql(j, m);
         selected.setCompleted(false);
         save(selected);
         if (dh != null) {
@@ -1930,7 +1929,7 @@ public class LetterController implements Serializable {
             JsfUtil.addErrorMessage("No File Selected");
             return "";
         }
-        DocumentHistory dh = new DocumentHistory();
+        FuelTransactionHistory dh = new FuelTransactionHistory();
         dh.setDocument(selected);
         dh.setInstitution(webUserController.getLoggedInstitution());
         dh.setHistoryType(HistoryType.Letter_Assigned);
@@ -1944,7 +1943,7 @@ public class LetterController implements Serializable {
         return toLetterView();
     }
 
-    public void save(Document e) {
+    public void save(FuelTransaction e) {
         if (e == null) {
             return;
         }
@@ -1978,7 +1977,7 @@ public class LetterController implements Serializable {
         }
     }
 
-    public List<Document> getItems(String jpql, Map m) {
+    public List<FuelTransaction> getItems(String jpql, Map m) {
         return getFacade().findByJpql(jpql, m);
     }
 
@@ -2010,7 +2009,7 @@ public class LetterController implements Serializable {
         }
     }
 
-    public Document getEncounter(java.lang.Long id) {
+    public FuelTransaction getEncounter(java.lang.Long id) {
         return getFacade().find(id);
     }
 
@@ -2026,11 +2025,11 @@ public class LetterController implements Serializable {
         return null;
     }
 
-    public List<Document> getItemsAvailableSelectMany() {
+    public List<FuelTransaction> getItemsAvailableSelectMany() {
         return getFacade().findAll();
     }
 
-    public List<Document> getItemsAvailableSelectOne() {
+    public List<FuelTransaction> getItemsAvailableSelectOne() {
         return getFacade().findAll();
     }
 
@@ -2038,23 +2037,23 @@ public class LetterController implements Serializable {
         return webUserController;
     }
 
-    public lk.gov.health.phsp.facade.DocumentFacade getDocumentFacade() {
+    public lk.gov.health.phsp.facade.FuelTransactionHistoryFacade getDocumentFacade() {
         return documentFacade;
     }
 
-    public List<Document> getItems() {
+    public List<FuelTransaction> getItems() {
         return items;
     }
 
-    public void setItems(List<Document> items) {
+    public void setItems(List<FuelTransaction> items) {
         this.items = items;
     }
 
-    public List<Document> getSelectedItems() {
+    public List<FuelTransaction> getSelectedItems() {
         return selectedItems;
     }
 
-    public void setSelectedItems(List<Document> selectedItems) {
+    public void setSelectedItems(List<FuelTransaction> selectedItems) {
         this.selectedItems = selectedItems;
     }
 
@@ -2066,11 +2065,11 @@ public class LetterController implements Serializable {
         this.institution = institution;
     }
 
-    public DocumentHistory getSelectedHistory() {
+    public FuelTransactionHistory getSelectedHistory() {
         return selectedHistory;
     }
 
-    public void setSelectedHistory(DocumentHistory selectedHistory) {
+    public void setSelectedHistory(FuelTransactionHistory selectedHistory) {
         this.selectedHistory = selectedHistory;
     }
 
@@ -2082,11 +2081,11 @@ public class LetterController implements Serializable {
         this.webUser = webUser;
     }
 
-    public List<DocumentHistory> getSelectedDocumentHistories() {
+    public List<FuelTransactionHistory> getSelectedDocumentHistories() {
         return selectedDocumentHistories;
     }
 
-    public void setSelectedDocumentHistories(List<DocumentHistory> selectedDocumentHistories) {
+    public void setSelectedDocumentHistories(List<FuelTransactionHistory> selectedDocumentHistories) {
         this.selectedDocumentHistories = selectedDocumentHistories;
     }
 
@@ -2152,11 +2151,11 @@ public class LetterController implements Serializable {
         this.minute = minute;
     }
 
-    public List<DocumentHistory> getDocumentHistories() {
+    public List<FuelTransactionHistory> getDocumentHistories() {
         return documentHistories;
     }
 
-    public void setDocumentHistories(List<DocumentHistory> documentHistories) {
+    public void setDocumentHistories(List<FuelTransactionHistory> documentHistories) {
         this.documentHistories = documentHistories;
     }
 
@@ -2184,28 +2183,28 @@ public class LetterController implements Serializable {
         this.removingUpload = removingUpload;
     }
 
-    public DocumentHistory getDeletingHistory() {
+    public FuelTransactionHistory getDeletingHistory() {
         return deletingHistory;
     }
 
-    public void setDeletingHistory(DocumentHistory deletingHistory) {
+    public void setDeletingHistory(FuelTransactionHistory deletingHistory) {
         this.deletingHistory = deletingHistory;
     }
 
-    public List<DocumentHistory> getListedToAcceptCopyForwards() {
+    public List<FuelTransactionHistory> getListedToAcceptCopyForwards() {
         return listedToAcceptCopyForwards;
     }
 
-    public void setListedToAcceptCopyForwards(List<DocumentHistory> listedToAcceptCopyForwards) {
+    public void setListedToAcceptCopyForwards(List<FuelTransactionHistory> listedToAcceptCopyForwards) {
         this.listedToAcceptCopyForwards = listedToAcceptCopyForwards;
     }
 
 //    @Deprecated
     public void tmpAddInsToDocHx() {
         System.out.println("tmpAddInsToDocHx");
-        List<DocumentHistory> tdhs = documentHxFacade.findAll();
+        List<FuelTransactionHistory> tdhs = documentHxFacade.findAll();
         System.out.println("tdhs = " + tdhs.size());
-        for (DocumentHistory tdh : tdhs) {
+        for (FuelTransactionHistory tdh : tdhs) {
             if (tdh.getInstitution() == null) {
                 tdh.setInstitution(tdh.getDocument().getInstitution());
             }
@@ -2248,44 +2247,44 @@ public class LetterController implements Serializable {
         this.institutionCounts = institutionCounts;
     }
 
-    public DocumentHistory getSelectedToAcceptCopyForwards() {
+    public FuelTransactionHistory getSelectedToAcceptCopyForwards() {
         return selectedToAcceptCopyForwards;
     }
 
-    public void setSelectedToAcceptCopyForwards(DocumentHistory selectedToAcceptCopyForwards) {
+    public void setSelectedToAcceptCopyForwards(FuelTransactionHistory selectedToAcceptCopyForwards) {
         this.selectedToAcceptCopyForwards = selectedToAcceptCopyForwards;
     }
 
-    public List<DocumentHistory> getSelectedFromList() {
+    public List<FuelTransactionHistory> getSelectedFromList() {
         if (selectedFromList == null) {
             selectedFromList = new ArrayList<>();
         }
         return selectedFromList;
     }
 
-    public void setSelectedFromList(List<DocumentHistory> selectedFromList) {
+    public void setSelectedFromList(List<FuelTransactionHistory> selectedFromList) {
         this.selectedFromList = selectedFromList;
     }
 
-    public List<DocumentHistory> getSelectedToList() {
+    public List<FuelTransactionHistory> getSelectedToList() {
         if (selectedToList == null) {
             selectedToList = new ArrayList<>();
         }
         return selectedToList;
     }
 
-    public void setSelectedToList(List<DocumentHistory> selectedToList) {
+    public void setSelectedToList(List<FuelTransactionHistory> selectedToList) {
         this.selectedToList = selectedToList;
     }
 
-    public List<DocumentHistory> getSelectedThroughList() {
+    public List<FuelTransactionHistory> getSelectedThroughList() {
         if (selectedThroughList == null) {
             selectedThroughList = new ArrayList<>();
         }
         return selectedThroughList;
     }
 
-    public void setSelectedThroughList(List<DocumentHistory> selectedThroughList) {
+    public void setSelectedThroughList(List<FuelTransactionHistory> selectedThroughList) {
         this.selectedThroughList = selectedThroughList;
     }
 

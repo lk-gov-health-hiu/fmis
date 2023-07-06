@@ -28,6 +28,7 @@ package lk.gov.health.phsp.enums;
  *
  * @author User
  */
+@Deprecated
 public enum DocumentGenerationType {
     Received_by_institution("Received by the Institution"),
     Received_by_mail_branch("Received by the Mail Branch"),

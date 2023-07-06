@@ -27,6 +27,7 @@ package lk.gov.health.phsp.enums;
  *
  * @author Dr M H B Ariyaratne<buddhika.ari@gmail.com>
  */
+@Deprecated
 public enum DataModificationStrategy {
     Not_allowed_after_completion("Not allowed after completion"),
     Allowed_after_completion("Allowed after completion"),

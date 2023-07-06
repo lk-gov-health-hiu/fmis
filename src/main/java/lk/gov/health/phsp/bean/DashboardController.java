@@ -38,7 +38,7 @@ import javax.inject.Inject;
 import javax.persistence.TemporalType;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 
-import lk.gov.health.phsp.facade.DocumentFacade;
+import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 import lk.gov.health.phsp.pojcs.InstitutionCount;
 import org.json.JSONObject;
 
@@ -51,7 +51,7 @@ import org.json.JSONObject;
 public class DashboardController implements Serializable {
 
     @EJB
-    private DocumentFacade encounterFacade;
+    private FuelTransactionHistoryFacade encounterFacade;
 
     @Inject
     private FileController encounterController;
@@ -279,82 +279,7 @@ public class DashboardController implements Serializable {
         Date yesterdayStart = CommonController.startOfTheDate(c.getTime());
         Date yesterdayEnd = CommonController.endOfTheDate(c.getTime());
 
-        receivedLettersThroughSystemToday = dashboardApplicationController.getOrderCount(webUserController.getLoggedInstitution(), todayStart, now,
-                itemApplicationController.getPcr(), null, null, null);
-        myLettersToAccept = dashboardApplicationController.getOrderCount(webUserController.getLoggedInstitution(), todayStart, now,
-                itemApplicationController.getRat(), null, null, null);
-        lettersAccepted = dashboardApplicationController.getOrderCount(webUserController.getLoggedInstitution(), yesterdayStart, yesterdayEnd,
-                itemApplicationController.getPcr(), null, null, null);
-        yesterdayRat = dashboardApplicationController.getOrderCount(webUserController.getLoggedInstitution(), yesterdayStart, yesterdayEnd,
-                itemApplicationController.getRat(), null, null, null);
 
-        lettersToReceive = dashboardApplicationController.getConfirmedCount(webUserController.getLoggedInstitution().getMohArea(),
-                todayStart,
-                now,
-                itemApplicationController.getPcr(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null);
-        lettersEntered = dashboardApplicationController.getConfirmedCount(webUserController.getLoggedInstitution().getMohArea(),
-                todayStart,
-                now,
-                itemApplicationController.getRat(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null);
-
-        yesterdayPositivePcr = dashboardApplicationController.getConfirmedCount(webUserController.getLoggedInstitution().getMohArea(),
-                yesterdayStart,
-                yesterdayEnd,
-                itemApplicationController.getPcr(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null);
-        yesterdayPositiveRat = dashboardApplicationController.getConfirmedCount(webUserController.getLoggedInstitution().getMohArea(),
-                yesterdayStart,
-                yesterdayEnd,
-                itemApplicationController.getRat(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null);
-
-//      Calculate today's positive PCR percentage
-        if (this.receivedLettersThroughSystemToday != 0) {
-            double tempRate = ((double) this.lettersToReceive / this.receivedLettersThroughSystemToday) * 100;
-            this.todayPcrPositiveRate = df.format(tempRate) + "%";
-        } else {
-            this.todayPcrPositiveRate = "0.00%";
-        }
-//      Calculate today's RAT percentage
-        if (this.myLettersToAccept != 0) {
-            double tempRate = ((double) this.lettersEntered / this.myLettersToAccept) * 100;
-            this.todayRatPositiveRate = df.format(tempRate) + "%";
-        } else {
-            this.todayRatPositiveRate = "0.00%";
-        }
-//        Calculate yesterday's PCR positive percentage
-        if (this.lettersAccepted != 0) {
-            double tempRate = ((double) this.yesterdayPositivePcr / this.lettersAccepted) * 100;
-            this.yesterdayPcrPositiveRate = df.format(tempRate) + "%";
-        } else {
-            this.yesterdayPcrPositiveRate = "0.00%";
-        }
-//        Calculates yesterday's Rat positive percentage
-        if (this.yesterdayRat != 0) {
-            double tempRate = ((double) this.yesterdayPositiveRat / this.yesterdayRat) * 100;
-            this.yesterdayRatPositiveRate = df.format(tempRate) + "%";
-        } else {
-            this.yesterdayRatPositiveRate = "0.00%";
-        }
-
-//      Get samples awaiting dispatch at MOH level to be shown on the dashboard
-        this.samplesAwaitingDispatch = dashboardApplicationController.samplesAwaitingDispatch(
-                this.webUserController.getLoggedUser().getInstitution().getMohArea(),
-                yesterdayStart,
-                now,
-                null,
-                itemApplicationController.getPcr()
-        );
     }
 
     public void preparePersonalDashboard() {
@@ -364,8 +289,6 @@ public class DashboardController implements Serializable {
 
         c.add(Calendar.DATE, -1);
 
-        myLettersToAccept = letterController.countMyLettersToAccept(CommonController.startOfTheMonth(), CommonController.endOfTheMonth());
-        lettersAccepted = letterController.countMyLettersAccepted(CommonController.startOfTheMonth(), CommonController.endOfTheMonth());
     }
 
     public void prepareRegionalDashboard() {
@@ -707,11 +630,11 @@ public class DashboardController implements Serializable {
         this.toDate = toDate;
     }
 
-    public DocumentFacade getEncounterFacade() {
+    public FuelTransactionHistoryFacade getEncounterFacade() {
         return encounterFacade;
     }
 
-    public void setEncounterFacade(DocumentFacade encounterFacade) {
+    public void setEncounterFacade(FuelTransactionHistoryFacade encounterFacade) {
         this.encounterFacade = encounterFacade;
     }
 

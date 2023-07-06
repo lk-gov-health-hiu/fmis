@@ -36,8 +36,8 @@ import javax.inject.Inject;
 import javax.persistence.TemporalType;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Item;
-import lk.gov.health.phsp.enums.DocumentType;
-import lk.gov.health.phsp.facade.DocumentFacade;
+import lk.gov.health.phsp.enums.FuelTransactionType;
+import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 // </editor-fold>
 @Named
 @ApplicationScoped
@@ -46,7 +46,7 @@ public class AnalysisController {
 
    
     @EJB
-    private DocumentFacade encounterFacade;
+    private FuelTransactionHistoryFacade encounterFacade;
   
 // </editor-fold>
 // <editor-fold defaultstate="collapsed" desc="Controllers">
@@ -87,7 +87,7 @@ public class AnalysisController {
         j += " and s.encounterDate between :fd and :td ";
         m.put("fd", getFrom());
         m.put("td", getTo());
-        m.put("t", DocumentType.Letter);
+        m.put("t", FuelTransactionType.FuelIssue);
         m.put("ret", true);
 
         fs = getEncounterFacade().findLongByJpql(j, m);
@@ -96,9 +96,9 @@ public class AnalysisController {
         userTransactionController.recordTransaction("Find Encounter Count");
     }
 
-    public Long findEncounterCount(Date pFrom, Date pTo, List<Institution> pIns, DocumentType ec, Item sex) {
+    public Long findEncounterCount(Date pFrom, Date pTo, List<Institution> pIns, FuelTransactionType ec, Item sex) {
         if (ec == null) {
-            ec = DocumentType.Letter;
+            ec = FuelTransactionType.FuelIssue;
         }
         if (pIns == null || pIns.isEmpty()) {
             return null;
@@ -134,11 +134,11 @@ public class AnalysisController {
 // <editor-fold defaultstate="collapsed" desc="Getters and Setters">
   
 
-    public DocumentFacade getEncounterFacade() {
+    public FuelTransactionHistoryFacade getEncounterFacade() {
         return encounterFacade;
     }
 
-    public void setEncounterFacade(DocumentFacade encounterFacade) {
+    public void setEncounterFacade(FuelTransactionHistoryFacade encounterFacade) {
         this.encounterFacade = encounterFacade;
     }
 

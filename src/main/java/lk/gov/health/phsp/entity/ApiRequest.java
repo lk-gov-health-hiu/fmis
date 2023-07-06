@@ -51,7 +51,7 @@ public class ApiRequest implements Serializable {
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Document encounter;
+    private FuelTransaction encounter;
 
  
 
@@ -140,11 +140,11 @@ public class ApiRequest implements Serializable {
         this.name = name;
     }
 
-    public Document getEncounter() {
+    public FuelTransaction getEncounter() {
         return encounter;
     }
 
-    public void setEncounter(Document encounter) {
+    public void setEncounter(FuelTransaction encounter) {
         this.encounter = encounter;
     }
 

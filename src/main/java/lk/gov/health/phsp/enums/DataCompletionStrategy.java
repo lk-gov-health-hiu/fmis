@@ -27,6 +27,7 @@ package lk.gov.health.phsp.enums;
  *
  * @author Dr M H B Ariyaratne<buddhika.ari@gmail.com>
  */
+@Deprecated
 public enum DataCompletionStrategy {
     Do_nothing("Do Nothing"),
     Replace_Values_of_client("Replace Values of Client"),

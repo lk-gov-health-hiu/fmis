@@ -42,8 +42,8 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import lk.gov.health.phsp.entity.Institution;
-import lk.gov.health.phsp.enums.DocumentType;
-import lk.gov.health.phsp.facade.DocumentFacade;
+import lk.gov.health.phsp.enums.FuelTransactionType;
+import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 import lk.gov.health.phsp.facade.UploadFacade;
 import lk.gov.health.phsp.pojcs.EncounterWithComponents;
 
@@ -66,7 +66,7 @@ public class ExcelReportController implements Serializable {
     @EJB
     private UploadFacade uploadFacade;
     @EJB
-    private DocumentFacade encounterFacade;
+    private FuelTransactionHistoryFacade encounterFacade;
    
 
     @Inject
@@ -121,7 +121,7 @@ public class ExcelReportController implements Serializable {
                 + " order by e.id";
         Map m = new HashMap();
         m.put("i", institution);
-        m.put("t", DocumentType.Letter);
+        m.put("t", FuelTransactionType.FuelIssue);
         m.put("er", true);
         m.put("fr", true);
         m.put("fc", true);
@@ -146,7 +146,7 @@ public class ExcelReportController implements Serializable {
                 + " group by e.encounterDate";
         Map m = new HashMap();
         m.put("i", institution);
-        m.put("t", DocumentType.Letter);
+        m.put("t", FuelTransactionType.FuelIssue);
         m.put("er", true);
         m.put("fr", true);
         m.put("fc", true);
@@ -201,7 +201,7 @@ public class ExcelReportController implements Serializable {
         return uploadFacade;
     }
 
-    public DocumentFacade getEncounterFacade() {
+    public FuelTransactionHistoryFacade getEncounterFacade() {
         return encounterFacade;
     }
 

@@ -11,10 +11,15 @@
             <div class="container-fluid w-50 ">
                 <div class="row">
                     <div class="col px-4 py-3 bg-white text-center">
-                        <div class="my-2 d-flex justify-content-center">
-                            <h:graphicImage style="height: 18em;" library="image" name="login.png"></h:graphicImage>
+                        <div class="my-2 d-flex justify-content-around">
+                            <h:graphicImage style="height: 5em;" library="image" name="japan-logo.png"></h:graphicImage>
+                            <h:graphicImage style="height: 5em;" library="image" name="sltb-logo.png"></h:graphicImage>
+                            <h:graphicImage style="height: 5em;" library="image" name="lk-gov-logo.png"></h:graphicImage>
                         </div>
-                        <h4 class="fw-bold">Document Management Information System</h4>
+                        <div class="my-2 d-flex justify-content-center">
+                            <h:graphicImage style="height: 12em;" library="image" name="login.png"></h:graphicImage>
+                        </div>
+                        <h4 class="fw-bold">Fuel Management Information System</h4>
                         <div class="my-2">
                             <p:inputText id="username" placeholder="Username" required="true" requiredMessage="Username is required." autocomplete="off"
                                          value="#{webUserController.userName}" class="form-control">
@@ -42,5 +47,4 @@
             </div>
         </h:form>
     </cc:implementation>
-
 </html>

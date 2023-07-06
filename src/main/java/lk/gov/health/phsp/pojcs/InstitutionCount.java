@@ -27,7 +27,7 @@ import java.util.Date;
 import lk.gov.health.phsp.entity.Area;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Item;
-import lk.gov.health.phsp.enums.DocumentType;
+import lk.gov.health.phsp.enums.FuelTransactionType;
 
 /**
  *
@@ -40,13 +40,13 @@ public class InstitutionCount {
     private Area area;
     private Long count;
     private Date date;
-    private DocumentType encounerType;
+    private FuelTransactionType encounerType;
     private Item item;
     private Item itemValue;
     private Long id;
     private String positiveRate;
 
-    public InstitutionCount(Long count, Institution institution, Date date, DocumentType encounerType) {
+    public InstitutionCount(Long count, Institution institution, Date date, FuelTransactionType encounerType) {
         this.institution = institution;
         this.count = count;
         this.date = date;
@@ -72,7 +72,7 @@ public class InstitutionCount {
         this.area = area;
     }
 
-    public InstitutionCount(Long count, Institution institution, Date date, DocumentType encounerType, Item item, Item itemValue) {
+    public InstitutionCount(Long count, Institution institution, Date date, FuelTransactionType encounerType, Item item, Item itemValue) {
         this.institution = institution;
         this.count = count;
         this.date = date;
@@ -81,7 +81,7 @@ public class InstitutionCount {
         this.itemValue = itemValue;
     }
 
-    public InstitutionCount(Long count, Area area, Date date, DocumentType encounerType) {
+    public InstitutionCount(Long count, Area area, Date date, FuelTransactionType encounerType) {
         this.area = area;
         this.count = count;
         this.date = date;
@@ -154,11 +154,11 @@ public class InstitutionCount {
         this.date = date;
     }
 
-    public DocumentType getEncounerType() {
+    public FuelTransactionType getEncounerType() {
         return encounerType;
     }
 
-    public void setEncounerType(DocumentType encounerType) {
+    public void setEncounerType(FuelTransactionType encounerType) {
         this.encounerType = encounerType;
     }
 

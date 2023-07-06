@@ -58,7 +58,7 @@ public class Upload implements Serializable {
     Long id;
 
     @ManyToOne
-    private Document document;
+    private FuelTransaction document;
     @ManyToOne
     Institution institution;
     @ManyToOne
@@ -227,11 +227,11 @@ public class Upload implements Serializable {
         this.uploadType = uploadType;
     }
 
-    public Document getDocument() {
+    public FuelTransaction getDocument() {
         return document;
     }
 
-    public void setDocument(Document document) {
+    public void setDocument(FuelTransaction document) {
         this.document = document;
     }
 

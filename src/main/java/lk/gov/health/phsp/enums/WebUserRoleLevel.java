@@ -28,8 +28,11 @@ package lk.gov.health.phsp.enums;
  * @author Dr M H B Ariyaratne
  */
 public enum WebUserRoleLevel {
-    National("National"),
-    Institutional("Lab");
+    NATIONAL("National"),
+    HEALTH_INSTITUTION("Health Institution"),
+    CTB("CTB"),
+    
+    ;
     private final String label;
 
     private WebUserRoleLevel(String label) {

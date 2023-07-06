@@ -28,7 +28,7 @@ public class Sms implements Serializable {
     private Long id;
 
     @ManyToOne
-    private Document encounter;
+    private FuelTransaction encounter;
     @Lob
     String sendingMessage;
     @Lob
@@ -60,11 +60,11 @@ public class Sms implements Serializable {
     @ManyToOne
     private Institution institution;
 
-    public Document getEncounter() {
+    public FuelTransaction getEncounter() {
         return encounter;
     }
 
-    public void setEncounter(Document encounter) {
+    public void setEncounter(FuelTransaction encounter) {
         this.encounter = encounter;
     }
 

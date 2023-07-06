@@ -39,7 +39,7 @@ import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 import lk.gov.health.phsp.enums.DocumentGenerationType;
-import lk.gov.health.phsp.enums.DocumentType;
+import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.pojcs.Nameable;
 
 /**
@@ -49,7 +49,7 @@ import lk.gov.health.phsp.pojcs.Nameable;
 @Entity
 @Table
 @XmlRootElement
-public class Document implements Serializable {
+public class FuelTransaction implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -69,15 +69,15 @@ public class Document implements Serializable {
     private Date receivedDate;
 
     @Enumerated(EnumType.STRING)
-    private DocumentType documentType;
+    private FuelTransactionType documentType;
     
     @Enumerated(EnumType.STRING)
     private DocumentGenerationType documentGenerationType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Document referenceDocument;
+    private FuelTransaction referenceDocument;
     @ManyToOne
-    private Document parentDocument;
+    private FuelTransaction parentDocument;
     @ManyToOne
     private Item documentLanguage;
     @ManyToOne
@@ -179,10 +179,10 @@ public class Document implements Serializable {
     @Override
     public boolean equals(Object object) {
 
-        if (!(object instanceof Document)) {
+        if (!(object instanceof FuelTransaction)) {
             return false;
         }
-        Document other = (Document) object;
+        FuelTransaction other = (FuelTransaction) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -242,27 +242,27 @@ public class Document implements Serializable {
         this.documentDate = documentDate;
     }
 
-    public DocumentType getDocumentType() {
+    public FuelTransactionType getDocumentType() {
         return documentType;
     }
 
-    public void setDocumentType(DocumentType documentType) {
+    public void setDocumentType(FuelTransactionType documentType) {
         this.documentType = documentType;
     }
 
-    public Document getReferenceDocument() {
+    public FuelTransaction getReferenceDocument() {
         return referenceDocument;
     }
 
-    public void setReferenceDocument(Document referenceDocument) {
+    public void setReferenceDocument(FuelTransaction referenceDocument) {
         this.referenceDocument = referenceDocument;
     }
 
-    public Document getParentDocument() {
+    public FuelTransaction getParentDocument() {
         return parentDocument;
     }
 
-    public void setParentDocument(Document parentDocument) {
+    public void setParentDocument(FuelTransaction parentDocument) {
         this.parentDocument = parentDocument;
     }
 

@@ -1,9 +1,9 @@
 package lk.gov.health.phsp.bean;
 
-import lk.gov.health.phsp.entity.Document;
+import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.bean.util.JsfUtil.PersistAction;
-import lk.gov.health.phsp.facade.DocumentFacade;
+import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -22,28 +22,28 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
-import lk.gov.health.phsp.entity.DocumentHistory;
+import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.WebUser;
-import lk.gov.health.phsp.enums.DocumentType;
+import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.HistoryType;
-import lk.gov.health.phsp.facade.DocumentHistoryFacade;
+import lk.gov.health.phsp.facade.FuelTrnasactionFacade;
 
 @Named
 @SessionScoped
 public class FileController implements Serializable {
 
     @EJB
-    private DocumentFacade documentFacade;
+    private FuelTransactionHistoryFacade documentFacade;
 
     @EJB
-    DocumentHistoryFacade documentHxFacade;
+    FuelTrnasactionFacade documentHxFacade;
 
-    private List<Document> items = null;
-    private List<Document> selectedItems = null;
-    private Document selected;
-    private DocumentHistory selectedHistory;
-    private List<DocumentHistory> selectedDocumentHistories;
+    private List<FuelTransaction> items = null;
+    private List<FuelTransaction> selectedItems = null;
+    private FuelTransaction selected;
+    private FuelTransactionHistory selectedHistory;
+    private List<FuelTransactionHistory> selectedDocumentHistories;
     @Inject
     private WebUserController webUserController;
     @Inject
@@ -70,7 +70,7 @@ public class FileController implements Serializable {
                 + " and d.documentNumber=:dn"
                 + " order by d.documentDate desc";
         Map m = new HashMap();
-        m.put("dt", DocumentType.File);
+        m.put("dt", FuelTransactionType.FuelRequest);
         m.put("dn", searchTerm.trim());
         items = documentFacade.findByJpql(j, m);
 
@@ -88,7 +88,7 @@ public class FileController implements Serializable {
                 + " order by d.documentDate desc";
 
         m = new HashMap();
-        m.put("dt", DocumentType.File);
+        m.put("dt", FuelTransactionType.FuelRequest);
         m.put("dn", "%" + searchTerm.trim() + "%");
 
         items = documentFacade.findByJpql(j, m);
@@ -112,11 +112,11 @@ public class FileController implements Serializable {
         selected = null;
     }
 
-    public Document getSelected() {
+    public FuelTransaction getSelected() {
         return selected;
     }
 
-    public void setSelected(Document selected) {
+    public void setSelected(FuelTransaction selected) {
         this.selected = selected;
     }
 
@@ -126,12 +126,12 @@ public class FileController implements Serializable {
     protected void initializeEmbeddableKey() {
     }
 
-    private DocumentFacade getFacade() {
+    private FuelTransactionHistoryFacade getFacade() {
         return documentFacade;
     }
 
-    public Document prepareCreate() {
-        selected = new Document();
+    public FuelTransaction prepareCreate() {
+        selected = new FuelTransaction();
         initializeEmbeddableKey();
         return selected;
     }
@@ -150,7 +150,7 @@ public class FileController implements Serializable {
             return "";
         }
 
-        DocumentHistory docHx = new DocumentHistory();
+        FuelTransactionHistory docHx = new FuelTransactionHistory();
         docHx.setHistoryType(HistoryType.File_Institution_Transfer);
         docHx.setDocument(selected);
         docHx.setFromInstitution(selected.getCurrentInstitution());
@@ -171,7 +171,7 @@ public class FileController implements Serializable {
             return "";
         }
 
-        DocumentHistory docHx = new DocumentHistory();
+        FuelTransactionHistory docHx = new FuelTransactionHistory();
         docHx.setHistoryType(HistoryType.File_Owner_Transfer);
         docHx.setDocument(selected);
         docHx.setFromUser(selected.getCurrentOwner());
@@ -191,7 +191,7 @@ public class FileController implements Serializable {
         save(selected);
         if (newHx) {
             if (selectedHistory == null) {
-                selectedHistory = new DocumentHistory();
+                selectedHistory = new FuelTransactionHistory();
                 selectedHistory.setHistoryType(HistoryType.File_Created);
             }
             selectedHistory.setToInstitution(selected.getCurrentInstitution());
@@ -205,7 +205,7 @@ public class FileController implements Serializable {
         return toFileView();
     }
 
-    public void saveDocumentHx(DocumentHistory hx) {
+    public void saveDocumentHx(FuelTransactionHistory hx) {
         if (hx == null) {
             return;
         }
@@ -242,7 +242,7 @@ public class FileController implements Serializable {
         return "/document/file_view";
     }
 
-    public void save(Document e) {
+    public void save(FuelTransaction e) {
         if (e == null) {
             return;
         }
@@ -276,7 +276,7 @@ public class FileController implements Serializable {
         }
     }
 
-    public List<Document> getItems(String jpql, Map m) {
+    public List<FuelTransaction> getItems(String jpql, Map m) {
         return getFacade().findByJpql(jpql, m);
     }
 
@@ -308,15 +308,15 @@ public class FileController implements Serializable {
         }
     }
 
-    public Document getEncounter(java.lang.Long id) {
+    public FuelTransaction getEncounter(java.lang.Long id) {
         return getFacade().find(id);
     }
 
-    public List<Document> getItemsAvailableSelectMany() {
+    public List<FuelTransaction> getItemsAvailableSelectMany() {
         return getFacade().findAll();
     }
 
-    public List<Document> getItemsAvailableSelectOne() {
+    public List<FuelTransaction> getItemsAvailableSelectOne() {
         return getFacade().findAll();
     }
 
@@ -324,23 +324,23 @@ public class FileController implements Serializable {
         return webUserController;
     }
 
-    public lk.gov.health.phsp.facade.DocumentFacade getDocumentFacade() {
+    public lk.gov.health.phsp.facade.FuelTransactionHistoryFacade getDocumentFacade() {
         return documentFacade;
     }
 
-    public List<Document> getItems() {
+    public List<FuelTransaction> getItems() {
         return items;
     }
 
-    public void setItems(List<Document> items) {
+    public void setItems(List<FuelTransaction> items) {
         this.items = items;
     }
 
-    public List<Document> getSelectedItems() {
+    public List<FuelTransaction> getSelectedItems() {
         return selectedItems;
     }
 
-    public void setSelectedItems(List<Document> selectedItems) {
+    public void setSelectedItems(List<FuelTransaction> selectedItems) {
         this.selectedItems = selectedItems;
     }
 
@@ -352,11 +352,11 @@ public class FileController implements Serializable {
         this.institution = institution;
     }
 
-    public DocumentHistory getSelectedHistory() {
+    public FuelTransactionHistory getSelectedHistory() {
         return selectedHistory;
     }
 
-    public void setSelectedHistory(DocumentHistory selectedHistory) {
+    public void setSelectedHistory(FuelTransactionHistory selectedHistory) {
         this.selectedHistory = selectedHistory;
     }
 
@@ -368,11 +368,11 @@ public class FileController implements Serializable {
         this.webUser = webUser;
     }
 
-    public List<DocumentHistory> getSelectedDocumentHistories() {
+    public List<FuelTransactionHistory> getSelectedDocumentHistories() {
         return selectedDocumentHistories;
     }
 
-    public void setSelectedDocumentHistories(List<DocumentHistory> selectedDocumentHistories) {
+    public void setSelectedDocumentHistories(List<FuelTransactionHistory> selectedDocumentHistories) {
         this.selectedDocumentHistories = selectedDocumentHistories;
     }
 
@@ -384,7 +384,7 @@ public class FileController implements Serializable {
         this.searchTerm = searchTerm;
     }
 
-    @FacesConverter(forClass = Document.class)
+    @FacesConverter(forClass = FuelTransaction.class)
     public static class EncounterControllerConverter implements Converter {
 
         @Override
@@ -414,11 +414,11 @@ public class FileController implements Serializable {
             if (object == null) {
                 return null;
             }
-            if (object instanceof Document) {
-                Document o = (Document) object;
+            if (object instanceof FuelTransaction) {
+                FuelTransaction o = (FuelTransaction) object;
                 return getStringKey(o.getId());
             } else {
-                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "object {0} is of type {1}; expected type: {2}", new Object[]{object, object.getClass().getName(), Document.class.getName()});
+                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "object {0} is of type {1}; expected type: {2}", new Object[]{object, object.getClass().getName(), FuelTransaction.class.getName()});
                 return null;
             }
         }

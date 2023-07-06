@@ -30,13 +30,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import javax.inject.Inject;
 import lk.gov.health.phsp.bean.util.JsfUtil;
-import lk.gov.health.phsp.entity.Document;
-import lk.gov.health.phsp.entity.DocumentHistory;
+import lk.gov.health.phsp.entity.FuelTransaction;
+import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.UserPrivilege;
 import lk.gov.health.phsp.enums.DocumentGenerationType;
-import lk.gov.health.phsp.enums.DocumentType;
+import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.HistoryType;
 import lk.gov.health.phsp.enums.Privilege;
+import static lk.gov.health.phsp.enums.WebUserRoleLevel.CTB;
+import static lk.gov.health.phsp.enums.WebUserRoleLevel.HEALTH_INSTITUTION;
+import static lk.gov.health.phsp.enums.WebUserRoleLevel.NATIONAL;
 
 /**
  *
@@ -74,8 +77,8 @@ public class MenuController implements Serializable {
     }
 
     public String toFileAddNew() {
-        Document nd = new Document();
-        nd.setDocumentType(DocumentType.File);
+        FuelTransaction nd = new FuelTransaction();
+        nd.setDocumentType(FuelTransactionType.FuelRequest);
         nd.setDocumentDate(new Date());
         nd.setReceivedDate(new Date());
         nd.setInstitution(webUserController.getLoggedInstitution());
@@ -85,14 +88,14 @@ public class MenuController implements Serializable {
         nd.setCurrentOwner(webUserController.getLoggedUser());
         fileController.setSelected(nd);
 
-        DocumentHistory ndh = new DocumentHistory();
+        FuelTransactionHistory ndh = new FuelTransactionHistory();
         ndh.setHistoryType(HistoryType.File_Created);
         return "/document/file";
     }
 
     public String toLetterAddNewReceivedLetter() {
-        Document nd = new Document();
-        nd.setDocumentType(DocumentType.Letter);
+        FuelTransaction nd = new FuelTransaction();
+        nd.setDocumentType(FuelTransactionType.FuelIssue);
         nd.setDocumentGenerationType(DocumentGenerationType.Received_by_institution);
         nd.setDocumentDate(new Date());
         nd.setReceivedDate(new Date());
@@ -105,7 +108,7 @@ public class MenuController implements Serializable {
         letterController.setSelected(nd);
 
         letterController.setNewHx(true);
-        DocumentHistory ndh = new DocumentHistory();
+        FuelTransactionHistory ndh = new FuelTransactionHistory();
         ndh.setHistoryType(HistoryType.Letter_Created);
         ndh.setInstitution(webUserController.getLoggedInstitution());
         ndh.setToInstitution(webUserController.getLoggedInstitution());
@@ -114,8 +117,8 @@ public class MenuController implements Serializable {
     
     
     public String toUnitLetterAdd() {
-        Document nd = new Document();
-        nd.setDocumentType(DocumentType.Letter);
+        FuelTransaction nd = new FuelTransaction();
+        nd.setDocumentType(FuelTransactionType.FuelIssue);
         nd.setDocumentGenerationType(DocumentGenerationType.Received_by_institution);
         nd.setDocumentDate(new Date());
         nd.setReceivedDate(new Date());
@@ -130,8 +133,8 @@ public class MenuController implements Serializable {
     }
     
     public String toLetterMailBranchAddNew() {
-        Document nd = new Document();
-        nd.setDocumentType(DocumentType.Letter);
+        FuelTransaction nd = new FuelTransaction();
+        nd.setDocumentType(FuelTransactionType.FuelIssue);
         nd.setDocumentGenerationType(DocumentGenerationType.Received_by_mail_branch);
         nd.setDocumentDate(new Date());
         nd.setReceivedDate(new Date());
@@ -144,15 +147,15 @@ public class MenuController implements Serializable {
         letterController.setSelected(nd);
 
         letterController.setNewHx(true);
-        DocumentHistory ndh = new DocumentHistory();
+        FuelTransactionHistory ndh = new FuelTransactionHistory();
         ndh.setHistoryType(HistoryType.Letter_added_by_mail_branch);
         ndh.setInstitution(webUserController.getLoggedInstitution());
         return "/document/letter_mail_branch";
     }
     
     public String toLetterGenerateNew() {
-        Document nd = new Document();
-        nd.setDocumentType(DocumentType.Letter);
+        FuelTransaction nd = new FuelTransaction();
+        nd.setDocumentType(FuelTransactionType.FuelIssue);
         nd.setDocumentGenerationType(DocumentGenerationType.Generated_by_system);
         nd.setDocumentDate(new Date());
         nd.setReceivedDate(new Date());
@@ -166,7 +169,7 @@ public class MenuController implements Serializable {
         letterController.setSelected(nd);
 
         letterController.setNewHx(true);
-        DocumentHistory ndh = new DocumentHistory();
+        FuelTransactionHistory ndh = new FuelTransactionHistory();
         ndh.setHistoryType(HistoryType.Letter_Generated);
         ndh.setInstitution(webUserController.getLoggedInstitution());
         
@@ -214,9 +217,10 @@ public class MenuController implements Serializable {
 
     public String toReportsIndex() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case National:
+            case NATIONAL:
+            case CTB:
                 return "/national/reports_index";
-            case Institutional:
+            case HEALTH_INSTITUTION:
                 return "/institution/reports_index";
             default:
                 return "";
@@ -225,9 +229,10 @@ public class MenuController implements Serializable {
 
     public String toSearch() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case National:
+            case NATIONAL:
+            case CTB:
                 return "/national/search";
-            case Institutional:
+            case HEALTH_INSTITUTION:
                 return "/institution/search";
             default:
                 return "";
@@ -235,23 +240,11 @@ public class MenuController implements Serializable {
     }
 
     public String toAdministrationIndex() {
-        boolean privileged = false;
-        for (UserPrivilege up : webUserController.getLoggedUserPrivileges()) {
-            if (up.getPrivilege() == Privilege.Institution_Administration) {
-                privileged = true;
-            }
-            if (up.getPrivilege() == Privilege.System_Administration) {
-                privileged = true;
-            }
-        }
-        if (!privileged) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
-            return "";
-        }
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case National:
+            case NATIONAL:
+            case CTB:
                 return "/national/admin/index";
-            case Institutional:
+            case HEALTH_INSTITUTION:
                 return "/institution/admin/index";
             default:
                 return "";
@@ -263,24 +256,12 @@ public class MenuController implements Serializable {
     }
 
     public String toPreferences() {
-        boolean privileged = false;
-        for (UserPrivilege up : webUserController.getLoggedUserPrivileges()) {
-            if (up.getPrivilege() == Privilege.Institution_Administration) {
-                privileged = true;
-            }
-            if (up.getPrivilege() == Privilege.System_Administration) {
-                privileged = true;
-            }
-        }
-        if (!privileged) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
-            return "";
-        }
         preferenceController.preparePreferences();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case Institutional:
+            case HEALTH_INSTITUTION:
+            case CTB:
                 return "/regional/institution/preferences";
-            case National:
+            case NATIONAL:
                 return "/national/admin/preferences";
             default:
                 return "";
@@ -288,50 +269,65 @@ public class MenuController implements Serializable {
     }
 
     public String toAddNewUser() {
-        boolean privileged = false;
-        for (UserPrivilege up : webUserController.getLoggedUserPrivileges()) {
-            if (up.getPrivilege() == Privilege.Institution_Administration) {
-                privileged = true;
-            }
-            if (up.getPrivilege() == Privilege.System_Administration) {
-                privileged = true;
-            }
-        }
-        if (!privileged) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
-            return "";
-        }
         webUserController.prepareToAddNewUser();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case National:
+            case NATIONAL:
+            case CTB:
                 return "/national/admin/user_new";
-            case Institutional:
+            case HEALTH_INSTITUTION:
                 return "/institution/admin/user_new";
+            default:
+                return "";
+        }
+    }
+    
+    public String toAddMultipleUsers() {
+        webUserController.prepareToAddNewUser();
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case NATIONAL:
+            case CTB:
+                return "/national/admin/add_multiple_users";
+            case HEALTH_INSTITUTION:
+                return "/institution/admin/add_multiple_users";
             default:
                 return "";
         }
     }
 
     public String toAddNewInstitution() {
-        boolean privileged = false;
-        for (UserPrivilege up : webUserController.getLoggedUserPrivileges()) {
-            if (up.getPrivilege() == Privilege.Institution_Administration) {
-                privileged = true;
-            }
-            if (up.getPrivilege() == Privilege.System_Administration) {
-                privileged = true;
-            }
-        }
-        if (!privileged) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
-            return "";
-        }
         institutionController.prepareToAddNewInstitution();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case National:
+            case NATIONAL:
+            case CTB:
                 return "/national/admin/institution";
-            case Institutional:
+            case HEALTH_INSTITUTION:
                 return "/institution/admin/institution";
+            default:
+                return "";
+        }
+    }
+    
+    public String toAddNewVehicle() {
+        institutionController.prepareToAddNewInstitution();
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case NATIONAL:
+            case CTB:
+                return "/national/admin/vehicle";
+            case HEALTH_INSTITUTION:
+                return "/institution/admin/vehicle";
+            default:
+                return "";
+        }
+    }
+    
+    public String toAddMultipleNewInstitutions() {
+        institutionController.prepareToAddNewInstitution();
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case NATIONAL:
+            case CTB:
+                return "/national/admin/add_multiple_institutions_with_a_user";
+            case HEALTH_INSTITUTION:
+                return "/institution/admin/add_multiple_institutions_with_a_user";
             default:
                 return "";
         }
@@ -348,30 +344,12 @@ public class MenuController implements Serializable {
     }
 
     public String toListUsers() {
-        boolean privileged = false;
-        boolean national = false;
-        for (UserPrivilege up : webUserController.getLoggedUserPrivileges()) {
-            if (up.getPrivilege() == Privilege.Institution_Administration) {
-                privileged = true;
-            }
-            if (up.getPrivilege() == Privilege.System_Administration) {
-                privileged = true;
-                national = true;
-            }
-        }
-        if (!privileged) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
-            return "";
-        }
-        if (national) {
-            webUserController.prepareListingAllUsers();
-        } else {
-            webUserController.prepareListingUsersUnderMe();
-        }
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case Institutional:
+            case HEALTH_INSTITUTION:
+            case CTB:
                 return "/institution/admin/user_list";
-            case National:
+            case NATIONAL:
+                webUserController.fillAllUsers();
                 return "/national/admin/user_list";
             default:
                 return "";
@@ -379,27 +357,25 @@ public class MenuController implements Serializable {
     }
 
     public String toListInstitutions() {
-        boolean privileged = false;
-        boolean national = false;
-        for (UserPrivilege up : webUserController.getLoggedUserPrivileges()) {
-            if (up.getPrivilege() == Privilege.Institution_Administration) {
-                privileged = true;
-            }
-            if (up.getPrivilege() == Privilege.System_Administration) {
-                privileged = true;
-                national = true;
-            }
-        }
-        if (!privileged) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
-            return "";
-        }
         institutionController.prepareToListInstitution();
-        System.out.println("webUserController.getLoggedUser().getWebUserRoleLevel() = " + webUserController.getLoggedUser().getWebUserRoleLevel());
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case Institutional:
+            case CTB:
+            case HEALTH_INSTITUTION:
                 return "/institution/admin/institution_list";
-            case National:
+            case NATIONAL:
+                return "/national/admin/institution_list";
+            default:
+                return "";
+        }
+    }
+    
+    public String toListVehicles() {
+        institutionController.prepareToListInstitution();
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case CTB:
+            case HEALTH_INSTITUTION:
+                return "/institution/admin/institution_list";
+            case NATIONAL:
                 return "/national/admin/institution_list";
             default:
                 return "";
@@ -407,26 +383,13 @@ public class MenuController implements Serializable {
     }
 
     public String toListInstitutionsWithUsers() {
-        boolean privileged = false;
-        boolean national = false;
-        for (UserPrivilege up : webUserController.getLoggedUserPrivileges()) {
-            if (up.getPrivilege() == Privilege.Institution_Administration) {
-                privileged = true;
-            }
-            if (up.getPrivilege() == Privilege.System_Administration) {
-                privileged = true;
-                national = true;
-            }
-        }
-        if (!privileged) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
-            return "";
-        }
+        
         institutionController.prepareToListInstitution();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case Institutional:
+            case HEALTH_INSTITUTION:
+            case CTB:
                 return "/institution/admin/institution_list_with_users";
-            case National:
+            case NATIONAL:
                 return "/national/admin/institution_list_with_users";
             default:
                 return "";
@@ -434,26 +397,12 @@ public class MenuController implements Serializable {
     }
 
     public String toPrivileges() {
-        boolean privileged = false;
-        boolean national = false;
-        for (UserPrivilege up : webUserController.getLoggedUserPrivileges()) {
-            if (up.getPrivilege() == Privilege.Institution_Administration) {
-                privileged = true;
-            }
-            if (up.getPrivilege() == Privilege.System_Administration) {
-                privileged = true;
-                national = true;
-            }
-        }
-        if (!privileged) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
-            return "";
-        }
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case Institutional:
+            case HEALTH_INSTITUTION:
+            case CTB:
                 webUserController.preparePrivileges(webUserApplicationController.getRegionalPrivilegeRoot());
                 return "/institution/admin/privileges";
-            case National:
+            case NATIONAL:
                 webUserController.preparePrivileges(webUserApplicationController.getAllPrivilegeRoot());
                 return "/national/admin/privileges";
             default:
@@ -467,23 +416,11 @@ public class MenuController implements Serializable {
     }
 
     public String toEditUser() {
-        boolean privileged = false;
-        for (UserPrivilege up : webUserController.getLoggedUserPrivileges()) {
-            if (up.getPrivilege() == Privilege.Institution_Administration) {
-                privileged = true;
-            }
-            if (up.getPrivilege() == Privilege.System_Administration) {
-                privileged = true;
-            }
-        }
-        if (!privileged) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
-            return "";
-        }
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case Institutional:
+            case HEALTH_INSTITUTION:
+            case CTB:
                 return "/institution/admin/user_edit";
-            case National:
+            case NATIONAL:
                 return "/national/admin/user_edit";
             default:
                 return "";
@@ -491,23 +428,11 @@ public class MenuController implements Serializable {
     }
 
     public String toEditInstitution() {
-        boolean privileged = false;
-        for (UserPrivilege up : webUserController.getLoggedUserPrivileges()) {
-            if (up.getPrivilege() == Privilege.Institution_Administration) {
-                privileged = true;
-            }
-            if (up.getPrivilege() == Privilege.System_Administration) {
-                privileged = true;
-            }
-        }
-        if (!privileged) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
-            return "";
-        }
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case Institutional:
+            case HEALTH_INSTITUTION:
+            case CTB:
                 return "/institution/admin/institution";
-            case National:
+            case NATIONAL:
                 return "/national/admin/institution";
             default:
                 return "";
@@ -515,24 +440,12 @@ public class MenuController implements Serializable {
     }
 
     public String toEditPassword() {
-        boolean privileged = false;
-        for (UserPrivilege up : webUserController.getLoggedUserPrivileges()) {
-            if (up.getPrivilege() == Privilege.Institution_Administration) {
-                privileged = true;
-            }
-            if (up.getPrivilege() == Privilege.System_Administration) {
-                privileged = true;
-            }
-        }
-        if (!privileged) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
-            return "";
-        }
         webUserController.prepareEditPassword();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case Institutional:
+            case HEALTH_INSTITUTION:
+            case CTB:
                 return "/institution/admin/user_password";
-            case National:
+            case NATIONAL:
                 return "/national/admin/user_password";
             default:
                 return "";
@@ -555,10 +468,10 @@ public class MenuController implements Serializable {
         }
 
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case Institutional:
+            case HEALTH_INSTITUTION:
                 webUserController.prepareManagePrivileges(webUserApplicationController.getRegionalPrivilegeRoot());
                 return "/regional/admin/user_privileges";
-            case National:
+            case NATIONAL:
                 webUserController.prepareManagePrivileges(webUserApplicationController.getAllPrivilegeRoot());
                 return "/national/admin/user_privileges";
             default:

@@ -57,13 +57,13 @@ import lk.gov.health.phsp.bean.WebUserApplicationController;
 import lk.gov.health.phsp.bean.WebUserController;
 import lk.gov.health.phsp.entity.Area;
 
-import lk.gov.health.phsp.entity.Document;
+import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Item;
 
 import lk.gov.health.phsp.entity.WebUser;
 import lk.gov.health.phsp.enums.AreaType;
-import lk.gov.health.phsp.enums.DocumentType;
+import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.InstitutionType;
 
 import org.json.JSONArray;
@@ -336,7 +336,7 @@ public class ApiResource {
 
         System.out.println("rid = " + rid);
 
-        Document e = encounterApplicationController.getEncounter(rid);
+        FuelTransaction e = encounterApplicationController.getEncounter(rid);
 
         if (e == null) {
             return errorMessageNoSuchPcrRequestId();
@@ -399,7 +399,7 @@ public class ApiResource {
         for (Institution a : ds) {
             JSONObject ja = new JSONObject();
             ja.put("institute_id", a.getId());
-            ja.put("institute_code", a.getCode());
+            ja.put("institute_code", a.getVehiclesModel());
             ja.put("name", a.getName());
             ja.put("hin", a.getPoiNumber());
            ja.put("address", a.getAddress());
@@ -551,7 +551,6 @@ public class ApiResource {
         JSONObject jSONObjectOut = new JSONObject();
         JSONArray array = new JSONArray();
         List<InstitutionType> its = new ArrayList<>();
-        its.add(InstitutionType.Lab);
         List<Institution> ds = institutionApplicationController.findInstitutions(its);
         for (Institution a : ds) {
             JSONObject ja = new JSONObject();
@@ -747,9 +746,9 @@ public class ApiResource {
 
             for (Institution i_ : instList) {
                 if (childInstitions == null) {
-                    childInstitions = institution.getCode() + ":" + i_.getCode();
+                    childInstitions = institution.getVehiclesModel() + ":" + i_.getVehiclesModel();
                 } else {
-                    childInstitions += "^" + institution.getCode() + ":" + i_.getCode();
+                    childInstitions += "^" + institution.getVehiclesModel() + ":" + i_.getVehiclesModel();
                 }
             }
         }

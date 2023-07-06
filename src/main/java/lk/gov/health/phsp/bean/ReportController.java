@@ -35,16 +35,16 @@ import java.util.Map;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import lk.gov.health.phsp.entity.Area;
-import lk.gov.health.phsp.entity.Document;
+import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.entity.Institution;
-import lk.gov.health.phsp.enums.DocumentType;
+import lk.gov.health.phsp.enums.FuelTransactionType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lk.gov.health.phsp.entity.Upload;
 import lk.gov.health.phsp.enums.Quarter;
 import lk.gov.health.phsp.enums.TimePeriodType;
-import lk.gov.health.phsp.facade.DocumentFacade;
+import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 import lk.gov.health.phsp.facade.UploadFacade;
 import lk.gov.health.phsp.pojcs.AreaCount;
 import lk.gov.health.phsp.pojcs.InstitutionCount;
@@ -63,7 +63,7 @@ public class ReportController implements Serializable {
 
 
     @EJB
-    private DocumentFacade encounterFacade;
+    private FuelTransactionHistoryFacade encounterFacade;
     @EJB
     private UploadFacade uploadFacade;
 // </editor-fold>     
@@ -85,7 +85,7 @@ public class ReportController implements Serializable {
    
 // </editor-fold>  
 // <editor-fold defaultstate="collapsed" desc="Class Variables">
-    private List<Document> encounters;
+    private List<FuelTransaction> encounters;
     private Date fromDate;
     private Date toDate;
     private Institution institution;
@@ -282,7 +282,7 @@ public class ReportController implements Serializable {
         m.put("ret", false);
         m.put("fd", fromDate);
         m.put("td", toDate);
-        m.put("type", DocumentType.Register);
+        m.put("type", FuelTransactionType.FuelEstimate);
         if (institution != null) {
             j += " and c.institution in :ins ";
             List<Institution> ins = institutionApplicationController.findChildrenInstitutions(institution);
@@ -312,7 +312,7 @@ public class ReportController implements Serializable {
         m.put("ret", false);
         m.put("fd", fromDate);
         m.put("td", toDate);
-        m.put("type", DocumentType.Letter);
+        m.put("type", FuelTransactionType.FuelIssue);
         if (institution != null) {
             j += " and c.institution in :ins ";
             List<Institution> ins = institutionApplicationController.findChildrenInstitutions(institution);
@@ -332,7 +332,7 @@ public class ReportController implements Serializable {
         m.put("ret", false);
         m.put("fd", fromDate);
         m.put("td", toDate);
-        m.put("type", DocumentType.Register);
+        m.put("type", FuelTransactionType.FuelEstimate);
         if (institution != null) {
             j += " and c.institution in :ins ";
             List<Institution> ins = institutionApplicationController.findChildrenInstitutions(institution);
@@ -354,7 +354,7 @@ public class ReportController implements Serializable {
         m.put("ret", false);
         m.put("fd", fromDate);
         m.put("td", toDate);
-        m.put("type", DocumentType.Letter);
+        m.put("type", FuelTransactionType.FuelIssue);
         if (institution != null) {
             j += " and c.institution in :ins ";
             List<Institution> ins = institutionApplicationController.findChildrenInstitutions(institution);
@@ -376,7 +376,7 @@ public class ReportController implements Serializable {
         m.put("ret", false);
         m.put("fd", fromDate);
         m.put("td", toDate);
-        m.put("type", DocumentType.Register);
+        m.put("type", FuelTransactionType.FuelEstimate);
         if (institution != null) {
             j += " and c.institution in :ins ";
             List<Institution> ins = institutionApplicationController.findChildrenInstitutions(institution);
@@ -398,11 +398,11 @@ public class ReportController implements Serializable {
         return webUserController;
     }
 
-    public List<Document> getEncounters() {
+    public List<FuelTransaction> getEncounters() {
         return encounters;
     }
 
-    public void setEncounters(List<Document> encounters) {
+    public void setEncounters(List<FuelTransaction> encounters) {
         this.encounters = encounters;
     }
 
@@ -468,11 +468,11 @@ public class ReportController implements Serializable {
 
    
 
-    public DocumentFacade getEncounterFacade() {
+    public FuelTransactionHistoryFacade getEncounterFacade() {
         return encounterFacade;
     }
 
-    public void setEncounterFacade(DocumentFacade encounterFacade) {
+    public void setEncounterFacade(FuelTransactionHistoryFacade encounterFacade) {
         this.encounterFacade = encounterFacade;
     }
 

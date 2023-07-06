@@ -21,30 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package lk.gov.health.phsp.facade;
 
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import lk.gov.health.phsp.entity.Document;
+package lk.gov.health.phsp.enums;
 
 /**
  *
- * @author Dr M H B Ariyaratne<buddhika.ari@gmail.com>
+ * @author User
  */
-@Stateless
-public class DocumentFacade extends AbstractFacade<Document> {
-
-    @PersistenceContext(unitName = "hmisPU")
-    private EntityManager em;
-
-    @Override
-    protected EntityManager getEntityManager() {
-        return em;
-    }
-
-    public DocumentFacade() {
-        super(Document.class);
+public enum FuelTransactionType {
+    FuelRequest("Request"),
+    FuelIssue("Issue"),
+    FuelRejection("Rejection"),
+    FuelEstimate("Estimate"),
+    Other("Other");
+    
+    private final String label;    
+    private FuelTransactionType(String label){
+        this.label = label;
     }
     
+    public String getLabel(){
+        return label;
+    }
+    
+   
 }

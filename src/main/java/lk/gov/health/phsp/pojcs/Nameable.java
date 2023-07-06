@@ -35,39 +35,5 @@ public interface Nameable {
     public String getName();
     public void setName(String name) ;
     
-    public String getInsName();
-    public void setInsName(String name) ;
-    
-    public String getCode();
-    public void setCode(String code);
-    
-    public String getAddress() ;
-    public void setAddress(String address) ;
-
-    public String getFax() ;
-    public void setFax(String fax) ;
-
-    public String getEmail() ;
-    public void setEmail(String email);
-
-    public String getPhone() ;
-    public void setPhone(String phone) ;
-
-    public String getMobile() ;
-    public void setMobile(String mobile) ;
-
-    public String getTname() ;
-    public void setTname(String tname) ;
-
-    public String getSname() ;
-    public void setSname(String sname);
-
-    public String getDisplayName();
-    
-    public Boolean getInstitute();
-    public Boolean getWebUser();
-    
-    @Override
-    public String toString();
     
 }

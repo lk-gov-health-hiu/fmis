@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 buddhika.
+ * Copyright 2019 Dr M H B Ariyaratne<buddhika.ari@gmail.com>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,71 +23,67 @@
  */
 package lk.gov.health.phsp.entity;
 
+import lk.gov.health.phsp.enums.InstitutionType;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlRootElement;
+import lk.gov.health.phsp.enums.VehicleType;
+import lk.gov.health.phsp.pojcs.Nameable;
 
 /**
  *
- * @author buddhika
+ * @author Dr M H B Ariyaratne, buddhika.ari@gmail.com
  */
 @Entity
-@Deprecated
-public class DocumentDestination implements Serializable {
+public class Vehicle implements Serializable, Nameable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
+
+    @Enumerated(EnumType.STRING)
+    private VehicleType vehicleType;
+
+    private String name;
+    private String vehicleNumber;
+    private String vehicleMake;
+    private String vehiclesModel;
+    @Lob
+    private String details;
+
+
+
     @ManyToOne
-    private FuelTransaction document;
-    
-    @ManyToOne
-    private Institution fromInstitution;
-    @ManyToOne
-    private WebUser fromUser;
-    @ManyToOne
-    private Institution toInstitution;
-    @ManyToOne
-    private WebUser toUser;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    private WebUser createdBy;
+    private WebUser creater;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date createdAt;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Institution createdInstitution;
-
+    @ManyToOne
+    private WebUser editer;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date editedAt;
+    //Retairing properties
     private boolean retired;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private WebUser retiredBy;
+    @ManyToOne
+    private WebUser retirer;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date retiredAt;
-    @Lob
     private String retireComments;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private WebUser retiredReversedBy;
-    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date retiredReversedAt;
+   
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-    
-    
+   
 
     @Override
     public int hashCode() {
@@ -98,11 +94,11 @@ public class DocumentDestination implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof DocumentDestination)) {
+
+        if (!(object instanceof Vehicle)) {
             return false;
         }
-        DocumentDestination other = (DocumentDestination) object;
+        Vehicle other = (Vehicle) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -111,55 +107,85 @@ public class DocumentDestination implements Serializable {
 
     @Override
     public String toString() {
-        return "lk.gov.health.phsp.entity.DocumentDestination[ id=" + id + " ]";
+        if (id == null) {
+            return null;
+        } else {
+            return id.toString();
+        }
     }
 
-    public FuelTransaction getDocument() {
-        return document;
+    @Override
+    public Long getId() {
+        return id;
     }
 
-    public void setDocument(FuelTransaction document) {
-        this.document = document;
+    @Override
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public Institution getFromInstitution() {
-        return fromInstitution;
+    public VehicleType getVehicleType() {
+        return vehicleType;
     }
 
-    public void setFromInstitution(Institution fromInstitution) {
-        this.fromInstitution = fromInstitution;
+    public void setVehicleType(VehicleType vehicleType) {
+        this.vehicleType = vehicleType;
     }
 
-    public WebUser getFromUser() {
-        return fromUser;
+    @Override
+    public String getName() {
+        return name;
     }
 
-    public void setFromUser(WebUser fromUser) {
-        this.fromUser = fromUser;
+    @Override
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Institution getToInstitution() {
-        return toInstitution;
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
     }
 
-    public void setToInstitution(Institution toInstitution) {
-        this.toInstitution = toInstitution;
+  
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
     }
 
-    public WebUser getToUser() {
-        return toUser;
+ 
+    public String getVehicleMake() {
+        return vehicleMake;
     }
 
-    public void setToUser(WebUser toUser) {
-        this.toUser = toUser;
+   
+    public void setVehicleMake(String vehicleMake) {
+        this.vehicleMake = vehicleMake;
     }
 
-    public WebUser getCreatedBy() {
-        return createdBy;
+  
+    public String getVehiclesModel() {
+        return vehiclesModel;
     }
 
-    public void setCreatedBy(WebUser createdBy) {
-        this.createdBy = createdBy;
+
+    public void setVehiclesModel(String vehiclesModel) {
+        this.vehiclesModel = vehiclesModel;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    public WebUser getCreater() {
+        return creater;
+    }
+
+    public void setCreater(WebUser creater) {
+        this.creater = creater;
     }
 
     public Date getCreatedAt() {
@@ -170,12 +196,20 @@ public class DocumentDestination implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public Institution getCreatedInstitution() {
-        return createdInstitution;
+    public WebUser getEditer() {
+        return editer;
     }
 
-    public void setCreatedInstitution(Institution createdInstitution) {
-        this.createdInstitution = createdInstitution;
+    public void setEditer(WebUser editer) {
+        this.editer = editer;
+    }
+
+    public Date getEditedAt() {
+        return editedAt;
+    }
+
+    public void setEditedAt(Date editedAt) {
+        this.editedAt = editedAt;
     }
 
     public boolean isRetired() {
@@ -186,12 +220,12 @@ public class DocumentDestination implements Serializable {
         this.retired = retired;
     }
 
-    public WebUser getRetiredBy() {
-        return retiredBy;
+    public WebUser getRetirer() {
+        return retirer;
     }
 
-    public void setRetiredBy(WebUser retiredBy) {
-        this.retiredBy = retiredBy;
+    public void setRetirer(WebUser retirer) {
+        this.retirer = retirer;
     }
 
     public Date getRetiredAt() {
@@ -210,20 +244,8 @@ public class DocumentDestination implements Serializable {
         this.retireComments = retireComments;
     }
 
-    public WebUser getRetiredReversedBy() {
-        return retiredReversedBy;
-    }
-
-    public void setRetiredReversedBy(WebUser retiredReversedBy) {
-        this.retiredReversedBy = retiredReversedBy;
-    }
-
-    public Date getRetiredReversedAt() {
-        return retiredReversedAt;
-    }
-
-    public void setRetiredReversedAt(Date retiredReversedAt) {
-        this.retiredReversedAt = retiredReversedAt;
-    }
     
+    
+    
+
 }

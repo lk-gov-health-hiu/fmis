@@ -35,19 +35,6 @@
                             </f:facet>
                              <h:outputText value="#{webUserController.displayUsers(item)}"/>
                         </p:column>
-                        <p:column  >
-                            <f:facet name="header">
-                                <h:outputText value="POI"/>
-                            </f:facet>
-                            <h:outputText value="Own POI : "/>
-                            <h:outputText value="#{item.poiNumber}"/>
-                            <br/><!-- comment -->
-                            <h:outputText value="Another POI Institution : "/>
-                            <h:outputText value="#{item.poiInstitution.name}"/>
-                            <h:outputText value=" ("/>
-                            <h:outputText value="#{item.poiInstitution.poiNumber}"/>
-                            <h:outputText value=" )"/>
-                        </p:column>
                         <p:column headerText="Actions" >
                             <h:commandLink class="btn btn-primary m-2" id="editButton"
                                            value="Edit"
