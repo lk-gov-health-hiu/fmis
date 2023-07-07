@@ -16,8 +16,8 @@
             <ui:define name="content">
                 <div class="container" >
                     <h:form >
-                        <div class="row" >
-                            <div class="col-md-12" >
+                        <div class="row justify-content-md-center" >
+                            <div class="col-12 col-md-6 col-lg-4" >
                                 <div class="card" >
                                     <div class="card-header" >
                                         <h2><h:outputText value="Request Fuel"></h:outputText></h2>
@@ -52,7 +52,18 @@
                                                 inputStyleClass="form-control"
                                                 required="true"
                                                 requiredMessage="Quantity is required"
-                                                value="" ></p:inputNumber>
+                                                value="#{fuelRequestAndIssueController.selected.requestQuantity}" ></p:inputNumber>
+                                            <p:outputLabel 
+                                                for="txtComments"
+                                                value="Comments" 
+                                                class="form-label">
+                                            </p:outputLabel>
+                                            <p:inputTextarea 
+                                                id="txtComments"
+                                                value="#{fuelRequestAndIssueController.selected.rejectedComments}" >
+                                            </p:inputTextarea>
+
+
                                         </div>
 
                                     </div>

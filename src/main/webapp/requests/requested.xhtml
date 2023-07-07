@@ -10,7 +10,7 @@
         <ui:composition template="./../template.xhtml">
 
             <ui:define name="title">
-                Request
+                Request Details
             </ui:define>
 
             <ui:define name="content">
@@ -24,42 +24,28 @@
                                     </div>
                                     <div class="card-body" >
 
-                                        <div class="form" >
-                                            <p:outputLabel 
-                                                value="Vehicle" 
-                                                class="form-label"
-                                                for="acVehicle">
-                                            </p:outputLabel>
-                                            <p:autoComplete 
-                                                id="acVehicle"
-                                                value="#{fuelRequestAndIssueController.selected.vehicle}"
-                                                completeMethod="#{vehicleController.completeVehicles}"
-                                                var="v"
-                                                itemLabel="#{v.vehicleNumber}"
-                                                itemValue="#{v}"
-                                                required="true"
-                                                requiredMessage="You must select a vehicle"
-                                                forceSelection="true"
-                                                inputStyleClass="form-control"
-                                                ></p:autoComplete>
-                                            <p:outputLabel 
-                                                for="txtQty"
-                                                value="Requesting Quantity in Liters" 
-                                                class="form-label">
-                                            </p:outputLabel>
-                                            <p:inputNumber
-                                                id="txtQty"
-                                                inputStyleClass="form-control"
-                                                required="true"
-                                                requiredMessage="Quantity is required"
-                                                value="" ></p:inputNumber>
-                                        </div>
+
+                                        <p><b>ID:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.id}"/></p>
+                                        <p><b>Requested At:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestAt}"/></p>
+                                        <p><b>Requested By:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestedBy.person.name}"/></p>
+                                        <p><b>Requested Institution:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestedInstitution.name}"/></p>
+                                        <p><b>Vehicle:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}"/></p>
+                                        <p><b>Comments:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.comments}"/></p>
+                                        <p><b>Request Quantity:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}"/></p>
+                                        <p><b>Issued Quantity:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.issuedQuantity}"/></p>
+
 
                                     </div>
                                     <div class="card-footer" >
-                                        <h:commandButton  value="Submit" 
+                                        <h:commandButton  value="Add New Request" 
                                                           class="btn btn-primary"
-                                                          action="#{fuelRequestAndIssueController.searchFuelTransaction()}" >
+                                                          action="#{fuelRequestAndIssueController.navigateToAddRequest()}"
+                                                          >
+                                        </h:commandButton>
+                                        <h:commandButton  value="View Requests" 
+                                                          class="btn btn-primary"
+                                                          action="#{fuelRequestAndIssueController.navigateToAddRequest()}"
+                                                          >
                                         </h:commandButton>
                                     </div>
                                 </div>

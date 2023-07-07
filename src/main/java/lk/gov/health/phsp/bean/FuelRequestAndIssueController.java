@@ -85,15 +85,21 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String submitFuelRequest() {
+        System.out.println("submitFuelRequest");
+        System.out.println("selected = " + selected);
         if (selected == null) {
+            System.out.println("Selcted is null");
             JsfUtil.addErrorMessage("Nothing selected");
             return navigateToAddRequest();
         }
+        System.out.println("selected.getTransactionType() = " + selected.getTransactionType());
         if (selected.getTransactionType() == null || selected.getTransactionType() != FuelTransactionType.FuelRequest) {
+            System.out.println("wrong type");
             JsfUtil.addErrorMessage("Wrong selection");
             return navigateToAddRequest();
         }
         save(selected);
+        System.out.println("saved");
         JsfUtil.addSuccessMessage("Request Submitted");
         return navigateToViewRequest();
     }
@@ -239,7 +245,7 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     private String navigateToViewRequest() {
-        return "";
+        return "/requests/requested";
     }
 
     @FacesConverter(forClass = FuelTransaction.class)
