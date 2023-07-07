@@ -79,8 +79,6 @@ public class WebUserController implements Serializable {
     @Inject
     private ItemController itemController;
     @Inject
-    private FileController encounterController;
-    @Inject
     ExcelReportController reportController;
     @Inject
     private UserTransactionController userTransactionController;
@@ -2246,9 +2244,6 @@ public class WebUserController implements Serializable {
         this.reportTabIndex = reportTabIndex;
     }
 
-    public FileController getEncounterController() {
-        return encounterController;
-    }
 
     public WebUserRole getAssumedRole() {
         return assumedRole;

@@ -54,8 +54,6 @@ public class DashboardController implements Serializable {
     private FuelTransactionHistoryFacade encounterFacade;
 
     @Inject
-    private FileController encounterController;
-    @Inject
     private ItemController itemController;
     @Inject
     private DashboardApplicationController dashboardApplicationController;
@@ -638,13 +636,6 @@ public class DashboardController implements Serializable {
         this.encounterFacade = encounterFacade;
     }
 
-    public FileController getEncounterController() {
-        return encounterController;
-    }
-
-    public void setEncounterController(FileController encounterController) {
-        this.encounterController = encounterController;
-    }
 
     public List<InstitutionCount> getIcs() {
         return ics;

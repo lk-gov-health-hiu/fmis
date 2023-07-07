@@ -16,10 +16,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
+import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.entity.WebUser;
+import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.facade.FuelTrnasactionFacade;
 import lk.gov.health.phsp.facade.InstitutionFacade;
 import lk.gov.health.phsp.facade.VehicleFacade;
@@ -30,29 +32,20 @@ import lk.gov.health.phsp.facade.WebUserFacade;
 public class FuelRequestAndIssueController implements Serializable {
 
     @EJB
-    FuelTransactionHistoryFacade fuelTransactionHistoryFacade;
+    private FuelTransactionHistoryFacade fuelTransactionHistoryFacade;
 
     @EJB
-    FuelTrnasactionFacade fuelTransactionFacade;
+    private FuelTrnasactionFacade fuelTransactionFacade;
 
     @EJB
     InstitutionFacade institutionFacade;
-    
+
     @EJB
     VehicleFacade vehicleFacade;
 
     @EJB
     WebUserFacade webUserFacade;
 
-    private List<FuelTransaction> txs = null;
-    private List<FuelTransaction> selectedTxs = null;
-    private FuelTransaction selected;
-    
-    private FuelTransactionHistory selectedHistory;
-    private List<FuelTransactionHistory> selectedTxHistories;
-    private List<FuelTransactionHistory> txHistories;
-   
-    
     @Inject
     private WebUserController webUserController;
     @Inject
@@ -66,13 +59,19 @@ public class FuelRequestAndIssueController implements Serializable {
     @Inject
     WebUserApplicationController webUserApplicationController;
 
+    private List<FuelTransaction> transactions = null;
+    private List<FuelTransaction> selectedTransactions = null;
+    private FuelTransaction selected;
+
+    private FuelTransactionHistory selectedTransactionHistory;
+    private List<FuelTransactionHistory> selectedTransactionHistories;
+    private List<FuelTransactionHistory> transactionHistories;
+
     private Institution institution;
-    Vehicle vehicle;
+    private Vehicle vehicle;
     private WebUser webUser;
     private Date fromDate;
     private Date toDate;
-    
-
 
     public FuelRequestAndIssueController() {
     }
@@ -85,44 +84,61 @@ public class FuelRequestAndIssueController implements Serializable {
         save(selected);
     }
 
-    
-   
+    public String submitFuelRequest() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return navigateToAddRequest();
+        }
+        if (selected.getTransactionType() == null || selected.getTransactionType() != FuelTransactionType.FuelRequest) {
+            JsfUtil.addErrorMessage("Wrong selection");
+            return navigateToAddRequest();
+        }
+        save(selected);
+        JsfUtil.addSuccessMessage("Request Submitted");
+        return navigateToViewRequest();
+    }
+
     public void searchFuelTransaction() {
-       
+
     }
 
     public void searchFuelRequestByVehicle() {
-       
+
     }
 
     public String navigateToListFuelTransactions() {
         return "/issues/list";
     }
-    
-    public String navigateToAddRequest(){
+
+    public String navigateToAddRequest() {
+        selected = new FuelTransaction();
+        selected.setRequestAt(new Date());
+        selected.setTransactionType(FuelTransactionType.FuelRequest);
+        selected.setRequestedBy(webUserController.getLoggedUser());
+        selected.setRequestedInstitution(webUserController.getLoggedInstitution());
         return "/requests/request";
     }
-    
-    public String navigateToIssueRequest(){
+
+    public String navigateToIssueRequest() {
         return "/issues/issue";
     }
 
-    public String generateRequest(){
+    public String generateRequest() {
         return "/requests/requested";
     }
-    
-    public String completeIssue(){
+
+    public String completeIssue() {
         return "/issues/issued";
     }
-    
-    
-    
+
     public String navigateToListInstitutionRequests() {
         return "/requests/list";
     }
 
-    
-    
+    public String navigateToListInstitutionIssues() {
+        return "/issues/list";
+    }
+
     public FuelTransaction getSelected() {
         return selected;
     }
@@ -131,26 +147,101 @@ public class FuelRequestAndIssueController implements Serializable {
         this.selected = selected;
     }
 
-    public FuelTransaction find(Object id){
+    public FuelTransaction find(Object id) {
         return fuelTransactionFacade.find(id);
     }
-    
+
     private FuelTransactionHistoryFacade getFacade() {
         return fuelTransactionHistoryFacade;
     }
 
     public void save(FuelTransaction saving) {
-        if(saving==null){
+        if (saving == null) {
             return;
         }
-        if(saving.getId()==null){
+        if (saving.getId() == null) {
             fuelTransactionFacade.create(saving);
-        }else{
+        } else {
             fuelTransactionFacade.edit(saving);
         }
     }
 
-   
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
+    }
+
+    public List<FuelTransaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<FuelTransaction> transactions) {
+        this.transactions = transactions;
+    }
+
+    public List<FuelTransaction> getSelectedTransactions() {
+        return selectedTransactions;
+    }
+
+    public void setSelectedTransactions(List<FuelTransaction> selectedTransactions) {
+        this.selectedTransactions = selectedTransactions;
+    }
+
+    public FuelTransactionHistory getSelectedTransactionHistory() {
+        return selectedTransactionHistory;
+    }
+
+    public void setSelectedTransactionHistory(FuelTransactionHistory selectedTransactionHistory) {
+        this.selectedTransactionHistory = selectedTransactionHistory;
+    }
+
+    public List<FuelTransactionHistory> getSelectedTransactionHistories() {
+        return selectedTransactionHistories;
+    }
+
+    public void setSelectedTransactionHistories(List<FuelTransactionHistory> selectedTransactionHistories) {
+        this.selectedTransactionHistories = selectedTransactionHistories;
+    }
+
+    public List<FuelTransactionHistory> getTransactionHistories() {
+        return transactionHistories;
+    }
+
+    public void setTransactionHistories(List<FuelTransactionHistory> transactionHistories) {
+        this.transactionHistories = transactionHistories;
+    }
+
+    public Institution getInstitution() {
+        return institution;
+    }
+
+    public void setInstitution(Institution institution) {
+        this.institution = institution;
+    }
+
+    public Date getFromDate() {
+        return fromDate;
+    }
+
+    public void setFromDate(Date fromDate) {
+        this.fromDate = fromDate;
+    }
+
+    public Date getToDate() {
+        return toDate;
+    }
+
+    public void setToDate(Date toDate) {
+        this.toDate = toDate;
+    }
+
+    private String navigateToViewRequest() {
+        return "";
+    }
+
     @FacesConverter(forClass = FuelTransaction.class)
     public static class FuelTransactionConverter implements Converter {
 
@@ -191,7 +282,5 @@ public class FuelRequestAndIssueController implements Serializable {
         }
 
     }
-
-    
 
 }

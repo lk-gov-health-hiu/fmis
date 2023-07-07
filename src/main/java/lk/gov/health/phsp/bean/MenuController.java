@@ -79,22 +79,6 @@ public class MenuController implements Serializable {
   
     
 
-    public String toReceiveFile() {
-        return "/document/file_receive";
-    }
-
-    public String toViewRequest() {
-        return "/common/request_view";
-    }
-
-    public String toViewPatient() {
-        return "/common/client_view";
-    }
-
-    public String toViewResult() {
-        return "/common/result_view";
-    }
-
     public String toReportsIndex() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case NATIONAL:
@@ -148,25 +132,6 @@ public class MenuController implements Serializable {
         }
     }
     
-    public String toRequestFuel() {
-        return "/requestFuel";
-    }
-
-    public String toViewFuelRequests() {
-        return "/viewFuelRequests";
-    }
-
-    public String toSupplyFuel() {
-        return "/supplyFuel";
-    }
-
-    public String toViewFuelSupplies() {
-        return "/viewFuelSupplies";
-    }
-
-    public String toMonitor() {
-        return "/monitor";
-    }
 
     public String toAddNewUser() {
         webUserController.prepareToAddNewUser();

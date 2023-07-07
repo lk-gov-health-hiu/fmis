@@ -282,9 +282,9 @@ public class VehicleController implements Serializable {
         if (nameQry.trim().equals("")) {
             return resIns;
         }
-        List<Vehicle> allIns = vehicleApplicationController.getVehicles();
+        List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
 
-        for (Vehicle i : allIns) {
+        for (Vehicle i : allVehicles) {
             boolean canInclude = true;
 
             boolean typeFound = false;
@@ -298,9 +298,12 @@ public class VehicleController implements Serializable {
             if (!typeFound) {
                 canInclude = false;
             }
-            if (i.getName() == null || i.getName().trim().equals("")) {
+            if (i.getVehicleNumber()== null || i.getVehicleNumber().trim().equals("")) {
                 canInclude = false;
             } else {
+                if (!i.getVehicleNumber().toLowerCase().contains(nameQry.trim().toLowerCase())) {
+                    canInclude = false;
+                }
                 if (!i.getName().toLowerCase().contains(nameQry.trim().toLowerCase())) {
                     canInclude = false;
                 }

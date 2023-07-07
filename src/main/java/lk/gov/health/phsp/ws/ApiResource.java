@@ -24,7 +24,6 @@
 package lk.gov.health.phsp.ws;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,7 +62,6 @@ import lk.gov.health.phsp.entity.Item;
 
 import lk.gov.health.phsp.entity.WebUser;
 import lk.gov.health.phsp.enums.AreaType;
-import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.InstitutionType;
 
 import org.json.JSONArray;
@@ -344,10 +342,7 @@ public class ApiResource {
         
 
 
-        if (!e.getInstitution().equals(wu.getInstitution())) {
-            System.out.println("institution wrong");
-            return errorMessageNoSuchPcrRequestId();
-        }
+
 
         JSONObject ja = new JSONObject();
 

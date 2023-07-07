@@ -62,7 +62,7 @@ public class FuelTransaction implements Serializable {
     private String comments;
 
     @Enumerated(EnumType.STRING)
-    private FuelTransactionType requestType;
+    private FuelTransactionType transactionType;
 
     private Double requestQuantity;
     private Double issuedQuantity;
@@ -280,12 +280,12 @@ public class FuelTransaction implements Serializable {
         this.comments = comments;
     }
 
-    public FuelTransactionType getRequestType() {
-        return requestType;
+    public FuelTransactionType getTransactionType() {
+        return transactionType;
     }
 
-    public void setRequestType(FuelTransactionType requestType) {
-        this.requestType = requestType;
+    public void setTransactionType(FuelTransactionType transactionType) {
+        this.transactionType = transactionType;
     }
 
     public boolean isRetired() {

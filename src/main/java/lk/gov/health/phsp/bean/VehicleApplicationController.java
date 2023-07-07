@@ -74,7 +74,7 @@ public class VehicleApplicationController {
         String j;
         Map m = new HashMap();
         j = "select i from Vehicle i where i.retired=:ret "
-                + " order by i.name ";
+                + " order by i.vehicleNumber ";
         m.put("ret", false);
         return vehicleFacade.findByJpql(j, m);
     }
