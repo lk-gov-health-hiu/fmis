@@ -3,7 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <body>
 
@@ -20,22 +21,97 @@
                             <div class="col-md-12" >
                                 <div class="card" >
                                     <div class="card-header" >
-                                        <h2><h:outputText value="Request Fuel"></h:outputText></h2>
+                                        <h2><h:outputText value="Fuel Request Details"></h:outputText></h2>
                                     </div>
                                     <div class="card-body" >
 
 
-                                        <p><b>ID:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.id}"/></p>
-                                        <p><b>Requested At:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestAt}"/></p>
-                                        <p><b>Requested By:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestedBy.person.name}"/></p>
-                                        <p><b>Requested Institution:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestedInstitution.name}"/></p>
-                                        <p><b>Vehicle:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}"/></p>
-                                        <p><b>Comments:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.comments}"/></p>
-                                        <p><b>Request Quantity:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}"/></p>
-                                        <p><b>Issued Quantity:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.issuedQuantity}"/></p>
+                                        <div class="card-body">
+
+                                            <!-- Request Details -->
+                                            <p:panel header="Request Details" styleClass="box">
+                                                <p><b>ID:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.id}"/></p>
+                                                <p><b>Requested Institution:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestedInstitution.name}"/></p>
+                                                <p><b>Vehicle:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}"/></p>
+                                                <p><b>Request Quantity:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}"/></p>
+                                                <p><b>Comments:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.comments}"/></p>
+                                                <p><b>Requested By:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestedBy.person.name}"/></p>
+                                                <p><b>Requested At:</b> 
+                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.requestAt}">
+                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
+                                                    </h:outputText>
+                                                </p>
+                                            </p:panel>
+
+                                            <!-- Issue Details -->
+                                            <p:panel header="Issue Details" styleClass="box">
+                                                <p:outputPanel rendered="#{fuelRequestAndIssueController.selected.issued}">
+                                                    <p><b>Issued Quantity:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.issuedQuantity}"/></p>
+                                                    <p><b>Issued Institution:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.issuedInstitution.name}"/></p>
+                                                    <p><b>Issued By:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.issuedUser.person.name}"/></p>
+                                                    <p><b>Issued At:</b> 
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selected.issuedAt}">
+                                                            <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
+                                                        </h:outputText>
+                                                    </p>
+                                                </p:outputPanel>
+                                                <p:outputPanel rendered="#{!fuelRequestAndIssueController.selected.issued}">
+                                                    <h2 class="text-danger">Not issued yet</h2>
+                                                </p:outputPanel>
+                                            </p:panel>
+
+
+
+
+
+
+
+
+                                            <!-- Rejection Details -->
+                                            <p:panel header="Rejection Details" styleClass="box">
+                                                <p:outputPanel rendered="#{fuelRequestAndIssueController.selected.rejected}">
+                                                    <p><b>Rejected By:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.rejectedBy.person.name}"/></p>
+                                                    <p><b>Rejection Time:</b> 
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selected.rejectedAt}">
+                                                            <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
+                                                        </h:outputText>
+                                                    </p>
+                                                    <p><b>Rejection Institution:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.rejectedInstitution.name}"/></p>
+                                                    <p><b>Rejection Comments:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.rejectedComments}"/></p>
+                                                </p:outputPanel>
+                                                <p:outputPanel rendered="#{!fuelRequestAndIssueController.selected.rejected}">
+                                                    <h2 class="text-danger">Not rejected</h2>
+                                                </p:outputPanel>
+                                            </p:panel>
+
+                                            <!-- Cancellation Details -->
+                                            <p:panel header="Cancellation Details" styleClass="box">
+                                                <p:outputPanel rendered="#{fuelRequestAndIssueController.selected.cancelled}">
+                                                    <p><b>Cancelled By:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.cancelledBy.person.name}"/></p>
+                                                    <p><b>Cancellation Time:</b> 
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selected.cancelledAt}">
+                                                            <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
+                                                        </h:outputText>
+                                                    </p>
+                                                    <p><b>Cancellation Institution:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.cancelledInstitution.name}"/></p>
+                                                    <p><b>Cancellation Comments:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.cancellationComments}"/></p>
+                                                </p:outputPanel>
+                                                <p:outputPanel rendered="#{!fuelRequestAndIssueController.selected.cancelled}">
+                                                    <h2 class="text-danger">Not cancelled</h2>
+                                                </p:outputPanel>
+                                            </p:panel>
+
+
+
+                                        </div>
+
+
 
 
                                     </div>
+
+
+
                                     <div class="card-footer" >
                                         <h:commandButton  value="Add New Request" 
                                                           class="btn btn-primary"
@@ -44,7 +120,7 @@
                                         </h:commandButton>
                                         <h:commandButton  value="View Requests" 
                                                           class="btn btn-primary"
-                                                          action="#{fuelRequestAndIssueController.navigateToAddRequest()}"
+                                                          action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}"
                                                           >
                                         </h:commandButton>
                                     </div>

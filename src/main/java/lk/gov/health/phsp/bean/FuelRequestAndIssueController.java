@@ -5,7 +5,9 @@ import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -16,6 +18,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
+import javax.persistence.TemporalType;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
@@ -141,6 +144,18 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/requests/list";
     }
 
+    public void listInstitutionRequests() {
+        String j = "select t "
+                + " from FuelTransaction t "
+                + " where t.requestedInstitution=:ins "
+                + " and t.requestAt between :fd and :td";
+        Map m = new HashMap();
+        m.put("ins", webUserController.getLoggedInstitution());
+        m.put("fd", getFromDate());
+        m.put("td", getToDate());
+        transactions = getFacade().findByJpql(j, m, TemporalType.TIMESTAMP);
+    }
+
     public String navigateToListInstitutionIssues() {
         return "/issues/list";
     }
@@ -229,6 +244,9 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public Date getFromDate() {
+        if (fromDate == null) {
+            fromDate = CommonController.startOfTheMonth();
+        }
         return fromDate;
     }
 
@@ -237,6 +255,9 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public Date getToDate() {
+        if (toDate == null) {
+            toDate = CommonController.endOfTheMonth();
+        }
         return toDate;
     }
 
