@@ -39,7 +39,7 @@ import lk.gov.health.phsp.enums.FuelTransactionType;
 
 /**
  *
- * @author buddhika
+ * @author buddhika ariyaratne
  */
 @Entity
 public class FuelTransaction implements Serializable {
