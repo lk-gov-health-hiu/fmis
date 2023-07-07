@@ -269,6 +269,26 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
+    
+    public String toRequestFuel() {
+        return "/requestFuel";
+    }
+
+    public String toViewFuelRequests() {
+        return "/viewFuelRequests";
+    }
+
+    public String toSupplyFuel() {
+        return "/supplyFuel";
+    }
+
+    public String toViewFuelSupplies() {
+        return "/viewFuelSupplies";
+    }
+
+    public String toMonitor() {
+        return "/monitor";
+    }
 
     public String toAddNewUser() {
         webUserController.prepareToAddNewUser();
