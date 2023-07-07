@@ -44,5 +44,5 @@ public enum FuelTransactionType {
         return label;
     }
     
-   
+  
 }
