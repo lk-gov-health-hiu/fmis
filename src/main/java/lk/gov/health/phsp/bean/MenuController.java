@@ -54,9 +54,7 @@ public class MenuController implements Serializable {
     @Inject
     WebUserApplicationController webUserApplicationController;
     @Inject
-    FileController fileController;
-    @Inject
-    LetterController letterController;
+    FuelRequestAndIssueController letterController;
 
     @Inject
     InstitutionController institutionController;
@@ -78,128 +76,8 @@ public class MenuController implements Serializable {
         return "/index";
     }
 
-    public String toFileAddNew() {
-        FuelTransaction nd = new FuelTransaction();
-        nd.setDocumentType(FuelTransactionType.FuelRequest);
-        nd.setDocumentDate(new Date());
-        nd.setReceivedDate(new Date());
-        nd.setInstitution(webUserController.getLoggedInstitution());
-        nd.setInstitutionUnit(webUserController.getLoggedInstitution());
-        nd.setOwner(webUserController.getLoggedUser());
-        nd.setCurrentInstitution(webUserController.getLoggedInstitution());
-        nd.setCurrentOwner(webUserController.getLoggedUser());
-        fileController.setSelected(nd);
-
-        FuelTransactionHistory ndh = new FuelTransactionHistory();
-        ndh.setHistoryType(HistoryType.File_Created);
-        return "/document/file";
-    }
-
-    public String toLetterAddNewReceivedLetter() {
-        FuelTransaction nd = new FuelTransaction();
-        nd.setDocumentType(FuelTransactionType.FuelIssue);
-        nd.setDocumentGenerationType(DocumentGenerationType.Received_by_institution);
-        nd.setDocumentDate(new Date());
-        nd.setReceivedDate(new Date());
-        nd.setInstitution(webUserController.getLoggedInstitution());
-        nd.setInstitutionUnit(webUserController.getLoggedInstitution());
-        nd.setOwner(webUserController.getLoggedUser());
-        nd.setCurrentInstitution(webUserController.getLoggedInstitution());
-        nd.setCurrentOwner(webUserController.getLoggedUser());
-        nd.setReceivedDate(new Date());
-        letterController.setSelected(nd);
-
-        letterController.setNewHx(true);
-        FuelTransactionHistory ndh = new FuelTransactionHistory();
-        ndh.setHistoryType(HistoryType.Letter_Created);
-        ndh.setInstitution(webUserController.getLoggedInstitution());
-        ndh.setToInstitution(webUserController.getLoggedInstitution());
-        return "/document/letter";
-    }
+  
     
-    
-    public String toUnitLetterAdd() {
-        FuelTransaction nd = new FuelTransaction();
-        nd.setDocumentType(FuelTransactionType.FuelIssue);
-        nd.setDocumentGenerationType(DocumentGenerationType.Received_by_institution);
-        nd.setDocumentDate(new Date());
-        nd.setReceivedDate(new Date());
-        nd.setInstitution(webUserController.getLoggedInstitution());
-        nd.setInstitutionUnit(webUserController.getLoggedInstitution());
-        nd.setOwner(webUserController.getLoggedUser());
-        nd.setCurrentInstitution(webUserController.getLoggedInstitution());
-        nd.setCurrentOwner(webUserController.getLoggedUser());
-        nd.setReceivedDate(new Date());
-        letterController.setSelected(nd);
-        return "/document/unit_letter_add";
-    }
-    
-    public String toLetterMailBranchAddNew() {
-        FuelTransaction nd = new FuelTransaction();
-        nd.setDocumentType(FuelTransactionType.FuelIssue);
-        nd.setDocumentGenerationType(DocumentGenerationType.Received_by_mail_branch);
-        nd.setDocumentDate(new Date());
-        nd.setReceivedDate(new Date());
-        nd.setInstitution(webUserController.getLoggedInstitution());
-        nd.setInstitutionUnit(webUserController.getLoggedInstitution());
-        nd.setOwner(webUserController.getLoggedUser());
-        nd.setCurrentInstitution(webUserController.getLoggedInstitution());
-        nd.setCurrentOwner(webUserController.getLoggedUser());
-        nd.setReceivedDate(new Date());
-        letterController.setSelected(nd);
-
-        letterController.setNewHx(true);
-        FuelTransactionHistory ndh = new FuelTransactionHistory();
-        ndh.setHistoryType(HistoryType.Letter_added_by_mail_branch);
-        ndh.setInstitution(webUserController.getLoggedInstitution());
-        return "/document/letter_mail_branch";
-    }
-    
-    public String toLetterGenerateNew() {
-        FuelTransaction nd = new FuelTransaction();
-        nd.setDocumentType(FuelTransactionType.FuelIssue);
-        nd.setDocumentGenerationType(DocumentGenerationType.Generated_by_system);
-        nd.setDocumentDate(new Date());
-        nd.setReceivedDate(new Date());
-        nd.setInstitution(webUserController.getLoggedInstitution());
-        nd.setInstitutionUnit(webUserController.getLoggedInstitution());
-        nd.setFromInstitution(webUserController.getLoggedInstitution());
-        nd.setOwner(webUserController.getLoggedUser());
-        nd.setCurrentInstitution(webUserController.getLoggedInstitution());
-        nd.setCurrentOwner(webUserController.getLoggedUser());
-        nd.setReceivedDate(new Date());
-        letterController.setSelected(nd);
-
-        letterController.setNewHx(true);
-        FuelTransactionHistory ndh = new FuelTransactionHistory();
-        ndh.setHistoryType(HistoryType.Letter_Generated);
-        ndh.setInstitution(webUserController.getLoggedInstitution());
-        
-        letterController.setToInsOrUser(new ArrayList<>());
-        letterController.setSelectedDocumentHistories(new ArrayList<>());
-        
-        return "/document/letter_generate";
-    }
-
-    public String toFileSearch() {
-        fileController.setItems(null);
-        fileController.setSearchTerm("");
-        fileController.setSelected(null);
-        return "/document/file_search";
-    }
-
-    public String toLetterSearch() {
-        letterController.setItems(null);
-        letterController.setSearchTerm("");
-        letterController.setSelected(null);
-        letterController.listLastLettersReceived();
-        return "/document/letter_search";
-    }
-
-    public String toFileLedger() {
-        fileController.setItems(null);
-        return "/document/file_ledger";
-    }
 
     public String toReceiveFile() {
         return "/document/file_receive";

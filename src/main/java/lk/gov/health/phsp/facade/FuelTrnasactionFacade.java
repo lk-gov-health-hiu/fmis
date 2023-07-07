@@ -26,14 +26,14 @@ package lk.gov.health.phsp.facade;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import lk.gov.health.phsp.entity.FuelTransactionHistory;
+import lk.gov.health.phsp.entity.FuelTransaction;
 
 /**
  *
  * @author Dr M H B Ariyaratne<buddhika.ari@gmail.com>
  */
 @Stateless
-public class FuelTrnasactionFacade extends AbstractFacade<FuelTransactionHistory> {
+public class FuelTrnasactionFacade extends AbstractFacade<FuelTransaction> {
 
     @PersistenceContext(unitName = "hmisPU")
     private EntityManager em;
@@ -44,7 +44,7 @@ public class FuelTrnasactionFacade extends AbstractFacade<FuelTransactionHistory
     }
 
     public FuelTrnasactionFacade() {
-        super(FuelTransactionHistory.class);
+        super(FuelTransaction.class);
     }
     
 }

@@ -64,7 +64,7 @@ public class DashboardController implements Serializable {
     @Inject
     private ItemApplicationController itemApplicationController;
     @Inject
-    LetterController letterController;
+    FuelRequestAndIssueController letterController;
 
     private Date fromDate;
     private Date toDate;
