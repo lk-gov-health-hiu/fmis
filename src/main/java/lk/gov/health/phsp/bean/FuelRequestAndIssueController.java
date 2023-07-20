@@ -146,13 +146,13 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void listInstitutionRequests() {
         String j = "select t "
-                + " from FuelTransaction t "
-                + " where t.requestedInstitution=:ins "
-                + " and t.requestAt between :fd and :td";
+                + " from FuelTransaction t ";
+//               j   += " where t.requestedInstitution=:ins ";
+//             j   += " and t.requestAt between :fd and :td";
         Map m = new HashMap();
-        m.put("ins", webUserController.getLoggedInstitution());
-        m.put("fd", getFromDate());
-        m.put("td", getToDate());
+//        m.put("ins", webUserController.getLoggedInstitution());
+//        m.put("fd", getFromDate());
+//        m.put("td", getToDate());
         transactions = getFacade().findByJpql(j, m, TemporalType.TIMESTAMP);
     }
 
