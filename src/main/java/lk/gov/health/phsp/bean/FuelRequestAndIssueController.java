@@ -127,17 +127,23 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setRequestedInstitution(webUserController.getLoggedInstitution());
         selected.setFromInstitution(webUserController.getLoggedInstitution());
         selected.setToInstitution(webUserController.getLoggedInstitution().getSupplyInstitution());
+        if (webUserController.getManagableVehicles().size() == 1) {
+            selected.setVehicle(webUserController.getManagableVehicles().get(0));
+        }
         return "/requests/request";
     }
-    
-     public String navigateToAddSpecialVehicleFuelRequest() {
+
+    public String navigateToAddSpecialVehicleFuelRequest() {
         selected = new FuelTransaction();
         selected.setRequestAt(new Date());
-        selected.setTransactionType(FuelTransactionType.VehicleFuelRequest);
+        selected.setTransactionType(FuelTransactionType.SpecialVehicleFuelRequest);
         selected.setRequestedBy(webUserController.getLoggedUser());
         selected.setRequestedInstitution(webUserController.getLoggedInstitution());
         selected.setFromInstitution(webUserController.getLoggedInstitution());
         selected.setToInstitution(webUserController.getLoggedInstitution().getSupplyInstitution());
+        if (webUserController.getManagableVehicles().size() == 1) {
+            selected.setVehicle(webUserController.getManagableVehicles().get(0));
+        }
         return "/requests/special_request";
     }
 

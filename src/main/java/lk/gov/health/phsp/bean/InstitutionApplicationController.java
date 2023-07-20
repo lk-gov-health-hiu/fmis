@@ -86,7 +86,6 @@ public class InstitutionApplicationController {
     }
 
 // </editor-fold>
-    
     public List<Institution> getInstitutions() {
         if (institutions == null) {
             institutions = fillAllInstitutions();
@@ -191,7 +190,6 @@ public class InstitutionApplicationController {
         this.institutions = institutions;
     }
 
-    
     public List<InstitutionType> getHospitalTypes() {
         if (hospitalTypes == null || hospitalTypes.isEmpty()) {
             hospitalTypes = new ArrayList<>();
@@ -215,20 +213,29 @@ public class InstitutionApplicationController {
         return ri;
     }
 
-    public List<Institution> findChildrenInstitutions(Institution ins) {
-        List<Institution> allIns = getInstitutions();
-        List<Institution> cins = new ArrayList<>();
-        for (Institution i : allIns) {
-            if (i.getParent() != null) {
-                if (!i.equals(ins)) {
-                    if (i.getParent().equals(ins)) {
-                        cins.add(i);
-                        cins.addAll(findChildrenInstitutions(i));
-                    }
-                }
+    public List<Institution> findChildrenInstitutions(Institution parentInstitution) {
+        List<Institution> allInstitutions = getInstitutions();
+        List<Institution> children = new ArrayList<>();
+        for (Institution institution : allInstitutions) {
+            if (institution.getParent() != null && institution.getParent().equals(parentInstitution)) {
+                children.add(institution);
+                children.addAll(findChildrenInstitutions(institution, allInstitutions));
             }
         }
-        return cins;
+        return children;
+    }
+
+    public List<Institution> findChildrenInstitutions(Institution parentInstitution, List<Institution> allInstitutions) {
+        List<Institution> children = new ArrayList<>();
+
+        for (Institution institution : allInstitutions) {
+            if (institution.getParent() != null && institution.getParent().equals(parentInstitution)) {
+                children.add(institution);
+                children.addAll(findChildrenInstitutions(institution, allInstitutions));
+            }
+        }
+
+        return children;
     }
 
     public Institution findMinistryOfHealth() {
@@ -241,7 +248,7 @@ public class InstitutionApplicationController {
         }
         return moh;
     }
-    
+
     public Institution findInstitutionById(Long id) {
         Institution ins = null;
         for (Institution i : getInstitutions()) {

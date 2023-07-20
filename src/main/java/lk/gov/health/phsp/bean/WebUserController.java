@@ -40,10 +40,11 @@ import lk.gov.health.phsp.facade.PersonFacade;
 import lk.gov.health.phsp.facade.UserPrivilegeFacade;
 import org.primefaces.event.ColumnResizeEvent;
 import org.primefaces.model.StreamedContent;
-import org.primefaces.model.TreeNode;
+import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.file.UploadedFile;
 import org.primefaces.model.map.DefaultMapModel;
 import org.primefaces.model.map.MapModel;
+import org.primefaces.model.TreeNode;
 
 @Named
 @SessionScoped
@@ -282,21 +283,9 @@ public class WebUserController implements Serializable {
         return ins;
     }
 
-    public String toSetUserPrivilages() {
-        String j = "select u from WebUser u where u.retired=false";
-        items = getFacade().findByJpql(j);
 
-        for (TreeNode n : getAllPrivilegeRoot().getChildren()) {
-            n.setSelected(false);
-            for (TreeNode n1 : n.getChildren()) {
-                n1.setSelected(false);
-                for (TreeNode n2 : n1.getChildren()) {
-                    n2.setSelected(false);
-                }
-            }
-        }
-        return "/national/admin/multiple_user_privilages";
-    }
+
+    
 
     public boolean hasSelectedUsers() {
         return this.selectedUsers != null && !this.selectedUsers.isEmpty();
@@ -417,193 +406,7 @@ public class WebUserController implements Serializable {
         return url;
     }
 
-    public void preparePrivileges(TreeNode allPrevs) {
-        if (current == null) {
-            JsfUtil.addErrorMessage("Nothing Selected");
-            return;
-        }
-        if (allPrevs == null) {
-            JsfUtil.addErrorMessage("No Privilege Error");
-            return;
-        }
-        selectedNodes = new TreeNode[0];
-        List<UserPrivilege> userps = userPrivilegeList(current);
-
-        for (TreeNode n : allPrevs.getChildren()) {
-            n.setSelected(false);
-            for (TreeNode n1 : n.getChildren()) {
-                n1.setSelected(false);
-                for (TreeNode n2 : n1.getChildren()) {
-                    n2.setSelected(false);
-                }
-            }
-        }
-        List<TreeNode> temSelected = new ArrayList<>();
-        for (UserPrivilege wup : userps) {
-            for (TreeNode n : allPrevs.getChildren()) {
-                if (wup.getPrivilege().equals(((PrivilegeTreeNode) n).getP())) {
-                    n.setSelected(true);
-
-                    temSelected.add(n);
-                }
-                for (TreeNode n1 : n.getChildren()) {
-                    if (wup.getPrivilege().equals(((PrivilegeTreeNode) n1).getP())) {
-                        n1.setSelected(true);
-
-                        temSelected.add(n1);
-                    }
-                    for (TreeNode n2 : n1.getChildren()) {
-                        if (wup.getPrivilege().equals(((PrivilegeTreeNode) n2).getP())) {
-                            n2.setSelected(true);
-
-                            temSelected.add(n2);
-                        }
-                    }
-                }
-            }
-        }
-        selectedNodes = temSelected.toArray(new TreeNode[temSelected.size()]);
-    }
-
-    public String toManagePrivileges() {
-
-        if (current == null) {
-            JsfUtil.addErrorMessage("Nothing Selected");
-            return "";
-        }
-        selectedNodes = new TreeNode[0];
-        List<UserPrivilege> userps = userPrivilegeList(current);
-
-        for (TreeNode n : getAllPrivilegeRoot().getChildren()) {
-            n.setSelected(false);
-            for (TreeNode n1 : n.getChildren()) {
-                n1.setSelected(false);
-                for (TreeNode n2 : n1.getChildren()) {
-                    n2.setSelected(false);
-                }
-            }
-        }
-        List<TreeNode> temSelected = new ArrayList<>();
-        for (UserPrivilege wup : userps) {
-            for (TreeNode n : getAllPrivilegeRoot().getChildren()) {
-                if (wup.getPrivilege().equals(((PrivilegeTreeNode) n).getP())) {
-                    n.setSelected(true);
-
-                    temSelected.add(n);
-                }
-                for (TreeNode n1 : n.getChildren()) {
-                    if (wup.getPrivilege().equals(((PrivilegeTreeNode) n1).getP())) {
-                        n1.setSelected(true);
-
-                        temSelected.add(n1);
-                    }
-                    for (TreeNode n2 : n1.getChildren()) {
-                        if (wup.getPrivilege().equals(((PrivilegeTreeNode) n2).getP())) {
-                            n2.setSelected(true);
-
-                            temSelected.add(n2);
-                        }
-                    }
-                }
-            }
-        }
-        selectedNodes = temSelected.toArray(new TreeNode[temSelected.size()]);
-        return "/webUser/privileges";
-    }
-
-    public String toManagePrivilegesIns() {
-        if (current == null) {
-            JsfUtil.addErrorMessage("Nothing Selected");
-            return "";
-        }
-        selectedNodes = new TreeNode[0];
-        List<UserPrivilege> userps = userPrivilegeList(current);
-
-        for (TreeNode n : getAllPrivilegeRoot().getChildren()) {
-            n.setSelected(false);
-            for (TreeNode n1 : n.getChildren()) {
-                n1.setSelected(false);
-                for (TreeNode n2 : n1.getChildren()) {
-                    n2.setSelected(false);
-                }
-            }
-        }
-        List<TreeNode> temSelected = new ArrayList<>();
-        for (UserPrivilege wup : userps) {
-            for (TreeNode n : getAllPrivilegeRoot().getChildren()) {
-                if (wup.getPrivilege().equals(((PrivilegeTreeNode) n).getP())) {
-                    n.setSelected(true);
-
-                    temSelected.add(n);
-                }
-                for (TreeNode n1 : n.getChildren()) {
-                    if (wup.getPrivilege().equals(((PrivilegeTreeNode) n1).getP())) {
-                        n1.setSelected(true);
-
-                        temSelected.add(n1);
-                    }
-                    for (TreeNode n2 : n1.getChildren()) {
-                        if (wup.getPrivilege().equals(((PrivilegeTreeNode) n2).getP())) {
-                            n2.setSelected(true);
-
-                            temSelected.add(n2);
-                        }
-                    }
-                }
-            }
-        }
-        selectedNodes = temSelected.toArray(new TreeNode[temSelected.size()]);
-        userTransactionController.recordTransaction("Manage Privileges in user list By InsAdmin");
-        return "/insAdmin/user_privileges";
-    }
-
-    public void prepareManagePrivileges(TreeNode privilegeRoot) {
-        if (current == null) {
-            JsfUtil.addErrorMessage("Nothing Selected");
-            return;
-        }
-        if (privilegeRoot == null) {
-            JsfUtil.addErrorMessage("No Privilege Root");
-            return;
-        }
-        selectedNodes = new TreeNode[0];
-        List<UserPrivilege> userps = userPrivilegeList(current);
-
-        for (TreeNode n : privilegeRoot.getChildren()) {
-            n.setSelected(false);
-            for (TreeNode n1 : n.getChildren()) {
-                n1.setSelected(false);
-                for (TreeNode n2 : n1.getChildren()) {
-                    n2.setSelected(false);
-                }
-            }
-        }
-        List<TreeNode> temSelected = new ArrayList<>();
-        for (UserPrivilege wup : userps) {
-            for (TreeNode n : privilegeRoot.getChildren()) {
-                if (wup.getPrivilege().equals(((PrivilegeTreeNode) n).getP())) {
-                    n.setSelected(true);
-
-                    temSelected.add(n);
-                }
-                for (TreeNode n1 : n.getChildren()) {
-                    if (wup.getPrivilege().equals(((PrivilegeTreeNode) n1).getP())) {
-                        n1.setSelected(true);
-
-                        temSelected.add(n1);
-                    }
-                    for (TreeNode n2 : n1.getChildren()) {
-                        if (wup.getPrivilege().equals(((PrivilegeTreeNode) n2).getP())) {
-                            n2.setSelected(true);
-
-                            temSelected.add(n2);
-                        }
-                    }
-                }
-            }
-        }
-        selectedNodes = temSelected.toArray(new TreeNode[temSelected.size()]);
-    }
+   
 
     public String toChangeMyDetails() {
         if (loggedUser == null) {
@@ -747,12 +550,9 @@ public class WebUserController implements Serializable {
             return "";
         }
         loggedUserPrivileges = userPrivilegeList(loggedUser);
-        
         if (loggedUser != null) {
             loggedInstitution = loggedUser.getInstitution();
         }
-        loggableInstitutions = institutionApplicationController.findChildrenInstitutions(loggedInstitution);
-        managableVehicles = vehicleApplicationController.findVehiclesByInstitutions(loggableInstitutions);
         executeSuccessfulLoginActions();
         return "/index";
     }
@@ -761,7 +561,8 @@ public class WebUserController implements Serializable {
         JsfUtil.addSuccessMessage("Successfully Logged");
         userTransactionController.recordTransaction("Successful Login");
         loggableInstitutions = institutionApplicationController.findChildrenInstitutions(loggedInstitution);
-        
+        loggableInstitutions.add(loggedInstitution);
+        managableVehicles = vehicleApplicationController.findVehiclesByInstitutions(loggableInstitutions);
         Calendar c = Calendar.getInstance();
         toDate = c.getTime();
         c.add(Calendar.DAY_OF_MONTH, -7);

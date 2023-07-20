@@ -265,10 +265,8 @@ public class MenuController implements Serializable {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_INSTITUTION:
             case CTB:
-                webUserController.preparePrivileges(webUserApplicationController.getRegionalPrivilegeRoot());
                 return "/institution/admin/privileges";
             case NATIONAL:
-                webUserController.preparePrivileges(webUserApplicationController.getAllPrivilegeRoot());
                 return "/national/admin/privileges";
             default:
                 return "";
@@ -276,7 +274,6 @@ public class MenuController implements Serializable {
     }
 
     public String toPrivilegesFirstLogin() {
-        webUserController.preparePrivileges(webUserApplicationController.getAllPrivilegeRoot());
         return "/national/admin/privileges";
     }
 
@@ -346,10 +343,8 @@ public class MenuController implements Serializable {
 
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_INSTITUTION:
-                webUserController.prepareManagePrivileges(webUserApplicationController.getRegionalPrivilegeRoot());
                 return "/regional/admin/user_privileges";
             case NATIONAL:
-                webUserController.prepareManagePrivileges(webUserApplicationController.getAllPrivilegeRoot());
                 return "/national/admin/user_privileges";
             default:
                 return "";

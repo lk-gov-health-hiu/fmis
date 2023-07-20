@@ -3,7 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <body>
 
@@ -30,18 +31,25 @@
                                                 class="form-label"
                                                 for="acVehicle">
                                             </p:outputLabel>
-                                            <p:autoComplete 
-                                                id="acVehicle"
-                                                value="#{fuelRequestAndIssueController.selected.vehicle}"
-                                                completeMethod="#{vehicleController.completeVehicles}"
-                                                var="v"
-                                                itemLabel="#{v.vehicleNumber}"
-                                                itemValue="#{v}"
-                                                required="true"
-                                                requiredMessage="You must select a vehicle"
-                                                forceSelection="true"
-                                                inputStyleClass="form-control"
-                                                ></p:autoComplete>
+                                            <p:outputLabel 
+                                                value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" 
+                                                class="form-control"
+                                                rendered="#{fuelRequestAndIssueController.selected.vehicle ne null}"
+                                                >
+                                            </p:outputLabel>
+                                            <p:selectOneMenu id="acVehicle"
+                                                             value="#{fuelRequestAndIssueController.selected.vehicle}"
+                                                             filter="true"
+                                                             rendered="#{fuelRequestAndIssueController.selected.vehicle eq null}"
+                                                             filterMatchMode="contains"
+                                                             required="true"
+                                                             requiredMessage="You must select a vehicle"
+                                                             styleClass="form-control w-100">
+                                                <f:selectItem itemLabel="Select a vehicle" noSelectionOption="true" />
+                                                <f:selectItems value="#{webUserController.managableVehicles}" var="v"
+                                                               itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
+                                            </p:selectOneMenu>
+
                                             <p:outputLabel 
                                                 for="txtQty"
                                                 value="Requesting Quantity in Liters" 

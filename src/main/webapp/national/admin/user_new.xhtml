@@ -81,13 +81,14 @@
                         <div class="row mb-3">
                             <label for="webUserRole" class="col-form-label fw-bold col-md-4">User Role : <small>(Required)</small></label>
                             <div class="col-md-8">
-                                <p:selectOneMenu class="form-select" 
+                                <p:selectOneMenu class="form-control" 
                                                  id="webUserRole" 
                                                  value="#{webUserController.selected.webUserRole}" 
                                                  required="false" 
                                                  requiredMessage="The Role field is required"
                                                  filter="true"
                                                  filterMatchMode="contains"
+                                                 
                                                  >
                                     <f:selectItem itemLabel="Please Select"></f:selectItem>
                                     <f:selectItems
