@@ -15,8 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -103,18 +101,9 @@ public class WebUserController implements Serializable {
     private List<WebUser> selectedUsers;
 
     private List<WebUser> usersForMyInstitute;
-    private List<Area> areasForMe;
-    private List<Area> loggableMohAreas;
-
-    private List<Upload> companyUploads;
-
     private List<Institution> loggableInstitutions;
-    private List<Institution> loggablePmcis;
-    private List<Institution> loggableMailBranchDepartments;
-    
     private List<Vehicle> managableVehicles;
 
-    private List<Area> loggableGnAreas;
     private WebUserRole userRole;
 
     private Area selectedProvince;
@@ -237,79 +226,6 @@ public class WebUserController implements Serializable {
         return us;
     }
 
-    public String assumeUser() {
-        if (current == null) {
-            JsfUtil.addErrorMessage("Please select a User");
-            return "";
-        }
-        assumedArea = current.getArea();
-        assumedInstitution = current.getInstitution();
-        assumedRole = current.getWebUserRole();
-        assumedPrivileges = userPrivilegeList(current);
-        userTransactionController.recordTransaction("assume User");
-        return assumeRoles();
-
-    }
-
-    public String assumeRoles() {
-        if (assumedRole == null) {
-            JsfUtil.addErrorMessage("Please select a Role");
-            userTransactionController.recordTransaction("Assume Roles");
-            return "";
-        }
-
-        if (assumedInstitution == null) {
-            JsfUtil.addErrorMessage("Please lsect an Institution");
-            return "";
-        }
-//        if (assumedArea == null) {
-//            JsfUtil.addErrorMessage("Please select an area");
-//            return "";
-//        }
-        if (assumedPrivileges == null) {
-            assumedPrivileges = generateAssumedPrivileges(loggedUser, getInitialPrivileges(assumedRole));
-        }
-        WebUser twu = loggedUser;
-        logOut();
-        userName = twu.getName();
-        loggedUser = twu;
-        loggedUser.setAssumedArea(assumedArea);
-        loggedUser.setAssumedInstitution(assumedInstitution);
-        loggedUser.setAssumedRole(assumedRole);
-        loggedUserPrivileges = assumedPrivileges;
-        return login(true);
-    }
-
-    public void assumedInstitutionChanged() {
-        if (assumedInstitution != null) {
-            assumedArea = assumedInstitution.getDistrict();
-        }
-    }
-
-    public String endAssumingRoles() {
-        assumedRole = null;
-        assumedInstitution = null;
-        assumedArea = null;
-        assumedPrivileges = null;
-        logOut();
-        userTransactionController.recordTransaction("End Assuming Roles");
-        return login(true);
-    }
-
-    public List<Area> findAutherizedGnAreas() {
-        List<Area> gns = new ArrayList<>();
-        if (loggedUser == null) {
-            return gns;
-        }
-        if (getLoggablePmcis() == null) {
-            return gns;
-        }
-        for (Institution i : getLoggablePmcis()) {
-            gns.addAll(institutionController.findDrainingGnAreas(i));
-        }
-        return gns;
-    }
-
     public List<Institution> findAutherizedInstitutions() {
         List<Institution> ins = new ArrayList<>();
         if (loggedUser == null) {
@@ -322,7 +238,7 @@ public class WebUserController implements Serializable {
         ins.addAll(institutionApplicationController.findChildrenInstitutions(loggedUser.getInstitution()));
         return ins;
     }
-    
+
     public List<Vehicle> findAutherizedVehicles() {
         List<Vehicle> ins = new ArrayList<>();
         if (loggedUser == null) {
@@ -765,7 +681,7 @@ public class WebUserController implements Serializable {
         }
         return ins;
     }
-    
+
     public List<Vehicle> completeManagableVehicles(String qry) {
         List<Vehicle> ins = new ArrayList<>();
         if (qry == null) {
@@ -783,28 +699,6 @@ public class WebUserController implements Serializable {
                 ins.add(i);
             }
             if (i.getVehicleNumber().toLowerCase().contains(qry)) {
-                ins.add(i);
-            }
-        }
-        return ins;
-    }
-    
-    
-
-    public List<Institution> completeLoggableMailBranchInstitutions(String qry) {
-        List<Institution> ins = new ArrayList<>();
-        if (qry == null) {
-            return ins;
-        }
-        if (qry.trim().equals("")) {
-            return ins;
-        }
-        qry = qry.trim().toLowerCase();
-        for (Institution i : getLoggableMailBranchDepartments()) {
-            if (i.getName() == null) {
-                continue;
-            }
-            if (i.getName().toLowerCase().contains(qry)) {
                 ins.add(i);
             }
         }
@@ -837,51 +731,8 @@ public class WebUserController implements Serializable {
     }
 
     public String login() {
-        userTransactionController.recordTransaction("login");
-        return login(false);
-    }
-
-    public String login(boolean withoutPassword) {
         loggableInstitutions = null;
         managableVehicles = null;
-        loggableMailBranchDepartments = null;
-        loggablePmcis = null;
-        loggableGnAreas = null;
-        institutionController.setMyClinics(null);
-        if (userName == null || userName.trim().equals("")) {
-            JsfUtil.addErrorMessage("Please enter a Username");
-            return "";
-        }
-        if (!withoutPassword) {
-            if (password == null || password.trim().equals("")) {
-                JsfUtil.addErrorMessage("Please enter the Password");
-                return "";
-            }
-        }
-
-        if (!checkLogin(withoutPassword)) {
-            JsfUtil.addErrorMessage("Username/Password Error. Please retry.");
-            userTransactionController.recordTransaction("Failed Login Attempt", userName);
-            return "";
-        }
-
-        if (assumedPrivileges == null) {
-            loggedUserPrivileges = userPrivilegeList(loggedUser);
-        }
-        JsfUtil.addSuccessMessage("Successfully Logged");
-        userTransactionController.recordTransaction("Successful Login");
-        return "/index";
-    }
-
-    public String loginNew() {
-        System.out.println("loginNew - " + new Date());
-        loggableInstitutions = null;
-        managableVehicles = null;
-        loggableMailBranchDepartments = null;
-        loggablePmcis = null;
-        loggableGnAreas = null;
-        loggedInstitution = null;
-        institutionController.setMyClinics(null);
         if (userName == null || userName.trim().equals("")) {
             JsfUtil.addErrorMessage("Please enter a Username");
             return "";
@@ -890,32 +741,32 @@ public class WebUserController implements Serializable {
             JsfUtil.addErrorMessage("Please enter the Password");
             return "";
         }
-        if (!checkLoginNew()) {
+        if (!checkLogin()) {
             JsfUtil.addErrorMessage("Username/Password Error. Please retry.");
             userTransactionController.recordTransaction("Failed Login Attempt", userName);
             return "";
         }
-        System.out.println("Check User Login New Completed - " + new Date());
         loggedUserPrivileges = userPrivilegeList(loggedUser);
+        
         if (loggedUser != null) {
             loggedInstitution = loggedUser.getInstitution();
         }
-        fillUsersForMyInstitute();
+        loggableInstitutions = institutionApplicationController.findChildrenInstitutions(loggedInstitution);
+        managableVehicles = vehicleApplicationController.findVehiclesByInstitutions(loggableInstitutions);
         executeSuccessfulLoginActions();
-
         return "/index";
     }
 
     private void executeSuccessfulLoginActions() {
-
         JsfUtil.addSuccessMessage("Successfully Logged");
         userTransactionController.recordTransaction("Successful Login");
+        loggableInstitutions = institutionApplicationController.findChildrenInstitutions(loggedInstitution);
+        
         Calendar c = Calendar.getInstance();
         toDate = c.getTime();
         c.add(Calendar.DAY_OF_MONTH, -7);
         fromDate = c.getTime();
         dashboardController.preparePersonalDashboard();
-
     }
 
     public String toChangeLoggedInstitution() {
@@ -927,22 +778,11 @@ public class WebUserController implements Serializable {
         return "/index";
     }
 
-    private void fillUsersForMyInstitute() {
-        usersForMyInstitute = new ArrayList<>();
-        List<WebUser> tus = webUserApplicationController.getItems();
-        for (WebUser wu : tus) {
-            if (wu.getInstitution() != null && wu.getInstitution().equals(getLoggedInstitution())) {
-                usersForMyInstitute.add(wu);
-            }
-        }
-        Collections.sort(usersForMyInstitute, Comparator.comparing(WebUser::getWebUserPersonName));
-    }
-    
     public void fillAllUsers() {
         items = getFacade().findAll();
     }
 
-    private boolean checkLoginNew() {
+    private boolean checkLogin() {
         if (getFacade() == null) {
             JsfUtil.addErrorMessage("Server Error");
             return false;
@@ -1492,50 +1332,44 @@ public class WebUserController implements Serializable {
 
             Institution newIns;
 
-            j = "select i from Institution i where i.name=:name";
-            m = new HashMap();
-            m.put("name", line);
-            newIns = institutionFacade.findFirstByJpql(j, m);
+            newIns = new Institution();
+            newIns.setName(line);
+            newIns.setTname(line);
+            newIns.setSname(line);
+            newIns.setCode(CommonController.prepareAsCode(line));
+            newIns.setParent(institution);
+            newIns.setDistrict(institution.getDistrict());
+            newIns.setInstitutionType(institutionType);
+            newIns.setPdhsArea(institution.getPdhsArea());
+            newIns.setSupplyInstitution(institution.getSupplyInstitution());
+            newIns.setProvince(institution.getProvince());
+            newIns.setRdhsArea(institution.getRdhsArea());
+            newIns.setCreatedAt(new Date());
+            newIns.setCreater(getLoggedUser());
+            institutionController.save(newIns);
 
-            if (newIns == null) {
-                newIns = new Institution();
-                newIns.setName(line);
-                newIns.setTname(line);
-                newIns.setSname(line);
-                newIns.setCode(CommonController.prepareAsCode(line));
-                newIns.setParent(institution);
-                newIns.setDistrict(institution.getDistrict());
-                newIns.setInstitutionType(institutionType);
-                newIns.setPdhsArea(institution.getPdhsArea());
-                newIns.setPoiInstitution(institution.getPoiInstitution());
-                newIns.setProvince(institution.getProvince());
-                newIns.setRdhsArea(institution.getRdhsArea());
-                newIns.setCreatedAt(new Date());
-                newIns.setCreater(getLoggedUser());
-                institutionController.save(newIns);
+            Person newPerson = new Person();
+            newPerson.setName("System Administrator of " + line);
+            personController.save(newPerson);
 
-                Person newPerson = new Person();
-                newPerson.setName("System Administrator of " + line);
-                personController.save(newPerson);
-
-                WebUser newUser = new WebUser();
-                String un = "sa_" + CommonController.prepareAsCode(line).toLowerCase();
-                if (un.length() > 50) {
-                    un = un.substring(0, 49);
-                }
-                newUser.setName(un);
-                newUser.setPerson(newPerson);
-                newUser.setInstitution(newIns);
-                newUser.setArea(institution.getRdhsArea());
-                newUser.setWebUserRole(userRole);
-                newUser.setWebUserPassword(commonController.hash("abcd1234"));
-                newUser.setCreatedAt(new Date());
-                newUser.setCreater(getLoggedUser());
-                save(newUser);
-                addWebUserPrivileges(newUser, getInitialPrivileges(newUser.getWebUserRole()));
-                save(newUser);
-                addedUsers.add(newUser);
+            WebUser newUser = new WebUser();
+            String un = "sa_" + CommonController.prepareAsCode(line).toLowerCase();
+            if (un.length() > 50) {
+                un = un.substring(0, 49);
             }
+            newUser.setName(un);
+            newUser.setPerson(newPerson);
+            newUser.setInstitution(newIns);
+            newUser.setArea(institution.getRdhsArea());
+            newUser.setWebUserRole(userRole);
+            newUser.setWebUserPassword(commonController.hash("abcd1234"));
+            newUser.setCreatedAt(new Date());
+            newUser.setCreater(getLoggedUser());
+            save(newUser);
+            addWebUserPrivileges(newUser, getInitialPrivileges(newUser.getWebUserRole()));
+            save(newUser);
+            addedUsers.add(newUser);
+
         }
 
         bulkText = "";
@@ -2167,14 +2001,6 @@ public class WebUserController implements Serializable {
         return userPrivilegeFacade;
     }
 
-    public List<Upload> getCompanyUploads() {
-        return companyUploads;
-    }
-
-    public void setCompanyUploads(List<Upload> companyUploads) {
-        this.companyUploads = companyUploads;
-    }
-
     public List<Area> getDistrictsAvailableForSelection() {
         return districtsAvailableForSelection;
     }
@@ -2210,28 +2036,6 @@ public class WebUserController implements Serializable {
         this.file = file;
     }
 
-    public List<Institution> getLoggablePmcis() {
-        if (loggablePmcis == null) {
-            loggablePmcis = findAutherizedPmcis();
-        }
-        return loggablePmcis;
-    }
-
-    public void setLoggablePmcis(List<Institution> loggablePmcis) {
-        this.loggablePmcis = loggablePmcis;
-    }
-
-    public List<Area> getLoggableGnAreas() {
-        if (loggableGnAreas == null) {
-            loggableGnAreas = findAutherizedGnAreas();
-        }
-        return loggableGnAreas;
-    }
-
-    public void setLoggableGnAreas(List<Area> loggableGnAreas) {
-        this.loggableGnAreas = loggableGnAreas;
-    }
-
     public int getReportTabIndex() {
         return reportTabIndex;
     }
@@ -2243,7 +2047,6 @@ public class WebUserController implements Serializable {
     public void setReportTabIndex(int reportTabIndex) {
         this.reportTabIndex = reportTabIndex;
     }
-
 
     public WebUserRole getAssumedRole() {
         return assumedRole;
@@ -2336,22 +2139,6 @@ public class WebUserController implements Serializable {
         this.usersForMyInstitute = usersForMyInstitute;
     }
 
-    public List<Area> getAreasForMe() {
-        return areasForMe;
-    }
-
-    public void setAreasForMe(List<Area> areasForMe) {
-        this.areasForMe = areasForMe;
-    }
-
-    public List<Area> getLoggableMohAreas() {
-        return loggableMohAreas;
-    }
-
-    public void setLoggableMohAreas(List<Area> loggableMohAreas) {
-        this.loggableMohAreas = loggableMohAreas;
-    }
-
     public WebUserRole getUserRole() {
         return userRole;
     }
@@ -2402,17 +2189,6 @@ public class WebUserController implements Serializable {
             u.setPubliclyListed(true);
             save(u);
         }
-    }
-
-    public List<Institution> getLoggableMailBranchDepartments() {
-        if (loggableMailBranchDepartments == null) {
-            loggableMailBranchDepartments = findMailBranchInstitutions();
-        }
-        return loggableMailBranchDepartments;
-    }
-
-    public void setLoggableMailBranchDepartments(List<Institution> loggableMailBranchDepartments) {
-        this.loggableMailBranchDepartments = loggableMailBranchDepartments;
     }
 
     public List<Vehicle> getManagableVehicles() {

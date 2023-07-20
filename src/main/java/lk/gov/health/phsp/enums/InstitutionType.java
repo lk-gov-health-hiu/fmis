@@ -22,6 +22,12 @@ public enum InstitutionType {
     Donar("Donar"),
     DistrictSecretariat("District Secretariat"),
     Audit("Unit"),
+    Police_Station("Police Station"),
+    Police_Department("Police Department"),
+    CPC_Head_Office("CPC Headoffice"),
+    CPC_Depot("CPC Depot"),
+    ERD("ERD"),
+    CB("CB"),
     Other("Ward");
 
     private final String label;

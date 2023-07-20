@@ -55,6 +55,19 @@
                                                  value="#{institutionController.selected.code}" title="Code" />
 
 
+                                    <h:outputLabel value="Fuel Supply Institution:" for="fuelSupplyInstitution" />
+                                    <p:autoComplete  id="fuelSupplyInstitution" 
+                                                     class="d-block" 
+                                                     inputStyleClass="form-control" 
+                                                     value="#{institutionController.selected.supplyInstitution}" 
+                                                     completeMethod="#{institutionController.completeInstitutions}"
+                                                     var="i" 
+                                                     itemLabel="#{i.name}" 
+                                                     itemValue="#{i}" 
+                                                     forceSelection="True"
+                                                     maxResults="15" 
+                                                     minQueryLength="3">
+                                    </p:autoComplete >
 
 
                                     <h:outputLabel value="Parent:" for="parent" />

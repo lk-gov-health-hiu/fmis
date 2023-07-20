@@ -7,10 +7,10 @@
 
     <body>
 
-        <ui:composition template="./../template.xhtml">
+        <ui:composition template="/template.xhtml">
 
             <ui:define name="title">
-                Request
+                Special Vehicle Fuel Request
             </ui:define>
 
             <ui:define name="content">
@@ -20,7 +20,7 @@
                             <div class="col-12 col-md-6 col-lg-4" >
                                 <div class="card" >
                                     <div class="card-header" >
-                                        <h2><h:outputText value="Vehicle Fuel Request"></h:outputText></h2>
+                                        <h2><h:outputText value="Special Vehicle Fuel Request"></h:outputText></h2>
                                     </div>
                                     <div class="card-body" >
 
@@ -29,6 +29,23 @@
                                                 value="Vehicle" 
                                                 class="form-label"
                                                 for="acVehicle">
+                                            </p:outputLabel>
+                                            <p:autoComplete 
+                                                id="acVehicle"
+                                                value="#{fuelRequestAndIssueController.selected.vehicle}"
+                                                completeMethod="#{vehicleController.completeVehicles}"
+                                                var="v"
+                                                itemLabel="#{v.vehicleNumber}"
+                                                itemValue="#{v}"
+                                                required="true"
+                                                requiredMessage="You must select a vehicle"
+                                                forceSelection="true"
+                                                inputStyleClass="form-control"
+                                                ></p:autoComplete>
+                                            <p:outputLabel 
+                                                value="Request From" 
+                                                class="form-label"
+                                                for="acDepot">
                                             </p:outputLabel>
                                             <p:autoComplete 
                                                 id="acVehicle"

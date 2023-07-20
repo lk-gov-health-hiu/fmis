@@ -64,7 +64,6 @@ public class InstitutionController implements Serializable {
     private List<Institution> items = null;
     private Institution selected;
     private Institution deleting;
-    private List<Institution> myClinics;
     private List<Area> gnAreasOfSelected;
     private Area area;
     private Area removingArea;
@@ -114,22 +113,6 @@ public class InstitutionController implements Serializable {
         }
     }
 
-    public void addGnToPmc() {
-        if (selected == null) {
-            JsfUtil.addErrorMessage("No PMC is selected");
-            return;
-        }
-        if (area == null) {
-            JsfUtil.addErrorMessage("No GN is selected");
-            return;
-        }
-        area.setPmci(selected);
-        getAreaFacade().edit(area);
-        area = null;
-        fillGnAreasOfSelected();
-        JsfUtil.addSuccessMessage("Successfully added.");
-        userTransactionController.recordTransaction("Add Gn To Pmc");
-    }
 
     public String toAddInstitution() {
         selected = new Institution();
@@ -429,42 +412,10 @@ public class InstitutionController implements Serializable {
             }
         }
         return ni;
-//        String j = "Select i from Institution i where i.retired=:ret ";
-//        Map m = new HashMap();
-//        if (name != null) {
-//            j += " and lower(i.name)=:n ";
-//            m.put("n", name.trim().toLowerCase());
-//        }
-//        m.put("ret", false);
-//        return getFacade().findFirstByJpql(j, m);
     }
 
-//    public Institution findInstitutionById(Long id) {
-//        String j = "Select i from Institution i where i.retired=:ret ";
-//        Map m = new HashMap();
-//        if (id != null) {
-//            j += " and i.id=:n ";
-//            m.put("n", id);
-//        }
-//        m.put("ret", false);
-//        return getFacade().findFirstByJpql(j, m);
-//    }
-//
-//    public List<Institution> completePmcis(String nameQry) {
-//        String j = "Select i from Institution i where i.retired=false and i.pmci=true ";
-//        Map m = new HashMap();
-//        if (nameQry != null) {
-//            j += " and lower(i.name) like :n ";
-//            m.put("n", "%" + nameQry.trim().toLowerCase() + "%");
-//        }
-//        j += " order by i.name";
-//        return getFacade().findByJpql(j, m);
-//    }
     public void fillItems() {
-        if (institutionApplicationController.getInstitutions() != null) {
-            items = institutionApplicationController.getInstitutions();
-            return;
-        }
+        items = institutionApplicationController.getInstitutions();
     }
 
     public void resetAllInstitutions() {
@@ -576,22 +527,22 @@ public class InstitutionController implements Serializable {
         String words[] = nameQry.split("\\s+");
 
         for (Institution i : allIns) {
-             boolean allWordsMatch = true;
+            boolean allWordsMatch = true;
 
             for (String word : words) {
                 boolean thisWordMatch;
                 word = word.trim().toLowerCase();
-                if (i.getName() != null  && i.getName().toLowerCase().contains(word)) {
+                if (i.getName() != null && i.getName().toLowerCase().contains(word)) {
                     thisWordMatch = true;
-                }else if (i.getTname()!= null  && i.getTname().toLowerCase().contains(word)) {
+                } else if (i.getTname() != null && i.getTname().toLowerCase().contains(word)) {
                     thisWordMatch = true;
-                }else if (i.getSname()!= null  && i.getSname().toLowerCase().contains(word)) {
+                } else if (i.getSname() != null && i.getSname().toLowerCase().contains(word)) {
                     thisWordMatch = true;
-                }else{
-                    thisWordMatch=false;
+                } else {
+                    thisWordMatch = false;
                 }
-                if(thisWordMatch==false){
-                    allWordsMatch=false;
+                if (thisWordMatch == false) {
+                    allWordsMatch = false;
                 }
             }
 
@@ -622,10 +573,6 @@ public class InstitutionController implements Serializable {
             items = webUserController.findAutherizedInstitutions();
         }
     }
-    
-   
-    
-    
 
     public void saveOrUpdateInstitution() {
         if (selected == null) {
@@ -637,11 +584,11 @@ public class InstitutionController implements Serializable {
             return;
         }
 
-        if (selected.getSname()== null || selected.getSname().trim().equals("")) {
+        if (selected.getSname() == null || selected.getSname().trim().equals("")) {
             selected.setSname(selected.getName());
         }
 
-        if (selected.getTname()== null || selected.getTname().trim().equals("")) {
+        if (selected.getTname() == null || selected.getTname().trim().equals("")) {
             selected.setTname(selected.getName());
         }
 
@@ -745,33 +692,6 @@ public class InstitutionController implements Serializable {
         return ni;
     }
 
-    public void refreshMyInstitutions() {
-        userTransactionController.recordTransaction("refresh My Institutions");
-        myClinics = null;
-    }
-
-    public List<Institution> getMyClinics() {
-        if (myClinics == null) {
-            myClinics = new ArrayList<>();
-            int count = 0;
-            for (Institution i : webUserController.getLoggableInstitutions()) {
-                if (i.getInstitutionType().equals(InstitutionType.CTB_Depot)
-                        || i.getInstitutionType().equals(InstitutionType.CTB_Depot)
-                        || i.getInstitutionType().equals(InstitutionType.Audit)
-                        || i.getInstitutionType().equals(InstitutionType.Audit)
-                        || i.getInstitutionType().equals(InstitutionType.Base_Hospital)
-                        || i.getInstitutionType().equals(InstitutionType.CTB_Depot)) {
-                    myClinics.add(i);
-                    count++;
-                }
-                if (count > 50) {
-                    return myClinics;
-                }
-            }
-        }
-        return myClinics;
-    }
-
     public lk.gov.health.phsp.facade.InstitutionFacade getEjbFacade() {
         return ejbFacade;
     }
@@ -810,10 +730,6 @@ public class InstitutionController implements Serializable {
     public void setRemovingArea(Area removingArea) {
         this.removingArea = removingArea;
 
-    }
-
-    public void setMyClinics(List<Institution> myClinics) {
-        this.myClinics = myClinics;
     }
 
     public Institution getDeleting() {

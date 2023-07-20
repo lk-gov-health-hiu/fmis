@@ -135,7 +135,7 @@ public class DashboardApplicationController {
                 + " where (c.retired is null or c.retired=:ret) ";
         m.put("ret", false);
         j += " and c.encounterType=:etype ";
-        m.put("etype", FuelTransactionType.FuelIssue);
+        m.put("etype", FuelTransactionType.DepotFuelRequest);
 
         if (ins != null) {
             j += " and c.institution=:ins ";
@@ -230,7 +230,7 @@ public class DashboardApplicationController {
                 + " where (c.retired is null or c.retired=:ret) ";
         m.put("ret", false);
         j += " and c.encounterType=:etype ";
-        m.put("etype", FuelTransactionType.FuelIssue);
+        m.put("etype", FuelTransactionType.DepotFuelRequest);
 
         if (ins != null) {
             j += " and c.institution=:ins ";
@@ -320,7 +320,7 @@ public Long samplesAwaitingDispatch(
     jpql += " and (c.sentToLab is null or c.sentToLab = :sl) ";
 
     hashMap.put("ret", false);
-    hashMap.put("type", FuelTransactionType.FuelIssue);
+    hashMap.put("type", FuelTransactionType.DepotFuelRequest);
     hashMap.put("fd", fromDate);
     hashMap.put("sl", false);
     hashMap.put("td", toDate);
@@ -382,7 +382,7 @@ public Map<String, String> getSeriesOfCases(
 
         jpql += " and c.encounterType=:etype ";
 
-        hashMap.put("etype", FuelTransactionType.FuelIssue);
+        hashMap.put("etype", FuelTransactionType.DepotFuelRequest);
 
         if (area != null) {
             if (area.getType() == AreaType.RdhsAra) {
@@ -433,7 +433,7 @@ public Map<String, String> getSeriesOfCases(
                 + " where (c.retired is null or c.retired=:ret) ";
         m.put("ret", false);
         j += " and c.encounterType=:etype ";
-        m.put("etype", FuelTransactionType.FuelIssue);
+        m.put("etype", FuelTransactionType.DepotFuelRequest);
 
         if (area != null) {
             if (area.getType() == AreaType.RdhsAra) {
@@ -488,7 +488,7 @@ public Map<String, String> getSeriesOfCases(
                 + " where (c.retired is null or c.retired=:ret) ";
         m.put("ret", false);
         j += " and c.encounterType=:etype ";
-        m.put("etype", FuelTransactionType.FuelIssue);
+        m.put("etype", FuelTransactionType.DepotFuelRequest);
 
         if (pdArea != null) {
             if (pdArea.getType() == AreaType.RdhsAra) {
@@ -536,7 +536,7 @@ public Map<String, String> getSeriesOfCases(
                 + " where (c.retired is null or c.retired=:ret) ";
         m.put("ret", false);
         j += " and c.encounterType=:etype ";
-        m.put("etype", FuelTransactionType.FuelIssue);
+        m.put("etype", FuelTransactionType.DepotFuelRequest);
 
         if (ins != null) {
             j += " and c.institution=:ins ";
@@ -579,7 +579,7 @@ public Map<String, String> getSeriesOfCases(
                 + " where (c.retired is null or c.retired=:ret) ";
         m.put("ret", false);
         j += " and c.encounterType=:etype ";
-        m.put("etype", FuelTransactionType.FuelIssue);
+        m.put("etype", FuelTransactionType.DepotFuelRequest);
 
         if (area != null && area.getType() != null) {
             if (null != area.getType()) {
@@ -638,7 +638,7 @@ public Map<String, String> getSeriesOfCases(
                 + " where (c.retired is null or c.retired=:ret) ";
         m.put("ret", false);
         j += " and c.encounterType=:etype ";
-        m.put("etype", FuelTransactionType.FuelIssue);
+        m.put("etype", FuelTransactionType.DepotFuelRequest);
 
         if (area != null) {
             if (area.getType() == AreaType.RdhsAra) {
@@ -925,7 +925,7 @@ public Map<String, String> getSeriesOfCases(
                 + " where (c.retired is null or c.retired=:ret) ";
         m.put("ret", false);
         j += " and c.encounterType=:etype ";
-        m.put("etype", FuelTransactionType.FuelIssue);
+        m.put("etype", FuelTransactionType.DepotFuelRequest);
 
         j += " and (c.client.person.mohArea=:moh) ";
         m.put("moh",moh);
@@ -983,7 +983,7 @@ public Map<String, String> getSeriesOfCases(
                 + " where (c.retired is null or c.retired=:ret) ";
         m.put("ret", false);
         j += " and c.encounterType=:etype ";
-        m.put("etype", FuelTransactionType.FuelIssue);
+        m.put("etype", FuelTransactionType.DepotFuelRequest);
         j += " and c.resultConfirmedAt between :fd and :td ";
         m.put("fd", from);
         m.put("td", to);

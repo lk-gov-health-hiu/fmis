@@ -121,7 +121,7 @@ public class ExcelReportController implements Serializable {
                 + " order by e.id";
         Map m = new HashMap();
         m.put("i", institution);
-        m.put("t", FuelTransactionType.FuelIssue);
+        m.put("t", FuelTransactionType.DepotFuelRequest);
         m.put("er", true);
         m.put("fr", true);
         m.put("fc", true);
@@ -146,7 +146,7 @@ public class ExcelReportController implements Serializable {
                 + " group by e.encounterDate";
         Map m = new HashMap();
         m.put("i", institution);
-        m.put("t", FuelTransactionType.FuelIssue);
+        m.put("t", FuelTransactionType.DepotFuelRequest);
         m.put("er", true);
         m.put("fr", true);
         m.put("fc", true);

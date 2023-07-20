@@ -20,10 +20,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlRootElement;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.pojcs.Nameable;
 
@@ -33,15 +31,10 @@ import lk.gov.health.phsp.pojcs.Nameable;
  * Informatics)
  */
 @Entity
-@XmlRootElement
-@Table
 public class WebUser implements Serializable, Nameable {
 
     private static final long serialVersionUID = 1L;
 
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;

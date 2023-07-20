@@ -93,13 +93,13 @@ public class FuelRequestAndIssueController implements Serializable {
         if (selected == null) {
             System.out.println("Selcted is null");
             JsfUtil.addErrorMessage("Nothing selected");
-            return navigateToAddRequest();
+            return navigateToAddVehicleFuelRequest();
         }
         System.out.println("selected.getTransactionType() = " + selected.getTransactionType());
-        if (selected.getTransactionType() == null || selected.getTransactionType() != FuelTransactionType.FuelRequest) {
+        if (selected.getTransactionType() == null || selected.getTransactionType() != FuelTransactionType.VehicleFuelRequest) {
             System.out.println("wrong type");
             JsfUtil.addErrorMessage("Wrong selection");
-            return navigateToAddRequest();
+            return navigateToAddVehicleFuelRequest();
         }
         save(selected);
         System.out.println("saved");
@@ -119,13 +119,26 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/issues/list";
     }
 
-    public String navigateToAddRequest() {
+    public String navigateToAddVehicleFuelRequest() {
         selected = new FuelTransaction();
         selected.setRequestAt(new Date());
-        selected.setTransactionType(FuelTransactionType.FuelRequest);
+        selected.setTransactionType(FuelTransactionType.VehicleFuelRequest);
         selected.setRequestedBy(webUserController.getLoggedUser());
         selected.setRequestedInstitution(webUserController.getLoggedInstitution());
+        selected.setFromInstitution(webUserController.getLoggedInstitution());
+        selected.setToInstitution(webUserController.getLoggedInstitution().getSupplyInstitution());
         return "/requests/request";
+    }
+    
+     public String navigateToAddSpecialVehicleFuelRequest() {
+        selected = new FuelTransaction();
+        selected.setRequestAt(new Date());
+        selected.setTransactionType(FuelTransactionType.VehicleFuelRequest);
+        selected.setRequestedBy(webUserController.getLoggedUser());
+        selected.setRequestedInstitution(webUserController.getLoggedInstitution());
+        selected.setFromInstitution(webUserController.getLoggedInstitution());
+        selected.setToInstitution(webUserController.getLoggedInstitution().getSupplyInstitution());
+        return "/requests/special_request";
     }
 
     public String navigateToIssueRequest() {

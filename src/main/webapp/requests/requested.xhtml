@@ -29,25 +29,66 @@
                                         <div class="card-body">
 
                                             <!-- Request Details -->
-                                            <p:panel header="Request Details" styleClass="box">
-                                                <p><b>ID:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.id}"/></p>
-                                                <p><b>Requested Institution:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestedInstitution.name}"/></p>
-                                                <p><b>Vehicle:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}"/></p>
-                                                <p><b>Request Quantity:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}"/></p>
-                                                <p><b>Comments:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.comments}"/></p>
-                                                <p><b>Requested By:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.requestedBy.person.name}"/></p>
-                                                <p><b>Requested At:</b> 
-                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.requestAt}">
-                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
-                                                    </h:outputText>
-                                                </p>
-                                            </p:panel>
+                                            <div class="container">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <table class="table">
+                                                            <tr>
+                                                                <td><b>ID:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.id}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Requested by:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.fromInstitution.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Requested From:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.toInstitution.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Vehicle:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" /></td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <table class="table">
+                                                            <tr>
+                                                                <td><b>Request Quantity:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Request Reference No.:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Comments:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.comments}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Requested By:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestedBy.person.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Requested At:</b></td>
+                                                                <td>
+                                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.requestAt}">
+                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
+                                                                    </h:outputText>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
 
                                             <!-- Issue Details -->
                                             <p:panel header="Issue Details" styleClass="box">
                                                 <p:outputPanel rendered="#{fuelRequestAndIssueController.selected.issued}">
                                                     <p><b>Issued Quantity:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.issuedQuantity}"/></p>
-                                                    <p><b>Issued Institution:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.issuedInstitution.name}"/></p>
+                                                    <p><b>Issued From:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.issuedInstitution.name}"/></p>
+                                                    <p><b>Issue Reference No.:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.issuedInstitution.name}"/></p>
                                                     <p><b>Issued By:</b> <h:outputText value="#{fuelRequestAndIssueController.selected.issuedUser.person.name}"/></p>
                                                     <p><b>Issued At:</b> 
                                                         <h:outputText value="#{fuelRequestAndIssueController.selected.issuedAt}">
@@ -115,7 +156,7 @@
                                     <div class="card-footer" >
                                         <h:commandButton  value="Add New Request" 
                                                           class="btn btn-primary"
-                                                          action="#{fuelRequestAndIssueController.navigateToAddRequest()}"
+                                                          action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}"
                                                           >
                                         </h:commandButton>
                                         <h:commandButton  value="View Requests" 

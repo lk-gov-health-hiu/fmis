@@ -56,6 +56,10 @@ public class FuelTransaction implements Serializable {
     @ManyToOne
     private Institution requestedInstitution;
     @ManyToOne
+    private Institution fromInstitution;
+    @ManyToOne
+    private Institution toInstitution;
+    @ManyToOne
     private Vehicle vehicle;
 
     @Lob
@@ -67,6 +71,9 @@ public class FuelTransaction implements Serializable {
     private Double requestQuantity;
     private Double issuedQuantity;
 
+    private String requestReferenceNumber;
+    private String issueReferenceNumber;
+    
     private boolean issued;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date issuedAt;
@@ -103,7 +110,8 @@ public class FuelTransaction implements Serializable {
     @ManyToOne
     private Institution rejectedInstitution;
 
-  
+    
+    
     public String getIdString() {
         if (id == null) {
             return "";
@@ -352,6 +360,36 @@ public class FuelTransaction implements Serializable {
         this.rejectedAt = rejectedAt;
     }
 
-    
-  
+    public Institution getFromInstitution() {
+        return fromInstitution;
+    }
+
+    public void setFromInstitution(Institution fromInstitution) {
+        this.fromInstitution = fromInstitution;
+    }
+
+    public Institution getToInstitution() {
+        return toInstitution;
+    }
+
+    public void setToInstitution(Institution toInstitution) {
+        this.toInstitution = toInstitution;
+    }
+
+    public String getRequestReferenceNumber() {
+        return requestReferenceNumber;
+    }
+
+    public void setRequestReferenceNumber(String requestReferenceNumber) {
+        this.requestReferenceNumber = requestReferenceNumber;
+    }
+
+    public String getIssueReferenceNumber() {
+        return issueReferenceNumber;
+    }
+
+    public void setIssueReferenceNumber(String issueReferenceNumber) {
+        this.issueReferenceNumber = issueReferenceNumber;
+    }
+
 }

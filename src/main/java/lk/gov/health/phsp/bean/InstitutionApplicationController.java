@@ -73,7 +73,9 @@ public class InstitutionApplicationController {
     private List<Institution> fillAllInstitutions() {
         String j;
         Map m = new HashMap();
-        j = "select i from Institution i where i.retired=:ret "
+        j = "select i "
+                + " from Institution i "
+                + " where i.retired=:ret "
                 + " order by i.name ";
         m.put("ret", false);
         return institutionFacade.findByJpql(j, m);
@@ -84,6 +86,7 @@ public class InstitutionApplicationController {
     }
 
 // </editor-fold>
+    
     public List<Institution> getInstitutions() {
         if (institutions == null) {
             institutions = fillAllInstitutions();
@@ -158,7 +161,6 @@ public class InstitutionApplicationController {
 
     public List<Institution> getHospitals() {
         fillHospitals();
-//        // // System.out.println("hospitals = " + hospitals.size());
         return hospitals;
     }
 
@@ -187,41 +189,6 @@ public class InstitutionApplicationController {
 
     public void setInstitutions(List<Institution> institutions) {
         this.institutions = institutions;
-    }
-
-    public Long findInstitutionPopulationData(Institution tins, RelationshipType ttr, Integer ty) {
-
-        if (ty == null) {
-            // // System.out.println("No Year");
-            return 0l;
-        }
-        if (tins == null) {
-            // // System.out.println("No Institution");
-            return 0l;
-        }
-        if (ttr == null) {
-            // // System.out.println("No Relationship Type");
-            return 0l;
-        }
-
-        String j = "select r from Relationship r "
-                + " where r.retired<>:ret "
-                + " and r.yearInt=:y";
-
-        Map m = new HashMap();
-
-        j += " and r.institution=:ins  ";
-        j += " and r.relationshipType=:rt ";
-
-        m.put("ins", tins);
-        m.put("rt", ttr);
-        m.put("y", ty);
-        m.put("ret", true);
-
-        // // System.out.println("m = " + m);
-        // // System.out.println("j = " + j);
-       
-        return null;
     }
 
     
@@ -262,24 +229,6 @@ public class InstitutionApplicationController {
             }
         }
         return cins;
-    }
-
-    public List<Institution> findChildrenInstitutionsOld(Institution ins) {
-        List<Institution> allIns = getInstitutions();
-        List<Institution> cins = new ArrayList<>();
-        allIns.stream().filter(i -> !(i.getParent() == null)).filter(i -> (i.getParent().equals(ins))).forEachOrdered(i -> {
-            cins.add(i);
-        });
-        List<Institution> tins = new ArrayList<>();
-        tins.addAll(cins);
-        if (cins.isEmpty()) {
-            return tins;
-        } else {
-            cins.forEach(i -> {
-                tins.addAll(findChildrenInstitutions(i));
-            });
-        }
-        return tins;
     }
 
     public Institution findMinistryOfHealth() {
