@@ -366,7 +366,7 @@ public class VehicleController implements Serializable {
         if (webUserController.getLoggedUser() == null) {
             items = null;
         }
-        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.NATIONAL) {
+        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
             items = vehicleApplicationController.getVehicles();
         } else {
             items = webUserController.findAutherizedVehicles();

@@ -15,11 +15,11 @@
             </ui:define>
 
             <ui:define name="content">
-                <div class="container" >
+                <div class="container p-3" >
                     <h:form >
                         <div class="row justify-content-md-center" >
-                            <div class="col-12 col-md-6 col-lg-4" >
-                                <div class="card" >
+                            <div class="col-12 col-md-10 col-lg-8" >
+                                <div class="card w-75" >
                                     <div class="card-header" >
                                         <h2><h:outputText value="Vehicle Fuel Request"></h:outputText></h2>
                                     </div>
@@ -50,7 +50,7 @@
                                                                itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
                                             </p:selectOneMenu>
                                             <p:outputLabel 
-                                                value="Request to" 
+                                                value="Depot" 
                                                 class="form-label">
                                             </p:outputLabel>
                                             <p:outputLabel 
@@ -65,6 +65,8 @@
                                             </p:outputLabel>
                                             <p:inputNumber
                                                 id="txtQty"
+                                                minValue="0"
+                                                decimalPlaces="1"
                                                 inputStyleClass="form-control"
                                                 required="true"
                                                 requiredMessage="Quantity is required"
@@ -95,7 +97,7 @@
                                     <div class="card-footer" >
                                         <h:commandButton  value="Submit" 
                                                           class="btn btn-primary"
-                                                          action="#{fuelRequestAndIssueController.submitFuelRequest()}" >
+                                                          action="#{fuelRequestAndIssueController.submitVehicleFuelRequest()}" >
                                         </h:commandButton>
                                     </div>
                                 </div>

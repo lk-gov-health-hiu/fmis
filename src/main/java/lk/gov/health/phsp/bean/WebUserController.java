@@ -395,10 +395,10 @@ public class WebUserController implements Serializable {
         }
         String url = "";
         switch (loggedUser.getWebUserRoleLevel()) {
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
                 url = "/provincial/administration/index";
                 break;
-            case NATIONAL:
+            case HEALTH_MINISTRY:
                 url = "/regional/administration/index";
                 break;
             default:

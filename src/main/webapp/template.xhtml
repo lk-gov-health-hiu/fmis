@@ -21,7 +21,7 @@
         </h:head>
 
         <h:body >
-            <p:growl ></p:growl>
+            
             
             <h:panelGroup rendered="#{webUserController.loggedUser ne null}">
                 <ez:header></ez:header>
@@ -42,6 +42,7 @@
                     <ui:insert name="content">
                         Contents
                     </ui:insert>
+                    <p:messages ></p:messages>
                 </div>
             </h:panelGroup>
 

@@ -347,7 +347,7 @@ public class InstitutionController implements Serializable {
         return fillInstitutions(InstitutionType.CTB_Depot, nameQry, null);
     }
 
-    public List<Institution> completeClinics(String qry) {
+    public List<Institution> completeDepots(String qry) {
         List<InstitutionType> its = new ArrayList<>();
         its.add(InstitutionType.CTB_Depot);
         return fillInstitutions(its, qry, null);
@@ -567,7 +567,7 @@ public class InstitutionController implements Serializable {
         if (webUserController.getLoggedUser() == null) {
             items = null;
         }
-        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.NATIONAL) {
+        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
             items = institutionApplicationController.getInstitutions();
         } else {
             items = webUserController.findAutherizedInstitutions();

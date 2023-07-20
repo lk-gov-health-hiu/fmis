@@ -28,8 +28,8 @@ package lk.gov.health.phsp.enums;
  * @author Dr M H B Ariyaratne
  */
 public enum WebUserRoleLevel {
-    NATIONAL("National"),
-    HEALTH_INSTITUTION("Health Institution"),
+    HEALTH_MINISTRY("Health Ministry"),
+    FUEL_REQUESTING_INSTITUTION("Vehicle Fuel Requesting Institution"),
     CTB("CTB"),
     
     ;

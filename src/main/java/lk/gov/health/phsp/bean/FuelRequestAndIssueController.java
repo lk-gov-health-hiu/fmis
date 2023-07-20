@@ -87,25 +87,24 @@ public class FuelRequestAndIssueController implements Serializable {
         save(selected);
     }
 
-    public String submitFuelRequest() {
-        System.out.println("submitFuelRequest");
-        System.out.println("selected = " + selected);
+    public String submitVehicleFuelRequest() {
         if (selected == null) {
-            System.out.println("Selcted is null");
             JsfUtil.addErrorMessage("Nothing selected");
-            return navigateToAddVehicleFuelRequest();
+            return "";
         }
-        System.out.println("selected.getTransactionType() = " + selected.getTransactionType());
-        if (selected.getTransactionType() == null || selected.getTransactionType() != FuelTransactionType.VehicleFuelRequest) {
-            System.out.println("wrong type");
-            JsfUtil.addErrorMessage("Wrong selection");
-            return navigateToAddVehicleFuelRequest();
+        if (selected.getTransactionType() == null) {
+            JsfUtil.addErrorMessage("Transaction Type is not set.");
+            return "";
+        }
+        if (selected.getTransactionType() != FuelTransactionType.VehicleFuelRequest && selected.getTransactionType() != FuelTransactionType.SpecialVehicleFuelRequest) {
+            JsfUtil.addErrorMessage("Wrong Transaction Type");
+            return "";
         }
         save(selected);
-        System.out.println("saved");
         JsfUtil.addSuccessMessage("Request Submitted");
         return navigateToViewRequest();
     }
+    
 
     public void searchFuelTransaction() {
 
@@ -140,7 +139,6 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setRequestedBy(webUserController.getLoggedUser());
         selected.setRequestedInstitution(webUserController.getLoggedInstitution());
         selected.setFromInstitution(webUserController.getLoggedInstitution());
-        selected.setToInstitution(webUserController.getLoggedInstitution().getSupplyInstitution());
         if (webUserController.getManagableVehicles().size() == 1) {
             selected.setVehicle(webUserController.getManagableVehicles().get(0));
         }

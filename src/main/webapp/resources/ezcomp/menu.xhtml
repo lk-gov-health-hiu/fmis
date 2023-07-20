@@ -10,12 +10,15 @@
         <h:form>
             <p:menubar id="main-menu">
                 <p:menuitem class="text-white" ajax="false" value="Home" icon="ui-icon-home" action="#{menuController.toIndex()}" />
-                <p:submenu class="submenu" label="Vehicle Fuel Requests" >
-                    <p:menuitem class="submenu-item" ajax="false" value="Create Fuel Request" action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Create Special Fuel Requests" action="#{fuelRequestAndIssueController.navigateToAddSpecialVehicleFuelRequest()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="View Fuel Requests" action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
+                <p:submenu class="submenu" label="Vehicle Fuel Requests" rendered="#{webUserController.loggedUser.webUserRoleLevel eq 'FUEL_REQUESTING_INSTITUTION'}" >
+                    <p:menuitem class="submenu-item" ajax="false" value="Create Fuel Request" 
+                                action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Create Special Fuel Requests" 
+                                action="#{fuelRequestAndIssueController.navigateToAddSpecialVehicleFuelRequest()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="View Fuel Requests" 
+                                action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
                 </p:submenu>
-                <p:submenu class="submenu" label="Supply" >
+                <p:submenu class="submenu" label="Supply" rendered="#{webUserController.loggedUser.webUserRoleLevel eq 'CTB'}">
                     <p:menuitem class="submenu-item" ajax="false" value="Supply Fuel" action="#{fuelRequestAndIssueController.navigateToIssueRequest()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="View Fuel Supplies" action="#{fuelRequestAndIssueController.navigateToListInstitutionIssues()}" />
                 </p:submenu>
