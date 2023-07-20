@@ -49,7 +49,15 @@
                                                 <f:selectItems value="#{webUserController.managableVehicles}" var="v"
                                                                itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
                                             </p:selectOneMenu>
-
+                                            <p:outputLabel 
+                                                value="Request to" 
+                                                class="form-label">
+                                            </p:outputLabel>
+                                            <p:outputLabel 
+                                                value="#{fuelRequestAndIssueController.selected.toInstitution.name}" 
+                                                class="form-control"
+                                                >
+                                            </p:outputLabel>
                                             <p:outputLabel 
                                                 for="txtQty"
                                                 value="Requesting Quantity in Liters" 
