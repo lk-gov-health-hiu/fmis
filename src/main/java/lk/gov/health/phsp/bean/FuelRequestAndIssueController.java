@@ -87,7 +87,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
         Institution toInstitution = webUserController.getLoggedInstitution();
         List<Vehicle> vs = vehicleController.searchVehicles(searchingFuelRequestVehicleNumber);
-
+        System.out.println("vs = " + vs);
         if (vs == null || vs.isEmpty()) {
             JsfUtil.addErrorMessage("No Matching Vehicle");
             return "";
@@ -100,6 +100,8 @@ public class FuelRequestAndIssueController implements Serializable {
                 null,
                 null);
 
+        System.out.println("searchResults = " + searchResults);
+        
         if (searchResults == null || searchResults.isEmpty()) {
             JsfUtil.addErrorMessage("No search results. Please check and retry.");
             return "";
@@ -109,6 +111,7 @@ public class FuelRequestAndIssueController implements Serializable {
             return navigateToIssueVehicleFuelRequest();
         } else {
             selected = null;
+            transactions = searchResults;
             return navigateToSelectToIssueVehicleFuelRequest();
         }
     }

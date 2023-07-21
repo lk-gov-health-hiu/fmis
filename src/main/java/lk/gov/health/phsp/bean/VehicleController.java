@@ -148,19 +148,21 @@ public class VehicleController implements Serializable {
         List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
         List<Vehicle> matchingVehicles = new ArrayList<>();
 
+        String cleanSearchingText = searchingText.replaceAll("\\W", "").toLowerCase();
+
         // Priority 1: exact matches
         for (Vehicle vehicle : allVehicles) {
-            String vehicleNumber = vehicle.getVehicleNumber().replace(" ", "");
-            if (vehicleNumber.equals(searchingText.replace(" ", ""))) {
+            String vehicleNumber = vehicle.getVehicleNumber().replaceAll("\\W", "").toLowerCase();
+            if (vehicleNumber.equals(cleanSearchingText)) {
                 matchingVehicles.add(vehicle);
             }
         }
 
         // If there are no exact matches, move to priority 2
         if (matchingVehicles.isEmpty()) {
-            String[] searchTerms = searchingText.split(" ");
+            String[] searchTerms = cleanSearchingText.split("");
             for (Vehicle vehicle : allVehicles) {
-                String vehicleNumber = vehicle.getVehicleNumber().replace(" ", "");
+                String vehicleNumber = vehicle.getVehicleNumber().replaceAll("\\W", "").toLowerCase();
                 boolean allTermsMatch = true;
                 for (String term : searchTerms) {
                     if (!vehicleNumber.contains(term)) {
