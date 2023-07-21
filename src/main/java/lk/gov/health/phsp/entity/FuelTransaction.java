@@ -34,21 +34,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import javax.persistence.Temporal;
-import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlRootElement;
-import lk.gov.health.phsp.enums.DocumentGenerationType;
 import lk.gov.health.phsp.enums.FuelTransactionType;
-import lk.gov.health.phsp.pojcs.Nameable;
 
 /**
  *
- * @author buddhika
+ * @author buddhika ariyaratne
  */
 @Entity
-@Table
-@XmlRootElement
 public class FuelTransaction implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -56,73 +49,31 @@ public class FuelTransaction implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String documentName;
-    private String documentNumber;
-    private String documentCode;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date requestAt;
+    @ManyToOne
+    private WebUser requestedBy;
+    @ManyToOne
+    private Institution requestedInstitution;
+    @ManyToOne
+    private Vehicle vehicle;
+
     @Lob
     private String comments;
 
-    @Temporal(javax.persistence.TemporalType.DATE)
-    private Date documentDate;
-
-    @Temporal(javax.persistence.TemporalType.DATE)
-    private Date receivedDate;
-
     @Enumerated(EnumType.STRING)
-    private FuelTransactionType documentType;
-    
-    @Enumerated(EnumType.STRING)
-    private DocumentGenerationType documentGenerationType;
+    private FuelTransactionType requestType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private FuelTransaction referenceDocument;
-    @ManyToOne
-    private FuelTransaction parentDocument;
-    @ManyToOne
-    private Item documentLanguage;
-    @ManyToOne
-    private Item letterStatus;
+    private Double requestQuantity;
+    private Double issuedQuantity;
 
-    @ManyToOne
-    private Institution institution;
-    @ManyToOne
-    private Institution institutionUnit;
-    @ManyToOne
-    private WebUser owner;
-
-    @ManyToOne
-    private Item receivedAs;
-
-    @ManyToOne
-    private Institution fromInstitution;
-    @ManyToOne
-    private WebUser fromWebUser;
-    @ManyToOne
-    private Institution toInstitution;
-    @ManyToOne
-    private WebUser toWebUser;
-    
-
-    @Transient
-    private Nameable fromInsOrUser;
-     @Transient
-    private Nameable toInsOrUser;
-    
-    private String registrationNo;
-    private String senderName;
-
-
-    @ManyToOne
-    private Institution currentInstitution;
-    @ManyToOne
-    private WebUser currentOwner;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private WebUser createdBy;
+    private boolean issued;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date createdAt;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Institution createdInstitution;
+    private Date issuedAt;
+    @ManyToOne
+    private Institution issuedInstitution;
+    @ManyToOne
+    private WebUser issuedUser;
 
     private boolean retired;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -132,28 +83,27 @@ public class FuelTransaction implements Serializable {
     @Lob
     private String retireComments;
 
+    private boolean cancelled;
     @ManyToOne(fetch = FetchType.LAZY)
-    private WebUser retiredReversedBy;
+    private WebUser cancelledBy;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date retiredReversedAt;
-
-    /*
-    Last Edit Properties
-     */
+    private Date cancelledAt;
+    @Lob
+    private String cancellationComments;
     @ManyToOne
-    private WebUser lastEditBy;
-    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date lastEditeAt;
+    private Institution cancelledInstitution;
 
-    private boolean completed;
+    private boolean rejected;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private WebUser rejectedBy;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date rejectedAt;
+    @Lob
+    private String rejectedComments;
     @ManyToOne
-    private WebUser completedBy;
-    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date completedAt;
-    
-    
-    
+    private Institution rejectedInstitution;
 
+  
     public String getIdString() {
         if (id == null) {
             return "";
@@ -194,36 +144,132 @@ public class FuelTransaction implements Serializable {
         return id + "";
     }
 
-    public Institution getInstitution() {
-        return institution;
+    public WebUser getRequestedBy() {
+        return requestedBy;
     }
 
-    public void setInstitution(Institution institution) {
-        this.institution = institution;
+    public void setRequestedBy(WebUser requestedBy) {
+        this.requestedBy = requestedBy;
     }
 
-    public String getDocumentName() {
-        return documentName;
+    public Institution getRequestedInstitution() {
+        return requestedInstitution;
     }
 
-    public void setDocumentName(String documentName) {
-        this.documentName = documentName;
+    public void setRequestedInstitution(Institution requestedInstitution) {
+        this.requestedInstitution = requestedInstitution;
     }
 
-    public String getDocumentNumber() {
-        return documentNumber;
+    public Vehicle getVehicle() {
+        return vehicle;
     }
 
-    public void setDocumentNumber(String documentNumber) {
-        this.documentNumber = documentNumber;
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
     }
 
-    public String getDocumentCode() {
-        return documentCode;
+    public Double getRequestQuantity() {
+        return requestQuantity;
     }
 
-    public void setDocumentCode(String documentCode) {
-        this.documentCode = documentCode;
+    public void setRequestQuantity(Double requestQuantity) {
+        this.requestQuantity = requestQuantity;
+    }
+
+    public Double getIssuedQuantity() {
+        return issuedQuantity;
+    }
+
+    public void setIssuedQuantity(Double issuedQuantity) {
+        this.issuedQuantity = issuedQuantity;
+    }
+
+    public boolean isIssued() {
+        return issued;
+    }
+
+    public void setIssued(boolean issued) {
+        this.issued = issued;
+    }
+
+    public Date getIssuedAt() {
+        return issuedAt;
+    }
+
+    public void setIssuedAt(Date issuedAt) {
+        this.issuedAt = issuedAt;
+    }
+
+    public Institution getIssuedInstitution() {
+        return issuedInstitution;
+    }
+
+    public void setIssuedInstitution(Institution issuedInstitution) {
+        this.issuedInstitution = issuedInstitution;
+    }
+
+    public WebUser getIssuedUser() {
+        return issuedUser;
+    }
+
+    public void setIssuedUser(WebUser issuedUser) {
+        this.issuedUser = issuedUser;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    public String getCancellationComments() {
+        return cancellationComments;
+    }
+
+    public void setCancellationComments(String cancellationComments) {
+        this.cancellationComments = cancellationComments;
+    }
+
+    public Institution getCancelledInstitution() {
+        return cancelledInstitution;
+    }
+
+    public void setCancelledInstitution(Institution cancelledInstitution) {
+        this.cancelledInstitution = cancelledInstitution;
+    }
+
+    public boolean isRejected() {
+        return rejected;
+    }
+
+    public void setRejected(boolean rejected) {
+        this.rejected = rejected;
+    }
+
+    public String getRejectedComments() {
+        return rejectedComments;
+    }
+
+    public void setRejectedComments(String rejectedComments) {
+        this.rejectedComments = rejectedComments;
+    }
+
+    public Institution getRejectedInstitution() {
+        return rejectedInstitution;
+    }
+
+    public void setRejectedInstitution(Institution rejectedInstitution) {
+        this.rejectedInstitution = rejectedInstitution;
+    }
+
+    public Date getRequestAt() {
+        return requestAt;
+    }
+
+    public void setRequestAt(Date requestAt) {
+        this.requestAt = requestAt;
     }
 
     public String getComments() {
@@ -234,76 +280,12 @@ public class FuelTransaction implements Serializable {
         this.comments = comments;
     }
 
-    public Date getDocumentDate() {
-        return documentDate;
+    public FuelTransactionType getRequestType() {
+        return requestType;
     }
 
-    public void setDocumentDate(Date documentDate) {
-        this.documentDate = documentDate;
-    }
-
-    public FuelTransactionType getDocumentType() {
-        return documentType;
-    }
-
-    public void setDocumentType(FuelTransactionType documentType) {
-        this.documentType = documentType;
-    }
-
-    public FuelTransaction getReferenceDocument() {
-        return referenceDocument;
-    }
-
-    public void setReferenceDocument(FuelTransaction referenceDocument) {
-        this.referenceDocument = referenceDocument;
-    }
-
-    public FuelTransaction getParentDocument() {
-        return parentDocument;
-    }
-
-    public void setParentDocument(FuelTransaction parentDocument) {
-        this.parentDocument = parentDocument;
-    }
-
-    public Institution getInstitutionUnit() {
-        return institutionUnit;
-    }
-
-    public void setInstitutionUnit(Institution institutionUnit) {
-        this.institutionUnit = institutionUnit;
-    }
-
-    public WebUser getOwner() {
-        return owner;
-    }
-
-    public void setOwner(WebUser owner) {
-        this.owner = owner;
-    }
-
-    public WebUser getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(WebUser createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Institution getCreatedInstitution() {
-        return createdInstitution;
-    }
-
-    public void setCreatedInstitution(Institution createdInstitution) {
-        this.createdInstitution = createdInstitution;
+    public void setRequestType(FuelTransactionType requestType) {
+        this.requestType = requestType;
     }
 
     public boolean isRetired() {
@@ -338,249 +320,38 @@ public class FuelTransaction implements Serializable {
         this.retireComments = retireComments;
     }
 
-    public WebUser getRetiredReversedBy() {
-        return retiredReversedBy;
+    public WebUser getCancelledBy() {
+        return cancelledBy;
     }
 
-    public void setRetiredReversedBy(WebUser retiredReversedBy) {
-        this.retiredReversedBy = retiredReversedBy;
+    public void setCancelledBy(WebUser cancelledBy) {
+        this.cancelledBy = cancelledBy;
     }
 
-    public Date getRetiredReversedAt() {
-        return retiredReversedAt;
+    public Date getCancelledAt() {
+        return cancelledAt;
     }
 
-    public void setRetiredReversedAt(Date retiredReversedAt) {
-        this.retiredReversedAt = retiredReversedAt;
+    public void setCancelledAt(Date cancelledAt) {
+        this.cancelledAt = cancelledAt;
     }
 
-    public WebUser getLastEditBy() {
-        return lastEditBy;
+    public WebUser getRejectedBy() {
+        return rejectedBy;
     }
 
-    public void setLastEditBy(WebUser lastEditBy) {
-        this.lastEditBy = lastEditBy;
+    public void setRejectedBy(WebUser rejectedBy) {
+        this.rejectedBy = rejectedBy;
     }
 
-    public Date getLastEditeAt() {
-        return lastEditeAt;
+    public Date getRejectedAt() {
+        return rejectedAt;
     }
 
-    public void setLastEditeAt(Date lastEditeAt) {
-        this.lastEditeAt = lastEditeAt;
-    }
-
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
-
-    public WebUser getCompletedBy() {
-        return completedBy;
-    }
-
-    public void setCompletedBy(WebUser completedBy) {
-        this.completedBy = completedBy;
-    }
-
-    public Date getCompletedAt() {
-        return completedAt;
-    }
-
-    public void setCompletedAt(Date completedAt) {
-        this.completedAt = completedAt;
-    }
-
-    public Institution getCurrentInstitution() {
-        return currentInstitution;
-    }
-
-    public void setCurrentInstitution(Institution currentInstitution) {
-        this.currentInstitution = currentInstitution;
-    }
-
-    public WebUser getCurrentOwner() {
-        return currentOwner;
-    }
-
-    public void setCurrentOwner(WebUser currentOwner) {
-        this.currentOwner = currentOwner;
-    }
-
-    public Institution getFromInstitution() {
-        return fromInstitution;
-    }
-
-    public void setFromInstitution(Institution fromInstitution) {
-        this.fromInstitution = fromInstitution;
-    }
-
-    public Date getReceivedDate() {
-        return receivedDate;
-    }
-
-    public void setReceivedDate(Date receivedDate) {
-        this.receivedDate = receivedDate;
-    }
-
-    public Item getReceivedAs() {
-        return receivedAs;
-    }
-
-    public void setReceivedAs(Item receivedAs) {
-        this.receivedAs = receivedAs;
-    }
-
-    public Item getDocumentLanguage() {
-        return documentLanguage;
-    }
-
-    public void setDocumentLanguage(Item documentLanguage) {
-        this.documentLanguage = documentLanguage;
-    }
-
-    public String getRegistrationNo() {
-        return registrationNo;
-    }
-
-    public void setRegistrationNo(String registrationNo) {
-        this.registrationNo = registrationNo;
-    }
-
-    public String getSenderName() {
-        return senderName;
-    }
-
-    public void setSenderName(String senderName) {
-        this.senderName = senderName;
-    }
-
-    public WebUser getFromWebUser() {
-        return fromWebUser;
-    }
-
-    public void setFromWebUser(WebUser fromWebUser) {
-        this.fromWebUser = fromWebUser;
-    }
-    
-    
-    
-    
-    
-
-    public Nameable getFromInsOrUser() {
-        if(this.fromInstitution!=null && this.fromWebUser!=null){
-            fromInsOrUser = fromWebUser;
-        }if(this.fromInstitution!=null && this.fromWebUser==null){
-            fromInsOrUser = fromInstitution;
-        }if(this.fromInstitution==null && this.fromWebUser!=null){
-            fromInsOrUser = fromWebUser;
-        }if(this.fromInstitution==null && this.fromWebUser==null){
-            fromInsOrUser = null;
-        }
-        return fromInsOrUser;
-    }
-
-    public void setFromInsOrUser(Nameable fromInsOrUser) {
-        this.fromInsOrUser = fromInsOrUser;
-        if(fromInsOrUser==null){
-            this.fromInstitution=null;
-            this.fromWebUser=null;
-        }else if(fromInsOrUser instanceof Institution){
-            this.fromInstitution= (Institution) fromInsOrUser;
-            this.fromWebUser=null;
-        }else if(fromInsOrUser instanceof WebUser){
-            this.fromWebUser = (WebUser) fromInsOrUser;
-            this.fromInstitution=null;
-        }else{
-            this.fromInstitution=null;
-            this.fromWebUser=null;
-        }
-        
+    public void setRejectedAt(Date rejectedAt) {
+        this.rejectedAt = rejectedAt;
     }
 
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    public Nameable getToInsOrUser() {
-        if(this.toInstitution!=null && this.toWebUser!=null){
-            toInsOrUser = toWebUser;
-        }if(this.toInstitution!=null && this.toWebUser==null){
-            toInsOrUser = toInstitution;
-        }if(this.toInstitution==null && this.toWebUser!=null){
-            toInsOrUser = toWebUser;
-        }if(this.toInstitution==null && this.toWebUser==null){
-            toInsOrUser = null;
-        }
-        return toInsOrUser;
-    }
-
-    public void setToInsOrUser(Nameable toInsOrUser) {
-        this.toInsOrUser = toInsOrUser;
-        if(toInsOrUser==null){
-            this.toInstitution=null;
-            this.toWebUser=null;
-        }else if(toInsOrUser instanceof Institution){
-            this.toInstitution= (Institution) toInsOrUser;
-            this.toWebUser=null;
-        }else if(toInsOrUser instanceof WebUser){
-            this.toWebUser = (WebUser) toInsOrUser;
-            this.toInstitution=null;
-        }else{
-            this.toInstitution=null;
-            this.toWebUser=null;
-        }
-        
-    }
-
-    public Institution getToInstitution() {
-        return toInstitution;
-    }
-
-    public void setToInstitution(Institution toInstitution) {
-        this.toInstitution = toInstitution;
-    }
-
-    public WebUser getToWebUser() {
-        return toWebUser;
-    }
-
-    public void setToWebUser(WebUser toWebUser) {
-        this.toWebUser = toWebUser;
-    }
-
-    public Item getLetterStatus() {
-        return letterStatus;
-    }
-
-    public void setLetterStatus(Item letterStatus) {
-        this.letterStatus = letterStatus;
-    }
-
-    public DocumentGenerationType getDocumentGenerationType() {
-        return documentGenerationType;
-    }
-
-    public void setDocumentGenerationType(DocumentGenerationType documentGenerationType) {
-        this.documentGenerationType = documentGenerationType;
-    }
-    
-    
-    
-    
+  
 }
