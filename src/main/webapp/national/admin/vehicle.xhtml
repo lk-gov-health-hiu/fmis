@@ -25,6 +25,20 @@
                                                itemLabel="#{vehicleTypes.label}"></f:selectItems>
                             </h:selectOneMenu>
 
+                            <h:outputLabel value="Institution:" for="ins" />
+                            <p:autoComplete  class="form-control" 
+                                             id="ins"
+                                             inputStyleClass="form-control" 
+                                             value="#{vehicleController.selected.institution}" 
+                                             completeMethod="#{institutionController.completeInstitutions}"
+                                             var="i" 
+                                             itemLabel="#{i.name}" 
+                                             itemValue="#{i}" 
+                                             forceSelection="True"
+                                             maxResults="15" 
+                                             minQueryLength="3">
+                            </p:autoComplete >
+
                             <h:outputLabel value="Number:" for="number" />
                             <h:inputText id="number" 
                                          autocomplete="off"

@@ -87,7 +87,7 @@ public class AnalysisController {
         j += " and s.encounterDate between :fd and :td ";
         m.put("fd", getFrom());
         m.put("td", getTo());
-        m.put("t", FuelTransactionType.FuelIssue);
+        m.put("t", FuelTransactionType.DepotFuelRequest);
         m.put("ret", true);
 
         fs = getEncounterFacade().findLongByJpql(j, m);
@@ -98,7 +98,7 @@ public class AnalysisController {
 
     public Long findEncounterCount(Date pFrom, Date pTo, List<Institution> pIns, FuelTransactionType ec, Item sex) {
         if (ec == null) {
-            ec = FuelTransactionType.FuelIssue;
+            ec = FuelTransactionType.DepotFuelRequest;
         }
         if (pIns == null || pIns.isEmpty()) {
             return null;

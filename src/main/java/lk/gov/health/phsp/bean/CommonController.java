@@ -116,25 +116,7 @@ public class CommonController implements Serializable {
         return "/common/client_view";
     }
 
-    public String toViewEncounter() {
-        if (encounter == null) {
-            JsfUtil.addErrorMessage("No Encounter Selected");
-            return "";
-        }
-        if (encounter.getDocumentType() == null) {
-            return "";
-        }
-        switch (encounter.getDocumentType()) {
-            case FuelRequest:
-                return toViewCaseIx();
-            case FuelIssue:
-                return toViewTest();
-            case FuelEstimate:
-                return "";
-        }
-        return "";
-    }
-
+   
     public String toViewTest() {
         if (encounter == null) {
             JsfUtil.addErrorMessage("No Encounter Selected");

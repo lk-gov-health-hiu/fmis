@@ -33,6 +33,7 @@ import javax.ejb.EJB;
 import javax.inject.Named;
 import javax.enterprise.context.ApplicationScoped;
 import lk.gov.health.phsp.entity.Area;
+import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.enums.RelationshipType;
@@ -73,8 +74,10 @@ public class VehicleApplicationController {
     private List<Vehicle> fillAllVehicles() {
         String j;
         Map m = new HashMap();
-        j = "select i from Vehicle i where i.retired=:ret "
-                + " order by i.name ";
+        j = "select i "
+                + " from Vehicle i"
+                + " where i.retired=:ret "
+                + " order by i.vehicleNumber ";
         m.put("ret", false);
         return vehicleFacade.findByJpql(j, m);
     }
@@ -125,6 +128,26 @@ public class VehicleApplicationController {
         return tins;
     }
 
+    public List<Vehicle> findVehiclesByInstitution(Institution institution) {
+        List<Vehicle> vs = new ArrayList<>();
+        for (Vehicle vehicle : getVehicles()) {
+            if (vehicle.getInstitution() != null && vehicle.getInstitution().equals(institution)) {
+                vs.add(vehicle);
+            }
+        }
+        return vs;
+    }
+
+    public List<Vehicle> findVehiclesByInstitutions(List<Institution> institutions) {
+        List<Vehicle> vs = new ArrayList<>();
+        for (Vehicle vehicle : getVehicles()) {
+            if (vehicle.getInstitution() != null && institutions.contains(vehicle.getInstitution())) {
+                vs.add(vehicle);
+            }
+        }
+        return vs;
+    }
+
     public List<Vehicle> findRegionalVehicles(List<VehicleType> types, Area rdhs) {
         List<Vehicle> cins = getVehicles();
         List<Vehicle> tins = new ArrayList<>();
@@ -145,15 +168,7 @@ public class VehicleApplicationController {
         return tins;
     }
 
-    public String getVehicleHash() {
-        return DigestUtils.md5Hex(getVehicles().toString()).toUpperCase();
-    }
-
-    
-    
-
     public boolean vehicleTypeCorrect(List<VehicleType> its, VehicleType it) {
-
         boolean correct = false;
         if (its == null || it == null) {
             return correct;
@@ -170,57 +185,6 @@ public class VehicleApplicationController {
         this.vehicles = vehicles;
     }
 
-    public Long findVehiclePopulationData(Vehicle tins, RelationshipType ttr, Integer ty) {
-
-        if (ty == null) {
-            // // System.out.println("No Year");
-            return 0l;
-        }
-        if (tins == null) {
-            // // System.out.println("No Vehicle");
-            return 0l;
-        }
-        if (ttr == null) {
-            // // System.out.println("No Relationship Type");
-            return 0l;
-        }
-
-        String j = "select r from Relationship r "
-                + " where r.retired<>:ret "
-                + " and r.yearInt=:y";
-
-        Map m = new HashMap();
-
-        j += " and r.vehicle=:ins  ";
-        j += " and r.relationshipType=:rt ";
-
-        m.put("ins", tins);
-        m.put("rt", ttr);
-        m.put("y", ty);
-        m.put("ret", true);
-
-        // // System.out.println("m = " + m);
-        // // System.out.println("j = " + j);
-       
-        return null;
-    }
-
-    
-    
-
-    public Vehicle findVehicle(Long insId) {
-        Vehicle ri = null;
-        for (Vehicle i : getVehicles()) {
-            if (i.getId().equals(insId)) {
-                ri = i;
-            }
-        }
-        return ri;
-    }
-
-    
-
-    
     public Vehicle findVehicleById(Long id) {
         Vehicle ins = null;
         for (Vehicle i : getVehicles()) {
@@ -231,8 +195,5 @@ public class VehicleApplicationController {
         }
         return ins;
     }
-
-   
-
 
 }

@@ -33,10 +33,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlRootElement;
 import lk.gov.health.phsp.pojcs.Nameable;
 
 /**
@@ -45,8 +43,8 @@ import lk.gov.health.phsp.pojcs.Nameable;
  */
 @Entity
 public class Institution implements Serializable, Nameable {
-
     private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -66,7 +64,7 @@ public class Institution implements Serializable, Nameable {
     private String web;
     private String poiNumber;
     @ManyToOne
-    private Institution poiInstitution;
+    private Institution supplyInstitution;
     private Long lastHin;
 
     @ManyToOne
@@ -400,17 +398,17 @@ public class Institution implements Serializable, Nameable {
         this.pdhsArea = pdhsArea;
     }
 
-    public Institution getPoiInstitution() {
+    public Institution getSupplyInstitution() {
         if (this.getId() != null) {
-            if (poiInstitution == null) {
-                poiInstitution = this;
+            if (supplyInstitution == null) {
+                supplyInstitution = this;
             }
         }
-        return poiInstitution;
+        return supplyInstitution;
     }
 
-    public void setPoiInstitution(Institution poiInstitution) {
-        this.poiInstitution = poiInstitution;
+    public void setSupplyInstitution(Institution supplyInstitution) {
+        this.supplyInstitution = supplyInstitution;
     }
 
     public boolean isPmci() {

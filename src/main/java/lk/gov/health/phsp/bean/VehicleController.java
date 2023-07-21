@@ -144,6 +144,41 @@ public class VehicleController implements Serializable {
         userTransactionController.recordTransaction("Remove Gn From Pmc");
     }
 
+    public List<Vehicle> searchVehicles(String searchingText) {
+        List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
+        List<Vehicle> matchingVehicles = new ArrayList<>();
+
+        String cleanSearchingText = searchingText.replaceAll("\\W", "").toLowerCase();
+
+        // Priority 1: exact matches
+        for (Vehicle vehicle : allVehicles) {
+            String vehicleNumber = vehicle.getVehicleNumber().replaceAll("\\W", "").toLowerCase();
+            if (vehicleNumber.equals(cleanSearchingText)) {
+                matchingVehicles.add(vehicle);
+            }
+        }
+
+        // If there are no exact matches, move to priority 2
+        if (matchingVehicles.isEmpty()) {
+            String[] searchTerms = cleanSearchingText.split("");
+            for (Vehicle vehicle : allVehicles) {
+                String vehicleNumber = vehicle.getVehicleNumber().replaceAll("\\W", "").toLowerCase();
+                boolean allTermsMatch = true;
+                for (String term : searchTerms) {
+                    if (!vehicleNumber.contains(term)) {
+                        allTermsMatch = false;
+                        break;
+                    }
+                }
+                if (allTermsMatch) {
+                    matchingVehicles.add(vehicle);
+                }
+            }
+        }
+
+        return matchingVehicles;
+    }
+
     public void fillGnAreasOfSelected() {
         if (selected == null) {
             gnAreasOfSelected = new ArrayList<>();
@@ -282,9 +317,9 @@ public class VehicleController implements Serializable {
         if (nameQry.trim().equals("")) {
             return resIns;
         }
-        List<Vehicle> allIns = vehicleApplicationController.getVehicles();
+        List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
 
-        for (Vehicle i : allIns) {
+        for (Vehicle i : allVehicles) {
             boolean canInclude = true;
 
             boolean typeFound = false;
@@ -298,9 +333,12 @@ public class VehicleController implements Serializable {
             if (!typeFound) {
                 canInclude = false;
             }
-            if (i.getName() == null || i.getName().trim().equals("")) {
+            if (i.getVehicleNumber() == null || i.getVehicleNumber().trim().equals("")) {
                 canInclude = false;
             } else {
+                if (!i.getVehicleNumber().toLowerCase().contains(nameQry.trim().toLowerCase())) {
+                    canInclude = false;
+                }
                 if (!i.getName().toLowerCase().contains(nameQry.trim().toLowerCase())) {
                     canInclude = false;
                 }
@@ -332,7 +370,7 @@ public class VehicleController implements Serializable {
                 word = word.trim().toLowerCase();
                 if (i.getName() != null && i.getName().toLowerCase().contains(word)) {
                     thisWordMatch = true;
-                } else if (i.getVehicleNumber()!= null && i.getVehicleNumber().toLowerCase().contains(word)) {
+                } else if (i.getVehicleNumber() != null && i.getVehicleNumber().toLowerCase().contains(word)) {
                     thisWordMatch = true;
                 } else {
                     thisWordMatch = false;
@@ -363,7 +401,7 @@ public class VehicleController implements Serializable {
         if (webUserController.getLoggedUser() == null) {
             items = null;
         }
-        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.NATIONAL) {
+        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
             items = vehicleApplicationController.getVehicles();
         } else {
             items = webUserController.findAutherizedVehicles();
@@ -380,10 +418,9 @@ public class VehicleController implements Serializable {
             return;
         }
 
-        if (selected.getName()== null || selected.getName().trim().equals("")) {
+        if (selected.getName() == null || selected.getName().trim().equals("")) {
             selected.setName(selected.getVehicleNumber());
         }
-
 
         if (selected.getId() == null) {
             selected.setCreatedAt(new Date());
@@ -490,7 +527,6 @@ public class VehicleController implements Serializable {
         myClinics = null;
     }
 
-   
     public lk.gov.health.phsp.facade.VehicleFacade getEjbFacade() {
         return ejbFacade;
     }

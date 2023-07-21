@@ -29,10 +29,11 @@ package lk.gov.health.phsp.enums;
  * @author User
  */
 public enum FuelTransactionType {
-    FuelRequest("Request"),
-    FuelIssue("Issue"),
-    FuelRejection("Rejection"),
-    FuelEstimate("Estimate"),
+    VehicleFuelRequest("Vehicle Fuel Request"),
+    SpecialVehicleFuelRequest("Vehicle Special Fuel Request"),
+    DepotFuelRequest("CTB Depot Fuel Request"),
+    CtbFuelRequest("CTB Fuel Request"),
+    MinistryFuelRequest("Ministry of Health Fuel Request"),
     Other("Other");
     
     private final String label;    
@@ -44,5 +45,5 @@ public enum FuelTransactionType {
         return label;
     }
     
-   
+  
 }
