@@ -48,6 +48,8 @@ public class FuelRequestAndIssueController implements Serializable {
     @Inject
     private WebUserController webUserController;
     @Inject
+    VehicleController vehicleController;
+    @Inject
     private UserTransactionController userTransactionController;
     @Inject
     MenuController menuController;
@@ -84,8 +86,19 @@ public class FuelRequestAndIssueController implements Serializable {
         }
 
         Institution toInstitution = webUserController.getLoggedInstitution();
+        List<Vehicle> vs = vehicleController.searchVehicles(searchingFuelRequestVehicleNumber);
 
-        List<FuelTransaction> searchResults = findFuelTransactions(null, null, toInstitution, searchingFuelRequestVehicleNumber, null, null);
+        if (vs == null || vs.isEmpty()) {
+            JsfUtil.addErrorMessage("No Matching Vehicle");
+            return "";
+        }
+
+        List<FuelTransaction> searchResults = findFuelTransactions(null,
+                null,
+                toInstitution,
+                vs,
+                null,
+                null);
 
         if (searchResults == null || searchResults.isEmpty()) {
             JsfUtil.addErrorMessage("No search results. Please check and retry.");
@@ -93,11 +106,19 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         if (searchResults.size() == 1) {
             selected = searchResults.get(0);
-            return "/issues/issue";
+            return navigateToIssueVehicleFuelRequest();
         } else {
             selected = null;
-            return "/issues/select_issue";
+            return navigateToSelectToIssueVehicleFuelRequest();
         }
+    }
+
+    public String navigateToIssueVehicleFuelRequest() {
+        return "/issues/issue";
+    }
+
+    public String navigateToSelectToIssueVehicleFuelRequest() {
+        return "/issues/select_issue";
     }
 
     public void saveSelected() {
@@ -157,7 +178,7 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setIssuedUser(webUserController.getLoggedUser());
         save(selected);
         JsfUtil.addSuccessMessage("Successfully Issued");
-        return navigateToIssueRequest();
+        return navigateToSearchRequestsForVehicleFuelIssue();
     }
 
     public String navigateToListFuelTransactions() {
@@ -191,8 +212,8 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/requests/special_request";
     }
 
-    public String navigateToIssueRequest() {
-        return "/issues/issue";
+    public String navigateToSearchRequestsForVehicleFuelIssue() {
+        return "/issues/search";
     }
 
     public String generateRequest() {
@@ -219,7 +240,7 @@ public class FuelRequestAndIssueController implements Serializable {
         transactions = getFacade().findByJpql(j, m, TemporalType.TIMESTAMP);
     }
 
-    public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution, String vehicleNumber, Date fromDateTime, Date toDateTime) {
+    public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution, List<Vehicle> vehicles, Date fromDateTime, Date toDateTime) {
         String j = "SELECT ft FROM FuelTransaction ft WHERE ft.retired = false";
         Map<String, Object> params = new HashMap<>();
 
@@ -235,9 +256,9 @@ public class FuelRequestAndIssueController implements Serializable {
             j += " AND ft.toInstitution = :toInstitution";
             params.put("toInstitution", toInstitution);
         }
-        if (vehicleNumber != null && !vehicleNumber.isEmpty()) {
-            j += " AND ft.vehicle.vehicleNumber = :vehicleNumber";
-            params.put("vehicleNumber", vehicleNumber);
+        if (vehicles != null && !vehicles.isEmpty()) {
+            j += " AND ft.vehicle IN :vehicles";
+            params.put("vehicles", vehicles);
         }
         if (fromDateTime != null) {
             j += " AND ft.requestAt >= :fromDateTime";

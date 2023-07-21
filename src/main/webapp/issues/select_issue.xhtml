@@ -96,8 +96,8 @@
                                             <p:column headerText="Actions" >
                                                 <h:commandLink class="btn btn-primary m-2" id="editButton"
                                                                value="To Issue"
-                                                               action="#{menuController.toEditInstitution()}">
-                                                    <f:setPropertyActionListener value="#{item}" target="#{institutionController.selected}" ></f:setPropertyActionListener>
+                                                               action="#{fuelRequestAndIssueController.navigateToIssueVehicleFuelRequest}">
+                                                    <f:setPropertyActionListener value="#{item}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
                                                     <i class="bi bi-pencil m-2"></i>
                                                 </h:commandLink>
                                                 <h:commandLink class="btn btn-primary m-2" id="deleteButton" onclick="if (!confirm('Are you sure you want to delete?'))
