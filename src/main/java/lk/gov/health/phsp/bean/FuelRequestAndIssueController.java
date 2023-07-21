@@ -101,7 +101,7 @@ public class FuelRequestAndIssueController implements Serializable {
                 null);
 
         System.out.println("searchResults = " + searchResults);
-        
+
         if (searchResults == null || searchResults.isEmpty()) {
             JsfUtil.addErrorMessage("No search results. Please check and retry.");
             return "";
@@ -187,6 +187,14 @@ public class FuelRequestAndIssueController implements Serializable {
     public String navigateToListFuelTransactions() {
         return "/issues/list";
     }
+    
+    public String navigateToViewVehicleFuelRequest() {
+        if(selected==null){
+            JsfUtil.addErrorMessage("Nothing selected");
+            return "";
+        }
+        return "/issues/requested";
+    }
 
     public String navigateToAddVehicleFuelRequest() {
         selected = new FuelTransaction();
@@ -232,19 +240,13 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listInstitutionRequests() {
-        String j = "select t "
-                + " from FuelTransaction t ";
-//               j   += " where t.requestedInstitution=:ins ";
-//             j   += " and t.requestAt between :fd and :td";
-        Map m = new HashMap();
-//        m.put("ins", webUserController.getLoggedInstitution());
-//        m.put("fd", getFromDate());
-//        m.put("td", getToDate());
-        transactions = getFacade().findByJpql(j, m, TemporalType.TIMESTAMP);
+        transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate);
     }
 
     public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution, List<Vehicle> vehicles, Date fromDateTime, Date toDateTime) {
-        String j = "SELECT ft FROM FuelTransaction ft WHERE ft.retired = false";
+        String j = "SELECT ft "
+                + " FROM FuelTransaction ft "
+                + " WHERE ft.retired = false";
         Map<String, Object> params = new HashMap<>();
 
         if (institution != null) {

@@ -15,48 +15,86 @@
             </ui:define>
 
             <ui:define name="content">
-                <div class="container" >
+                <div class="container-fluid p-2" >
                     <h:form >
 
                         <div class="card" >
                             <div class="card-header" >
-                                <h2><h:outputText value="Request Fuel"></h:outputText></h2>
+                                <h2><h:outputText value="Search Fuel Requests"></h:outputText></h2>
                             </div>
                             <div class="card-body" >
 
-                                <!-- Calendar for from date -->
-                                <p:calendar value="#{fuelRequestAndIssueController.fromDate}" showButtonPanel="true" />
-                                <!-- Calendar for to date -->
-                                <p:calendar value="#{fuelRequestAndIssueController.toDate}" showButtonPanel="true" />
+                                <div class="row" >
+                                    <div class="col-2" >
+                                        <div class="form-group">
+                                            <label for="fromDate">From Date</label>
+                                            <p:calendar id="fromDate" value="#{fuelRequestAndIssueController.fromDate}" showButtonPanel="true"
+                                                        class="form-control" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="toDate">To Date</label>
+                                            <p:calendar id="toDate" value="#{fuelRequestAndIssueController.toDate}" showButtonPanel="true"
+                                                        class="form-control" />
+                                        </div>
+                                        <div class="text-center">
+                                            <h:commandButton value="List Requests" action="#{fuelRequestAndIssueController.listInstitutionRequests}"
+                                                             class="btn btn-primary" />
+                                        </div>
+                                    </div>
+                                    <div class="col-10" >
+                                        <p:dataTable id="tbl" value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}" 
+                                                     rows="5"
+                                                     paginator="true"
+                                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                     currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                                     rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
+                                                     sortMode="multiple">
 
-                                <!-- Button to list requests -->
-                                <p:commandButton value="List Requests" action="#{fuelRequestAndIssueController.listInstitutionRequests()}" />
+                                            <p:column headerText="Vehicle" sortBy="#{transaction.vehicle.vehicleNumber}" filterBy="#{transaction.vehicle.vehicleNumber}">
+                                                <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
+                                            </p:column>
 
-                                <!-- DataTable for transactions -->
-                                <p:dataTable id="tbl" value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}" 
-                                             rows="5"
-                                             paginator="true"
-                                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                             currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
-                                             rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}">
+                                            <p:column headerText="Requested At" sortBy="#{transaction.requestAt}" filterBy="#{transaction.requestAt}">
+                                                <h:outputText value="#{transaction.requestAt}">
+                                                    <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" />
+                                                </h:outputText>
+                                            </p:column>
 
-                                    <!-- Replace the columns below with your actual transaction fields -->
-                                    <p:column headerText="Vehicle" >
-                                        
-                                    </p:column>
-                                    <p:column headerText="Requested At">
-                                        <h:outputText value="#{transaction.requestAt}">
-                                            <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
-                                        </h:outputText>
-                                    </p:column>
-                                    <!-- Add additional columns as needed -->
-                                </p:dataTable>
-                            </div>
-                            <div class="card-footer" >
+                                            <p:column headerText="Requested Quantity" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}">
+                                                <h:outputText value="#{transaction.requestQuantity}" />
+                                            </p:column>
 
+                                            <p:column headerText="Issued At" sortBy="#{transaction.issuedAt}" filterBy="#{transaction.issuedAt}">
+                                                <h:outputText value="#{transaction.issuedAt}">
+                                                    <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" />
+                                                </h:outputText>
+                                                <h:outputText value="Not Issued" style="color: red;" rendered="#{not transaction.issued}" />
+                                            </p:column>
+
+                                            <p:column headerText="Issued Quantity" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}">
+                                                <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
+                                            </p:column>
+
+                                            <p:column headerText="Issued Depot" sortBy="#{transaction.issuedInstitution.name}" filterBy="#{transaction.issuedInstitution.name}">
+                                                <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
+                                            </p:column>
+
+                                            <p:column headerText="Comments">
+                                                <h:outputText value="#{transaction.cancelled ? 'Cancelled' : (transaction.rejected ? 'Rejected' : '')}" />
+                                            </p:column>
+                                            
+                                             <p:column headerText="Actions">
+                                                 <h:commandButton value="View" action="#{fuelRequestAndIssueController.navigateToListFuelTransactions()}" >
+                                                     <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
+                                                 </h:commandButton>
+                                            </p:column>
+
+                                        </p:dataTable>
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
                     </h:form>
                 </div>
 
