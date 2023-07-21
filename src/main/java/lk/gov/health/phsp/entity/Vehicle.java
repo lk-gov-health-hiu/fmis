@@ -23,7 +23,6 @@
  */
 package lk.gov.health.phsp.entity;
 
-import lk.gov.health.phsp.enums.InstitutionType;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Entity;
@@ -34,10 +33,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import javax.persistence.Temporal;
-import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlRootElement;
 import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.pojcs.Nameable;
 
@@ -62,6 +58,10 @@ public class Vehicle implements Serializable, Nameable {
     private String vehicleModel;
     @Lob
     private String details;
+    @ManyToOne
+    private Institution institution;
+    
+    
 
 
 
@@ -242,6 +242,14 @@ public class Vehicle implements Serializable, Nameable {
 
     public void setRetireComments(String retireComments) {
         this.retireComments = retireComments;
+    }
+
+    public Institution getInstitution() {
+        return institution;
+    }
+
+    public void setInstitution(Institution institution) {
+        this.institution = institution;
     }
 
     

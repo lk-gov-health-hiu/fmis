@@ -20,10 +20,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlRootElement;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.pojcs.Nameable;
 
@@ -33,15 +31,10 @@ import lk.gov.health.phsp.pojcs.Nameable;
  * Informatics)
  */
 @Entity
-@XmlRootElement
-@Table
 public class WebUser implements Serializable, Nameable {
 
     private static final long serialVersionUID = 1L;
 
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
@@ -313,12 +306,10 @@ public class WebUser implements Serializable, Nameable {
         this.webUserRole = webUserRole;
     }
 
-   
     public Boolean getInstitute() {
         return false;
     }
 
-   
     public Boolean getWebUser() {
         return true;
     }
@@ -488,14 +479,23 @@ public class WebUser implements Serializable, Nameable {
                 case SYSTEM_ADMINISTRATOR:
                 case SUPER_USER:
                 case USER:
-                    webUserRoleLevel = WebUserRoleLevel.NATIONAL;
+                    webUserRoleLevel = WebUserRoleLevel.HEALTH_MINISTRY;
                     break;
                 case INSTITUTION_ADMINISTRATOR:
                 case INSTITUTION_SUPER_USER:
                 case INSTITUTION_USER:
-                    webUserRoleLevel = WebUserRoleLevel.HEALTH_INSTITUTION;
+                    webUserRoleLevel = WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION;
                     break;
-                    
+                case SUWASERIYA_ADMINISTRATOR:
+                case SUWASERIYA_SUPER_USER:
+                case SUWASERIYA_USER:
+                    webUserRoleLevel = WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION;
+                    break;
+                case CTB_ADMINISTRATOR:
+                case CTB_SUPER_USER:
+                case CTB_USER:
+                    webUserRoleLevel = WebUserRoleLevel.CTB;
+
             }
         }
         return webUserRoleLevel;
@@ -509,7 +509,6 @@ public class WebUser implements Serializable, Nameable {
         this.loginIPs = loginIPs;
     }
 
-   
     public String getAddress() {
         if (person != null) {
             return person.getAddress();
@@ -518,14 +517,12 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-   
     public void setAddress(String address) {
         if (person != null) {
             person.setAddress(address);
         }
     }
 
-   
     public String getFax() {
         if (person != null) {
             return person.getFax();
@@ -534,14 +531,12 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-   
     public void setFax(String fax) {
         if (person != null) {
             person.setFax(fax);
         }
     }
 
-   
     public String getPhone() {
         if (person != null) {
             return person.getPhone2();
@@ -550,14 +545,12 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-   
     public void setPhone(String phone) {
         if (person != null) {
             person.setPhone2(phone);
         }
     }
 
-  
     public String getMobile() {
         if (person != null) {
             return person.getPhone1();
@@ -566,14 +559,12 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-  
     public void setMobile(String mobile) {
         if (person != null) {
             person.setPhone1(mobile);
         }
     }
 
-   
     public String getVehicleNumber() {
         if (person != null) {
             return person.getTname();
@@ -582,14 +573,12 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-    
     public void setVehicleNumber(String tname) {
         if (person != null) {
             person.setTname(tname);
         }
     }
 
-   
     public String getVehicleMake() {
         if (person != null) {
             return person.getSname();
@@ -598,7 +587,6 @@ public class WebUser implements Serializable, Nameable {
         }
     }
 
-  
     public void setVehicleMake(String sname) {
         if (person != null) {
             person.setSname(sname);
@@ -614,7 +602,6 @@ public class WebUser implements Serializable, Nameable {
         return webUserPersonName;
     }
 
-  
     public String getDisplayName() {
         if (this.person == null) {
             displayName = "";
@@ -632,7 +619,6 @@ public class WebUser implements Serializable, Nameable {
         this.publiclyListed = publiclyListed;
     }
 
-   
     public String getInsName() {
         if (institution != null) {
             if (institution.getDisplayName() != null) {
@@ -644,7 +630,6 @@ public class WebUser implements Serializable, Nameable {
         return insName;
     }
 
-   
     public void setInsName(String insName) {
         this.insName = insName;
     }

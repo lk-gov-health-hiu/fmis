@@ -13,10 +13,10 @@
 
             <ui:define name="content">
 
-                <table  class="align-top w3-table-all w3-card-4 w3-margin">
+                <table  class="align-top w3-table-all w3-card-4 w3-margin w-100">
                     <tr>
                         <th colspan="2">
-                            The National COVID-19 Health Information System. #{applicationController.versionNo}
+                            Fuel Management Information System #{applicationController.versionNo}
                         </th>
                     </tr>
                     <tr>
@@ -53,18 +53,29 @@
                     </tr>
                     <tr>
                         <td>
-                            <p:outputLabel value="PDHS" ></p:outputLabel>
+                            <p:outputLabel value="Managable Institutions" ></p:outputLabel>
                         </td>
                         <td>
-                            <p:outputLabel value="#{webUserController.loggedUser.institution.pdhsArea.name}"></p:outputLabel>
+                            <p:outputLabel>
+                                <ui:repeat value="#{webUserController.loggableInstitutions}" var="institution" varStatus="status">
+                                    #{institution.name}
+                                    <ui:fragment rendered="#{not status.last}">, </ui:fragment>
+                                </ui:repeat>
+                            </p:outputLabel>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <p:outputLabel value="RDHS" ></p:outputLabel>
+                            <p:outputLabel value="Managable Vehicles" ></p:outputLabel>
                         </td>
                         <td>
-                            <p:outputLabel value="#{webUserController.loggedUser.institution.rdhsArea.name}"></p:outputLabel>
+                            <p:outputLabel>
+                                <ui:repeat value="#{webUserController.managableVehicles}" var="vehicle" varStatus="status">
+                                    #{vehicle.vehicleNumber}
+                                    <ui:fragment rendered="#{not status.last}">, </ui:fragment>
+                                </ui:repeat>
+                            </p:outputLabel>
+
                         </td>
                     </tr>
                     <tr>

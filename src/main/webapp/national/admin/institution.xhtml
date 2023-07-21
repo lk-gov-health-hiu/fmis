@@ -33,21 +33,6 @@
                                                  class="form-control"
                                                  value="#{institutionController.selected.name}" title="Name" />
 
-
-                                    <h:outputLabel value="Sinhala Name:" for="sname" />
-                                    <h:inputText id="sname" 
-                                                 autocomplete="off"
-                                                 class="form-control"
-                                                 value="#{institutionController.selected.sname}" title="Sinhala Name" />
-
-
-                                    <h:outputLabel value="Tamil Name:" for="tname" />
-                                    <h:inputText id="tname" 
-                                                 autocomplete="off"
-                                                 class="form-control"
-                                                 value="#{institutionController.selected.tname}" title="Tamil Name" />
-
-
                                     <h:outputLabel value="Code:" for="code" />
                                     <h:inputText id="code" 
                                                  autocomplete="off"
@@ -55,6 +40,19 @@
                                                  value="#{institutionController.selected.code}" title="Code" />
 
 
+                                    <h:outputLabel value="Fuel Supply Depot:" for="depo" />
+                                    <p:autoComplete  id="depo" 
+                                                     class="d-block" 
+                                                     inputStyleClass="form-control" 
+                                                     value="#{institutionController.selected.supplyInstitution}" 
+                                                     completeMethod="#{institutionController.completeDepots}"
+                                                     var="i" 
+                                                     itemLabel="#{i.name}" 
+                                                     itemValue="#{i}" 
+                                                     forceSelection="True"
+                                                     maxResults="15" 
+                                                     minQueryLength="3">
+                                    </p:autoComplete >
 
 
                                     <h:outputLabel value="Parent:" for="parent" />

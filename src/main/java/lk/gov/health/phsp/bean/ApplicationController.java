@@ -86,7 +86,7 @@ public class ApplicationController {
 
     public Long getNationalTestCount() {
         if (nationalTestCount == null) {
-            nationalTestCount = getNationalCounts(FuelTransactionType.FuelIssue);
+            nationalTestCount = getNationalCounts(FuelTransactionType.DepotFuelRequest);
         }
         return nationalTestCount;
     }
@@ -97,7 +97,7 @@ public class ApplicationController {
 
     public Long getNationalCaseCount() {
         if (nationalCaseCount == null) {
-            nationalCaseCount = getNationalCounts(FuelTransactionType.FuelRequest);
+            nationalCaseCount = getNationalCounts(FuelTransactionType.VehicleFuelRequest);
         }
         return nationalCaseCount;
     }

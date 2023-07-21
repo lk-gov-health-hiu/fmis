@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/template.xhtml">
+
+            <ui:define name="title">
+                Select Vehicle to Issue Requests
+            </ui:define>
+
+            <ui:define name="content">
+
+                <div class="container-fluid p-2 w-100" >
+                    <h:form >
+                        <div class="row" >
+
+                            <div class="col-12" >
+                                <div class="card" >
+                                    <div class="card-header" >
+                                        <div class="row" >
+                                            <h2><h:outputText value="Select Vehicle to Issue Requests"></h:outputText></h2>
+                                        </div>
+                                    </div>
+                                    <div class="card-body" >
+
+
+                                        <p:dataTable 
+                                            class="w-100"
+                                            resizableColumns="true" 
+                                            multiViewState="true" 
+                                            resizeMode="expand" 
+                                            id="tbl" 
+                                            value="#{fuelRequestAndIssueController.transactions}" 
+                                            var="item"
+                                            selectionMode="single" 
+                                            selection="#{institutionController.selected}"
+                                            rows="10"
+                                            rowKey="#{item.id}"
+                                            paginator="true"
+                                            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                            currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                            rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
+                                            >
+
+                                            <p:column sortBy="#{item.fromInstitution.name}"
+                                                      filterBy="#{item.fromInstitution.name}" 
+                                                      filterMatchMode="contains" >
+                                                <f:facet name="header">
+                                                    <h:outputText value="Institution"/>
+                                                </f:facet>
+                                                <h:outputText value="#{item.fromInstitution.name}"/>
+                                            </p:column>
+                                            
+                                             <p:column sortBy="#{item.vehicle.vehicleNumber}"
+                                                      filterBy="#{item.vehicle.vehicleNumber}" 
+                                                      filterMatchMode="contains" >
+                                                <f:facet name="header">
+                                                    <h:outputText value="Vehicle Number"/>
+                                                </f:facet>
+                                                 <h:outputText value="#{item.vehicle.vehicleNumber}"/>
+                                            </p:column>
+
+                                            <p:column sortBy="#{item.requestAt}" >
+                                                <f:facet name="header">
+                                                    <h:outputText value="Requested at"/>
+                                                </f:facet>
+                                                <h:outputText value="#{item.requestAt}">
+                                                    <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
+                                                </h:outputText>
+                                            </p:column>
+
+                                            <p:column sortBy="#{item.requestQuantity}" 
+                                                      filterBy="#{item.requestQuantity}" 
+                                                      filterMatchMode="contains" >
+                                                <f:facet name="header">
+                                                    <h:outputText value="Requested Quantity"/>
+                                                </f:facet>
+                                                <h:outputText value="#{item.requestQuantity}"/>
+                                            </p:column>
+                                            
+                                            <p:column sortBy="#{item.requestReferenceNumber}" 
+                                                      filterBy="#{item.requestReferenceNumber}" 
+                                                      filterMatchMode="contains" >
+                                                <f:facet name="header">
+                                                    <h:outputText value="Reference Number"/>
+                                                </f:facet>
+                                                <h:outputText value="#{item.requestReferenceNumber}"/>
+                                            </p:column>
+
+                                            <p:column headerText="Actions" >
+                                                <h:commandLink class="btn btn-primary m-2" id="editButton"
+                                                               value="To Issue"
+                                                               action="#{fuelRequestAndIssueController.navigateToIssueVehicleFuelRequest}">
+                                                    <f:setPropertyActionListener value="#{item}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
+                                                    <i class="bi bi-pencil m-2"></i>
+                                                </h:commandLink>
+                                                <h:commandLink class="btn btn-primary m-2" id="deleteButton" onclick="if (!confirm('Are you sure you want to delete?'))
+                                                            return false"                                                        
+                                                               value="To Reject"
+                                                               action="#{institutionController.deleteInstitution()}" 
+                                                               >
+                                                    <f:setPropertyActionListener value="#{item}" target="#{institutionController.deleting}" ></f:setPropertyActionListener>
+                                                    <i class="bi bi-trash m-2"></i>
+                                                </h:commandLink>
+                                            </p:column>
+                                        </p:dataTable>
+
+
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </h:body>
+</html>

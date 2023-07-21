@@ -38,8 +38,8 @@ import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.HistoryType;
 import lk.gov.health.phsp.enums.Privilege;
 import static lk.gov.health.phsp.enums.WebUserRoleLevel.CTB;
-import static lk.gov.health.phsp.enums.WebUserRoleLevel.HEALTH_INSTITUTION;
-import static lk.gov.health.phsp.enums.WebUserRoleLevel.NATIONAL;
+import static lk.gov.health.phsp.enums.WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION;
+import static lk.gov.health.phsp.enums.WebUserRoleLevel.HEALTH_MINISTRY;
 
 /**
  *
@@ -54,9 +54,7 @@ public class MenuController implements Serializable {
     @Inject
     WebUserApplicationController webUserApplicationController;
     @Inject
-    FileController fileController;
-    @Inject
-    LetterController letterController;
+    FuelRequestAndIssueController letterController;
 
     @Inject
     InstitutionController institutionController;
@@ -78,151 +76,15 @@ public class MenuController implements Serializable {
         return "/index";
     }
 
-    public String toFileAddNew() {
-        FuelTransaction nd = new FuelTransaction();
-        nd.setDocumentType(FuelTransactionType.FuelRequest);
-        nd.setDocumentDate(new Date());
-        nd.setReceivedDate(new Date());
-        nd.setInstitution(webUserController.getLoggedInstitution());
-        nd.setInstitutionUnit(webUserController.getLoggedInstitution());
-        nd.setOwner(webUserController.getLoggedUser());
-        nd.setCurrentInstitution(webUserController.getLoggedInstitution());
-        nd.setCurrentOwner(webUserController.getLoggedUser());
-        fileController.setSelected(nd);
-
-        FuelTransactionHistory ndh = new FuelTransactionHistory();
-        ndh.setHistoryType(HistoryType.File_Created);
-        return "/document/file";
-    }
-
-    public String toLetterAddNewReceivedLetter() {
-        FuelTransaction nd = new FuelTransaction();
-        nd.setDocumentType(FuelTransactionType.FuelIssue);
-        nd.setDocumentGenerationType(DocumentGenerationType.Received_by_institution);
-        nd.setDocumentDate(new Date());
-        nd.setReceivedDate(new Date());
-        nd.setInstitution(webUserController.getLoggedInstitution());
-        nd.setInstitutionUnit(webUserController.getLoggedInstitution());
-        nd.setOwner(webUserController.getLoggedUser());
-        nd.setCurrentInstitution(webUserController.getLoggedInstitution());
-        nd.setCurrentOwner(webUserController.getLoggedUser());
-        nd.setReceivedDate(new Date());
-        letterController.setSelected(nd);
-
-        letterController.setNewHx(true);
-        FuelTransactionHistory ndh = new FuelTransactionHistory();
-        ndh.setHistoryType(HistoryType.Letter_Created);
-        ndh.setInstitution(webUserController.getLoggedInstitution());
-        ndh.setToInstitution(webUserController.getLoggedInstitution());
-        return "/document/letter";
-    }
+  
     
-    
-    public String toUnitLetterAdd() {
-        FuelTransaction nd = new FuelTransaction();
-        nd.setDocumentType(FuelTransactionType.FuelIssue);
-        nd.setDocumentGenerationType(DocumentGenerationType.Received_by_institution);
-        nd.setDocumentDate(new Date());
-        nd.setReceivedDate(new Date());
-        nd.setInstitution(webUserController.getLoggedInstitution());
-        nd.setInstitutionUnit(webUserController.getLoggedInstitution());
-        nd.setOwner(webUserController.getLoggedUser());
-        nd.setCurrentInstitution(webUserController.getLoggedInstitution());
-        nd.setCurrentOwner(webUserController.getLoggedUser());
-        nd.setReceivedDate(new Date());
-        letterController.setSelected(nd);
-        return "/document/unit_letter_add";
-    }
-    
-    public String toLetterMailBranchAddNew() {
-        FuelTransaction nd = new FuelTransaction();
-        nd.setDocumentType(FuelTransactionType.FuelIssue);
-        nd.setDocumentGenerationType(DocumentGenerationType.Received_by_mail_branch);
-        nd.setDocumentDate(new Date());
-        nd.setReceivedDate(new Date());
-        nd.setInstitution(webUserController.getLoggedInstitution());
-        nd.setInstitutionUnit(webUserController.getLoggedInstitution());
-        nd.setOwner(webUserController.getLoggedUser());
-        nd.setCurrentInstitution(webUserController.getLoggedInstitution());
-        nd.setCurrentOwner(webUserController.getLoggedUser());
-        nd.setReceivedDate(new Date());
-        letterController.setSelected(nd);
-
-        letterController.setNewHx(true);
-        FuelTransactionHistory ndh = new FuelTransactionHistory();
-        ndh.setHistoryType(HistoryType.Letter_added_by_mail_branch);
-        ndh.setInstitution(webUserController.getLoggedInstitution());
-        return "/document/letter_mail_branch";
-    }
-    
-    public String toLetterGenerateNew() {
-        FuelTransaction nd = new FuelTransaction();
-        nd.setDocumentType(FuelTransactionType.FuelIssue);
-        nd.setDocumentGenerationType(DocumentGenerationType.Generated_by_system);
-        nd.setDocumentDate(new Date());
-        nd.setReceivedDate(new Date());
-        nd.setInstitution(webUserController.getLoggedInstitution());
-        nd.setInstitutionUnit(webUserController.getLoggedInstitution());
-        nd.setFromInstitution(webUserController.getLoggedInstitution());
-        nd.setOwner(webUserController.getLoggedUser());
-        nd.setCurrentInstitution(webUserController.getLoggedInstitution());
-        nd.setCurrentOwner(webUserController.getLoggedUser());
-        nd.setReceivedDate(new Date());
-        letterController.setSelected(nd);
-
-        letterController.setNewHx(true);
-        FuelTransactionHistory ndh = new FuelTransactionHistory();
-        ndh.setHistoryType(HistoryType.Letter_Generated);
-        ndh.setInstitution(webUserController.getLoggedInstitution());
-        
-        letterController.setToInsOrUser(new ArrayList<>());
-        letterController.setSelectedDocumentHistories(new ArrayList<>());
-        
-        return "/document/letter_generate";
-    }
-
-    public String toFileSearch() {
-        fileController.setItems(null);
-        fileController.setSearchTerm("");
-        fileController.setSelected(null);
-        return "/document/file_search";
-    }
-
-    public String toLetterSearch() {
-        letterController.setItems(null);
-        letterController.setSearchTerm("");
-        letterController.setSelected(null);
-        letterController.listLastLettersReceived();
-        return "/document/letter_search";
-    }
-
-    public String toFileLedger() {
-        fileController.setItems(null);
-        return "/document/file_ledger";
-    }
-
-    public String toReceiveFile() {
-        return "/document/file_receive";
-    }
-
-    public String toViewRequest() {
-        return "/common/request_view";
-    }
-
-    public String toViewPatient() {
-        return "/common/client_view";
-    }
-
-    public String toViewResult() {
-        return "/common/result_view";
-    }
 
     public String toReportsIndex() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case NATIONAL:
+            case HEALTH_MINISTRY:
             case CTB:
                 return "/national/reports_index";
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/reports_index";
             default:
                 return "";
@@ -231,10 +93,10 @@ public class MenuController implements Serializable {
 
     public String toSearch() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case NATIONAL:
+            case HEALTH_MINISTRY:
             case CTB:
                 return "/national/search";
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/search";
             default:
                 return "";
@@ -243,10 +105,10 @@ public class MenuController implements Serializable {
 
     public String toAdministrationIndex() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case NATIONAL:
+            case HEALTH_MINISTRY:
             case CTB:
                 return "/national/admin/index";
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/admin/index";
             default:
                 return "";
@@ -260,43 +122,24 @@ public class MenuController implements Serializable {
     public String toPreferences() {
         preferenceController.preparePreferences();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
             case CTB:
                 return "/regional/institution/preferences";
-            case NATIONAL:
+            case HEALTH_MINISTRY:
                 return "/national/admin/preferences";
             default:
                 return "";
         }
     }
     
-    public String toRequestFuel() {
-        return "/requestFuel";
-    }
-
-    public String toViewFuelRequests() {
-        return "/viewFuelRequests";
-    }
-
-    public String toSupplyFuel() {
-        return "/supplyFuel";
-    }
-
-    public String toViewFuelSupplies() {
-        return "/viewFuelSupplies";
-    }
-
-    public String toMonitor() {
-        return "/monitor";
-    }
 
     public String toAddNewUser() {
         webUserController.prepareToAddNewUser();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case NATIONAL:
+            case HEALTH_MINISTRY:
             case CTB:
                 return "/national/admin/user_new";
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/admin/user_new";
             default:
                 return "";
@@ -306,10 +149,10 @@ public class MenuController implements Serializable {
     public String toAddMultipleUsers() {
         webUserController.prepareToAddNewUser();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case NATIONAL:
+            case HEALTH_MINISTRY:
             case CTB:
                 return "/national/admin/add_multiple_users";
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/admin/add_multiple_users";
             default:
                 return "";
@@ -319,10 +162,10 @@ public class MenuController implements Serializable {
     public String toAddNewInstitution() {
         institutionController.prepareToAddNewInstitution();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case NATIONAL:
+            case HEALTH_MINISTRY:
             case CTB:
                 return "/national/admin/institution";
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/admin/institution";
             default:
                 return "";
@@ -332,10 +175,10 @@ public class MenuController implements Serializable {
     public String toAddNewVehicle() {
         vehicleController.prepareToAddNewVehicle();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case NATIONAL:
+            case HEALTH_MINISTRY:
             case CTB:
                 return "/national/admin/vehicle";
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/admin/vehicle";
             default:
                 return "";
@@ -345,10 +188,10 @@ public class MenuController implements Serializable {
     public String toAddMultipleNewInstitutions() {
         institutionController.prepareToAddNewInstitution();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case NATIONAL:
+            case HEALTH_MINISTRY:
             case CTB:
                 return "/national/admin/add_multiple_institutions_with_a_user";
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/admin/add_multiple_institutions_with_a_user";
             default:
                 return "";
@@ -367,10 +210,10 @@ public class MenuController implements Serializable {
 
     public String toListUsers() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
             case CTB:
                 return "/institution/admin/user_list";
-            case NATIONAL:
+            case HEALTH_MINISTRY:
                 webUserController.fillAllUsers();
                 return "/national/admin/user_list";
             default:
@@ -382,9 +225,9 @@ public class MenuController implements Serializable {
         institutionController.prepareToListInstitution();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case CTB:
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/admin/institution_list";
-            case NATIONAL:
+            case HEALTH_MINISTRY:
                 return "/national/admin/institution_list";
             default:
                 return "";
@@ -395,9 +238,9 @@ public class MenuController implements Serializable {
         vehicleController.prepareToListVehicle();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case CTB:
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/admin/vehicle_list";
-            case NATIONAL:
+            case HEALTH_MINISTRY:
                 return "/national/admin/vehicle_list";
             default:
                 return "";
@@ -408,10 +251,10 @@ public class MenuController implements Serializable {
         
         institutionController.prepareToListInstitution();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
             case CTB:
                 return "/institution/admin/institution_list_with_users";
-            case NATIONAL:
+            case HEALTH_MINISTRY:
                 return "/national/admin/institution_list_with_users";
             default:
                 return "";
@@ -420,12 +263,10 @@ public class MenuController implements Serializable {
 
     public String toPrivileges() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
             case CTB:
-                webUserController.preparePrivileges(webUserApplicationController.getRegionalPrivilegeRoot());
                 return "/institution/admin/privileges";
-            case NATIONAL:
-                webUserController.preparePrivileges(webUserApplicationController.getAllPrivilegeRoot());
+            case HEALTH_MINISTRY:
                 return "/national/admin/privileges";
             default:
                 return "";
@@ -433,16 +274,15 @@ public class MenuController implements Serializable {
     }
 
     public String toPrivilegesFirstLogin() {
-        webUserController.preparePrivileges(webUserApplicationController.getAllPrivilegeRoot());
         return "/national/admin/privileges";
     }
 
     public String toEditUser() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
             case CTB:
                 return "/institution/admin/user_edit";
-            case NATIONAL:
+            case HEALTH_MINISTRY:
                 return "/national/admin/user_edit";
             default:
                 return "";
@@ -451,10 +291,10 @@ public class MenuController implements Serializable {
 
     public String toEditInstitution() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
             case CTB:
                 return "/institution/admin/institution";
-            case NATIONAL:
+            case HEALTH_MINISTRY:
                 return "/national/admin/institution";
             default:
                 return "";
@@ -463,10 +303,10 @@ public class MenuController implements Serializable {
     
     public String toEditVehicle() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
             case CTB:
                 return "/institution/admin/vehicle";
-            case NATIONAL:
+            case HEALTH_MINISTRY:
                 return "/national/admin/vehicle";
             default:
                 return "";
@@ -476,10 +316,10 @@ public class MenuController implements Serializable {
     public String toEditPassword() {
         webUserController.prepareEditPassword();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case HEALTH_INSTITUTION:
+            case FUEL_REQUESTING_INSTITUTION:
             case CTB:
                 return "/institution/admin/user_password";
-            case NATIONAL:
+            case HEALTH_MINISTRY:
                 return "/national/admin/user_password";
             default:
                 return "";
@@ -502,11 +342,9 @@ public class MenuController implements Serializable {
         }
 
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case HEALTH_INSTITUTION:
-                webUserController.prepareManagePrivileges(webUserApplicationController.getRegionalPrivilegeRoot());
+            case FUEL_REQUESTING_INSTITUTION:
                 return "/regional/admin/user_privileges";
-            case NATIONAL:
-                webUserController.prepareManagePrivileges(webUserApplicationController.getAllPrivilegeRoot());
+            case HEALTH_MINISTRY:
                 return "/national/admin/user_privileges";
             default:
                 return "";

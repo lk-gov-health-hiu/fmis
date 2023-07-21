@@ -43,6 +43,22 @@ public enum WebUserRole {
     CTB_ADMINISTRATOR("CTB Administrator"),
     CTB_SUPER_USER("CTB Super User"),
     CTB_USER("CTB User"),
+     // CPC Level
+    CPC_ADMINISTRATOR("CPC Administrator"),
+    CPC_SUPER_USER("CPC Super User"),
+    CPC_USER("CPC User"),
+     // CB Level
+    CB_ADMINISTRATOR("CB Administrator"),
+    CB_SUPER_USER("CB Super User"),
+    CB_USER("CB User"),
+     // ERD Level
+    ERD_ADMINISTRATOR("ERD Administrator"),
+    ERD_SUPER_USER("ERD Super User"),
+    ERD_USER("ERD User"),
+     // SUWASERIYA
+    SUWASERIYA_ADMINISTRATOR("SUWASERIYA Administrator"),
+    SUWASERIYA_SUPER_USER("SUWASERIYA Super User"),
+    SUWASERIYA_USER("SUWASERIYA User"),
     // Donor Level
     DONOR_ADMINISTRATOR("Donor Administrator"),
     DONOR_SUPER_USER("Donor Super User"),
