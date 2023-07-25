@@ -16,6 +16,12 @@
                 <ez:dashboardInstitution ></ez:dashboardInstitution>
 
 
+                <h:form>
+                    <p:photoCam widgetVar="pc" listener="#{photoCamBean.onCapture}" />
+                    <p:commandButton type="button" value="Capture" onclick="PF('pc').capture()" />
+                </h:form>
+
+
             </ui:define>
         </ui:composition>
     </h:body>
