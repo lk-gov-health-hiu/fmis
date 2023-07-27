@@ -61,6 +61,8 @@ public class FuelTransaction implements Serializable {
     private Institution toInstitution;
     @ManyToOne
     private Vehicle vehicle;
+    @ManyToOne
+    private Driver driver;
 
     @Lob
     private String comments;
@@ -110,6 +112,8 @@ public class FuelTransaction implements Serializable {
     @ManyToOne
     private Institution rejectedInstitution;
 
+    
+    
     
     
     public String getIdString() {
@@ -390,6 +394,14 @@ public class FuelTransaction implements Serializable {
 
     public void setIssueReferenceNumber(String issueReferenceNumber) {
         this.issueReferenceNumber = issueReferenceNumber;
+    }
+
+    public Driver getDriver() {
+        return driver;
+    }
+
+    public void setDriver(Driver driver) {
+        this.driver = driver;
     }
 
 }

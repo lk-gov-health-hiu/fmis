@@ -49,6 +49,32 @@
                                                 <f:selectItems value="#{webUserController.managableVehicles}" var="v"
                                                                itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
                                             </p:selectOneMenu>
+                                            
+                                            
+                                            <p:outputLabel 
+                                                value="Driver" 
+                                                class="form-label"
+                                                for="acVehicle">
+                                            </p:outputLabel>
+                                            <p:outputLabel 
+                                                value="#{fuelRequestAndIssueController.selected.driver.name}" 
+                                                class="form-control"
+                                                rendered="#{fuelRequestAndIssueController.selected.driver ne null}"
+                                                >
+                                            </p:outputLabel>
+                                            <p:selectOneMenu id="acDriver"
+                                                             value="#{fuelRequestAndIssueController.selected.driver}"
+                                                             filter="true"
+                                                             rendered="#{fuelRequestAndIssueController.selected.driver eq null}"
+                                                             filterMatchMode="contains"
+                                                             required="true"
+                                                             requiredMessage="You must select a vehicle"
+                                                             styleClass="form-control w-100">
+                                                <f:selectItem itemLabel="Select a vehicle" noSelectionOption="true" />
+                                                <f:selectItems value="#{webUserController.managableDrivers}" var="d"
+                                                               itemLabel="#{d.name}" itemValue="#{d}" />
+                                            </p:selectOneMenu>
+                                            
                                             <p:outputLabel 
                                                 value="Depot" 
                                                 class="form-label">

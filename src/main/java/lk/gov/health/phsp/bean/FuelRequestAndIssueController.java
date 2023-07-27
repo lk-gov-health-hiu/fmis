@@ -187,9 +187,9 @@ public class FuelRequestAndIssueController implements Serializable {
     public String navigateToListFuelTransactions() {
         return "/issues/list";
     }
-    
+
     public String navigateToViewVehicleFuelRequest() {
-        if(selected==null){
+        if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
             return "";
         }
@@ -207,6 +207,9 @@ public class FuelRequestAndIssueController implements Serializable {
         if (webUserController.getManagableVehicles().size() == 1) {
             selected.setVehicle(webUserController.getManagableVehicles().get(0));
         }
+        if (webUserController.getManagableDrivers().size() == 1) {
+            selected.setDriver(webUserController.getManagableDrivers().get(0));
+        }
         return "/requests/request";
     }
 
@@ -219,6 +222,9 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setFromInstitution(webUserController.getLoggedInstitution());
         if (webUserController.getManagableVehicles().size() == 1) {
             selected.setVehicle(webUserController.getManagableVehicles().get(0));
+        }
+        if (webUserController.getManagableDrivers().size() == 1) {
+            selected.setDriver(webUserController.getManagableDrivers().get(0));
         }
         return "/requests/special_request";
     }
