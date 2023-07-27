@@ -4,8 +4,7 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ez="http://xmlns.jcp.org/jsf/composite/ezcomp"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      xmlns:p="http://primefaces.org/ui">
     <h:head >
         <ui:define name="title" >
             <title >The Fuel Management Information System</title>
@@ -16,20 +15,13 @@
             <ui:define name="content" >
                 <ez:dashboardInstitution ></ez:dashboardInstitution>
 
-                <p:panel header="Dashboard" class="w-100" >
-                    <p:outputLabel value="Dashboard" ></p:outputLabel>
-                    <p:panelGrid columns="2" >
-                        <f:facet name="header" >
-                            CTB Users
-                        </f:facet>
-                        <p:outputLabel value="Current Stock" ></p:outputLabel>
-                        <p:inputText ></p:inputText>
-                    </p:panelGrid>
-                    <p:dataTable ></p:dataTable>
-                    <p:commandButton value="Refresh" class="btn-primary" ></p:commandButton>
-                    <p:commandButton value="Refresh" class="btn-secondary" ></p:commandButton>
-                     <p:commandButton value="Refresh" class="btn-outline-primary" ></p:commandButton>
-                </p:panel>
+
+                <h:form>
+                    <p:photoCam widgetVar="pc" listener="#{photoCamBean.onCapture}" />
+                    <p:commandButton type="button" value="Capture" onclick="PF('pc').capture()" />
+                </h:form>
+
+
             </ui:define>
         </ui:composition>
     </h:body>
