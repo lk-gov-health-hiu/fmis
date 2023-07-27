@@ -61,6 +61,8 @@ public class MenuController implements Serializable {
     @Inject
     VehicleController vehicleController;
     @Inject
+    DriverController driverController;
+    @Inject
     PreferenceController preferenceController;
     @Inject
     DashboardController dashboardController;
@@ -185,6 +187,19 @@ public class MenuController implements Serializable {
         }
     }
     
+    public String toAddNewDriver() {
+        driverController.prepareToAddNewDriver();
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case HEALTH_MINISTRY:
+            case CTB:
+                return "/national/admin/driver";
+            case FUEL_REQUESTING_INSTITUTION:
+                return "/institution/admin/driver";
+            default:
+                return "";
+        }
+    }
+    
     public String toAddMultipleNewInstitutions() {
         institutionController.prepareToAddNewInstitution();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -236,6 +251,19 @@ public class MenuController implements Serializable {
     
     public String toListVehicles() {
         vehicleController.prepareToListVehicle();
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case CTB:
+            case FUEL_REQUESTING_INSTITUTION:
+                return "/institution/admin/vehicle_list";
+            case HEALTH_MINISTRY:
+                return "/national/admin/vehicle_list";
+            default:
+                return "";
+        }
+    }
+    
+    public String toListDriverss() {
+        driverController.prepareToListDriver();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case CTB:
             case FUEL_REQUESTING_INSTITUTION:
@@ -301,13 +329,13 @@ public class MenuController implements Serializable {
         }
     }
     
-    public String toEditVehicle() {
+    public String toEditDriver() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case FUEL_REQUESTING_INSTITUTION:
             case CTB:
-                return "/institution/admin/vehicle";
+                return "/institution/admin/driver";
             case HEALTH_MINISTRY:
-                return "/national/admin/vehicle";
+                return "/national/admin/driver";
             default:
                 return "";
         }

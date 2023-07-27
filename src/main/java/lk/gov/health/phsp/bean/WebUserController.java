@@ -30,6 +30,7 @@ import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
+import lk.gov.health.phsp.entity.Driver;
 import lk.gov.health.phsp.entity.Person;
 import lk.gov.health.phsp.entity.UserPrivilege;
 import lk.gov.health.phsp.entity.Vehicle;
@@ -40,7 +41,6 @@ import lk.gov.health.phsp.facade.PersonFacade;
 import lk.gov.health.phsp.facade.UserPrivilegeFacade;
 import org.primefaces.event.ColumnResizeEvent;
 import org.primefaces.model.StreamedContent;
-import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.file.UploadedFile;
 import org.primefaces.model.map.DefaultMapModel;
 import org.primefaces.model.map.MapModel;
@@ -86,6 +86,8 @@ public class WebUserController implements Serializable {
     @Inject
     VehicleApplicationController vehicleApplicationController;
     @Inject
+    DriverApplicationController driverApplicationController;
+    @Inject
     WebUserApplicationController webUserApplicationController;
     @Inject
     DashboardApplicationController dashboardApplicationController;
@@ -104,6 +106,7 @@ public class WebUserController implements Serializable {
     private List<WebUser> usersForMyInstitute;
     private List<Institution> loggableInstitutions;
     private List<Vehicle> managableVehicles;
+    private List<Driver> managableDrivers;
 
     private WebUserRole userRole;
 
@@ -283,10 +286,6 @@ public class WebUserController implements Serializable {
         return ins;
     }
 
-
-
-    
-
     public boolean hasSelectedUsers() {
         return this.selectedUsers != null && !this.selectedUsers.isEmpty();
     }
@@ -406,8 +405,6 @@ public class WebUserController implements Serializable {
         return url;
     }
 
-   
-
     public String toChangeMyDetails() {
         if (loggedUser == null) {
             return "";
@@ -508,6 +505,29 @@ public class WebUserController implements Serializable {
         return ins;
     }
 
+    public List<Driver> completeManagableDrivers(String qry) {
+        List<Driver> ins = new ArrayList<>();
+        if (qry == null) {
+            return ins;
+        }
+        if (qry.trim().equals("")) {
+            return ins;
+        }
+        qry = qry.trim().toLowerCase();
+        for (Driver i : getManagableDrivers()) {
+            if (i.getName() == null) {
+                continue;
+            }
+            if (i.getName().toLowerCase().contains(qry)) {
+                ins.add(i);
+            }
+            if (i.getNic().toLowerCase().contains(qry)) {
+                ins.add(i);
+            }
+        }
+        return ins;
+    }
+
     public String registerUser() {
         if (!current.getWebUserPassword().equals(password)) {
             JsfUtil.addErrorMessage("Passwords are not matching. Please retry.");
@@ -536,6 +556,7 @@ public class WebUserController implements Serializable {
     public String login() {
         loggableInstitutions = null;
         managableVehicles = null;
+        managableDrivers = null;
         if (userName == null || userName.trim().equals("")) {
             JsfUtil.addErrorMessage("Please enter a Username");
             return "";
@@ -563,6 +584,8 @@ public class WebUserController implements Serializable {
         loggableInstitutions = institutionApplicationController.findChildrenInstitutions(loggedInstitution);
         loggableInstitutions.add(loggedInstitution);
         managableVehicles = vehicleApplicationController.findVehiclesByInstitutions(loggableInstitutions);
+        managableDrivers = driverApplicationController.findDriversByInstitutions(loggableInstitutions);
+
         Calendar c = Calendar.getInstance();
         toDate = c.getTime();
         c.add(Calendar.DAY_OF_MONTH, -7);
@@ -1998,6 +2021,14 @@ public class WebUserController implements Serializable {
 
     public void setManagableVehicles(List<Vehicle> managableVehicles) {
         this.managableVehicles = managableVehicles;
+    }
+
+    public List<Driver> getManagableDrivers() {
+        return managableDrivers;
+    }
+
+    public void setManagableDrivers(List<Driver> managableDrivers) {
+        this.managableDrivers = managableDrivers;
     }
 
     @FacesConverter(forClass = WebUser.class)

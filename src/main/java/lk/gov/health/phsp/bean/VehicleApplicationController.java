@@ -36,9 +36,7 @@ import lk.gov.health.phsp.entity.Area;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.enums.VehicleType;
-import lk.gov.health.phsp.enums.RelationshipType;
 import lk.gov.health.phsp.facade.VehicleFacade;
-import org.apache.commons.codec.digest.DigestUtils;
 // </editor-fold>
 
 /**
@@ -57,8 +55,6 @@ public class VehicleApplicationController {
 // <editor-fold defaultstate="collapsed" desc="Class Variables">
     private List<Vehicle> vehicles;
     List<Vehicle> hospitals;
-    private List<VehicleType> hospitalTypes;
-    private List<VehicleType> covidDataHirachiVehicles;
     // </editor-fold>
 
     public VehicleApplicationController() {

@@ -1,9 +1,5 @@
 package lk.gov.health.phsp.bean;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.bean.util.JsfUtil.PersistAction;
@@ -12,11 +8,8 @@ import lk.gov.health.phsp.facade.VehicleFacade;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,17 +22,9 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
-import jxl.Cell;
-import jxl.Sheet;
-import jxl.Workbook;
-import jxl.read.biff.BiffException;
-import lk.gov.health.phsp.entity.Area;
-import lk.gov.health.phsp.entity.Item;
-import lk.gov.health.phsp.enums.AreaType;
 import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.AreaFacade;
-import org.primefaces.model.file.UploadedFile;
 
 @Named
 @SessionScoped
@@ -64,23 +49,14 @@ public class VehicleController implements Serializable {
     private List<Vehicle> items = null;
     private Vehicle selected;
     private Vehicle deleting;
-    private List<Vehicle> myClinics;
-    private List<Area> gnAreasOfSelected;
-    private Area area;
-    private Area removingArea;
 
     private VehicleType vehicleType;
     private Vehicle parent;
-    private Area province;
-    private Area pdhsArea;
-    private Area district;
-    private Area rdhsArea;
 
     private String successMessage;
     private String failureMessage;
     private String startMessage;
 
-    private UploadedFile file;
 
     public Vehicle getVehicleById(Long id) {
         return getFacade().find(id);
@@ -132,17 +108,7 @@ public class VehicleController implements Serializable {
         return "/vehicle/search";
     }
 
-    public void removeGnFromPmc() {
-        if (removingArea == null) {
-            JsfUtil.addErrorMessage("Nothing to remove");
-            return;
-        }
-        removingArea.setPmci(null);
-        getAreaFacade().edit(removingArea);
-        fillGnAreasOfSelected();
-        removingArea = null;
-        userTransactionController.recordTransaction("Remove Gn From Pmc");
-    }
+   
 
     public List<Vehicle> searchVehicles(String searchingText) {
         List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
@@ -179,38 +145,7 @@ public class VehicleController implements Serializable {
         return matchingVehicles;
     }
 
-    public void fillGnAreasOfSelected() {
-        if (selected == null) {
-            gnAreasOfSelected = new ArrayList<>();
-            return;
-        }
-        String j = "select a from Area a where a.retired=false "
-                + " and a.type=:t "
-                + " and a.pmci=:p "
-                + " order by a.name";
-        Map m = new HashMap();
-        m.put("t", AreaType.GN);
-        m.put("p", selected);
-        gnAreasOfSelected = areaFacade.findByJpql(j, m);
-        userTransactionController.recordTransaction("Fill Gn Areas Of Selected");
-    }
-
-    public List<Area> findDrainingGnAreas(Vehicle ins) {
-        List<Area> gns;
-        if (ins == null) {
-            gns = new ArrayList<>();
-            return gns;
-        }
-        String j = "select a from Area a where a.retired=false "
-                + " and a.type=:t "
-                + " and a.pmci=:p "
-                + " order by a.name";
-        Map m = new HashMap();
-        m.put("t", AreaType.GN);
-        m.put("p", ins);
-        gns = areaFacade.findByJpql(j, m);
-        return gns;
-    }
+  
 
     public VehicleController() {
     }
@@ -522,10 +457,7 @@ public class VehicleController implements Serializable {
         return ni;
     }
 
-    public void refreshMyVehicles() {
-        userTransactionController.recordTransaction("refresh My Vehicles");
-        myClinics = null;
-    }
+  
 
     public lk.gov.health.phsp.facade.VehicleFacade getEjbFacade() {
         return ejbFacade;
@@ -539,37 +471,8 @@ public class VehicleController implements Serializable {
         return webUserController;
     }
 
-    public List<Area> getGnAreasOfSelected() {
-        if (gnAreasOfSelected == null) {
-            gnAreasOfSelected = new ArrayList<>();
-        }
-        return gnAreasOfSelected;
-    }
+   
 
-    public void setGnAreasOfSelected(List<Area> gnAreasOfSelected) {
-        this.gnAreasOfSelected = gnAreasOfSelected;
-    }
-
-    public Area getArea() {
-        return area;
-    }
-
-    public void setArea(Area area) {
-        this.area = area;
-    }
-
-    public Area getRemovingArea() {
-        return removingArea;
-    }
-
-    public void setRemovingArea(Area removingArea) {
-        this.removingArea = removingArea;
-
-    }
-
-    public void setMyClinics(List<Vehicle> myClinics) {
-        this.myClinics = myClinics;
-    }
 
     public Vehicle getDeleting() {
         return deleting;
@@ -611,37 +514,8 @@ public class VehicleController implements Serializable {
         this.parent = parent;
     }
 
-    public Area getProvince() {
-        return province;
-    }
+   
 
-    public void setProvince(Area province) {
-        this.province = province;
-    }
-
-    public Area getPdhsArea() {
-        return pdhsArea;
-    }
-
-    public void setPdhsArea(Area pdhsArea) {
-        this.pdhsArea = pdhsArea;
-    }
-
-    public Area getDistrict() {
-        return district;
-    }
-
-    public void setDistrict(Area district) {
-        this.district = district;
-    }
-
-    public Area getRdhsArea() {
-        return rdhsArea;
-    }
-
-    public void setRdhsArea(Area rdhsArea) {
-        this.rdhsArea = rdhsArea;
-    }
 
     public String getSuccessMessage() {
         return successMessage;
@@ -667,13 +541,7 @@ public class VehicleController implements Serializable {
         this.startMessage = startMessage;
     }
 
-    public UploadedFile getFile() {
-        return file;
-    }
-
-    public void setFile(UploadedFile file) {
-        this.file = file;
-    }
+    
 
     @FacesConverter(forClass = Vehicle.class)
     public static class VehicleControllerConverter implements Converter {
