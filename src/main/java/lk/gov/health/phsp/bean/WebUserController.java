@@ -280,10 +280,10 @@ public class WebUserController implements Serializable {
 
         switch (getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
-                users.addAll(fillWebUsers(loggableInstitutions));
+                users.addAll(webUserApplicationController.getItems());
                 break;
             case FUEL_REQUESTING_INSTITUTION:
-                users.addAll(webUserApplicationController.getItems());
+                users.addAll(fillWebUsers(loggableInstitutions));
                 break;
             default:
 
@@ -300,7 +300,7 @@ public class WebUserController implements Serializable {
             return wus;
         }
 
-        for (WebUser w : getItems()) {
+        for (WebUser w : webUserApplicationController.getItems()) {
             boolean canInclude = false;
             if (w.getInstitute() == null) {
                 continue;
@@ -2093,9 +2093,6 @@ public class WebUserController implements Serializable {
     public void setManagableDrivers(List<Driver> managableDrivers) {
         this.managableDrivers = managableDrivers;
     }
-    
-    
-    
 
     @FacesConverter(forClass = WebUser.class)
     public static class WebUserControllerConverter implements Converter {
