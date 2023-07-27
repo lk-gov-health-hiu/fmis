@@ -23,6 +23,7 @@
  */
 package lk.gov.health.phsp.bean;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import javax.ejb.EJB;
 import javax.inject.Named;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.WebUser;
 import lk.gov.health.phsp.enums.Privilege;
 import lk.gov.health.phsp.enums.PrivilegeTreeNode;
@@ -69,7 +71,7 @@ public class WebUserApplicationController {
     }
 
     public WebUser getWebUser(String userName, String password) {
-        if(userName==null || password==null){
+        if (userName == null || password == null) {
             return null;
         }
         WebUser loggedUser;
@@ -354,6 +356,8 @@ public class WebUserApplicationController {
         items = facade.findByJpql(j);
         userTransactionController.recordTransaction("To List All Users");
     }
+
+   
 
     public void resetWebUsers() {
         items = null;

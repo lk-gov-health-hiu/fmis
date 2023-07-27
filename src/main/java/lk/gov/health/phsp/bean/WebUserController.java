@@ -97,13 +97,15 @@ public class WebUserController implements Serializable {
     AreaApplicationController areaApplicationController;
     @Inject
     MenuController menuController;
+    @Inject
+    VehicleController vehicleController;
     /*
     Variables
      */
     private List<WebUser> items = null;
     private List<WebUser> selectedUsers;
 
-    private List<WebUser> usersForMyInstitute;
+    private List<WebUser> managableUsers;
     private List<Institution> loggableInstitutions;
     private List<Vehicle> managableVehicles;
     private List<Driver> managableDrivers;
@@ -251,8 +253,68 @@ public class WebUserController implements Serializable {
         if (loggedUser.getInstitution() == null) {
             return ins;
         }
+
+        switch (getLoggedUser().getWebUserRoleLevel()) {
+            case HEALTH_MINISTRY:
+            case CTB:
+                ins.addAll(vehicleController.fillVehicles(loggableInstitutions));
+            case FUEL_REQUESTING_INSTITUTION:
+                ins.addAll(vehicleApplicationController.getVehicles());
+            default:
+
+        }
+
         ins.addAll(vehicleApplicationController.getVehicles());
+
         return ins;
+    }
+
+    public List<WebUser> findManagableUsers() {
+        List<WebUser> users = new ArrayList<>();
+        if (loggedUser == null) {
+            return users;
+        }
+        if (loggedUser.getInstitution() == null) {
+            return users;
+        }
+
+        switch (getLoggedUser().getWebUserRoleLevel()) {
+            case HEALTH_MINISTRY:
+                users.addAll(fillWebUsers(loggableInstitutions));
+                break;
+            case FUEL_REQUESTING_INSTITUTION:
+                users.addAll(webUserApplicationController.getItems());
+                break;
+            default:
+
+        }
+        return users;
+    }
+
+    private List<WebUser> fillWebUsers(List<Institution> inss) {
+        List<WebUser> wus = new ArrayList<>();
+        if (inss == null) {
+            return wus;
+        }
+        if (inss.isEmpty()) {
+            return wus;
+        }
+
+        for (WebUser w : getItems()) {
+            boolean canInclude = false;
+            if (w.getInstitute() == null) {
+                continue;
+            }
+            for (Institution ins : inss) {
+                if (w.getInstitute().equals(ins)) {
+                    canInclude = true;
+                }
+            }
+            if (canInclude) {
+                wus.add(w);
+            }
+        }
+        return wus;
     }
 
     public List<Institution> findMailBranchInstitutions() {
@@ -585,6 +647,7 @@ public class WebUserController implements Serializable {
         loggableInstitutions.add(loggedInstitution);
         managableVehicles = vehicleApplicationController.findVehiclesByInstitutions(loggableInstitutions);
         managableDrivers = driverApplicationController.findDriversByInstitutions(loggableInstitutions);
+        managableUsers = findManagableUsers();
 
         Calendar c = Calendar.getInstance();
         toDate = c.getTime();
@@ -1955,12 +2018,12 @@ public class WebUserController implements Serializable {
         this.selectedNodeSet = selectedNodeSet;
     }
 
-    public List<WebUser> getUsersForMyInstitute() {
-        return usersForMyInstitute;
+    public List<WebUser> getManagableUsers() {
+        return managableUsers;
     }
 
-    public void setUsersForMyInstitute(List<WebUser> usersForMyInstitute) {
-        this.usersForMyInstitute = usersForMyInstitute;
+    public void setManagableUsers(List<WebUser> managableUsers) {
+        this.managableUsers = managableUsers;
     }
 
     public WebUserRole getUserRole() {
@@ -2030,6 +2093,9 @@ public class WebUserController implements Serializable {
     public void setManagableDrivers(List<Driver> managableDrivers) {
         this.managableDrivers = managableDrivers;
     }
+    
+    
+    
 
     @FacesConverter(forClass = WebUser.class)
     public static class WebUserControllerConverter implements Converter {

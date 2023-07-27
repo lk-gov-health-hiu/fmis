@@ -7,7 +7,7 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <h:body>
-        <ui:composition template="/national/admin/index.xhtml">
+        <ui:composition template="/institution/admin/index.xhtml">
             <ui:define name="admin">
                 <h:form>    
 
@@ -57,7 +57,7 @@
                             <p:column sortBy="#{item.phone}" 
                                       filterBy="#{item.phone}" filterMatchMode="contains" >
                                 <f:facet name="header">
-                                    <h:outputText value="Type"/>
+                                    <h:outputText value="Phone"/>
                                 </f:facet>
                                 <h:outputText value="#{item.phone}"/>
                             </p:column>

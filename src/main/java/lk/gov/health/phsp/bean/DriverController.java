@@ -229,6 +229,7 @@ public class DriverController implements Serializable {
 
     public void prepareToAddNewDriver() {
         selected = new Driver();
+        selected.setInstitution(webUserController.getLoggedInstitution());
     }
 
     public void prepareToListDriver() {

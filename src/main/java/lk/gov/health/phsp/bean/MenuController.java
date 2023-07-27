@@ -227,6 +227,7 @@ public class MenuController implements Serializable {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case FUEL_REQUESTING_INSTITUTION:
             case CTB:
+                webUserController.findManagableUsers();
                 return "/institution/admin/user_list";
             case HEALTH_MINISTRY:
                 webUserController.fillAllUsers();

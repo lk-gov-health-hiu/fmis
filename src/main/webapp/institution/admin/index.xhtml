@@ -48,7 +48,7 @@
                                     <div class="row">
                                         <div class="col-12 p-2">
                                             <h:form>
-                                                <h:commandLink value="Manage Vehicles" 
+                                                <h:commandLink value="List Vehicles" 
                                                                action="#{menuController.toListVehicles()}"
                                                                class="btn btn-outline-primary btn-lg btn-block w-100">
                                                 </h:commandLink>
@@ -59,12 +59,22 @@
                                     <div class="row">
                                         <div class="col-12 p-2">
                                             <h:form>
-                                                <h:commandLink value="Manage Drivers" action="#{menuController.toListDriverss()}"
+                                                <h:commandLink value="Add Drivers" 
+                                                               action="#{menuController.toAddNewDriver()}"
                                                                class="btn btn-outline-primary btn-lg btn-block w-100">
                                                 </h:commandLink>
                                             </h:form>
                                         </div>
+                                    </div>
 
+                                    <div class="row">
+                                        <div class="col-12 p-2">
+                                            <h:form>
+                                                <h:commandLink value="List Drivers" action="#{menuController.toListDriverss()}"
+                                                               class="btn btn-outline-primary btn-lg btn-block w-100">
+                                                </h:commandLink>
+                                            </h:form>
+                                        </div>
                                     </div>
 
 

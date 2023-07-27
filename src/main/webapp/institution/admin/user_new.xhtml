@@ -15,21 +15,6 @@
 
                         </div>
                         <div class="card-body bg-white">
-
-                            <div class="form-group row my-2">
-                                <label  class="col-md-4 fs-6 fw-bold col-form-label" for="Title" >
-                                    Title
-                                </label>
-                                <div class="col-md-8">
-                                    <p:selectOneMenu id="title" filter="true"
-                                                     filterMatchMode="contains"
-                                                     value="#{webUserController.selected.person.title}" class="form-control form-control-sm w-100 ">
-                                        <f:selectItem itemLabel="Select" ></f:selectItem>
-                                        <f:selectItems value="#{itemController.titles}" var="t" itemLabel="#{t.name}"
-                                                       itemValue="#{t}" ></f:selectItems>
-                                    </p:selectOneMenu>
-                                </div>
-                            </div>
                             <div class="form-group row mb-2">
                                 <label class="col-md-4 fs-6 fw-bold col-form-label" for="Name">
                                     Name<small>(Required)</small>
@@ -47,20 +32,6 @@
 
                                 <div class="col-md-8">
                                     <p:inputText autocomplete="off" class="form-control w-100" id="code" required="false" requiredMessage="code is required" value="#{webUserController.selected.person.code}" title="Name" />
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label class="col-md-4 col-form-label fs-6 fw-bold" for="txtU">
-                                    Publicly Listed
-                                </label>
-
-                                <div class="col-md-8">
-                                    <p:selectBooleanButton id="chkPublic" 
-                                                           offLabel="No"
-                                                           onLabel="Yes"
-                                                           value="#{webUserController.selected.publiclyListed}" 
-                                                           class="" />
                                 </div>
                             </div>
 

@@ -8,7 +8,7 @@
 
     <h:body>
 
-        <ui:composition template="/national/admin/index.xhtml">
+        <ui:composition template="/institution/admin/index.xhtml">
             <ui:define name="admin">
                 <h:form id="DriverCreateForm" style="padding-top: 1rem;">
                     <p:messages ></p:messages>
@@ -22,7 +22,7 @@
                                              id="ins"
                                              inputStyleClass="form-control" 
                                              value="#{driverController.selected.institution}" 
-                                             completeMethod="#{institutionController.completeInstitutions}"
+                                             completeMethod="#{webUserController.completeLoggableInstitutions}"
                                              var="i" 
                                              itemLabel="#{i.name}" 
                                              itemValue="#{i}" 

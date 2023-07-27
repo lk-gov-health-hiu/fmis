@@ -22,6 +22,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
+import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.AreaFacade;
@@ -58,7 +59,6 @@ public class VehicleController implements Serializable {
     private String successMessage;
     private String failureMessage;
     private String startMessage;
-
 
     public Vehicle getVehicleById(Long id) {
         return getFacade().find(id);
@@ -110,8 +110,6 @@ public class VehicleController implements Serializable {
         return "/vehicle/search";
     }
 
-   
-
     public List<Vehicle> searchVehicles(String searchingText) {
         List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
         List<Vehicle> matchingVehicles = new ArrayList<>();
@@ -146,8 +144,6 @@ public class VehicleController implements Serializable {
 
         return matchingVehicles;
     }
-
-  
 
     public VehicleController() {
     }
@@ -209,6 +205,33 @@ public class VehicleController implements Serializable {
         items = null;
         vehicleApplicationController.resetAllVehicles();
         items = vehicleApplicationController.getVehicles();
+    }
+
+    public List<Vehicle> fillVehicles(List<Institution> institutions) {
+        List<Vehicle> resIns = new ArrayList<>();
+        if (institutions == null) {
+            return resIns;
+        }
+        if (institutions.isEmpty()) {
+            return resIns;
+        }
+        List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
+
+        for (Vehicle vehicle : allVehicles) {
+            boolean canInclude = true;
+            if (vehicle.getInstitution() == null) {
+                continue;
+            }
+            for(Institution ins:institutions){
+                if(vehicle.getInstitution().equals(ins)){
+                    canInclude=true;
+                }
+            }
+            if (canInclude) {
+                resIns.add(vehicle);
+            }
+        }
+        return resIns;
     }
 
     public List<Vehicle> fillVehicles(VehicleType type, String nameQry) {
@@ -459,8 +482,6 @@ public class VehicleController implements Serializable {
         return ni;
     }
 
-  
-
     public lk.gov.health.phsp.facade.VehicleFacade getEjbFacade() {
         return ejbFacade;
     }
@@ -472,9 +493,6 @@ public class VehicleController implements Serializable {
     public WebUserController getWebUserController() {
         return webUserController;
     }
-
-   
-
 
     public Vehicle getDeleting() {
         return deleting;
@@ -516,9 +534,6 @@ public class VehicleController implements Serializable {
         this.parent = parent;
     }
 
-   
-
-
     public String getSuccessMessage() {
         return successMessage;
     }
@@ -542,8 +557,6 @@ public class VehicleController implements Serializable {
     public void setStartMessage(String startMessage) {
         this.startMessage = startMessage;
     }
-
-    
 
     @FacesConverter(forClass = Vehicle.class)
     public static class VehicleControllerConverter implements Converter {
