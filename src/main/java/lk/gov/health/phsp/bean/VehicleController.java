@@ -38,6 +38,8 @@ public class VehicleController implements Serializable {
 
     @Inject
     private WebUserController webUserController;
+    @Inject
+    MenuController menuController;
 
     @Inject
     private ApplicationController applicationController;
@@ -80,7 +82,7 @@ public class VehicleController implements Serializable {
             JsfUtil.addErrorMessage("Please select");
             return "";
         }
-        return "/vehicle/vehicle";
+        return menuController.toEditVehicle();
     }
 
     public String deleteVehicle() {

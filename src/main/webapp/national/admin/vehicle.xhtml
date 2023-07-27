@@ -14,7 +14,7 @@
                     <p:messages ></p:messages>
                     <h:panelGroup id="display">
 
-                        <h:panelGrid columns="2" rendered="#{vehicleController.selected != null}">
+                        <h:panelGrid columns="2" rendered="#{vehicleController.selected != null}" class="w-100">
                             <h:outputLabel value="Type:" for="vehicleType" />
                             <h:selectOneMenu id="vehicleType"  class="form-control"
                                              value="#{vehicleController.selected.vehicleType}" title="VehicleType" 
@@ -26,7 +26,7 @@
                             </h:selectOneMenu>
 
                             <h:outputLabel value="Institution:" for="ins" />
-                            <p:autoComplete  class="form-control" 
+                            <p:autoComplete  class="w-100" 
                                              id="ins"
                                              inputStyleClass="form-control" 
                                              value="#{vehicleController.selected.institution}" 

@@ -262,6 +262,18 @@ public class MenuController implements Serializable {
         }
     }
     
+    public String toEditVehicle() {
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case CTB:
+            case FUEL_REQUESTING_INSTITUTION:
+                return "/institution/admin/vehicle";
+            case HEALTH_MINISTRY:
+                return "/national/admin/vehicle";
+            default:
+                return "";
+        }
+    }
+    
     public String toListDriverss() {
         driverController.prepareToListDriver();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {

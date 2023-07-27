@@ -15,11 +15,13 @@
             <ui:define name="content" >
                 <ez:dashboardInstitution ></ez:dashboardInstitution>
 
+                <h:panelGroup rendered="false" >
+                    <h:form>
+                        <p:photoCam widgetVar="pc" listener="#{photoCamBean.onCapture}" />
+                        <p:commandButton type="button" value="Capture" onclick="PF('pc').capture()" />
+                    </h:form>
+                </h:panelGroup>
 
-                <h:form>
-                    <p:photoCam widgetVar="pc" listener="#{photoCamBean.onCapture}" />
-                    <p:commandButton type="button" value="Capture" onclick="PF('pc').capture()" />
-                </h:form>
 
 
             </ui:define>
