@@ -17,6 +17,7 @@ public enum InstitutionType {
     Base_Hospital("Base Hospital"),
     Divisional_Hospital("Divisional Hospital"),
     Primary_Medical_Care_Unit("Primary Medical Care Unit"),
+    MOH_Office("MOH Office"),
     OtherSpecializedUnit("Other Specialized Units"),
     CTB_Head_Office("CTB Headoffice"),
     CTB_Depot("CTB Depot"),
