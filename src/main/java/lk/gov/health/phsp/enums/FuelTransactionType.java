@@ -31,8 +31,8 @@ package lk.gov.health.phsp.enums;
 public enum FuelTransactionType {
     VehicleFuelRequest("Vehicle Fuel Request"),
     SpecialVehicleFuelRequest("Vehicle Special Fuel Request"),
-    DepotFuelRequest("CTB Depot Fuel Request"),
-    CtbFuelRequest("CTB Fuel Request"),
+    DepotFuelRequest("SLT Depot Fuel Request"),
+    CtbFuelRequest("SLTB Fuel Request"),
     MinistryFuelRequest("Ministry of Health Fuel Request"),
     Other("Other");
     

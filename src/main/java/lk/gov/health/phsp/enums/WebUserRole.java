@@ -40,9 +40,9 @@ public enum WebUserRole {
     INSTITUTION_SUPER_USER("Institution Super User"),
     INSTITUTION_USER("Institution User"),
     // CTB Level
-    CTB_ADMINISTRATOR("CTB Administrator"),
-    CTB_SUPER_USER("CTB Super User"),
-    CTB_USER("CTB User"),
+    CTB_ADMINISTRATOR("SLTB Administrator"),
+    CTB_SUPER_USER("SLTB Super User"),
+    CTB_USER("SLT User"),
      // CPC Level
     CPC_ADMINISTRATOR("CPC Administrator"),
     CPC_SUPER_USER("CPC Super User"),
