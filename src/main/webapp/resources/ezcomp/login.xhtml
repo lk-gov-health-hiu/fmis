@@ -8,17 +8,17 @@
     <cc:implementation>
         <h:form>
             <p:focus for="username"></p:focus>
-            <div class="container-fluid w-50 ">
+            <div class="container-fluid">
                 <div class="row">
-                    <div class="col px-4 py-3 bg-white text-center">
-                        <div class="my-2 d-flex justify-content-around">
-                            <h:graphicImage style="height: 5em;" library="image" name="japan-logo.png"></h:graphicImage>
-                            <h:graphicImage style="height: 5em;" library="image" name="sltb-logo.png"></h:graphicImage>
-                            <h:graphicImage style="height: 5em;" library="image" name="lk-gov-logo.png"></h:graphicImage>
-                        </div>
+                    <div class="col-lg-4 col-md-3 col-sm-1 p-4 bg-white text-center">
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-sm-10 p-4 bg-white text-center">
                         <div class="my-2 d-flex justify-content-center">
                             <h:graphicImage style="height: 12em;" library="image" name="login.png"></h:graphicImage>
                         </div>
+
+
                         <h4 class="fw-bold">Fuel Management Information System</h4>
                         <div class="my-2">
                             <p:inputText id="username" placeholder="Username" required="true" requiredMessage="Username is required." autocomplete="off"
@@ -33,14 +33,30 @@
                             <h:commandButton class="btn fw-bold btn-primary" value="Login"
                                              action="#{webUserController.login()}"></h:commandButton>
                         </div>
-                        <div class="text-muted">
+
+                        <div class="my-2">
+                            <p:messages></p:messages>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-3 col-sm-1 p-4 bg-white text-center">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="my-2 d-flex justify-content-around">
+                        <h:graphicImage style="height: 5em;" library="image" name="cpc.png"></h:graphicImage>
+                        <h:graphicImage style="height: 5em;" library="image" name="jics.svg"></h:graphicImage>
+
+                        <h:graphicImage style="height: 5em;" library="image" name="sltb-logo.png"></h:graphicImage>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="row">
+                        <div class="col-12 my-4 text-center">
                             &copy; Health Information Unit, Ministry of Health
                             <h:outputText value="#{session.lastAccessedTime}">
                                 <f:convertDateTime pattern="yyyy" type="date" />
                             </h:outputText>
-                        </div>
-                        <div class="my-2">
-                            <p:messages></p:messages>
                         </div>
                     </div>
                 </div>
