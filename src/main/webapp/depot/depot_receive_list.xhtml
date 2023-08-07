@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/template.xhtml">
+
+            <ui:define name="title">
+                Receive Fuel
+            </ui:define>
+
+            <ui:define name="content">
+
+                <h:form>    
+
+                    <h:panelGrid columns="1" >
+
+                        <h:commandButton value="Process" class="btn btn-primary" action="#{fuelRequestAndIssueController.fillDepotReceiveList()}" >
+                        </h:commandButton>
+                        <h:commandButton value="Download as Excel" class="btn btn-primary" >
+                            <p:dataExporter fileName="Depot Fuekl Received List" target="tbl" type="xlsx" ></p:dataExporter>
+                        </h:commandButton>
+                        <p:dataTable 
+                            class="w-100"
+                            resizableColumns="true" multiViewState="true" resizeMode="expand" 
+                            id="tbl" 
+                            value="#{fuelRequestAndIssueController.transactions}" 
+                            var="item"
+                            selectionMode="single" 
+                            selection="#{institutionController.selected}"
+                            rows="10"
+                            rowKey="#{item.id}"
+                            paginator="true"
+                            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                            currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                            rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
+                            >
+
+                            <p:column sortBy="#{item.txDate}"  >
+                                <f:facet name="header">
+                                    <h:outputText value="Date"/>
+                                </f:facet>
+                                <h:outputText value="#{item.txDate}">
+                                    <f:convertDateTime pattern="dd MMMM yyyy" ></f:convertDateTime>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column sortBy="#{item.invoiceNo}" filterBy="#{item.invoiceNo}" filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Invoice No"/>
+                                </f:facet>
+                                <h:outputText value="#{item.invoiceNo}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.bowserNumber}" 
+                                      filterBy="#{item.bowserNumber}" filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Bowser Number"/>
+                                </f:facet>
+                                <h:outputText value="#{item.bowserNumber}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.receivedQty}" 
+                                      filterBy="#{item.receivedQty}" 
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Received Quentity"/>
+                                </f:facet>
+                                <h:outputText value="#{item.receivedQty}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.receivedQty}" 
+                                      filterBy="#{item.receivedQty}" 
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Stock Balance Quentity"/>
+                                </f:facet>
+                                <h:outputText value="#{item.stockAfterTheTransaction}"/>
+                            </p:column>
+
+                            <p:column exportable="false" headerText="Actions" >
+                                <!--                                <h:commandLink class="btn btn-primary m-2" id="editButton"
+                                                                               value="View"
+                                                                               action="#{menuController.toEditInstitution()}">
+                                                                    <f:setPropertyActionListener value="#{item}" target="#{institutionController.selected}" ></f:setPropertyActionListener>
+                                                                    <i class="bi bi-pencil m-2"></i>
+                                                                </h:commandLink>-->
+                            </p:column>
+                        </p:dataTable>
+                    </h:panelGrid>
+
+
+
+
+
+
+                </h:form>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </h:body>
+</html>

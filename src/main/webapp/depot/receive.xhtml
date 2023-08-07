@@ -1,0 +1,142 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/template.xhtml">
+
+            <ui:define name="title">
+                Receive Fuel
+            </ui:define>
+
+            <ui:define name="content">
+
+                <div class="container-fluid p-2 w-100" >
+                    <h:form >
+                        <div class="row" >
+
+                            <div class="col-12" >
+                                <div class="card" >
+                                    <div class="card-header" >
+                                        <div class="row" >
+                                            <h2><h:outputText value="Receive Fuel"></h:outputText></h2>
+                                        </div>
+                                    </div>
+                                    <div class="card-body" >
+                                        <div class="card-body">
+                                            <div class="container">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p:outputLabel value="Regional Office">
+                                                        </p:outputLabel>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p:outputLabel value="#{fuelRequestAndIssueController.selected.toInstitution.parent.name}">
+                                                        </p:outputLabel>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p:outputLabel value="Depot">
+                                                        </p:outputLabel>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p:outputLabel value="#{fuelRequestAndIssueController.selected.toInstitution.name}">
+                                                        </p:outputLabel>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p:outputLabel value="Current Stock">
+                                                        </p:outputLabel>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p:outputLabel value="#{fuelRequestAndIssueController.selected.toInstitution.currentStock}">
+                                                        </p:outputLabel>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p:outputLabel value="Date">
+                                                        </p:outputLabel>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p:datePicker pattern="dd MMMM yyyy" value="#{fuelRequestAndIssueController.selected.txDate}">
+                                                        </p:datePicker>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p:outputLabel value="Invoice No">
+                                                        </p:outputLabel>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p:inputText value="#{fuelRequestAndIssueController.selected.invoiceNo}">
+                                                        </p:inputText>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p:outputLabel value="Bowser No">
+                                                        </p:outputLabel>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p:inputText value="#{fuelRequestAndIssueController.selected.bowserNumber}">
+                                                        </p:inputText>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p:outputLabel value="Received Qty in Leters">
+                                                        </p:outputLabel>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p:inputText value="#{fuelRequestAndIssueController.selected.receivedQty}">
+                                                        </p:inputText>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+
+
+                                                        <h:commandButton  value="Received" 
+                                                                          class="btn btn-primary"
+                                                                          action="#{fuelRequestAndIssueController.submitVehicleFuelReceive()}" >
+                                                        </h:commandButton>
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+
+
+
+
+                                        </div>
+
+
+
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </h:body>
+</html>

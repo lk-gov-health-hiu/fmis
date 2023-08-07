@@ -20,7 +20,7 @@ public class QRCodeController implements Serializable {
 
     private String qrData;
 
-    public void scanQRCode(byte[] imageData) {
+    public String scanQRCode(byte[] imageData) {
         System.out.println("scanQRCode");
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(imageData);
@@ -31,7 +31,9 @@ public class QRCodeController implements Serializable {
             System.out.println("qrData = " + qrData);
         } catch (IOException | NotFoundException e) {
             e.printStackTrace();
+            qrData="Error";
         }
+        return qrData;
     }
 
     public String getQrData() {
