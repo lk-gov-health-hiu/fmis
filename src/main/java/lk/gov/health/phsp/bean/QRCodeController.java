@@ -29,7 +29,7 @@ public class QRCodeController implements Serializable {
             Result qrCodeResult = new MultiFormatReader().decode(binaryBitmap);
             qrData = qrCodeResult.getText();
             System.out.println("qrData = " + qrData);
-        } catch (IOException | NotFoundException e) {
+        } catch (IOException|NotFoundException e) {
             e.printStackTrace();
             qrData="Error";
         }

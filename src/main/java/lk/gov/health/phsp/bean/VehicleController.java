@@ -27,6 +27,21 @@ import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.AreaFacade;
 
+import com.google.zxing.*;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import javax.faces.context.FacesContext;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Hashtable;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
+
 @Named
 @SessionScoped
 public class VehicleController implements Serializable {
@@ -62,6 +77,30 @@ public class VehicleController implements Serializable {
 
     public Vehicle getVehicleById(Long id) {
         return getFacade().find(id);
+    }
+
+    private StreamedContent qrCode;
+
+    public void generateQRCode() {
+        try {
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode(selected.getIdString(), BarcodeFormat.QR_CODE, 200, 200);
+
+            BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "png", os);
+
+            DefaultStreamedContent.Builder builder = DefaultStreamedContent.builder();
+            qrCode = builder.stream(() -> new ByteArrayInputStream(os.toByteArray()))
+                    .contentType("image/png")
+                    .build();
+        } catch (WriterException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public StreamedContent getQrCode() {
+        return qrCode;
     }
 
     public String toAddVehicle() {
@@ -222,9 +261,9 @@ public class VehicleController implements Serializable {
             if (vehicle.getInstitution() == null) {
                 continue;
             }
-            for(Institution ins:institutions){
-                if(vehicle.getInstitution().equals(ins)){
-                    canInclude=true;
+            for (Institution ins : institutions) {
+                if (vehicle.getInstitution().equals(ins)) {
+                    canInclude = true;
                 }
             }
             if (canInclude) {
