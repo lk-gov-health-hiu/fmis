@@ -101,19 +101,33 @@ public class InstitutionApplicationController {
         }
         return null;
     }
-    
-    public Double addToStock(Institution ins, Double qty){
-         for (Institution i : getInstitutions()) {
+
+    public Double addToStock(Institution ins, Double qty) {
+        if (ins == null) {
+            return null;
+        }
+        if (qty == null) {
+            return null;
+        }
+        for (Institution i : getInstitutions()) {
             if (i.equals(ins)) {
                 Double cs = i.getCurrentStock();
-                cs = cs+qty;
+                cs = cs + qty;
                 i.setCurrentStock(cs);
                 ins.setCurrentStock(cs);
                 institutionFacade.edit(i);
                 return cs;
             }
         }
-         return null;
+        return null;
+    }
+
+    public Double deductFromStock(Institution ins, Double qty) {
+        if (qty == null) {
+            return null;
+        }
+        Double deductQty = 0 - qty;
+        return addToStock(ins, deductQty);
     }
 
     public List<Institution> findInstitutions(InstitutionType type) {
