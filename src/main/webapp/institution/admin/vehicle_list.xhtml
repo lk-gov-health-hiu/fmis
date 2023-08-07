@@ -18,7 +18,7 @@
                         <p:dataTable 
                             class="w-100"
                             resizableColumns="true" multiViewState="true" resizeMode="expand" 
-                            id="tbl" value="#{vehicleController.items}" var="item"
+                            id="tbl" value="#{webUserController.managableVehicles}" var="item"
                             selectionMode="single" selection="#{vehicleController.selected}"
                             rows="10"
                             rowKey="#{item.id}"
