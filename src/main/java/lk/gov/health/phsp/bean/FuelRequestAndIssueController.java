@@ -98,7 +98,46 @@ public class FuelRequestAndIssueController implements Serializable {
                 toInstitution,
                 vs,
                 null,
+                null,
                 null);
+
+        System.out.println("searchResults = " + searchResults);
+
+        if (searchResults == null || searchResults.isEmpty()) {
+            JsfUtil.addErrorMessage("No search results. Please check and retry.");
+            return "";
+        }
+        if (searchResults.size() == 1) {
+            selected = searchResults.get(0);
+            return navigateToIssueVehicleFuelRequest();
+        } else {
+            selected = null;
+            transactions = searchResults;
+            return navigateToSelectToIssueVehicleFuelRequest();
+        }
+    }
+
+    public String searchFuelRequestToIssueByVehicleNumber() {
+        if (searchingFuelRequestVehicleNumber == null || searchingFuelRequestVehicleNumber.trim().isEmpty()) {
+            JsfUtil.addErrorMessage("Please provide a vehicle number");
+            return "";
+        }
+
+        Institution toInstitution = webUserController.getLoggedInstitution();
+        List<Vehicle> vs = vehicleController.searchVehicles(searchingFuelRequestVehicleNumber);
+        System.out.println("vs = " + vs);
+        if (vs == null || vs.isEmpty()) {
+            JsfUtil.addErrorMessage("No Matching Vehicle");
+            return "";
+        }
+
+        List<FuelTransaction> searchResults = findFuelTransactions(null,
+                null,
+                toInstitution,
+                vs,
+                null,
+                null,
+                false);
 
         System.out.println("searchResults = " + searchResults);
 
@@ -246,10 +285,10 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listInstitutionRequests() {
-        transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate);
+        transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate, null);
     }
 
-    public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution, List<Vehicle> vehicles, Date fromDateTime, Date toDateTime) {
+    public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution, List<Vehicle> vehicles, Date fromDateTime, Date toDateTime, Boolean issued) {
         String j = "SELECT ft "
                 + " FROM FuelTransaction ft "
                 + " WHERE ft.retired = false";
@@ -278,6 +317,10 @@ public class FuelRequestAndIssueController implements Serializable {
         if (toDateTime != null) {
             j += " AND ft.requestAt <= :toDateTime";
             params.put("toDateTime", toDateTime);
+        }
+        if (issued != null) {
+            j += " AND ft.issued = :issued ";
+            params.put("issued", issued);
         }
 
         List<FuelTransaction> fuelTransactions = getFacade().findByJpql(j, params);

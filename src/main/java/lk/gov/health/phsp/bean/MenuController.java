@@ -78,9 +78,6 @@ public class MenuController implements Serializable {
         return "/index";
     }
 
-  
-    
-
     public String toReportsIndex() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
@@ -108,8 +105,8 @@ public class MenuController implements Serializable {
     public String toAdministrationIndex() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
-            case CTB:
                 return "/national/admin/index";
+            case CTB:
             case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/admin/index";
             default:
@@ -133,7 +130,6 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
-    
 
     public String toAddNewUser() {
         webUserController.prepareToAddNewUser();
@@ -147,7 +143,7 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
-    
+
     public String toAddMultipleUsers() {
         webUserController.prepareToAddNewUser();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -173,7 +169,7 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
-    
+
     public String toAddNewVehicle() {
         vehicleController.prepareToAddNewVehicle();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -186,7 +182,7 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
-    
+
     public String toAddNewDriver() {
         driverController.prepareToAddNewDriver();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -199,7 +195,7 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
-    
+
     public String toAddMultipleNewInstitutions() {
         institutionController.prepareToAddNewInstitution();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -249,7 +245,7 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
-    
+
     public String toListVehicles() {
         vehicleController.prepareToListVehicle();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -262,7 +258,7 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
-    
+
     public String toEditVehicle() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case CTB:
@@ -274,7 +270,7 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
-    
+
     public String toListDriverss() {
         driverController.prepareToListDriver();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -289,7 +285,7 @@ public class MenuController implements Serializable {
     }
 
     public String toListInstitutionsWithUsers() {
-        
+
         institutionController.prepareToListInstitution();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case FUEL_REQUESTING_INSTITUTION:
@@ -341,7 +337,7 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
-    
+
     public String toEditDriver() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case FUEL_REQUESTING_INSTITUTION:
