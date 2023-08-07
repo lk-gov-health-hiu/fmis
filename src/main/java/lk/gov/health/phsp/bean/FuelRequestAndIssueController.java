@@ -99,7 +99,7 @@ public class FuelRequestAndIssueController implements Serializable {
                 vs,
                 null,
                 null,
-                null);
+                null, null, null);
 
         System.out.println("searchResults = " + searchResults);
 
@@ -137,7 +137,7 @@ public class FuelRequestAndIssueController implements Serializable {
                 vs,
                 null,
                 null,
-                false);
+                false, false, false);
 
         System.out.println("searchResults = " + searchResults);
 
@@ -285,10 +285,14 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listInstitutionRequests() {
-        transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate, null);
+        transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate, null, null, null);
     }
 
-    public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution, List<Vehicle> vehicles, Date fromDateTime, Date toDateTime, Boolean issued) {
+    public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution,
+            List<Vehicle> vehicles, Date fromDateTime, Date toDateTime,
+            Boolean issued,
+            Boolean cancelled,
+            Boolean rejected) {
         String j = "SELECT ft "
                 + " FROM FuelTransaction ft "
                 + " WHERE ft.retired = false";
@@ -321,6 +325,14 @@ public class FuelRequestAndIssueController implements Serializable {
         if (issued != null) {
             j += " AND ft.issued = :issued ";
             params.put("issued", issued);
+        }
+        if (cancelled != null) {
+            j += " AND ft.cancelled = :cancelled ";
+            params.put("cancelled", issued);
+        }
+        if (rejected != null) {
+            j += " AND ft.rejected = :rejected ";
+            params.put("rejected", issued);
         }
 
         List<FuelTransaction> fuelTransactions = getFacade().findByJpql(j, params);
