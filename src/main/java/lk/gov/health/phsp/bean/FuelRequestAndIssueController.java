@@ -78,6 +78,8 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public FuelRequestAndIssueController() {
     }
+    
+
 
     public String searchFuelRequestByVehicleNumber() {
         if (searchingFuelRequestVehicleNumber == null || searchingFuelRequestVehicleNumber.trim().isEmpty()) {
@@ -218,6 +220,7 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setIssuedAt(new Date());
         selected.setIssuedInstitution(webUserController.getLoggedInstitution());
         selected.setIssuedUser(webUserController.getLoggedUser());
+        selected.setStockBeforeTheTransaction(institutionApplicationController.get);
         save(selected);
         JsfUtil.addSuccessMessage("Successfully Issued");
         return navigateToSearchRequestsForVehicleFuelIssue();

@@ -112,6 +112,9 @@ public class FuelTransaction implements Serializable {
     @ManyToOne
     private Institution rejectedInstitution;
 
+    private Double stockBeforeTheTransaction;
+    private Double stockAfterTheTransaction;
+    
     
     
     
@@ -402,6 +405,22 @@ public class FuelTransaction implements Serializable {
 
     public void setDriver(Driver driver) {
         this.driver = driver;
+    }
+
+    public Double getStockBeforeTheTransaction() {
+        return stockBeforeTheTransaction;
+    }
+
+    public void setStockBeforeTheTransaction(Double stockBeforeTheTransaction) {
+        this.stockBeforeTheTransaction = stockBeforeTheTransaction;
+    }
+
+    public Double getStockAfterTheTransaction() {
+        return stockAfterTheTransaction;
+    }
+
+    public void setStockAfterTheTransaction(Double stockAfterTheTransaction) {
+        this.stockAfterTheTransaction = stockAfterTheTransaction;
     }
 
 }

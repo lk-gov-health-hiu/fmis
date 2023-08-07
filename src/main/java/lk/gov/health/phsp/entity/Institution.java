@@ -105,6 +105,8 @@ public class Institution implements Serializable, Nameable {
     private String retireComments;
 
     private boolean pmci;
+    
+    private Double currentStock;
 
     @Transient
     InstitutionType institutionTypeRootTrans;
@@ -120,6 +122,8 @@ public class Institution implements Serializable, Nameable {
         return id;
     }
 
+    
+    
     public InstitutionType getInstitutionTypeRootTrans() {
         if (getInstitutionType() == null) {
             institutionTypeRootTrans = InstitutionType.Other;
@@ -470,6 +474,14 @@ public class Institution implements Serializable, Nameable {
 
     public void setInsName(String insName) {
         this.insName = insName;
+    }
+
+    public Double getCurrentStock() {
+        return currentStock;
+    }
+
+    public void setCurrentStock(Double currentStock) {
+        this.currentStock = currentStock;
     }
 
 }

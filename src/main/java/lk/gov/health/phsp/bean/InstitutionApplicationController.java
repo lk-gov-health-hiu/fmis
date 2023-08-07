@@ -93,6 +93,29 @@ public class InstitutionApplicationController {
         return institutions;
     }
 
+    public Double getInstitutionStock(Institution ins) {
+        for (Institution i : getInstitutions()) {
+            if (i.equals(ins)) {
+                return i.getCurrentStock();
+            }
+        }
+        return null;
+    }
+    
+    public Double addToStock(Institution ins, Double qty){
+         for (Institution i : getInstitutions()) {
+            if (i.equals(ins)) {
+                Double cs = i.getCurrentStock();
+                cs = cs+qty;
+                i.setCurrentStock(cs);
+                ins.setCurrentStock(cs);
+                institutionFacade.edit(i);
+                return cs;
+            }
+        }
+         return null;
+    }
+
     public List<Institution> findInstitutions(InstitutionType type) {
         List<Institution> cins = getInstitutions();
         List<Institution> tins = new ArrayList<>();
