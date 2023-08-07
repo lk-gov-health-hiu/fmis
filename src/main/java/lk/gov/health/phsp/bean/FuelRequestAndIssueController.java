@@ -220,7 +220,8 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setIssuedAt(new Date());
         selected.setIssuedInstitution(webUserController.getLoggedInstitution());
         selected.setIssuedUser(webUserController.getLoggedUser());
-        selected.setStockBeforeTheTransaction(institutionApplicationController.get);
+        selected.setStockBeforeTheTransaction(institutionApplicationController.getInstitutionStock(webUserController.getLoggedInstitution()));
+        selected.setStockAfterTheTransaction(institutionApplicationController.deductFromStock(webUserController.getLoggedInstitution(), selected.getIssuedQuantity()));
         save(selected);
         JsfUtil.addSuccessMessage("Successfully Issued");
         return navigateToSearchRequestsForVehicleFuelIssue();
