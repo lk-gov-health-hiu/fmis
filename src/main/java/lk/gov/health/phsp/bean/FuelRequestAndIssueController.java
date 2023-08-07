@@ -277,7 +277,7 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Institution ?");
             return;
         }
-        transactions = findFuelTransactions(null, null, institution, null, fromDate, toDate, null, null, null);
+        transactions = findFuelTransactions(null, null, institution, null, fromDate, toDate, null, null, null, null);
     }
 
     public void fillDepotIssueList() {
