@@ -19,8 +19,15 @@
                                 action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
                 </p:submenu>
                 <p:submenu class="submenu" label="Supply" rendered="#{webUserController.loggedUser.webUserRoleLevel eq 'CTB'}">
+                    <p:menuitem class="submenu-item" ajax="false" value="Supply Fuel - QR" action="#{fuelRequestAndIssueController.navigateToSearchRequestsForVehicleFuelIssueQr()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="Supply Fuel" action="#{fuelRequestAndIssueController.navigateToSearchRequestsForVehicleFuelIssue()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="View Fuel Supplies" action="#{fuelRequestAndIssueController.navigateToListInstitutionIssues()}" />
+                </p:submenu>
+                <p:submenu class="submenu" label="Receive" rendered="#{webUserController.loggedUser.webUserRoleLevel eq 'CTB'}">
+                    <p:menuitem class="submenu-item" ajax="false" value="Receive Fuel" 
+                                action="#{fuelRequestAndIssueController.navigateToReceiveFuelAtDepot()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="View Fuel Receive" 
+                                action="#{fuelRequestAndIssueController.navigateToListDepotReceiveList}" />
                 </p:submenu>
                 <p:menuitem class="text-white" ajax="false" value="Reports" action="#{menuController.toReportsIndex()}" />
                 <p:menuitem class="text-white" ajax="false" value="Administration" action="#{menuController.toAdministrationIndex()}" />

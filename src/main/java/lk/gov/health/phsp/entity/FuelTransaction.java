@@ -75,7 +75,7 @@ public class FuelTransaction implements Serializable {
 
     private String requestReferenceNumber;
     private String issueReferenceNumber;
-    
+
     private boolean issued;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date issuedAt;
@@ -112,10 +112,22 @@ public class FuelTransaction implements Serializable {
     @ManyToOne
     private Institution rejectedInstitution;
 
+    private Double stockBeforeTheTransaction;
+    private Double stockAfterTheTransaction;
+
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date txDate;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date txTime;
+    @ManyToOne
+    private Institution institution;
+    private String invoiceNo;
+    private String bowserNumber;
+    
+    private Double receivedQty;
     
     
-    
-    
+
     public String getIdString() {
         if (id == null) {
             return "";
@@ -402,6 +414,70 @@ public class FuelTransaction implements Serializable {
 
     public void setDriver(Driver driver) {
         this.driver = driver;
+    }
+
+    public Double getStockBeforeTheTransaction() {
+        return stockBeforeTheTransaction;
+    }
+
+    public void setStockBeforeTheTransaction(Double stockBeforeTheTransaction) {
+        this.stockBeforeTheTransaction = stockBeforeTheTransaction;
+    }
+
+    public Double getStockAfterTheTransaction() {
+        return stockAfterTheTransaction;
+    }
+
+    public void setStockAfterTheTransaction(Double stockAfterTheTransaction) {
+        this.stockAfterTheTransaction = stockAfterTheTransaction;
+    }
+
+    public Date getTxDate() {
+        return txDate;
+    }
+
+    public void setTxDate(Date txDate) {
+        this.txDate = txDate;
+    }
+
+    public Date getTxTime() {
+        return txTime;
+    }
+
+    public void setTxTime(Date txTime) {
+        this.txTime = txTime;
+    }
+
+    public Institution getInstitution() {
+        return institution;
+    }
+
+    public void setInstitution(Institution institution) {
+        this.institution = institution;
+    }
+
+    public String getInvoiceNo() {
+        return invoiceNo;
+    }
+
+    public void setInvoiceNo(String invoiceNo) {
+        this.invoiceNo = invoiceNo;
+    }
+
+    public String getBowserNumber() {
+        return bowserNumber;
+    }
+
+    public void setBowserNumber(String bowserNumber) {
+        this.bowserNumber = bowserNumber;
+    }
+
+    public Double getReceivedQty() {
+        return receivedQty;
+    }
+
+    public void setReceivedQty(Double receivedQty) {
+        this.receivedQty = receivedQty;
     }
 
 }

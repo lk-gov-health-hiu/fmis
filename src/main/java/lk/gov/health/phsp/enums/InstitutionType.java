@@ -20,8 +20,8 @@ public enum InstitutionType {
     MOH_Office("MOH Office"),
     OtherSpecializedUnit("Other Specialized Units"),
     CTB_Country_Office("SLTB Head Office"),
-    CTB_Head_Office("SLT Regional Office"),
-    CTB_Depot("SLT Depot"),
+    CTB_Head_Office("SLTB Regional Office"),
+    CTB_Depot("SLTB Depot"),
     Donar("Donar"),
     DistrictSecretariat("District Secretariat"),
     Audit("Unit"),
@@ -31,7 +31,7 @@ public enum InstitutionType {
     CPC_Depot("CPC Depot"),
     ERD("ERD"),
     CB("CB"),
-    Other("Ward");
+    Other("Other");
 
     private final String label;
 

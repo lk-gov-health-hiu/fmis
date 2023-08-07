@@ -33,6 +33,7 @@ public enum FuelTransactionType {
     SpecialVehicleFuelRequest("Vehicle Special Fuel Request"),
     DepotFuelRequest("SLT Depot Fuel Request"),
     CtbFuelRequest("SLTB Fuel Request"),
+    CtbFuelReceive("SLTB Fuel Receive"),
     MinistryFuelRequest("Ministry of Health Fuel Request"),
     Other("Other");
     

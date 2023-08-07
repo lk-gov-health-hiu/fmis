@@ -43,6 +43,7 @@ import lk.gov.health.phsp.pojcs.Nameable;
  */
 @Entity
 public class Institution implements Serializable, Nameable {
+
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -105,6 +106,8 @@ public class Institution implements Serializable, Nameable {
     private String retireComments;
 
     private boolean pmci;
+
+    private Double currentStock;
 
     @Transient
     InstitutionType institutionTypeRootTrans;
@@ -470,6 +473,17 @@ public class Institution implements Serializable, Nameable {
 
     public void setInsName(String insName) {
         this.insName = insName;
+    }
+
+    public Double getCurrentStock() {
+        if (currentStock == null) {
+            currentStock = 0.0;
+        }
+        return currentStock;
+    }
+
+    public void setCurrentStock(Double currentStock) {
+        this.currentStock = currentStock;
     }
 
 }

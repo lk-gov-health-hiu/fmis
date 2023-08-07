@@ -118,6 +118,10 @@ public class Vehicle implements Serializable, Nameable {
     public Long getId() {
         return id;
     }
+    
+    public String getIdString() {
+        return id + "";
+    }
 
     @Override
     public void setId(Long id) {
