@@ -259,7 +259,7 @@ public class WebUserController implements Serializable {
             case CTB:
                 ins.addAll(vehicleController.fillVehicles(loggableInstitutions));
             case FUEL_REQUESTING_INSTITUTION:
-                ins.addAll(vehicleApplicationController.getVehicles());
+                ins.addAll(managableVehicles);
             default:
 
         }
