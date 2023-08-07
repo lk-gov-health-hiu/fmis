@@ -19,7 +19,7 @@
                                 action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
                 </p:submenu>
                 <p:submenu class="submenu" label="Supply" rendered="#{webUserController.loggedUser.webUserRoleLevel eq 'CTB'}">
-                    <p:menuitem class="submenu-item" ajax="false" value="Supply Fuel" action="#{fuelRequestAndIssueController.navigateToSearchRequestsForVehicleFuelIssue()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Supply Fuel - QR" action="#{fuelRequestAndIssueController.navigateToSearchRequestsForVehicleFuelIssueQr()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="Supply Fuel" action="#{fuelRequestAndIssueController.navigateToSearchRequestsForVehicleFuelIssue()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="View Fuel Supplies" action="#{fuelRequestAndIssueController.navigateToListInstitutionIssues()}" />
                 </p:submenu>
