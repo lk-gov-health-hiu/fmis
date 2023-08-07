@@ -65,19 +65,6 @@
                             </f:facet>
                             <h:outputText value="#{item.rdhsArea.name}"/>
                         </p:column>
-                        <p:column  >
-                            <f:facet name="header">
-                                <h:outputText value="POI"/>
-                            </f:facet>
-                            <h:outputText value="Own POI : "/>
-                            <h:outputText value="#{item.poiNumber}"/>
-                            <br/><!-- comment -->
-                            <h:outputText value="Another POI Institution : "/>
-                            <h:outputText value="#{item.poiInstitution.name}"/>
-                            <h:outputText value=" ("/>
-                            <h:outputText value="#{item.poiInstitution.poiNumber}"/>
-                            <h:outputText value=" )"/>
-                        </p:column>
 
                         <f:facet name="footer">
                             <h:commandLink class="btn btn-primary m-2" id="createButton"    value="#{bundleClinical.Create}" actionListener="#{institutionController.prepareCreate}"><i class= "bi bi-plus-lg m-2"></i><f:ajax render=":InstitutionCreateForm" onevent="PF('InstitutionCreateDialog').show()"></f:ajax> </h:commandLink>

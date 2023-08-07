@@ -4,6 +4,7 @@ import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -166,6 +167,46 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/issues/issued";
     }
 
+    public void rejectFuelIssueAtDepot() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing Selected");
+            return;
+        }
+        selected.setRejected(true);
+        selected.setRejectedAt(new Date());
+        selected.setRejectedBy(webUserController.getLoggedUser());
+        selected.setRejectedInstitution(webUserController.getLoggedInstitution());
+        getFacade().edit(selected);
+        transactions.remove(selected);
+        JsfUtil.addSuccessMessage("Rejected");
+    }
+
+    public void issueFuelIssueAtDepotDirectly() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing Selected");
+            return;
+        }
+
+        if (selected.getTransactionType() == null) {
+            selected.setTransactionType(FuelTransactionType.VehicleFuelRequest);
+        }
+        if (selected.getTransactionType() != FuelTransactionType.VehicleFuelRequest && selected.getTransactionType() != FuelTransactionType.SpecialVehicleFuelRequest) {
+            selected.setTransactionType(FuelTransactionType.VehicleFuelRequest);
+        }
+
+        selected.setIssuedQuantity(selected.getRequestQuantity());
+
+        selected.setIssued(true);
+        selected.setIssuedAt(new Date());
+        selected.setIssuedInstitution(webUserController.getLoggedInstitution());
+        selected.setIssuedUser(webUserController.getLoggedUser());
+        selected.setStockBeforeTheTransaction(institutionApplicationController.getInstitutionStock(webUserController.getLoggedInstitution()));
+        selected.setStockAfterTheTransaction(institutionApplicationController.deductFromStock(webUserController.getLoggedInstitution(), selected.getIssuedQuantity()));
+        save(selected);
+        transactions.remove(selected);
+        JsfUtil.addSuccessMessage("Rejected");
+    }
+
     public String navigateToReceiveFuelAtDepot() {
         selected = new FuelTransaction();
         selected.setTransactionType(FuelTransactionType.CtbFuelReceive);
@@ -203,7 +244,25 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         save(selected);
         JsfUtil.addSuccessMessage("Request Submitted");
-        return navigateToViewRequest();
+        return navigateToViewInstitutionFuelRequestToSltbDepot();
+    }
+
+    public String submitSltbFuelRequestFromCpc() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return "";
+        }
+        if (selected.getTransactionType() == null) {
+            JsfUtil.addErrorMessage("Transaction Type is not set.");
+            return "";
+        }
+        if (selected.getTransactionType() != FuelTransactionType.DepotFuelRequest) {
+            JsfUtil.addErrorMessage("Wrong Transaction Type");
+            return "";
+        }
+        save(selected);
+        JsfUtil.addSuccessMessage("Request Submitted");
+        return navigateToViewDepotFuelRequestToCpc();
     }
 
     public String submitVehicleFuelRequestIssue() {
@@ -272,6 +331,18 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/depot/depot_receive_list";
     }
 
+    public String navigateToSltbReportsFuelRequests() {
+        return "/sltb/reports/requests";
+    }
+
+    public String navigateToSltbReportsFuelIssues() {
+        return "/sltb/reports/issues";
+    }
+
+    public String navigateToSltbReportsFuelRejections() {
+        return "/sltb/reports/rejections";
+    }
+
     public void fillDepotReceiveList() {
         if (institution == null) {
             JsfUtil.addErrorMessage("Institution ?");
@@ -280,12 +351,31 @@ public class FuelRequestAndIssueController implements Serializable {
         transactions = findFuelTransactions(null, null, institution, null, fromDate, toDate, null, null, null, null);
     }
 
-    public void fillDepotIssueList() {
+    public void fillDepotToIssueList() {
         if (institution == null) {
             JsfUtil.addErrorMessage("Institution ?");
             return;
         }
-        transactions = findFuelTransactions(null, null, institution, null, fromDate, toDate, null, null, null);
+        transactions = findFuelTransactions(null, null, institution, null, fromDate, toDate, Boolean.FALSE,
+                Boolean.FALSE, Boolean.FALSE, null);
+    }
+
+    public void fillIssuedRequestsFromDepotList() {
+        if (institution == null) {
+            JsfUtil.addErrorMessage("Institution ?");
+            return;
+        }
+        transactions = findFuelTransactions(null, null, institution, null, fromDate, toDate, Boolean.TRUE,
+                null, null, null);
+    }
+
+    public void fillRejectedIssueRequestsFromDepotList() {
+        if (institution == null) {
+            JsfUtil.addErrorMessage("Institution ?");
+            return;
+        }
+        transactions = findFuelTransactions(null, null, institution, null, fromDate, toDate, null,
+                null, Boolean.TRUE, null);
     }
 
     public String navigateToListFuelTransactions() {
@@ -317,6 +407,17 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/requests/request";
     }
 
+    public String navigateToAddCpcFuelRequest() {
+        selected = new FuelTransaction();
+        selected.setRequestAt(new Date());
+        selected.setTransactionType(FuelTransactionType.DepotFuelRequest);
+        selected.setRequestedBy(webUserController.getLoggedUser());
+        selected.setRequestedInstitution(webUserController.getLoggedInstitution());
+        selected.setInstitution(webUserController.getLoggedInstitution());
+        selected.setFromInstitution(institutionApplicationController.findCpc());
+        return "/moh/request";
+    }
+
     public String navigateToAddSpecialVehicleFuelRequest() {
         selected = new FuelTransaction();
         selected.setRequestAt(new Date());
@@ -336,7 +437,7 @@ public class FuelRequestAndIssueController implements Serializable {
     public String navigateToSearchRequestsForVehicleFuelIssue() {
         return "/issues/search";
     }
-    
+
     public String navigateToSearchRequestsForVehicleFuelIssueQr() {
         return "/issues/search_qr";
     }
@@ -353,6 +454,10 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/requests/list";
     }
 
+    public String navigateToListSltbRequestsFromCpc() {
+        return "/moh/list";
+    }
+
     public String onCaptureOfVehicleQr(CaptureEvent captureEvent) {
         System.out.println("onCapture");
         byte[] imageData = captureEvent.getData();
@@ -363,6 +468,10 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void listInstitutionRequests() {
         transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate, null, null, null);
+    }
+
+    public void listCtbFuelRequestsFromCpc() {
+        transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate, null, null, null, null,FuelTransactionType.CtbFuelRequest);
     }
 
     public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution,
@@ -385,7 +494,7 @@ public class FuelRequestAndIssueController implements Serializable {
         Map<String, Object> params = new HashMap<>();
 
         if (institution != null) {
-            j += " AND ft.requestedInstitution = :institution";
+            j += " AND ft.institution = :institution";
             params.put("institution", institution);
         }
         if (fromInstitution != null) {
@@ -414,23 +523,112 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         if (cancelled != null) {
             j += " AND ft.cancelled = :cancelled ";
-            params.put("cancelled", issued);
+            params.put("cancelled", cancelled);
         }
         if (rejected != null) {
             j += " AND ft.rejected = :rejected ";
-            params.put("rejected", issued);
+            params.put("rejected", rejected);
         }
         if (txTypes != null) {
             j += " AND ft.transactionType in :ftxs ";
             params.put("ftxs", txTypes);
         }
-
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
         List<FuelTransaction> fuelTransactions = getFacade().findByJpql(j, params);
+        if (fuelTransactions != null) {
+            System.out.println("fuelTransactions = " + fuelTransactions.size());
+        }
+        return fuelTransactions;
+    }
+    
+    public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution,
+            List<Vehicle> vehicles, Date fromDateTime, Date toDateTime,
+            Boolean issued,
+            Boolean cancelled,
+            Boolean rejected,
+            List<FuelTransactionType> txTypes,
+            FuelTransactionType type) {
+        String j = "SELECT ft "
+                + " FROM FuelTransaction ft "
+                + " WHERE ft.retired = false";
+        Map<String, Object> params = new HashMap<>();
+
+        if (institution != null) {
+            j += " AND ft.institution = :institution";
+            params.put("institution", institution);
+        }
+        if (fromInstitution != null) {
+            j += " AND ft.fromInstitution = :fromInstitution";
+            params.put("fromInstitution", fromInstitution);
+        }
+        if (toInstitution != null) {
+            j += " AND ft.toInstitution = :toInstitution";
+            params.put("toInstitution", toInstitution);
+        }
+        if (vehicles != null && !vehicles.isEmpty()) {
+            j += " AND ft.vehicle IN :vehicles";
+            params.put("vehicles", vehicles);
+        }
+        if (fromDateTime != null) {
+            j += " AND ft.requestAt >= :fromDateTime";
+            params.put("fromDateTime", fromDateTime);
+        }
+        if (toDateTime != null) {
+            j += " AND ft.requestAt <= :toDateTime";
+            params.put("toDateTime", toDateTime);
+        }
+        if (issued != null) {
+            j += " AND ft.issued = :issued ";
+            params.put("issued", issued);
+        }
+        if (cancelled != null) {
+            j += " AND ft.cancelled = :cancelled ";
+            params.put("cancelled", cancelled);
+        }
+        if (rejected != null) {
+            j += " AND ft.rejected = :rejected ";
+            params.put("rejected", rejected);
+        }
+        if (type != null) {
+            j += " AND ft.transactionType = :ftxs ";
+            params.put("ftxs", type);
+        }
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+        List<FuelTransaction> fuelTransactions = getFacade().findByJpql(j, params);
+        if (fuelTransactions != null) {
+            System.out.println("fuelTransactions = " + fuelTransactions.size());
+        }
         return fuelTransactions;
     }
 
     public String navigateToListInstitutionIssues() {
         return "/issues/list";
+    }
+
+    public String navigateToIssueMultipleRequests() {
+        institution = webUserController.getLoggedInstitution();
+        fillDepotToIssueList();
+        return "/issues/issue_multiple";
+    }
+
+    public String navigateToListToIssueRequestsForDepot() {
+        institution = webUserController.getLoggedInstitution();
+        fillDepotToIssueList();
+        return "/sltb/reports/list_to_issue_depot";
+    }
+
+    public String navigateToListIssuedRequestsFormDepot() {
+        institution = webUserController.getLoggedInstitution();
+        fillIssuedRequestsFromDepotList();
+        return "/sltb/reports/list_issued_from_depot";
+    }
+
+    public String navigateToListRejectedIssueRequestsFormDepot() {
+        institution = webUserController.getLoggedInstitution();
+        fillRejectedIssueRequestsFromDepotList();
+        return "/sltb/reports/list_rejected_issue_requests_from_depot";
     }
 
     public FuelTransaction getSelected() {
@@ -538,8 +736,12 @@ public class FuelRequestAndIssueController implements Serializable {
         this.toDate = toDate;
     }
 
-    private String navigateToViewRequest() {
+    public String navigateToViewInstitutionFuelRequestToSltbDepot() {
         return "/requests/requested";
+    }
+
+    public String navigateToViewDepotFuelRequestToCpc() {
+        return "/moh/requested";
     }
 
     public String getSearchingFuelRequestVehicleNumber() {

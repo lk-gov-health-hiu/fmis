@@ -1,0 +1,155 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/sltb/reports/index.xhtml">
+
+            <ui:define name="title">
+                Select Vehicle to Issue Requests
+            </ui:define>
+
+            <ui:define name="reports">
+
+                <div class="container-fluid p-2 w-100" >
+                    <h:form >
+
+
+                        <div class="form-group row mb-2">
+                            <label class="col-md-4 fs-6 fw-bold col-form-label" for="institution" >
+                                Institution<small>(Required)</small>
+                            </label>
+
+                            <div class="col-md-8">
+                                <p:selectOneMenu id="institution" class="form-control form-control-sm W-100" 
+                                                 value="#{fuelRequestAndIssueController.institution}" required="true">
+                                    <f:selectItem itemLabel="Please Select" ></f:selectItem>
+                                    <f:selectItems value="#{webUserController.loggableInstitutions}"
+                                                   var="ins" 
+                                                   itemLabel="#{ins.name}"
+                                                   itemValue="#{ins}" ></f:selectItems>
+                                </p:selectOneMenu>
+                            </div>
+                        </div>
+                        <div class="form-group row mb-2">
+                            <label class="col-md-4 fs-6 fw-bold col-form-label"  >
+                                From<small>(Required)</small>
+                            </label>
+
+                            <div class="col-md-8">
+                                <p:datePicker value="#{fuelRequestAndIssueController.fromDate}"
+                                              pattern="dd MMMM yyyy"></p:datePicker>
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-2">
+                            <label class="col-md-4 fs-6 fw-bold col-form-label"  >
+                                To<small>(Required)</small>
+                            </label>
+
+                            <div class="col-md-8">
+                                <p:datePicker value="#{fuelRequestAndIssueController.toDate}"
+                                              pattern="dd MMMM yyyy"></p:datePicker>
+                            </div>
+                        </div>
+
+
+
+
+
+                        <h:commandButton value="Process" class="btn btn-primary" 
+                                         action="#{fuelRequestAndIssueController.fillIssuedRequestsFromDepotList()}" >
+                        </h:commandButton>
+                        <h:commandButton value="Download as Excel" class="btn btn-primary" >
+                            <p:dataExporter fileName="Depot Fuekl Received List" target="tbl" type="xlsx" ></p:dataExporter>
+                        </h:commandButton>
+
+                        <p:dataTable 
+                            class="w-100"
+                            resizableColumns="true" 
+                            multiViewState="true" 
+                            resizeMode="expand" 
+                            id="tbl" 
+                            value="#{fuelRequestAndIssueController.transactions}" 
+                            var="item"
+                            selectionMode="single" 
+                            selection="#{institutionController.selected}"
+                            rows="10"
+                            rowKey="#{item.id}"
+                            paginator="true"
+                            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                            currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                            rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
+                            >
+
+                            <p:column sortBy="#{item.fromInstitution.name}"
+                                      filterBy="#{item.fromInstitution.name}" 
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Institution"/>
+                                </f:facet>
+                                <h:outputText value="#{item.fromInstitution.name}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.vehicle.vehicleNumber}"
+                                      filterBy="#{item.vehicle.vehicleNumber}" 
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Vehicle Number"/>
+                                </f:facet>
+                                <h:outputText value="#{item.vehicle.vehicleNumber}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.requestAt}" >
+                                <f:facet name="header">
+                                    <h:outputText value="Requested at"/>
+                                </f:facet>
+                                <h:outputText value="#{item.requestAt}">
+                                    <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column sortBy="#{item.requestQuantity}" 
+                                      filterBy="#{item.requestQuantity}" 
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Requested Quantity"/>
+                                </f:facet>
+                                <h:outputText value="#{item.requestQuantity}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.requestReferenceNumber}" 
+                                      filterBy="#{item.requestReferenceNumber}" 
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Reference Number"/>
+                                </f:facet>
+                                <h:outputText value="#{item.issueReferenceNumber}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.stockAfterTheTransaction}" 
+                                      filterBy="#{item.stockAfterTheTransaction}" 
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Stock after Trasnaction"/>
+                                </f:facet>
+                                <h:outputText value="#{item.stockAfterTheTransaction}"/>
+                            </p:column>
+                        </p:dataTable>
+
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </h:body>
+</html>
