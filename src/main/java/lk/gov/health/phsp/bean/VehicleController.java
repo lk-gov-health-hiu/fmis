@@ -100,6 +100,7 @@ public class VehicleController implements Serializable {
     }
 
     public StreamedContent getQrCode() {
+        generateQRCode();
         return qrCode;
     }
 
