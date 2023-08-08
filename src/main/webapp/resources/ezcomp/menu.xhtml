@@ -8,7 +8,7 @@
     </cc:interface>
     <cc:implementation>
         <h:form>
-            <p:menubar id="main-menu">
+            <p:menubar id="main-menu" class="navbar navbar-expand-lg navbar-dark bg-primary W-100" style="border: none;">
                 <p:menuitem class="text-white" ajax="false" value="Home" icon="ui-icon-home" action="#{menuController.toIndex()}" />
                 <p:submenu class="submenu" label="Vehicle Fuel Requests" rendered="#{webUserController.loggedUser.webUserRoleLevel eq 'FUEL_REQUESTING_INSTITUTION'}" >
                     <p:menuitem class="submenu-item" ajax="false" value="Create Fuel Request" 
@@ -31,12 +31,24 @@
                 </p:submenu>
                 <p:menuitem class="text-white" ajax="false" value="Reports" action="#{menuController.toReportsIndex()}" />
                 <p:menuitem class="text-white" ajax="false" value="Administration" action="#{menuController.toAdministrationIndex()}" />
+                <p:submenu label="Settings">
+                    <p:menuitem value="Change My Password" action="#{webUserController.toChangeMyPassword()}" ajax="false" />
+                    <p:menuitem value="Change My Details" action="#{webUserController.toChangeMyDetails()}" ajax="false" />
+                    <p:menuitem value="Change My Institution Details" action="#{webUserController.toChangeMyInstitutionDetails()}" rendered="#{webUserController.hasPrivilege('Institution_Administration')}" ajax="false" />
+                    <p:menuitem value="Change My Username" action="#{webUserController.toChangeMyUsername()}" ajax="false" />
+                    <p:separator />
+                    <p:menuitem value="Logout" action="#{webUserController.logOut()}" ajax="false" />
+                </p:submenu>
+
                 <p:submenu class="submenu mx-2" label="Help" >
-                    <p:menuitem value="User Manual" action="/wiki"   ajax="false" />
-                    <p:menuitem value="Feedback" action="/feedback"   ajax="false" />
-                    <p:menuitem value="Contact us" action="/contact"   ajax="false" />
+                    <p:menuitem value="User Manual" url="https://github.com/lk-gov-health-hiu/fmis/wiki" target="_blank" />
+                    <p:menuitem value="Issue Tracking"   url="https://github.com/lk-gov-health-hiu/fmis/issues" target="_blank"   />
                     <p:menuitem value="About" action="/about_us"   ajax="false" />
                 </p:submenu>
+
+                <p:menuitem value="Logout" action="#{webUserController.logOut()}" ajax="false" styleClass="ui-button-danger" />
+
+
             </p:menubar>
         </h:form>
     </cc:implementation>
