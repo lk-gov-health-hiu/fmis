@@ -8,16 +8,18 @@
 
     <h:body>
 
-        <ui:composition template="/template.xhtml">
+        <ui:composition template="/sltb/reports/index.xhtml">
 
             <ui:define name="title">
-                Receive Fuel
+                Select Vehicle to Issue Requests
             </ui:define>
 
-            <ui:define name="content">
+            <ui:define name="reports">
 
-                <div class="container-fluid" >
-                    <h:form>    
+                <div class="container-fluid p-2 w-100" >
+                    <h:form >
+
+
                         <div class="form-group row mb-2">
                             <label class="col-md-4 fs-6 fw-bold col-form-label" for="institution" >
                                 Institution<small>(Required)</small>
@@ -61,18 +63,17 @@
 
 
                         <h:commandButton value="Process" class="btn btn-primary" 
-                                         action="#{fuelRequestAndIssueController.fillDepotReceiveList()}" >
+                                         action="#{fuelRequestAndIssueController.fillDepotToIssueList()}" >
                         </h:commandButton>
                         <h:commandButton value="Download as Excel" class="btn btn-primary" >
                             <p:dataExporter fileName="Depot Fuekl Received List" target="tbl" type="xlsx" ></p:dataExporter>
                         </h:commandButton>
 
-
-
-
                         <p:dataTable 
                             class="w-100"
-                            resizableColumns="true" multiViewState="true" resizeMode="expand" 
+                            resizableColumns="true" 
+                            multiViewState="true" 
+                            resizeMode="expand" 
                             id="tbl" 
                             value="#{fuelRequestAndIssueController.transactions}" 
                             var="item"
@@ -86,77 +87,58 @@
                             rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
                             >
 
-                            <p:column sortBy="#{item.txDate}"  >
+                            <p:column sortBy="#{item.fromInstitution.name}"
+                                      filterBy="#{item.fromInstitution.name}" 
+                                      filterMatchMode="contains" >
                                 <f:facet name="header">
-                                    <h:outputText value="Date"/>
+                                    <h:outputText value="Institution"/>
+                                </f:facet>
+                                <h:outputText value="#{item.fromInstitution.name}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.vehicle.vehicleNumber}"
+                                      filterBy="#{item.vehicle.vehicleNumber}" 
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Vehicle Number"/>
+                                </f:facet>
+                                <h:outputText value="#{item.vehicle.vehicleNumber}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.requestAt}" >
+                                <f:facet name="header">
+                                    <h:outputText value="Requested at"/>
                                 </f:facet>
                                 <h:outputText value="#{item.requestAt}">
-                                    <f:convertDateTime pattern="dd MMMM yyyy" ></f:convertDateTime>
+                                    <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
                                 </h:outputText>
                             </p:column>
 
-                            <p:column sortBy="#{item.requestedInstitution.name}"  filterBy="#{item.requestedInstitution.name}" filterMatchMode="contains"  >
-                                <f:facet name="header">
-                                    <h:outputText value="Requested Institution"/>
-                                </f:facet>
-                                <h:outputText value="#{item.requestedInstitution.name}">
-                                </h:outputText>
-                            </p:column>
-
-                            <p:column sortBy="#{item.requestQuantity}" filterBy="#{item.requestQuantity}" filterMatchMode="contains" >
+                            <p:column sortBy="#{item.requestQuantity}" 
+                                      filterBy="#{item.requestQuantity}" 
+                                      filterMatchMode="contains" >
                                 <f:facet name="header">
                                     <h:outputText value="Requested Quantity"/>
                                 </f:facet>
                                 <h:outputText value="#{item.requestQuantity}"/>
                             </p:column>
-                            
-                            <p:column sortBy="#{item.issuedQuantity}" filterBy="#{item.issuedQuantity}" filterMatchMode="contains" >
-                                <f:facet name="header">
-                                    <h:outputText value="Issued Quantity"/>
-                                </f:facet>
-                                <h:outputText value="#{item.issuedQuantity}"/>
-                            </p:column>
 
-                            <p:column sortBy="#{item.bowserNumber}" 
-                                      filterBy="#{item.bowserNumber}" filterMatchMode="contains" >
-                                <f:facet name="header">
-                                    <h:outputText value="Referance Number"/>
-                                </f:facet>
-                                <h:outputText value="#{item.issueReferenceNumber}"/>
-                            </p:column>
-
-                            <p:column sortBy="#{item.stockAfterTheTransaction}" 
-                                      filterBy="#{item.stockAfterTheTransaction}" 
+                            <p:column sortBy="#{item.requestReferenceNumber}" 
+                                      filterBy="#{item.requestReferenceNumber}" 
                                       filterMatchMode="contains" >
                                 <f:facet name="header">
-                                    <h:outputText value="Stock After Issue"/>
+                                    <h:outputText value="Reference Number"/>
                                 </f:facet>
-                                <h:outputText value="#{item.stockAfterTheTransaction}"/>
+                                <h:outputText value="#{item.requestReferenceNumber}"/>
                             </p:column>
 
+                           
 
-                            <p:column exportable="false" headerText="Actions" >
-                                <h:commandLink class="btn btn-primary m-2" id="editButton"
-                                               value="Issue"
-                                               action="#{fuelRequestAndIssueController.navigateToIssueVehicleFuelRequest()}">
-                                    <f:setPropertyActionListener value="#{item}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
-                                    <i class="bi bi-pencil m-2"></i>
-                                </h:commandLink>
-                                <h:commandLink class="btn btn-primary m-2" id="viewButton"
-                                               value="View"
-                                               action="#{fuelRequestAndIssueController.navigateToViewIssuedVehicleFuelRequest()}">
-                                    <f:setPropertyActionListener value="#{item}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
-                                    <i class="bi bi-pencil m-2"></i>
-                                </h:commandLink>
-                            </p:column>
+                            
                         </p:dataTable>
-
-
 
                     </h:form>
                 </div>
-
-
 
             </ui:define>
 

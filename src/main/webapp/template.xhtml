@@ -10,11 +10,20 @@
         <h:head>
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
-            <h:outputStylesheet library="css" name="styles.min.css"></h:outputStylesheet>
-            
-            
+
+            <link rel="stylesheet" 
+                  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css"/>
+            <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css"/>
+
+            <h:outputStylesheet library="css" name="/minty/styles.min.css"></h:outputStylesheet>
+            <h:outputStylesheet library="css" name="/minty/theme.css"/>
+
+
             <link rel="shortcut icon" href="#{resource['image/favicon.ico']}" type="image/x-icon" />
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css"/>
+
+
             <title >
                 <ui:insert name="title">
                     Fuel Management Information System
@@ -22,24 +31,24 @@
             </title>
         </h:head>
 
-        <h:body >
-            
-            
-            <h:panelGroup rendered="#{webUserController.loggedUser ne null}">
-                <ez:header></ez:header>
-            </h:panelGroup>
+        <h:body class="bg-light" >
+
+
 
             <h:panelGroup rendered="#{webUserController.loggedUser ne null}" >
-                <div class="container-fluid">
-                    <div class="row bg-primary">
-                        <div class="col-auto" >
-                            <ez:menu/>
+                <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+                    <div class="container-fluid d-flex align-items-center">
+                        <h:graphicImage library="image" class="mx-2" name="sllogo.webp" height="60"></h:graphicImage>
+                        <h:form>
+                            <h:commandLink class="navbar-brand text-wrap h4 text-uppercase mb-0" action="/index">
+                                Fuel Management Information System<br/>
+                            </h:commandLink>
+                        </h:form>
+                        <div class="ml-auto d-flex">
+                            <ez:menu></ez:menu>
                         </div>
-<!--                        <div class="col-12 text-danger h1" >
-                            Server will be down for 5 minutes from 6:30 pm. Extremely sorry
-                        </div>-->
                     </div>
-                </div>
+                </nav>
                 <div class="container-fluid w-100" >
                     <ui:insert name="content">
                         Contents
@@ -55,20 +64,13 @@
             <ui:insert name="timeout">
             </ui:insert>
 
-            <!--<ez:footer/>-->
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/js/bootstrap.bundle.min.js" integrity="sha512-PqRelaJGXVuQ81N6wjUrRQelCDR7z8RvKGiR9SbSxKHPIt15eJDmIVv9EJgwq0XvgylszsjzvQ0+VyI2WtIshQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/js/bootstrap.bundle.min.js" 
+            integrity="sha512-PqRelaJGXVuQ81N6wjUrRQelCDR7z8RvKGiR9SbSxKHPIt15eJDmIVv9EJgwq0XvgylszsjzvQ0+VyI2WtIshQ==" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer"></script>
             <h:outputScript library="js" name="jquery.easing.min.js"></h:outputScript>
         </h:body>
     </f:view>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async="true" src="https://www.googletagmanager.com/gtag/js?id=G-M89EXF43GH"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
 
-        gtag('config', 'G-M89EXF43GH');
-    </script>
 </html>

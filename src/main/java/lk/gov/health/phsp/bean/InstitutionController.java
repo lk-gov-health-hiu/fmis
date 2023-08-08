@@ -350,6 +350,8 @@ public class InstitutionController implements Serializable {
     public List<Institution> completeDepots(String qry) {
         List<InstitutionType> its = new ArrayList<>();
         its.add(InstitutionType.CTB_Depot);
+        its.add(InstitutionType.CTB_Country_Office);
+        its.add(InstitutionType.CTB_Head_Office);
         return fillInstitutions(its, qry, null);
     }
 

@@ -11,48 +11,7 @@
         <ui:composition template="/template.xhtml">
 
             <ui:define name="content">
-                <h:form class="form">
-
-                    <div class="card border-0">
-                        <div class="card-header" >
-                            <p:commandButton ajax="false" action="#{preferenceController.savePreferences()}" 
-                                             value="SAVE" style="float: left;"></p:commandButton>
-                            <p:outputLabel value="Preferences" ></p:outputLabel>
-                        </div>
-                        <div class="form-group">
-                            <p:outputLabel value="Positive PCR SMS Template" ></p:outputLabel>
-                            <p:inputText class="form-control" value="#{preferenceController.positive<h2>PCRs</h2>msTemplate}" ></p:inputText>
-                        </div>
-                        <div class="form-group">
-                            <p:outputLabel value="Negative PCR SMS Tempalte" ></p:outputLabel>
-                            <p:inputText  class="form-control" value="#{preferenceController.negative<h2>PCRs</h2>msTemplate}" ></p:inputText>
-                        </div>
-                        <div class="form-group">
-                            <p:outputLabel value="Positive RAT SMS Template" ></p:outputLabel>
-                            <p:inputText class="form-control" value="#{preferenceController.positiveRatSmsTemplate}"></p:inputText>
-                        </div>
-                        <div class="form-group">
-                            <p:outputLabel value="Negative RAT SMS Tempalte" ></p:outputLabel>
-                            <p:inputText  class="form-control" value="#{preferenceController.negativeRatSmsTemplate}" ></p:inputText>
-                        </div>
-                        <div class="form-group">
-                            <p:outputLabel value="Sent By Error SMS Template" ></p:outputLabel>
-                            <p:inputText class="form-control" value="#{preferenceController.sentByErrorSmsTemplate}"></p:inputText>
-                        </div>
-                        <div class="form-group">
-                            <p:outputLabel value="Positive SMS Template" ></p:outputLabel>
-                            <p:inputText class="form-control" value="#{preferenceController.positiveSmsTemplate}"></p:inputText>
-                        </div>
-                        <div class="form-group">
-                            <p:outputLabel value="Negative SMS Tempalte" ></p:outputLabel>
-                            <p:inputText  class="form-control" value="#{preferenceController.negativeSmsTemplate}" ></p:inputText>
-                        </div>
-
-                        <div class="form-group">
-                            <h1>#{preferenceController.positiveRatSmsTemplate}</h1>
-                        </div>
-                    </div>
-                </h:form>
+               
             </ui:define>
         </ui:composition>
     </body>

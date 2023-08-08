@@ -103,6 +103,8 @@ public class InstitutionApplicationController {
     }
 
     public Double addToStock(Institution ins, Double qty) {
+        System.out.println("addToStock");
+        System.out.println("qty = " + qty);
         if (ins == null) {
             return null;
         }
@@ -116,6 +118,7 @@ public class InstitutionApplicationController {
                 i.setCurrentStock(cs);
                 ins.setCurrentStock(cs);
                 institutionFacade.edit(i);
+                System.out.println("cs = " + cs);
                 return cs;
             }
         }
@@ -284,6 +287,17 @@ public class InstitutionApplicationController {
             }
         }
         return moh;
+    }
+    
+    public Institution findCpc() {
+        Institution cpc = null;
+        for (Institution i : getInstitutions()) {
+            if (i.getInstitutionType() == InstitutionType.CPC_Head_Office) {
+                cpc = i;
+                return cpc;
+            }
+        }
+        return cpc;
     }
 
     public Institution findInstitutionById(Long id) {

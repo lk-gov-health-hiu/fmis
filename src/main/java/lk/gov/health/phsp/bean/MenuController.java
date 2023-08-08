@@ -81,8 +81,9 @@ public class MenuController implements Serializable {
     public String toReportsIndex() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
-            case CTB:
                 return "/national/reports_index";
+            case CTB:
+                return "/sltb/reports/index";
             case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/reports_index";
             default:

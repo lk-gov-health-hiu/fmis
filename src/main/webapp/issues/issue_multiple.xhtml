@@ -17,7 +17,7 @@
             <ui:define name="content">
 
                 <div class="container-fluid" >
-                    <h:form>    
+                    <h:form id="form">    
                         <div class="form-group row mb-2">
                             <label class="col-md-4 fs-6 fw-bold col-form-label" for="institution" >
                                 Institution<small>(Required)</small>
@@ -61,7 +61,7 @@
 
 
                         <h:commandButton value="Process" class="btn btn-primary" 
-                                         action="#{fuelRequestAndIssueController.fillDepotReceiveList()}" >
+                                         action="#{fuelRequestAndIssueController.fillDepotToIssueList()}" >
                         </h:commandButton>
                         <h:commandButton value="Download as Excel" class="btn btn-primary" >
                             <p:dataExporter fileName="Depot Fuekl Received List" target="tbl" type="xlsx" ></p:dataExporter>
@@ -95,7 +95,10 @@
                                 </h:outputText>
                             </p:column>
 
-                            <p:column sortBy="#{item.requestedInstitution.name}"  filterBy="#{item.requestedInstitution.name}" filterMatchMode="contains"  >
+                            <p:column 
+                                sortBy="#{item.requestedInstitution.name}"  
+                                filterBy="#{item.requestedInstitution.name}" 
+                                filterMatchMode="contains"  >
                                 <f:facet name="header">
                                     <h:outputText value="Requested Institution"/>
                                 </f:facet>
@@ -109,45 +112,45 @@
                                 </f:facet>
                                 <h:outputText value="#{item.requestQuantity}"/>
                             </p:column>
-                            
-                            <p:column sortBy="#{item.issuedQuantity}" filterBy="#{item.issuedQuantity}" filterMatchMode="contains" >
+
+                            <p:column sortBy="#{item.vehicle.vehicleNumber}" 
+                                      filterBy="#{item.vehicle.vehicleNumber}"
+                                      filterMatchMode="contains" >
                                 <f:facet name="header">
                                     <h:outputText value="Issued Quantity"/>
                                 </f:facet>
-                                <h:outputText value="#{item.issuedQuantity}"/>
-                            </p:column>
-
-                            <p:column sortBy="#{item.bowserNumber}" 
-                                      filterBy="#{item.bowserNumber}" filterMatchMode="contains" >
-                                <f:facet name="header">
-                                    <h:outputText value="Referance Number"/>
-                                </f:facet>
-                                <h:outputText value="#{item.issueReferenceNumber}"/>
-                            </p:column>
-
-                            <p:column sortBy="#{item.stockAfterTheTransaction}" 
-                                      filterBy="#{item.stockAfterTheTransaction}" 
-                                      filterMatchMode="contains" >
-                                <f:facet name="header">
-                                    <h:outputText value="Stock After Issue"/>
-                                </f:facet>
-                                <h:outputText value="#{item.stockAfterTheTransaction}"/>
+                                <h:outputText value="#{item.vehicle.vehicleNumber}"/>
                             </p:column>
 
 
-                            <p:column exportable="false" headerText="Actions" >
-                                <h:commandLink class="btn btn-primary m-2" id="editButton"
-                                               value="Issue"
-                                               action="#{fuelRequestAndIssueController.navigateToIssueVehicleFuelRequest()}">
-                                    <f:setPropertyActionListener value="#{item}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
-                                    <i class="bi bi-pencil m-2"></i>
+
+
+                            <p:column exportable="false" headerText="Actions">
+                                <h:commandLink class="btn btn-warning m-2" id="btnIssueDirectly" value="Issue Now"
+                                               action="#{fuelRequestAndIssueController.issueFuelIssueAtDepotDirectly()}">
+                                    <f:setPropertyActionListener value="#{item}" target="#{fuelRequestAndIssueController.selected}" />
+                                    <f:ajax render="tbl" />
+                                    <i class="bi bi-arrow-up-right m-2"></i> <!-- Updated icon for Issue Now -->
                                 </h:commandLink>
-                                <h:commandLink class="btn btn-primary m-2" id="viewButton"
-                                               value="View"
-                                               action="#{fuelRequestAndIssueController.navigateToViewIssuedVehicleFuelRequest()}">
-                                    <f:setPropertyActionListener value="#{item}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
-                                    <i class="bi bi-pencil m-2"></i>
+                                <h:commandLink class="btn btn-success m-2" id="btnEditAndIssue" value="Edit and Issue"
+                                               action="#{fuelRequestAndIssueController.navigateToIssueVehicleFuelRequest}">
+                                    <f:setPropertyActionListener value="#{item}" target="#{fuelRequestAndIssueController.selected}" />
+                                    <i class="bi bi-pencil-square m-2"></i> <!-- Updated icon for Edit and Issue -->
                                 </h:commandLink>
+
+
+
+                                <h:commandLink class="btn btn-danger m-2" id="btnReject" value="Reject"
+                                               action="#{fuelRequestAndIssueController.rejectFuelIssueAtDepot()}"
+                                               onclick="if (!confirm('Are you sure you want to reject this request?'))
+                                                           return false;">
+                                    <f:setPropertyActionListener value="#{item}" target="#{fuelRequestAndIssueController.selected}" />
+                                    <f:ajax render="tbl" />
+                                    <i class="bi bi-x-circle m-2"></i> <!-- Icon for Reject -->
+                                </h:commandLink>
+
+
+
                             </p:column>
                         </p:dataTable>
 
