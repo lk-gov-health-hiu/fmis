@@ -59,19 +59,7 @@
                                 <p:inputText id="web" value="#{institutionController.selected.web}" title="Web" />
                             </p:panelGrid>
                         </p:tab>
-                        <p:tab title="PHN Issue" >
-                            <p:panelGrid columns="2">
-                                <p:outputLabel value="Last Serial No of PHN:" for="lastHin" />
-                                <p:inputText id="lastHin" value="#{institutionController.selected.lastHin}" title="LastHin" />
-                                <p:outputLabel value="PoiNumber:" for="poiNumber" />
-                                <p:inputText id="poiNumber" value="#{institutionController.selected.poiNumber}" title="PoiNumber" />
-                                <p:outputLabel value="POI Issuing Institution" for="poii" />
-                                <p:autoComplete  id="poii" value="#{institutionController.selected.poiInstitution}" 
-                                                 completeMethod="#{institutionController.completeInstitutions}"
-                                                 var="pi" itemLabel="#{pi.name}" itemValue="#{pi}">
-                                </p:autoComplete >
-                            </p:panelGrid>                            
-                        </p:tab>
+                        
                         <p:tab title="Location" >
                             <p:panelGrid columns="2">
                                 <p:outputLabel value="Province:" for="province" />
