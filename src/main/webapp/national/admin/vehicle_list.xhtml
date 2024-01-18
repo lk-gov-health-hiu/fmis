@@ -61,22 +61,16 @@
                             </p:column>
 
 
-                            <p:column sortBy="#{item.vehicleMake}" filterBy="#{item.vehicleMake}" filterMatchMode="contains" >
+                            <p:column sortBy="#{item.vehiclePurpose.label}" 
+                                      filterBy="#{item.vehiclePurpose.label}" filterMatchMode="contains" >
                                 <f:facet name="header">
-                                    <h:outputText value="Make"/>
+                                    <h:outputText value="Purpose"/>
                                 </f:facet>
-                                <h:outputText value="#{item.vehicleMake}"/>
+                                <h:outputText value="#{item.vehiclePurpose.label}"/>
                             </p:column>
 
 
-                            <p:column sortBy="#{item.vehicleModel}" 
-
-                                      filterBy="#{item.vehicleModel}" filterMatchMode="contains" >
-                                <f:facet name="header">
-                                    <h:outputText value="Model"/>
-                                </f:facet>
-                                <h:outputText value="#{item.vehicleModel}"/>
-                            </p:column>
+                           
                             <p:column headerText="Actions" >
                                 <h:commandLink class="btn btn-primary m-2" id="editButton"
                                                value="Edit"

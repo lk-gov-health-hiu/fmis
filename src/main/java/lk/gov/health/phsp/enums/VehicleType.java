@@ -1,17 +1,22 @@
 package lk.gov.health.phsp.enums;
 
 /**
- *
+ * VehicleType Enum
+ * 
+ * Enumerates different types of vehicles.
+ * 
  * @author Dr M H B Ariyaratne
  */
 public enum VehicleType {
+    Bus("Bus"),
+    Car("Car"),
+    Van("Van"),
+    Jeep("Jeep"),
+    Lorry("Lorry"),
     Ambulance("Ambulance"),
-    Generator("Generator"),
-    Suwasariya("Suwasariya"),
-    PreventiveActivities("Preventive Activities"),
-    BloodTransportation("Blood Transportation"),
-    DrugDistribution("Drug Distribution")
-    ;
+    Cab("Cab"),
+    ThreeWheeler("Three Wheeler"),
+    Generator("Generator");
 
     private final String label;
 
