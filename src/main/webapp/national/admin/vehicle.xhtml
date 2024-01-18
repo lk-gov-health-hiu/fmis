@@ -46,44 +46,6 @@
                                          value="#{vehicleController.selected.vehicleNumber}" 
                                          title="Number" />
 
-                            <h:outputLabel value="Name:" for="name" />
-                            <h:inputText id="name" 
-                                         autocomplete="off"
-                                         class="form-control"
-                                         value="#{vehicleController.selected.name}" title="Name" />
-
-
-
-
-
-                            <h:outputLabel value="Make:" for="make" />
-                            <h:inputText id="make" 
-                                         autocomplete="off"
-                                         class="form-control"
-                                         value="#{vehicleController.selected.vehicleMake}" 
-                                         title="Make" />
-
-
-                            <h:outputLabel value="Model:" for="model" />
-                            <h:inputText id="model" 
-                                         autocomplete="off"
-                                         class="form-control"
-                                         value="#{vehicleController.selected.vehicleModel}"
-                                         title="Model" />
-
-                            <h:outputLabel value="QR Code" />
-
-                            <h:panelGroup >
-                                <p:graphicImage id="qrCode" value="#{vehicleController.qrCode}" />
-
-                                <p:commandButton value="Print QR Code" icon="pi pi-print">
-                                    <p:printer target="qrCode" />
-                                </p:commandButton>
-
-
-                            </h:panelGroup>
-
-
 
 
                         </h:panelGrid>
