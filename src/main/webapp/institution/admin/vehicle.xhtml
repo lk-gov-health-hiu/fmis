@@ -15,16 +15,41 @@
                     <h:panelGroup id="display">
 
                         <h:panelGrid columns="2" rendered="#{vehicleController.selected != null}" class="w-100">
-                            <h:outputLabel value="Type:"  />
-                            <h:outputLabel value="#{vehicleController.selected.vehicleType}" />
+                            <h:outputLabel value="Number:" for="number" />
+                            <h:inputText id="number" 
+                                         disabled="true"
+                                         autocomplete="off"
+                                         class="form-control"
+                                         value="#{vehicleController.selected.vehicleNumber}" 
+                                         title="Number" />
 
+                            <h:outputLabel value="Type:" for="vehicleType" />
+                            <h:selectOneMenu id="vehicleType" class="form-control"
+                                             disabled="true"
+                                             value="#{vehicleController.selected.vehicleType}" title="VehicleType">
+                                <f:selectItems value="#{applicationController.vehicleTypes}" 
+                                               var="vt"
+                                               itemValue="#{vt}"
+                                               itemLabel="#{vt.label}"/>
+                            </h:selectOneMenu>
+
+                            <h:outputLabel value="Purpose:" for="vehiclePurpose" />
+                            <h:selectOneMenu id="vehiclePurpose" class="form-control"
+                                             disabled="true"
+                                             value="#{vehicleController.selected.vehiclePurpose}" title="VehiclePurpose">
+                                <f:selectItems value="#{applicationController.vehiclePurposes}" 
+                                               var="vp"
+                                               itemValue="#{vp}"
+                                               itemLabel="#{vp.label}"/>
+                            </h:selectOneMenu>
 
                             <h:outputLabel value="Institution:" for="ins" />
                             <p:autoComplete  class="w-100" 
+                                             disabled="true"
                                              id="ins"
                                              inputStyleClass="form-control" 
                                              value="#{vehicleController.selected.institution}" 
-                                             completeMethod="#{webUserController.completeManagableVehicles}"
+                                             completeMethod="#{institutionController.completeInstitutions}"
                                              var="i" 
                                              itemLabel="#{i.name}" 
                                              itemValue="#{i}" 
@@ -33,8 +58,13 @@
                                              minQueryLength="3">
                             </p:autoComplete >
 
-                            <h:outputLabel value="Number:" />
-                            <h:outputLabel value="#{vehicleController.selected.vehicleNumber}" />
+                            <h:outputLabel value="Name:" for="name" />
+                            <h:inputText id="name" 
+                                         disabled="true"
+                                         autocomplete="off"
+                                         class="form-control"
+                                         value="#{vehicleController.selected.name}" 
+                                         title="Name" />
 
 
                         </h:panelGrid>

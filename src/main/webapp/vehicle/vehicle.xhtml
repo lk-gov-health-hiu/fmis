@@ -10,24 +10,34 @@
 
         <ui:composition template="/template.xhtml">
             <ui:define name="content">
-
                 <h:form id="VehicleCreateForm" style="padding-top: 1rem;">
-
                     <p:messages ></p:messages>
-
                     <h:panelGroup id="display">
-
                         <h:panelGroup rendered="#{vehicleController.selected != null}">
                             <h:panelGrid columns="2">
                                 <h:outputLabel value="Type:" for="vehicleType" />
-                                <h:selectOneMenu id="vehicleType"  class="form-control"
-                                                 value="#{vehicleController.selected.vehicleType}" title="VehicleType" 
-                                                 >
+                                <h:selectOneMenu 
+                                    id="vehicleType"
+                                    class="form-control"
+                                    value="#{vehicleController.selected.vehicleType}" 
+                                    title="VehicleType">
                                     <f:selectItems value="#{applicationController.vehicleTypes}" 
-                                                   var="vehicleTypes"
-                                                   itemValue="#{vehicleTypes}"
-                                                   itemLabel="#{vehicleTypes.label}"></f:selectItems>
+                                                   var="vt"
+                                                   itemValue="#{vt}"
+                                                   itemLabel="#{vt.label}"/>
                                 </h:selectOneMenu>
+
+                                <h:outputLabel value="Purpose:" for="vehiclePurpose" />
+                                <h:selectOneMenu id="vehiclePurpose" 
+                                                 class="form-control"
+                                                 disabled="false"
+                                                 value="#{vehicleController.selected.vehiclePurpose}" title="VehiclePurpose">
+                                    <f:selectItems value="#{applicationController.vehiclePurposes}" 
+                                                   var="vp"
+                                                   itemValue="#{vp}"
+                                                   itemLabel="#{vp.label}"/>
+                                </h:selectOneMenu>
+
 
                                 <h:outputLabel value="Number:" for="number" />
                                 <h:inputText id="number" 
@@ -36,11 +46,13 @@
                                              value="#{vehicleController.selected.vehicleNumber}" title="Name" />
 
                                 <h:outputLabel value="Name:" for="name" />
-                                <h:inputText id="name" 
-                                             autocomplete="off"
-                                             class="form-control"
-                                             value="#{vehicleController.selected.name}" title="Name" />
-                              
+                                <h:inputText 
+                                    id="name" 
+                                    disabled="true"
+                                    autocomplete="off"
+                                    class="form-control"
+                                    value="#{vehicleController.selected.name}" title="Name" />
+
                             </h:panelGrid>
                         </h:panelGroup>
 
@@ -53,6 +65,5 @@
                 </h:form>
             </ui:define>
         </ui:composition>
-
     </body>
 </html>

@@ -34,6 +34,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
+import lk.gov.health.phsp.enums.VehiclePurpose;
 import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.pojcs.Nameable;
 
@@ -51,6 +52,9 @@ public class Vehicle implements Serializable, Nameable {
 
     @Enumerated(EnumType.STRING)
     private VehicleType vehicleType;
+    
+    @Enumerated(EnumType.STRING)
+    private VehiclePurpose vehiclePurpose;
 
     private String name;
     private String vehicleNumber;
@@ -254,6 +258,14 @@ public class Vehicle implements Serializable, Nameable {
 
     public void setInstitution(Institution institution) {
         this.institution = institution;
+    }
+
+    public VehiclePurpose getVehiclePurpose() {
+        return vehiclePurpose;
+    }
+
+    public void setVehiclePurpose(VehiclePurpose vehiclePurpose) {
+        this.vehiclePurpose = vehiclePurpose;
     }
 
     
