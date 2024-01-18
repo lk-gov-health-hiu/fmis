@@ -37,26 +37,28 @@
                                             <!-- Request Details -->
                                             <div class="container">
                                                 <div class="row">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-6 text-center">
                                                         <p:outputLabel value="Issue Quentity" 
                                                                        for="qty">
                                                         </p:outputLabel>
-                                                        <p:inputNumber 
+                                                        <p:inputText 
                                                             id="qty"
+                                                            class="form-control"
                                                             required="true"
                                                             requiredMessage="Enter the Issuing Quentity"
-                                                            value="#{fuelRequestAndIssueController.selected.issuedQuantity}" ></p:inputNumber>
-                                                        <p:outputLabel value="IReference Number" 
+                                                            value="#{fuelRequestAndIssueController.selected.issuedQuantity}" ></p:inputText>
+                                                        <p:outputLabel value="Reference Number" 
                                                                        for="ref">
                                                         </p:outputLabel>
                                                         <p:inputText 
                                                             id="ref"
+                                                            class="form-control"
                                                             required="true"
-                                                            requiredMessage="Enter the Issuing Quentity"
+                                                            requiredMessage="Enter the Reference Number"
                                                             value="#{fuelRequestAndIssueController.selected.issueReferenceNumber}" ></p:inputText>
-
+                                                            
                                                         <h:commandButton  value="Issue" 
-                                                                          class="btn btn-primary"
+                                                                          class="btn btn-primary w-75 m-2 p-2"
                                                                           action="#{fuelRequestAndIssueController.submitVehicleFuelRequestIssue()}" >
                                                         </h:commandButton>
 
