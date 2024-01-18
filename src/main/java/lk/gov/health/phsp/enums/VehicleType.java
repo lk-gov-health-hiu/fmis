@@ -6,9 +6,12 @@ package lk.gov.health.phsp.enums;
  */
 public enum VehicleType {
     Ambulance("Ambulance"),
+    Generator("Generator"),
     Suwasariya("Suwasariya"),
-    HealthService("Health Service"),
-    Other("Other");
+    PreventiveActivities("Preventive Activities"),
+    BloodTransportation("Blood Transportation"),
+    DrugDistribution("Drug Distribution")
+    ;
 
     private final String label;
 

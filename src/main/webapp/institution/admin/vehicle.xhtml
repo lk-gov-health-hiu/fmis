@@ -36,23 +36,6 @@
                             <h:outputLabel value="Number:" />
                             <h:outputLabel value="#{vehicleController.selected.vehicleNumber}" />
 
-                            <h:outputLabel value="Make:" />
-                            <h:outputLabel value="#{vehicleController.selected.vehicleMake}" />
-
-                            <h:outputLabel value="Model:" for="model" />
-                            <h:outputLabel value="#{vehicleController.selected.vehicleModel}" />
-
-                            <h:outputLabel value="QR Code" />
-
-                            <h:panelGroup >
-                                <p:graphicImage id="qrCode" value="#{vehicleController.qrCode}" />
-
-                                <p:commandButton value="Print QR Code" icon="pi pi-print">
-                                    <p:printer target="qrCode" />
-                                </p:commandButton>
-
-
-                            </h:panelGroup>
 
                         </h:panelGrid>
 

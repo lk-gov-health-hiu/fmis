@@ -10,13 +10,9 @@
 
         <ui:composition template="/template.xhtml">
             <ui:define name="content">
-
                 <h:form id="VehicleCreateForm" style="padding-top: 1rem;">
-
                     <p:messages ></p:messages>
-
                     <h:panelGroup id="display">
-
                         <h:panelGroup rendered="#{vehicleController.selected != null}">
                             <h:panelGrid columns="2">
                                 <h:outputLabel value="Type:" for="vehicleType" />
@@ -40,19 +36,7 @@
                                              autocomplete="off"
                                              class="form-control"
                                              value="#{vehicleController.selected.name}" title="Name" />
-
-
-
-                                <h:outputLabel value="Make:" for="code" />
-                                <h:inputText id="code" 
-                                             autocomplete="off"
-                                             class="form-control"
-                                             value="#{vehicleController.selected.vehicleMake}" title="Code" />
-
-
-
-
-
+                              
                             </h:panelGrid>
                         </h:panelGroup>
 
@@ -65,6 +49,5 @@
                 </h:form>
             </ui:define>
         </ui:composition>
-
     </body>
 </html>
