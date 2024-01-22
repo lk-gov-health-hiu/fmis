@@ -73,10 +73,11 @@
                                                             minQueryLength="3">
                                                         </p:autoComplete >
 
-                                                        <h:commandButton  value="Issue" 
+                                                        <p:commandButton  value="Mark as Issued" 
+                                                                          ajax="false"
                                                                           class="btn btn-primary w-75 m-2 p-2"
-                                                                          action="#{fuelRequestAndIssueController.submitVehicleFuelRequestIssue()}" >
-                                                        </h:commandButton>
+                                                                          action="#{fuelRequestAndIssueController.submitMarkVehicleFuelRequestIssue()}" >
+                                                        </p:commandButton>
 
                                                     </div>
                                                     <div class="col-md-6">

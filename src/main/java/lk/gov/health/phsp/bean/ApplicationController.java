@@ -216,13 +216,31 @@ public class ApplicationController {
     public VehicleType[] getVehicleTypes() {
         return VehicleType.values();
     }
-    
+
     public VehiclePurpose[] getVehiclePurposes() {
         return VehiclePurpose.values();
     }
 
     public WebUserRole[] getWebUserRoles() {
         return WebUserRole.values();
+    }
+
+    public WebUserRole[] getDataEntryWebUserRoles() {
+        List<WebUserRole> institutionRoles = new ArrayList<>();
+
+        for (WebUserRole role : WebUserRole.values()) {
+            switch (role) {
+                case INSTITUTION_ADMINISTRATOR:
+                case INSTITUTION_SUPER_USER:
+                case INSTITUTION_USER:
+                    institutionRoles.add(role);
+                    break;
+                default:
+                // Ignore other roles
+            }
+        }
+
+        return institutionRoles.toArray(new WebUserRole[institutionRoles.size()]);
     }
 
     // <editor-fold>

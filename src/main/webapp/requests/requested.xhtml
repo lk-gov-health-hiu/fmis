@@ -76,7 +76,7 @@
                                                             <td><b>Vehicle:</b></td>
                                                             <td><h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" /></td>
                                                         </tr>
-                                                         <tr>
+                                                        <tr>
                                                             <td><b>Driver:</b></td>
                                                             <td><h:outputText value="#{fuelRequestAndIssueController.selected.driver.name}" /></td>
                                                         </tr>
@@ -120,12 +120,12 @@
                                                         <table class="table">
                                                             <tr>
                                                                 <th colspan="2" class="text-center bg-primary text-white">
-                                                                    Request Details
+                                                                    Issue Details
                                                                 </th>
                                                             </tr>
                                                             <tr>
-                                                                <td><b>Requested by:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.fromInstitution.name}" /></td>
+                                                                <td><b>Issued by:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.toInstitution.name}" /></td>
                                                             </tr>
                                                             <!-- Other table rows for request details -->
                                                             <tr>
@@ -135,6 +135,18 @@
                                                             <tr>
                                                                 <td><b>Issued From:</b></td>
                                                                 <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedInstitution.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Issue Marked User:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedUser.person.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Issue Recorded At:</b></td>
+                                                                <td>
+                                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.issuedAt}" >
+                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
+                                                                    </h:outputText>
+                                                                </td>
                                                             </tr>
                                                             <!-- Other table rows for issued details -->
                                                         </table>
@@ -148,6 +160,7 @@
                                                             </tr>
                                                         </table>
                                                     </ui:fragment>
+
 
 
                                                     <!-- Rejection Details -->
@@ -179,6 +192,8 @@
                                                                 <td><h:outputText value="#{fuelRequestAndIssueController.selected.rejectedComments}" /></td>
                                                             </tr>
                                                         </ui:fragment>
+
+
                                                         <ui:fragment rendered="#{!fuelRequestAndIssueController.selected.rejected}">
                                                             <tr>
                                                                 <th colspan="2" class="text-center bg-success text-white">

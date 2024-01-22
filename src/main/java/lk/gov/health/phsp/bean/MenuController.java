@@ -145,6 +145,11 @@ public class MenuController implements Serializable {
         }
     }
 
+    public String toAddNewUserDataEntry() {
+        webUserController.prepareToAddNewUser();
+        return "/dataentry/user_new";
+    }
+
     public String toAddMultipleUsers() {
         webUserController.prepareToAddNewUser();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -222,16 +227,18 @@ public class MenuController implements Serializable {
 
     public String toListUsers() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case FUEL_REQUESTING_INSTITUTION:
-            case CTB:
-                webUserController.findManagableUsers();
-                return "/institution/admin/user_list";
             case HEALTH_MINISTRY:
                 webUserController.fillAllUsers();
                 return "/national/admin/user_list";
             default:
-                return "";
+                webUserController.setManagableUsers(webUserController.findManagableUsers());
+                return "/institution/admin/user_list";
         }
+    }
+
+    public String toListUsersDataentry() {
+        webUserController.fillAllUsers();
+        return "/dataentry/user_list";
     }
 
     public String toListInstitutions() {
@@ -283,6 +290,45 @@ public class MenuController implements Serializable {
             default:
                 return "";
         }
+    }
+
+    public String toAddNewInstitutionDataEntry() {
+        institutionController.prepareToAddNewInstitution();
+        return "/dataentry/institution";
+    }
+
+    public String toDataEntry() {
+        return "/dataentry/index";
+    }
+
+    public String toListInstitutionsDataEntry() {
+        return "/dataentry/institution_list";
+    }
+
+    public String toAddNewVehicleDataEntry() {
+        driverController.prepareToAddNewDriver();
+        return "/dataentry/vehicle";
+    }
+
+    public String toListVehiclesDataEntry() {
+        return "/dataentry/vehicle_list";
+    }
+
+    public String toAddNewDriverDataEntry() {
+        vehicleController.prepareToAddNewVehicle();
+        return "/dataentry/driver";
+    }
+
+    public String toListDriversDataEntry() {
+        return "/dataentry/driver_list";
+    }
+
+    public String toEditUserDataEntry() {
+        return "/dataentry/user_edit";
+    }
+
+    public String toEditPasswordDataEntry() {
+        return "/dataentry/user_password";
     }
 
     public String toListInstitutionsWithUsers() {

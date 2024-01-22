@@ -25,16 +25,6 @@
                                 </div>
                             </div>
 
-                            <div class="form-group row mb-2">
-                                <label class="col-md-4 fs-6 fw-bold col-form-label" for="Code">
-                                    Code
-                                </label>
-
-                                <div class="col-md-8">
-                                    <p:inputText autocomplete="off" class="form-control w-100" id="code" required="false" requiredMessage="code is required" value="#{webUserController.selected.person.code}" title="Name" />
-                                </div>
-                            </div>
-
                             <div class="form-group row">
                                 <label class="col-md-4 col-form-label fs-6 fw-bold" for="txtU">
                                     Username<small>(Required)</small>
@@ -72,7 +62,10 @@
                                 </label>
 
                                 <div class="col-md-8">
-                                    <p:selectOneMenu id="institution" class="form-control form-control-sm W-100" value="#{webUserController.selected.institution}" required="true">
+                                    <p:selectOneMenu 
+                                        filter="true"
+                                        filterMatchMode="contains"
+                                        id="institution" class="form-control form-control-sm w-100" value="#{webUserController.selected.institution}" required="true">
                                         <f:selectItem itemLabel="Please Select" ></f:selectItem>
                                         <f:selectItems value="#{webUserController.loggableInstitutions}"
                                                        var="ins" 
@@ -110,9 +103,11 @@
                             </div>
                         </div>
                         <div class="card-footer bg-white">
-                            <p:commandButton action="#{webUserController.saveNewWebUserByInsAdmin()}"
-                                             class="btn btn-success w-25 "  
-                                             value="#{bundleClinical.Save}" /> 
+                            <p:commandButton 
+                                action="#{webUserController.saveNewWebUserByInsAdmin()}"
+                                class="btn btn-success w-25 "  
+                                ajax="false"
+                                value="#{bundleClinical.Save}" /> 
                         </div>
                     </div>
                     <p:messages></p:messages>

@@ -306,13 +306,13 @@ public class WebUser implements Serializable, Nameable {
         this.webUserRole = webUserRole;
     }
 
-    public Boolean getInstitute() {
-        return false;
-    }
-
-    public Boolean getWebUser() {
-        return true;
-    }
+//    public Boolean getInstitute() {
+//        return false;
+//    }
+//
+//    public Boolean getWebUser() {
+//        return true;
+//    }
 
     @Override
     public int hashCode() {

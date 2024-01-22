@@ -45,59 +45,82 @@
                                                 class="w-100 m-1" />
                                         </div>
                                         <div class="form-group d-flex justify-content-center">
-                                            <h:commandButton 
-                                                value="List Requests"
-                                                action="#{fuelRequestAndIssueController.listInstitutionRequests}"
-                                                class="btn btn-primary w-100 my-2" />
+                                            <p:commandButton value="List Requests"
+                                                             action="#{fuelRequestAndIssueController.listInstitutionRequests}"
+                                                             icon="pi pi-list" 
+                                                             ajax="false"
+                                                             class="btn btn-primary w-100 my-2" />
+
+                                        </div>
+                                        <div class="form-group d-flex justify-content-center">
+                                            <p:commandButton
+                                                value="Export to Excel" 
+                                                class="btn btn-primary w-100 my-2"
+                                                ajax="false" icon="pi pi-file-excel">
+                                                <p:dataExporter type="xlsx" target="tbl" fileName="Transactions" />
+                                            </p:commandButton>
                                         </div>
 
                                     </div>
                                     <div class="col-10" >
-                                        <p:dataTable id="tbl" value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}" 
-                                                     rows="5"
-                                                     paginator="true"
-                                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                                     currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
-                                                     rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
-                                                     sortMode="multiple">
+                                        <p:dataTable 
+                                            id="tbl" 
+                                            value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}" 
+                                            rows="5"
+                                            paginator="true"
+                                            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                            currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                            rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
+                                            sortMode="multiple">
 
-                                            <p:column headerText="Vehicle" sortBy="#{transaction.vehicle.vehicleNumber}" filterBy="#{transaction.vehicle.vehicleNumber}">
+
+
+                                            <p:column headerText="Vehicle"
+                                                      exportHeaderValue="true"
+                                                      sortBy="#{transaction.vehicle.vehicleNumber}" filterBy="#{transaction.vehicle.vehicleNumber}">
+                                                <f:facet name="header" >
+                                                    <h:outputText value="Vehicle" ></h:outputText>
+                                                </f:facet>
                                                 <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
                                             </p:column>
 
-                                            <p:column headerText="Requested At" sortBy="#{transaction.requestAt}" filterBy="#{transaction.requestAt}">
+                                            <p:column headerText="Ref" 
+                                                      sortBy="#{transaction.requestReferenceNumber}"
+                                                      filterBy="#{transaction.requestReferenceNumber}">
+                                                <h:outputText value="#{transaction.requestReferenceNumber}" />
+                                            </p:column>
+
+                                            <p:column headerText="Req. At" sortBy="#{transaction.requestAt}" filterBy="#{transaction.requestAt}">
                                                 <h:outputText value="#{transaction.requestAt}">
-                                                    <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" />
+                                                    <f:convertDateTime pattern="dd MMM yyyy" />
                                                 </h:outputText>
                                             </p:column>
 
-                                            <p:column headerText="Requested Quantity" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}">
+                                            <p:column headerText="Req. Qty" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}">
                                                 <h:outputText value="#{transaction.requestQuantity}" />
                                             </p:column>
 
-                                            <p:column headerText="Issued At" sortBy="#{transaction.issuedAt}" filterBy="#{transaction.issuedAt}">
+                                            <p:column headerText="Iss. At" sortBy="#{transaction.issuedAt}" filterBy="#{transaction.issuedAt}">
                                                 <h:outputText value="#{transaction.issuedAt}">
-                                                    <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" />
+                                                    <f:convertDateTime pattern="dd MMM yyyy" />
                                                 </h:outputText>
                                                 <h:outputText value="Not Issued" style="color: red;" rendered="#{not transaction.issued}" />
                                             </p:column>
 
-                                            <p:column headerText="Issued Quantity" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}">
+                                            <p:column headerText="Iss. Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}">
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
                                             </p:column>
 
-                                            <p:column headerText="Issued Depot" sortBy="#{transaction.issuedInstitution.name}" filterBy="#{transaction.issuedInstitution.name}">
+                                            <p:column headerText="Iss. from" sortBy="#{transaction.issuedInstitution.name}" filterBy="#{transaction.issuedInstitution.name}">
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
                                             </p:column>
 
-                                            <p:column headerText="Comments">
-                                                <h:outputText value="#{transaction.cancelled ? 'Cancelled' : (transaction.rejected ? 'Rejected' : '')}" />
-                                            </p:column>
-
-                                            <p:column headerText="Actions">
-                                                <h:commandButton value="View" action="#{fuelRequestAndIssueController.navigateToListFuelTransactions()}" >
+                                            <p:column headerText="Actions" exportable="false" >
+                                                <p:commandButton value="View"
+                                                                 ajax="false"
+                                                                 action="#{fuelRequestAndIssueController.navigateToViewInstitutionFuelRequestToSltbDepot()}" >
                                                     <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
-                                                </h:commandButton>
+                                                </p:commandButton>
                                             </p:column>
 
                                         </p:dataTable>

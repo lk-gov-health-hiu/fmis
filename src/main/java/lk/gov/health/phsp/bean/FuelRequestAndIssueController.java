@@ -164,7 +164,8 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToMarkVehicleFuelRequest() {
-        return "/requests/mark";
+        System.out.println("navigateToMarkVehicleFuelRequest");
+        return "/requests/mark?faces-redirect=true";
     }
 
     public String navigateToViewIssuedVehicleFuelRequest() {
@@ -303,6 +304,44 @@ public class FuelRequestAndIssueController implements Serializable {
         save(selected);
         JsfUtil.addSuccessMessage("Successfully Issued");
         return navigateToSearchRequestsForVehicleFuelIssue();
+    }
+    
+    public String submitMarkVehicleFuelRequestIssue() {
+        System.out.println("submitMarkVehicleFuelRequestIssue");
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return "";
+        }
+        if (selected.getTransactionType() == null) {
+            JsfUtil.addErrorMessage("Transaction Type is not set.");
+            return "";
+        }
+        if (selected.getTransactionType() != FuelTransactionType.VehicleFuelRequest && selected.getTransactionType() != FuelTransactionType.SpecialVehicleFuelRequest) {
+            JsfUtil.addErrorMessage("Wrong Transaction Type");
+            return "";
+        }
+        if (selected.getIssuedQuantity() == null) {
+            JsfUtil.addErrorMessage("Wrong Qty");
+            return "";
+        }
+        if (selected.getIssuedQuantity() < 1.0) {
+            JsfUtil.addErrorMessage("Wrong Qty");
+            return "";
+        }
+        if (selected.getIssuedQuantity() > selected.getRequestQuantity()) {
+            JsfUtil.addErrorMessage("Wrong Qty");
+            return "";
+        }
+        selected.setIssued(true);
+        selected.setIssuedAt(new Date());
+        selected.setIssuedUser(webUserController.getLoggedUser());
+//        selected.setStockBeforeTheTransaction(institutionApplicationController.getInstitutionStock(webUserController.getLoggedInstitution()));
+//        selected.setStockAfterTheTransaction(institutionApplicationController.deductFromStock(webUserController.getLoggedInstitution(), selected.getIssuedQuantity()));
+        save(selected);
+        System.out.println("1");
+        JsfUtil.addSuccessMessage("Successfully Issued");
+        listInstitutionRequestsToMark();
+        return navigateToListInstitutionRequestsToMark();
     }
 
     public String submitVehicleFuelReceive() {

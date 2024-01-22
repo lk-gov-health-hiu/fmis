@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/dataentry/index.xhtml">
+            <ui:define name="admin">
+                <h:form id="DriverCreateForm" style="padding-top: 1rem;">
+                    <p:messages ></p:messages>
+                    <h:panelGroup id="display">
+
+                        <h:panelGrid columns="2" rendered="#{driverController.selected != null}" class="w-100">
+
+
+                            <h:outputLabel value="Institution:" for="ins" />
+                            <p:autoComplete  class="w-100" 
+                                             id="ins"
+                                             inputStyleClass="form-control" 
+                                             value="#{driverController.selected.institution}" 
+                                             completeMethod="#{institutionController.completeInstitutions}"
+                                             var="i" 
+                                             itemLabel="#{i.name}" 
+                                             itemValue="#{i}" 
+                                             forceSelection="True"
+                                             maxResults="15" 
+                                             minQueryLength="3">
+                            </p:autoComplete >
+
+
+
+                            <h:outputLabel value="Name:" for="name" />
+                            <h:inputText id="name" 
+                                         autocomplete="off"
+                                         class="form-control"
+                                         value="#{driverController.selected.name}" title="Name" />
+
+
+                            <h:outputLabel value="NIC:" for="nic" />
+                            <h:inputText id="nic" 
+                                         autocomplete="off"
+                                         class="form-control"
+                                         value="#{driverController.selected.nic}" 
+                                         title="NIC" />
+
+
+                            <h:outputLabel value="Phone:" for="phone" />
+                            <h:inputText id="phone" 
+                                         autocomplete="off"
+                                         class="form-control"
+                                         value="#{driverController.selected.phone}" 
+                                         title="phone" />
+
+
+                            <h:outputLabel value="Address:" for="address" />
+                            <h:inputTextarea id="address" 
+                                         class="form-control"
+                                         value="#{driverController.selected.address}"
+                                         title="Address" />
+                            
+                            
+                        </h:panelGrid>
+
+
+                        <h:commandButton style="margin-left: 1.4em" class="btn btn-success" 
+                                         actionListener="#{driverController.saveOrUpdateDriver()}" 
+                                         value="Save"/>
+
+                    </h:panelGroup>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
+</html>

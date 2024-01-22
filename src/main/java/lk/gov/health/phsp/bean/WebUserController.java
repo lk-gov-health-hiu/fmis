@@ -270,6 +270,7 @@ public class WebUserController implements Serializable {
     }
 
     public List<WebUser> findManagableUsers() {
+        System.out.println("findManagableUsers = " + this);
         List<WebUser> users = new ArrayList<>();
         if (loggedUser == null) {
             return users;
@@ -282,16 +283,17 @@ public class WebUserController implements Serializable {
             case HEALTH_MINISTRY:
                 users.addAll(webUserApplicationController.getItems());
                 break;
-            case FUEL_REQUESTING_INSTITUTION:
-                users.addAll(fillWebUsers(loggableInstitutions));
-                break;
             default:
-
+                 users.addAll(fillWebUsers(loggableInstitutions));
+                break;
         }
+        System.out.println("users = " + users);
         return users;
     }
 
     private List<WebUser> fillWebUsers(List<Institution> inss) {
+        System.out.println("fillWebUsers");
+//        System.out.println("inss = " + inss);
         List<WebUser> wus = new ArrayList<>();
         if (inss == null) {
             return wus;
@@ -301,15 +303,17 @@ public class WebUserController implements Serializable {
         }
 
         for (WebUser w : webUserApplicationController.getItems()) {
+            System.out.println("w = " + w);
             boolean canInclude = false;
-            if (w.getInstitute() == null) {
+            if (w.getInstitution() == null) {
                 continue;
             }
             for (Institution ins : inss) {
-                if (w.getInstitute().equals(ins)) {
+                if (w.getInstitution().equals(ins)) {
                     canInclude = true;
                 }
             }
+            System.out.println("canInclude = " + canInclude);
             if (canInclude) {
                 wus.add(w);
             }
@@ -666,7 +670,7 @@ public class WebUserController implements Serializable {
     }
 
     public void fillAllUsers() {
-        items = getFacade().findAll();
+        items = webUserApplicationController.getItems();
     }
 
     private boolean checkLogin() {
@@ -1040,7 +1044,7 @@ public class WebUserController implements Serializable {
             return "";
         }
         userTransactionController.recordTransaction("New Web User Added by InsAdmin");
-        return menuController.toAdministrationIndex();
+        return menuController.toListUsers();
     }
 
     public boolean userNameExsists() {
@@ -1098,6 +1102,46 @@ public class WebUserController implements Serializable {
         webUserApplicationController.resetWebUsers();
         userTransactionController.recordTransaction("New User Created");
         return menuController.toListUsers();
+    }
+
+    public String saveNewWebUserDataEntry() {
+        if (getSelected() == null) {
+            JsfUtil.addErrorMessage("Noting to save");
+            return "";
+        }
+        if (!password.equals(passwordReenter)) {
+            JsfUtil.addErrorMessage("Passwords do NOT match");
+            return "";
+        }
+        if (userNameExsists(getSelected().getName())) {
+            JsfUtil.addErrorMessage("Username already exists. Please try another.");
+            return "";
+        }
+        if (getSelected().getId() != null) {
+            getSelected().setLastEditBy(loggedUser);
+            getSelected().setLastEditeAt(new Date());
+            getFacade().edit(getSelected());
+            JsfUtil.addSuccessMessage("User Details Updated");
+            return menuController.toListUsers();
+        }
+        try {
+            current.setWebUserPassword(commonController.hash(password));
+            current.setCreatedAt(new Date());
+            current.setCreater(loggedUser);
+            getFacade().create(current);
+            addWebUserPrivileges(current, getInitialPrivileges(current.getWebUserRole()));
+            JsfUtil.addSuccessMessage(("A new User Created Successfully."));
+            userTransactionController.recordTransaction("New user Created");
+        } catch (Exception e) {
+            JsfUtil.addErrorMessage(e, ("Error Occured. Please change username and try again."));
+            return "";
+        }
+        if (items == null) {
+            fillAllUsers();
+        }
+        getItems().add(current);
+        userTransactionController.recordTransaction("New User Created");
+        return menuController.toListUsersDataentry();
     }
 
     public String prepareEdit() {

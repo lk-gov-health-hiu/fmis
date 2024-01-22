@@ -18,6 +18,8 @@
 
                         <p:commandButton icon="pi pi-align-justify" class="btn btn-sm btn-secondary d-flex justify-content-start" id="toggler" type="button" value="Columns" />
                         <p:columnToggler datasource="tbl" trigger="toggler"/>
+                        
+                        
                         <p:dataTable reflow="true" id="tbl" resizableColumns="true" multiViewState="true" 
                                      resizeMode="expand" value="#{webUserController.managableUsers}" var="item"  
                                      rowKey="#{item.id}" 
