@@ -47,7 +47,7 @@
                                         <div class="form-group d-flex justify-content-center">
                                             <h:commandButton 
                                                 value="List Requests"
-                                                action="#{fuelRequestAndIssueController.listInstitutionRequests}"
+                                                action="#{fuelRequestAndIssueController.listInstitutionRequestsToMark}"
                                                 class="btn btn-primary w-100 my-2" />
                                         </div>
 
@@ -96,6 +96,10 @@
 
                                             <p:column headerText="Actions">
                                                 <h:commandButton value="View" action="#{fuelRequestAndIssueController.navigateToListFuelTransactions()}" >
+                                                    <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
+                                                </h:commandButton>
+                                                <h:commandButton value="To Mark as Received"
+                                                                 action="#{fuelRequestAndIssueController.navigateToIssueVehicleFuelRequest()}" >
                                                     <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
                                                 </h:commandButton>
                                             </p:column>

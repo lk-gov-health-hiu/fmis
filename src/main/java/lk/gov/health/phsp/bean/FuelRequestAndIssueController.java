@@ -163,6 +163,10 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/issues/issue";
     }
 
+    public String navigateToMarkVehicleFuelRequest() {
+        return "/requests/mark";
+    }
+
     public String navigateToViewIssuedVehicleFuelRequest() {
         return "/issues/issued";
     }
@@ -397,6 +401,7 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setRequestedBy(webUserController.getLoggedUser());
         selected.setRequestedInstitution(webUserController.getLoggedInstitution());
         selected.setFromInstitution(webUserController.getLoggedInstitution());
+        selected.setInstitution(webUserController.getLoggedInstitution());
         selected.setToInstitution(webUserController.getLoggedInstitution().getSupplyInstitution());
         if (webUserController.getManagableVehicles().size() == 1) {
             selected.setVehicle(webUserController.getManagableVehicles().get(0));
@@ -425,6 +430,7 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setRequestedBy(webUserController.getLoggedUser());
         selected.setRequestedInstitution(webUserController.getLoggedInstitution());
         selected.setFromInstitution(webUserController.getLoggedInstitution());
+        selected.setInstitution(webUserController.getLoggedInstitution());
         if (webUserController.getManagableVehicles().size() == 1) {
             selected.setVehicle(webUserController.getManagableVehicles().get(0));
         }
@@ -454,6 +460,10 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/requests/list";
     }
 
+    public String navigateToListInstitutionRequestsToMark() {
+        return "/requests/list_to_mark";
+    }
+
     public String navigateToListSltbRequestsFromCpc() {
         return "/moh/list";
     }
@@ -470,8 +480,12 @@ public class FuelRequestAndIssueController implements Serializable {
         transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate, null, null, null);
     }
 
+    public void listInstitutionRequestsToMark() {
+        transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate, false, false, false);
+    }
+
     public void listCtbFuelRequestsFromCpc() {
-        transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate, null, null, null, null,FuelTransactionType.CtbFuelRequest);
+        transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate, null, null, null, null, FuelTransactionType.CtbFuelRequest);
     }
 
     public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution,
@@ -541,7 +555,7 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         return fuelTransactions;
     }
-    
+
     public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution,
             List<Vehicle> vehicles, Date fromDateTime, Date toDateTime,
             Boolean issued,

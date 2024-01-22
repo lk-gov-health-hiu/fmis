@@ -19,111 +19,73 @@
                     <h:form >
                         <div class="row justify-content-md-center" >
                             <div class="col-12 col-md-10 col-lg-8" >
-                                <div class="card w-75" >
+                                <div class="card w-100" >
                                     <div class="card-header" >
-                                        <h2><h:outputText value="Vehicle Fuel Request"></h:outputText></h2>
+                                        <h2>
+                                            <h:outputText value="Vehicle Fuel Request"></h:outputText>
+                                            <h:commandButton  value="Submit" 
+                                                              class="btn btn-primary"
+                                                              style="float: right;"
+                                                              action="#{fuelRequestAndIssueController.submitVehicleFuelRequest()}" >
+                                            </h:commandButton>
+                                        </h2>
+
                                     </div>
-                                    <div class="card-body" >
-                                        <div class="form" >
-                                            <p:outputLabel 
-                                                value="Vehicle" 
-                                                class="form-label"
-                                                for="acVehicle">
-                                            </p:outputLabel>
-                                            <p:outputLabel 
-                                                value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" 
-                                                class="form-control"
-                                                rendered="#{fuelRequestAndIssueController.selected.vehicle ne null}"
-                                                >
-                                            </p:outputLabel>
-                                            <p:selectOneMenu id="acVehicle"
-                                                             value="#{fuelRequestAndIssueController.selected.vehicle}"
-                                                             filter="true"
-                                                             rendered="#{fuelRequestAndIssueController.selected.vehicle eq null}"
-                                                             filterMatchMode="contains"
-                                                             required="true"
-                                                             requiredMessage="You must select a vehicle"
-                                                             styleClass="form-control w-100">
+                                    <div class="card-body">
+
+                                        <p:panelGrid columns="2" styleClass="form-panelgrid" columnClasses="form-label,form-field" class="w-100">
+                                            <p:outputLabel for="acVehicle" value="Vehicle" />
+                                            <p:outputLabel value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" rendered="#{fuelRequestAndIssueController.selected.vehicle ne null}" />
+                                            <p:selectOneMenu 
+                                                class="w-100"
+                                                id="acVehicle" value="#{fuelRequestAndIssueController.selected.vehicle}" filter="true" rendered="#{fuelRequestAndIssueController.selected.vehicle eq null}" filterMatchMode="contains" required="true" requiredMessage="You must select a vehicle" styleClass="w-100">
                                                 <f:selectItem itemLabel="Select a vehicle" noSelectionOption="true" />
-                                                <f:selectItems value="#{webUserController.managableVehicles}" var="v"
-                                                               itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
+                                                <f:selectItems value="#{webUserController.managableVehicles}" var="v" itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
                                             </p:selectOneMenu>
-                                            
-                                            
-                                            <p:outputLabel 
-                                                value="Driver" 
-                                                class="form-label"
-                                                for="acVehicle">
-                                            </p:outputLabel>
-                                            <p:outputLabel 
-                                                value="#{fuelRequestAndIssueController.selected.driver.name}" 
-                                                class="form-control"
-                                                rendered="#{fuelRequestAndIssueController.selected.driver ne null}"
-                                                >
-                                            </p:outputLabel>
-                                            <p:selectOneMenu id="acDriver"
-                                                             value="#{fuelRequestAndIssueController.selected.driver}"
-                                                             filter="true"
-                                                             rendered="#{fuelRequestAndIssueController.selected.driver eq null}"
-                                                             filterMatchMode="contains"
-                                                             required="true"
-                                                             requiredMessage="You must select a vehicle"
-                                                             styleClass="form-control w-100">
-                                                <f:selectItem itemLabel="Select a vehicle" noSelectionOption="true" />
-                                                <f:selectItems value="#{webUserController.managableDrivers}" var="d"
-                                                               itemLabel="#{d.name}" itemValue="#{d}" />
+
+                                            <p:outputLabel for="acDriver" value="Driver" />
+                                            <p:outputLabel value="#{fuelRequestAndIssueController.selected.driver.name}" rendered="#{fuelRequestAndIssueController.selected.driver ne null}" />
+                                            <p:selectOneMenu id="acDriver" value="#{fuelRequestAndIssueController.selected.driver}" filter="true" rendered="#{fuelRequestAndIssueController.selected.driver eq null}" filterMatchMode="contains" required="true" requiredMessage="You must select a driver" styleClass="w-100">
+                                                <f:selectItem itemLabel="Select a driver" noSelectionOption="true" />
+                                                <f:selectItems value="#{webUserController.managableDrivers}" var="d" itemLabel="#{d.name}" itemValue="#{d}" />
                                             </p:selectOneMenu>
-                                            
-                                            <p:outputLabel 
-                                                value="Depot" 
-                                                class="form-label">
-                                            </p:outputLabel>
-                                            <p:outputLabel 
-                                                value="#{fuelRequestAndIssueController.selected.toInstitution.name}" 
-                                                class="form-control"
-                                                >
-                                            </p:outputLabel>
-                                            <p:outputLabel 
-                                                for="txtQty"
-                                                value="Requesting Quantity in Liters" 
-                                                class="form-label">
-                                            </p:outputLabel>
-                                            <p:inputNumber
-                                                id="txtQty"
-                                                minValue="0"
-                                                decimalPlaces="1"
-                                                inputStyleClass="form-control"
-                                                required="true"
-                                                requiredMessage="Quantity is required"
-                                                value="#{fuelRequestAndIssueController.selected.requestQuantity}" ></p:inputNumber>
-                                            <p:outputLabel 
-                                                for="txtRef"
-                                                value="Reference Number" 
-                                                class="form-label">
-                                            </p:outputLabel>
-                                            <p:inputText
+
+                                            <p:outputLabel value="Depot" />
+                                            <p:outputLabel value="#{fuelRequestAndIssueController.selected.toInstitution.name}" />
+
+                                            <p:outputLabel for="txtQty" value="Requesting Diesel Quantity in Liters" />
+                                            <p:inputText id="txtQty"
+                                                         required="true" 
+                                                         class="w-100"
+                                                         requiredMessage="Quantity is required" 
+                                                         value="#{fuelRequestAndIssueController.selected.requestQuantity}" />
+
+                                            <p:outputLabel for="txtOdo" value="Vehicle ODO Meter Reading / Generator Hours" />
+                                            <p:inputText 
+                                                id="txtOdo" 
+                                                class="w-100"
+                                                required="true" 
+                                                requiredMessage="ODO Meter Reading is required" 
+                                                value="#{fuelRequestAndIssueController.selected.odoMeterReading}" />
+
+                                            <p:outputLabel for="txtRef" value="Request Reference Number" />
+                                            <p:inputText 
                                                 id="txtRef"
-                                                value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}" >
-                                            </p:inputText>
-                                            <p:outputLabel 
-                                                for="txtComments"
-                                                value="Comments" 
-                                                class="form-label">
-                                            </p:outputLabel>
+                                                class="w-100"
+                                                value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}" />
+
+                                            <p:outputLabel for="txtComments" value="Comments" />
                                             <p:inputTextarea 
-                                                id="txtComments"
-                                                value="#{fuelRequestAndIssueController.selected.comments}" >
-                                            </p:inputTextarea>
-
-
-                                        </div>
+                                                rows="2"
+                                                id="txtComments" 
+                                                class="w-100"
+                                                value="#{fuelRequestAndIssueController.selected.comments}" />
+                                        </p:panelGrid>
 
                                     </div>
+
                                     <div class="card-footer" >
-                                        <h:commandButton  value="Submit" 
-                                                          class="btn btn-primary"
-                                                          action="#{fuelRequestAndIssueController.submitVehicleFuelRequest()}" >
-                                        </h:commandButton>
+
                                     </div>
                                 </div>
                             </div>

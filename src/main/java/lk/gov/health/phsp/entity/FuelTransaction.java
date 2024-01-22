@@ -72,6 +72,7 @@ public class FuelTransaction implements Serializable {
 
     private Double requestQuantity;
     private Double issuedQuantity;
+    private Double odoMeterReading;
 
     private String requestReferenceNumber;
     private String issueReferenceNumber;
@@ -479,5 +480,15 @@ public class FuelTransaction implements Serializable {
     public void setReceivedQty(Double receivedQty) {
         this.receivedQty = receivedQty;
     }
+
+    public Double getOdoMeterReading() {
+        return odoMeterReading;
+    }
+
+    public void setOdoMeterReading(Double odoMeterReading) {
+        this.odoMeterReading = odoMeterReading;
+    }
+    
+    
 
 }

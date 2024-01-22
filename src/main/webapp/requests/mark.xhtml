@@ -11,7 +11,7 @@
         <ui:composition template="/template.xhtml">
 
             <ui:define name="title">
-                Issue Vehicle Fuel Requests
+                Mark Vehicle Fuel Requests
             </ui:define>
 
             <ui:define name="content">
@@ -24,7 +24,7 @@
                                 <div class="card" >
                                     <div class="card-header" >
                                         <div class="row" >
-                                            <h2><h:outputText value="Issue Vehicle Fuel Requests"></h:outputText></h2>
+                                            <h2><h:outputText value="Mark Vehicle Fuel Requests"></h:outputText></h2>
                                         </div>
 
 
@@ -38,16 +38,16 @@
                                             <div class="container">
                                                 <div class="row">
                                                     <div class="col-md-6 text-center">
-                                                        <p:outputLabel value="Issue Quentity" 
+                                                        <p:outputLabel value="Issued Quentity" 
                                                                        for="qty">
                                                         </p:outputLabel>
                                                         <p:inputText 
                                                             id="qty"
                                                             class="form-control"
                                                             required="true"
-                                                            requiredMessage="Enter the Issuing Quentity"
+                                                            requiredMessage="Enter the Issued Quentity"
                                                             value="#{fuelRequestAndIssueController.selected.issuedQuantity}" ></p:inputText>
-                                                        <p:outputLabel value="Reference Number" 
+                                                        <p:outputLabel value="Issue Reference Number" 
                                                                        for="ref">
                                                         </p:outputLabel>
                                                         <p:inputText 
@@ -56,7 +56,23 @@
                                                             required="true"
                                                             requiredMessage="Enter the Reference Number"
                                                             value="#{fuelRequestAndIssueController.selected.issueReferenceNumber}" ></p:inputText>
-                                                            
+                                                        <p:outputLabel value="Issued Fuel Shed / Depot" 
+                                                                       for="qty">
+                                                        </p:outputLabel>
+                                                        <p:autoComplete  
+                                                            id="depo" 
+                                                            class="d-block" 
+                                                            inputStyleClass="form-control" 
+                                                            value="#{fuelRequestAndIssueController.selected.toInstitution}" 
+                                                            completeMethod="#{institutionController.completeDepots}"
+                                                            var="i" 
+                                                            itemLabel="#{i.name}" 
+                                                            itemValue="#{i}" 
+                                                            forceSelection="True"
+                                                            maxResults="15" 
+                                                            minQueryLength="3">
+                                                        </p:autoComplete >
+
                                                         <h:commandButton  value="Issue" 
                                                                           class="btn btn-primary w-75 m-2 p-2"
                                                                           action="#{fuelRequestAndIssueController.submitVehicleFuelRequestIssue()}" >
