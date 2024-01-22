@@ -352,6 +352,7 @@ public class InstitutionController implements Serializable {
         its.add(InstitutionType.CTB_Depot);
         its.add(InstitutionType.CTB_Country_Office);
         its.add(InstitutionType.CTB_Head_Office);
+        its.add(InstitutionType.Fuel_Station);
         return fillInstitutions(its, qry, null);
     }
 

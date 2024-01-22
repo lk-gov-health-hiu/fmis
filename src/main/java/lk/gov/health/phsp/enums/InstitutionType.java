@@ -19,6 +19,7 @@ public enum InstitutionType {
     Primary_Medical_Care_Unit("Primary Medical Care Unit"),
     MOH_Office("MOH Office"),
     OtherSpecializedUnit("Other Specialized Units"),
+    Fuel_Station("Fuel Station"),
     CTB_Country_Office("SLTB Head Office"),
     CTB_Head_Office("SLTB Regional Office"),
     CTB_Depot("SLTB Depot"),

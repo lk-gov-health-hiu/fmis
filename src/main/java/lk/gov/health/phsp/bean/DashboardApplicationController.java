@@ -952,7 +952,8 @@ public Map<String, String> getSeriesOfCases(
 
         List<Object> objCounts;
         if(numberOfResults!=null){
-            objCounts = encounterFacade.findAggregates(j, m, TemporalType.TIMESTAMP,numberOfResults);
+            objCounts=null;
+//            objCounts = encounterFacade.findAggregates(j, m, TemporalType.TIMESTAMP,numberOfResults);
         }else{
             objCounts = encounterFacade.findAggregates(j, m, TemporalType.TIMESTAMP);
         }
@@ -1006,7 +1007,8 @@ public Map<String, String> getSeriesOfCases(
 
         List<Object> objCounts;
         if(numberOfResults!=null){
-            objCounts = encounterFacade.findAggregates(j, m, TemporalType.TIMESTAMP,numberOfResults);
+            objCounts=null;
+//            objCounts = encounterFacade.findAggregates(j, m, TemporalType.TIMESTAMP,numberOfResults);
         }else{
             objCounts = encounterFacade.findAggregates(j, m, TemporalType.TIMESTAMP);
         }
