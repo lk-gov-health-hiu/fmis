@@ -260,7 +260,7 @@ public class VehicleController implements Serializable {
 
         for (Vehicle vehicle : allVehicles) {
             System.out.println("vehicle = " + vehicle);
-            boolean canInclude = true;
+            boolean canInclude = false;
             if (vehicle.getInstitution() == null) {
                 continue;
             }
