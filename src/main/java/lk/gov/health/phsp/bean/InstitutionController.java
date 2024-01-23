@@ -648,15 +648,12 @@ public class InstitutionController implements Serializable {
             selected.setCreatedAt(new Date());
             selected.setCreater(webUserController.getLoggedUser());
             getFacade().create(selected);
-
             institutionApplicationController.getInstitutions().add(selected);
-            items = null;
             JsfUtil.addSuccessMessage("Saved");
         } else {
             selected.setEditedAt(new Date());
             selected.setEditer(webUserController.getLoggedUser());
             getFacade().edit(selected);
-            fuelStations = null;
             JsfUtil.addSuccessMessage("Updates");
         }
         return menuController.toListFuelStations();
