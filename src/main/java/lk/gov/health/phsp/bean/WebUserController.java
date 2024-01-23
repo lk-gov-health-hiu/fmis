@@ -246,6 +246,7 @@ public class WebUserController implements Serializable {
     }
 
     public List<Vehicle> findAutherizedVehicles() {
+        System.out.println("findAutherizedVehicles");
         List<Vehicle> ins = new ArrayList<>();
         if (loggedUser == null) {
             return ins;

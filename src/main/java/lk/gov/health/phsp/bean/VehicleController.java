@@ -259,7 +259,7 @@ public class VehicleController implements Serializable {
         List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
 
         for (Vehicle vehicle : allVehicles) {
-            System.out.println("vehicle = " + vehicle);
+//            System.out.println("vehicle = " + vehicle);
             boolean canInclude = true;
             if (vehicle.getInstitution() == null) {
                 continue;
@@ -269,11 +269,12 @@ public class VehicleController implements Serializable {
                     canInclude = true;
                 }
             }
-            System.out.println("canInclude = " + canInclude);
+//            System.out.println("canInclude = " + canInclude);
             if (canInclude) {
                 resIns.add(vehicle);
             }
         }
+        System.out.println("resIns = " + resIns);
         return resIns;
     }
 
@@ -401,12 +402,15 @@ public class VehicleController implements Serializable {
     }
 
     public void prepareToListVehicle() {
+        System.out.println("prepareToListVehicle");
         if (webUserController.getLoggedUser() == null) {
             items = null;
         }
         if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
+            System.out.println("1");
             items = vehicleApplicationController.getVehicles();
         } else {
+            System.out.println("2");
             items = webUserController.findAutherizedVehicles();
         }
         webUserController.setManagableVehicles(items);
