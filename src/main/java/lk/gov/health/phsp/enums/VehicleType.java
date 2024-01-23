@@ -8,15 +8,20 @@ package lk.gov.health.phsp.enums;
  * @author Dr M H B Ariyaratne
  */
 public enum VehicleType {
+    Ambulance("Ambulance"),
+    Bowser("Bowser"),
     Bus("Bus"),
+    Cab("Cab"),
     Car("Car"),
-    Van("Van"),
+    FoggingMachine("Fogging Machine"),
+    Generator("Generator"),
+    GullyBowser("Gully Bowser"),
+    Incinerator("Incinerator"),
     Jeep("Jeep"),
     Lorry("Lorry"),
-    Ambulance("Ambulance"),
-    Cab("Cab"),
     ThreeWheeler("Three Wheeler"),
-    Generator("Generator");
+    Tractor("Tractor"),
+    Van("Van");
 
     private final String label;
 

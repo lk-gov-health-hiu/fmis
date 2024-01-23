@@ -8,7 +8,7 @@ public enum VehiclePurpose {
     Ambulance("Ambulance"),
     Generator("Generator"),
     Suwasariya("Suwasariya"),
-    PreventiveActivities("Preventive Activities"),
+    PreventiveActivities("Health Services"),
     BloodTransportation("Blood Transportation"),
     DrugDistribution("Drug Distribution")
     ;
