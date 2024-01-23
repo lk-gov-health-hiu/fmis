@@ -12,65 +12,77 @@
             <ui:define name="admin">
                 <h:form id="VehicleCreateForm" style="padding-top: 1rem;">
                     <p:messages ></p:messages>
-                    <h:panelGroup id="display">
-
-                        <h:panelGrid columns="2" rendered="#{vehicleController.selected != null}" class="w-100">
-                             <h:outputLabel value="Number / Serial :" for="number" />
-                            <h:inputText id="number" 
-                                         autocomplete="off"
-                                         class="form-control"
-                                         value="#{vehicleController.selected.vehicleNumber}" 
-                                         title="Number" />
-                            
-                            <h:outputLabel value="Type:" for="vehicleType" />
-                            <h:selectOneMenu id="vehicleType" class="form-control"
-                                             value="#{vehicleController.selected.vehicleType}" title="VehicleType">
-                                <f:selectItems value="#{applicationController.vehicleTypes}" 
-                                               var="vt"
-                                               itemValue="#{vt}"
-                                               itemLabel="#{vt.label}"/>
-                            </h:selectOneMenu>
-
-                            <h:outputLabel value="Purpose:" for="vehiclePurpose" />
-                            <h:selectOneMenu id="vehiclePurpose" class="form-control"
-                                             value="#{vehicleController.selected.vehiclePurpose}" title="VehiclePurpose">
-                                <f:selectItems value="#{applicationController.vehiclePurposes}" 
-                                               var="vp"
-                                               itemValue="#{vp}"
-                                               itemLabel="#{vp.label}"/>
-                            </h:selectOneMenu>
-
-                            <h:outputLabel value="Institution:" for="ins" />
-                            <p:autoComplete  class="w-100" 
-                                             id="ins"
-                                             inputStyleClass="form-control" 
-                                             value="#{vehicleController.selected.institution}" 
-                                             completeMethod="#{institutionController.completeInstitutions}"
-                                             var="i" 
-                                             itemLabel="#{i.name}" 
-                                             itemValue="#{i}" 
-                                             forceSelection="True"
-                                             maxResults="15" 
-                                             minQueryLength="3">
-                            </p:autoComplete >
-
-                            <h:outputLabel value="Name:" for="name" />
-                            <h:inputText id="name" 
-                                         autocomplete="off"
-                                         class="form-control"
-                                         value="#{vehicleController.selected.name}" 
-                                         title="Name" />
 
 
+                    <p:panelGrid 
+                        columns="2" 
+                        rendered="#{vehicleController.selected != null}" 
+                        class="w-100">
+                        <f:facet name="header" >
+                            <h1>
+                                Vehicle / Generator Details
+                            </h1>
+                            <p:commandButton 
+                                ajax="false"
+                                class="btn btn-success" 
+                                actionListener="#{vehicleController.saveOrUpdateVehicle()}" 
+                                value="Save"
+                                style="float: right;"/>
+                        </f:facet>
+                        <h:outputLabel value="Number / Serial :" for="number" />
+                        <h:inputText id="number" 
+                                     autocomplete="off"
+                                     class="form-control"
+                                     value="#{vehicleController.selected.vehicleNumber}" 
+                                     title="Number" />
 
-                        </h:panelGrid>
+                        <h:outputLabel value="Type:" for="vehicleType" />
+                        <h:selectOneMenu id="vehicleType" class="form-control"
+                                         value="#{vehicleController.selected.vehicleType}" title="VehicleType">
+                            <f:selectItems value="#{applicationController.vehicleTypes}" 
+                                           var="vt"
+                                           itemValue="#{vt}"
+                                           itemLabel="#{vt.label}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel value="Purpose:" for="vehiclePurpose" />
+                        <h:selectOneMenu id="vehiclePurpose" class="form-control"
+                                         value="#{vehicleController.selected.vehiclePurpose}" title="VehiclePurpose">
+                            <f:selectItems value="#{applicationController.vehiclePurposes}" 
+                                           var="vp"
+                                           itemValue="#{vp}"
+                                           itemLabel="#{vp.label}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel value="Institution:" for="ins" />
+                        <p:autoComplete  class="w-100" 
+                                         id="ins"
+                                         inputStyleClass="form-control" 
+                                         value="#{vehicleController.selected.institution}" 
+                                         completeMethod="#{institutionController.completeInstitutions}"
+                                         var="i" 
+                                         itemLabel="#{i.name}" 
+                                         itemValue="#{i}" 
+                                         forceSelection="True"
+                                         maxResults="15" 
+                                         minQueryLength="3">
+                        </p:autoComplete >
+
+                        <h:outputLabel value="Name:" for="name" />
+                        <h:inputText id="name" 
+                                     autocomplete="off"
+                                     class="form-control"
+                                     value="#{vehicleController.selected.name}" 
+                                     title="Name" />
 
 
-                        <h:commandButton style="margin-left: 1.4em" class="btn btn-success" 
-                                         actionListener="#{vehicleController.saveOrUpdateVehicle()}" 
-                                         value="Save"/>
 
-                    </h:panelGroup>
+                    </p:panelGrid>
+
+
+
+
+
                 </h:form>
             </ui:define>
         </ui:composition>

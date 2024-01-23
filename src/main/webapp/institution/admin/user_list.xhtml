@@ -72,16 +72,7 @@
                                     </h:commandLink>
                                     <p:tooltip for="btnEdit" >Edit</p:tooltip>
 
-                                    <h:commandLink  id="btnPri"
-                                                    class="btn btn btn-secondary mx-1"
-                                                    action="#{menuController.toUserPrivileges()}" 
-                                                    disabled="true">
-                                        <i class="bi bi-person-lines-fill"></i>
-                                        <f:setPropertyActionListener value="#{item}" 
-                                                                     target="#{webUserController.current}" >
-                                        </f:setPropertyActionListener>
-                                    </h:commandLink>
-                                    <p:tooltip for="btnPri" >Change Privileges</p:tooltip>
+                                   
 
 
                                     <h:commandLink id="btnPw" class="btn btn-success mx-1"

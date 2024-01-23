@@ -18,7 +18,7 @@
                         <p:dataTable 
                             class="w-100"
                             resizableColumns="true" multiViewState="true" resizeMode="expand" 
-                            id="tbl" value="#{driverController.items}" var="item"
+                            id="tbl" value="#{webUserController.managableDrivers}" var="item"
                             selectionMode="single" selection="#{driverController.selected}"
                             rows="10"
                             rowKey="#{item.id}"

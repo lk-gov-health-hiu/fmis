@@ -61,7 +61,11 @@ public class InstitutionController implements Serializable {
     @Inject
     private UserTransactionController userTransactionController;
 
+    @Inject
+    MenuController menuController;
+
     private List<Institution> items = null;
+    private List<Institution> fuelStations = null;
     private Institution selected;
     private Institution deleting;
     private List<Area> gnAreasOfSelected;
@@ -112,7 +116,6 @@ public class InstitutionController implements Serializable {
                 }
         }
     }
-
 
     public String toAddInstitution() {
         selected = new Institution();
@@ -566,6 +569,11 @@ public class InstitutionController implements Serializable {
         selected = new Institution();
     }
 
+    public void prepareToAddNewFuelStation() {
+        selected = new Institution();
+        selected.setInstitutionType(InstitutionType.Fuel_Station);
+    }
+
     public void prepareToListInstitution() {
         if (webUserController.getLoggedUser() == null) {
             items = null;
@@ -577,14 +585,19 @@ public class InstitutionController implements Serializable {
         }
     }
 
-    public void saveOrUpdateInstitution() {
+    public void prepareToListFuelStations() {
+        institutionApplicationController.fillFuelStations();
+        fuelStations = institutionApplicationController.getFuelStations();
+    }
+
+    public String saveOrUpdateInstitution() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing to select");
-            return;
+            return "";
         }
         if (selected.getName() == null || selected.getName().trim().equals("")) {
             JsfUtil.addErrorMessage("Name is required");
-            return;
+            return "";
         }
 
         if (selected.getSname() == null || selected.getSname().trim().equals("")) {
@@ -610,6 +623,43 @@ public class InstitutionController implements Serializable {
             items = null;
             JsfUtil.addSuccessMessage("Updates");
         }
+        return menuController.toListInstitutions();
+    }
+
+    public String saveOrUpdateFuelStation() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing to select");
+            return "";
+        }
+        if (selected.getName() == null || selected.getName().trim().equals("")) {
+            JsfUtil.addErrorMessage("Name is required");
+            return "";
+        }
+
+        if (selected.getSname() == null || selected.getSname().trim().equals("")) {
+            selected.setSname(selected.getName());
+        }
+
+        if (selected.getTname() == null || selected.getTname().trim().equals("")) {
+            selected.setTname(selected.getName());
+        }
+
+        if (selected.getId() == null) {
+            selected.setCreatedAt(new Date());
+            selected.setCreater(webUserController.getLoggedUser());
+            getFacade().create(selected);
+
+            institutionApplicationController.getInstitutions().add(selected);
+            items = null;
+            JsfUtil.addSuccessMessage("Saved");
+        } else {
+            selected.setEditedAt(new Date());
+            selected.setEditer(webUserController.getLoggedUser());
+            getFacade().edit(selected);
+            fuelStations = null;
+            JsfUtil.addSuccessMessage("Updates");
+        }
+        return menuController.toListFuelStations();
     }
 
     public void save(Institution ins) {
@@ -806,6 +856,16 @@ public class InstitutionController implements Serializable {
     public void setRdhsArea(Area rdhsArea) {
         this.rdhsArea = rdhsArea;
     }
+
+    public List<Institution> getFuelStations() {
+        return fuelStations;
+    }
+
+    public void setFuelStations(List<Institution> fuelStations) {
+        this.fuelStations = fuelStations;
+    }
+    
+    
 
     public String getSuccessMessage() {
         return successMessage;

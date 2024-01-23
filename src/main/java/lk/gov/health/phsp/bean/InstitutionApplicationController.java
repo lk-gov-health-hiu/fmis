@@ -56,7 +56,9 @@ public class InstitutionApplicationController {
 // <editor-fold defaultstate="collapsed" desc="Class Variables">
     private List<Institution> institutions;
     List<Institution> hospitals;
+    List<Institution> fuelStations;
     private List<InstitutionType> hospitalTypes;
+    private List<InstitutionType> fuelStationsTypes;
     private List<InstitutionType> covidDataHirachiInstitutions;
     // </editor-fold>
 
@@ -202,6 +204,7 @@ public class InstitutionApplicationController {
         fillHospitals();
         return hospitals;
     }
+    
 
     public void fillHospitals() {
         hospitals = new ArrayList<>();
@@ -212,6 +215,24 @@ public class InstitutionApplicationController {
         }
     }
 
+    
+    public List<Institution> getFuelStations() {
+        fillFuelStations();
+        return fuelStations;
+    }
+    
+
+    public void fillFuelStations() {
+        fuelStations = new ArrayList<>();
+        for (Institution i : getInstitutions()) {
+            if (institutionTypeCorrect(getFuelStationTypes(), i.getInstitutionType())) {
+                fuelStations.add(i);
+            }
+        }
+    }
+
+    
+    
     public boolean institutionTypeCorrect(List<InstitutionType> its, InstitutionType it) {
 
         boolean correct = false;
@@ -243,6 +264,19 @@ public class InstitutionApplicationController {
         return hospitalTypes;
     }
 
+    
+    public List<InstitutionType> getFuelStationTypes() {
+        if (fuelStationsTypes == null || fuelStationsTypes.isEmpty()) {
+            fuelStationsTypes = new ArrayList<>();
+            fuelStationsTypes.add(InstitutionType.Fuel_Station);
+            fuelStationsTypes.add(InstitutionType.CTB_Depot);
+            fuelStationsTypes.add(InstitutionType.CTB_Country_Office);
+            fuelStationsTypes.add(InstitutionType.CTB_Head_Office);
+        }
+        return fuelStationsTypes;
+    }
+
+    
     public Institution findInstitution(Long insId) {
         Institution ri = null;
         for (Institution i : getInstitutions()) {

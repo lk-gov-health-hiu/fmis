@@ -12,69 +12,81 @@
             <ui:define name="admin">
                 <h:form id="VehicleCreateForm" style="padding-top: 1rem;">
                     <p:messages ></p:messages>
-                    <h:panelGroup id="display">
 
-                        <h:panelGrid columns="2" rendered="#{vehicleController.selected != null}" class="w-100">
-                            <h:outputLabel value="Number:" for="number" />
-                            <h:inputText id="number" 
-                                         disabled="true"
-                                         autocomplete="off"
-                                         class="form-control"
-                                         value="#{vehicleController.selected.vehicleNumber}" 
-                                         title="Number" />
+                    <p:panelGrid 
+                        columns="2" 
+                        rendered="#{vehicleController.selected != null}" class="w-100">
 
-                            <h:outputLabel value="Type:" for="vehicleType" />
-                            <h:selectOneMenu id="vehicleType" class="form-control"
-                                             disabled="true"
-                                             value="#{vehicleController.selected.vehicleType}" title="VehicleType">
-                                <f:selectItems value="#{applicationController.vehicleTypes}" 
-                                               var="vt"
-                                               itemValue="#{vt}"
-                                               itemLabel="#{vt.label}"/>
-                            </h:selectOneMenu>
+                        <f:facet name="header" >
+                            <h:outputText value="Vehicle" ></h:outputText>
+                            <p:commandButton 
+                                ajax="false"
+                                style="float: right;" 
+                                class="btn btn-success" 
+                                action="#{vehicleController.saveOrUpdateVehicle()}" 
+                                value="Save"/>
 
-                            <h:outputLabel value="Purpose:" for="vehiclePurpose" />
-                            <h:selectOneMenu id="vehiclePurpose" class="form-control"
-                                             disabled="true"
-                                             value="#{vehicleController.selected.vehiclePurpose}" title="VehiclePurpose">
-                                <f:selectItems value="#{applicationController.vehiclePurposes}" 
-                                               var="vp"
-                                               itemValue="#{vp}"
-                                               itemLabel="#{vp.label}"/>
-                            </h:selectOneMenu>
+                        </f:facet>
 
-                            <h:outputLabel value="Institution:" for="ins" />
-                            <p:autoComplete  class="w-100" 
-                                             disabled="true"
-                                             id="ins"
-                                             inputStyleClass="form-control" 
-                                             value="#{vehicleController.selected.institution}" 
-                                             completeMethod="#{institutionController.completeInstitutions}"
-                                             var="i" 
-                                             itemLabel="#{i.name}" 
-                                             itemValue="#{i}" 
-                                             forceSelection="True"
-                                             maxResults="15" 
-                                             minQueryLength="3">
-                            </p:autoComplete >
+                        <h:outputLabel value="Number:" for="number" />
+                        <h:inputText id="number" 
 
-                            <h:outputLabel value="Name:" for="name" />
-                            <h:inputText id="name" 
-                                         disabled="true"
-                                         autocomplete="off"
-                                         class="form-control"
-                                         value="#{vehicleController.selected.name}" 
-                                         title="Name" />
+                                     autocomplete="off"
+                                     class="form-control"
+                                     value="#{vehicleController.selected.vehicleNumber}" 
+                                     title="Number" />
+
+                        <h:outputLabel value="Type:" for="vehicleType" />
+                        <h:selectOneMenu id="vehicleType" class="form-control"
+
+                                         value="#{vehicleController.selected.vehicleType}" title="VehicleType">
+                            <f:selectItems value="#{applicationController.vehicleTypes}" 
+                                           var="vt"
+                                           itemValue="#{vt}"
+                                           itemLabel="#{vt.label}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel value="Purpose:" for="vehiclePurpose" />
+                        <h:selectOneMenu id="vehiclePurpose" class="form-control"
+
+                                         value="#{vehicleController.selected.vehiclePurpose}" title="VehiclePurpose">
+                            <f:selectItems value="#{applicationController.vehiclePurposes}" 
+                                           var="vp"
+                                           itemValue="#{vp}"
+                                           itemLabel="#{vp.label}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel value="Institution:" for="ins" />
+
+                        <p:selectOneMenu 
+                            id="ins"
+                            filter="true"
+                            filterMatchMode="contains"
+                            class="form-control form-control-sm w-100" 
+                            value="#{vehicleController.selected.institution}" 
+                            required="true">
+                            <f:selectItem itemLabel="Please Select" ></f:selectItem>
+                            <f:selectItems value="#{webUserController.loggableInstitutions}"
+                                           var="ins" 
+                                           itemLabel="#{ins.name}"
+                                           itemValue="#{ins}" ></f:selectItems>
+                        </p:selectOneMenu>
 
 
-                        </h:panelGrid>
+                        <h:outputLabel value="Details:" for="name" />
+                        <h:inputText id="name" 
+
+                                     autocomplete="off"
+                                     class="form-control"
+                                     value="#{vehicleController.selected.name}" 
+                                     title="Name" />
 
 
-                        <h:commandButton style="margin-left: 1.4em" class="btn btn-success" 
-                                         actionListener="#{vehicleController.saveOrUpdateVehicle()}" 
-                                         value="Save"/>
+                    </p:panelGrid>
 
-                    </h:panelGroup>
+
+
+
                 </h:form>
             </ui:define>
         </ui:composition>

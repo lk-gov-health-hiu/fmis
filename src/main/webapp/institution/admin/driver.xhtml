@@ -14,22 +14,37 @@
                     <p:messages ></p:messages>
                     <h:panelGroup id="display">
 
-                        <h:panelGrid columns="2" rendered="#{driverController.selected != null}" class="w-100">
+                        <p:panelGrid columns="2" 
+                                     rendered="#{driverController.selected != null}" 
+                                     class="w-100">
+
+                            <f:facet name="header" >
+                                <h:outputLabel value="Manage Drivers" ></h:outputLabel>
+
+                                <p:commandButton
+                                    ajax="false"
+                                    style="float: right;" 
+                                    class="btn btn-success" 
+                                    action="#{driverController.saveOrUpdateDriver()}" 
+                                    value="Save"/>
+                            </f:facet>
 
 
                             <h:outputLabel value="Institution:" for="ins" />
-                            <p:autoComplete  class="w-100" 
-                                             id="ins"
-                                             inputStyleClass="form-control" 
-                                             value="#{driverController.selected.institution}" 
-                                             completeMethod="#{webUserController.completeLoggableInstitutions}"
-                                             var="i" 
-                                             itemLabel="#{i.name}" 
-                                             itemValue="#{i}" 
-                                             forceSelection="True"
-                                             maxResults="15" 
-                                             minQueryLength="3">
-                            </p:autoComplete >
+
+                            <p:selectOneMenu 
+                                filter="true"
+                                value="#{driverController.selected.institution}" 
+                                filterMatchMode="contains"
+                                id="institution" 
+                                class="form-control form-control-sm w-100" 
+                                required="true">
+                                <f:selectItem itemLabel="Please Select" ></f:selectItem>
+                                <f:selectItems value="#{webUserController.loggableInstitutions}"
+                                               var="ins" 
+                                               itemLabel="#{ins.name}"
+                                               itemValue="#{ins}" ></f:selectItems>
+                            </p:selectOneMenu>
 
 
 
@@ -58,17 +73,15 @@
 
                             <h:outputLabel value="Address:" for="address" />
                             <h:inputTextarea id="address" 
-                                         class="form-control"
-                                         value="#{driverController.selected.address}"
-                                         title="Address" />
-                            
-                            
-                        </h:panelGrid>
+                                             class="form-control"
+                                             value="#{driverController.selected.address}"
+                                             title="Address" />
 
 
-                        <h:commandButton style="margin-left: 1.4em" class="btn btn-success" 
-                                         actionListener="#{driverController.saveOrUpdateDriver()}" 
-                                         value="Save"/>
+                        </p:panelGrid>
+
+
+
 
                     </h:panelGroup>
                 </h:form>

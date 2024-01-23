@@ -43,6 +43,8 @@ public class DriverController implements Serializable {
     DriverApplicationController driverApplicationController;
     @Inject
     private UserTransactionController userTransactionController;
+    @Inject
+    MenuController menuController;
 
     private List<Driver> items = null;
     private Driver selected;
@@ -183,7 +185,6 @@ public class DriverController implements Serializable {
         return searchDrivers(nameQry);
     }
 
-  
     public List<Driver> completeDriversByWords(String nameQry) {
         List<Driver> resIns = new ArrayList<>();
         if (nameQry == null) {
@@ -204,7 +205,7 @@ public class DriverController implements Serializable {
                 word = word.trim().toLowerCase();
                 if (i.getName() != null && i.getName().toLowerCase().contains(word)) {
                     thisWordMatch = true;
-                } else if (i.getName()!= null && i.getName().toLowerCase().contains(word)) {
+                } else if (i.getName() != null && i.getName().toLowerCase().contains(word)) {
                     thisWordMatch = true;
                 } else {
                     thisWordMatch = false;
@@ -239,30 +240,29 @@ public class DriverController implements Serializable {
         if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
             items = driverApplicationController.getDrivers();
         } else {
-            items = webUserController.getManagableDrivers();
+            items = driverApplicationController.findDriversByInstitutions(webUserController.getLoggableInstitutions());
         }
+        webUserController.setManagableDrivers(items);
     }
 
-    public void saveOrUpdateDriver() {
+    public String saveOrUpdateDriver() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing to select");
-            return;
+            return "";
         }
-        if (selected.getName()== null || selected.getName().trim().equals("")) {
+        if (selected.getName() == null || selected.getName().trim().equals("")) {
             JsfUtil.addErrorMessage("Number is required");
-            return;
+            return "";
         }
-
         if (selected.getNic() == null || selected.getNic().trim().equals("")) {
             JsfUtil.addErrorMessage("Number is required");
-            return;
+            return "";
         }
 
         if (selected.getId() == null) {
             selected.setCreatedAt(new Date());
             selected.setCreater(webUserController.getLoggedUser());
             getFacade().create(selected);
-
             driverApplicationController.getDrivers().add(selected);
             items = null;
             JsfUtil.addSuccessMessage("Saved");
@@ -273,6 +273,7 @@ public class DriverController implements Serializable {
             items = null;
             JsfUtil.addSuccessMessage("Updates");
         }
+        return menuController.toListDriverss();
     }
 
     public void save(Driver ins) {
@@ -394,7 +395,6 @@ public class DriverController implements Serializable {
         this.userTransactionController = userTransactionController;
     }
 
-  
     public Driver getParent() {
         return parent;
     }

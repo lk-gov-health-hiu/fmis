@@ -256,16 +256,11 @@ public class WebUserController implements Serializable {
 
         switch (getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
-            case CTB:
-                ins.addAll(vehicleController.fillVehicles(loggableInstitutions));
-            case FUEL_REQUESTING_INSTITUTION:
-                ins.addAll(managableVehicles);
+                ins.addAll(vehicleApplicationController.getVehicles());
+                break;
             default:
-
+                ins.addAll(vehicleController.fillVehicles(loggableInstitutions));
         }
-
-        ins.addAll(vehicleApplicationController.getVehicles());
-
         return ins;
     }
 

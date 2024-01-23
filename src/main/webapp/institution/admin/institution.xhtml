@@ -13,93 +13,95 @@
 
                 <h:form id="InstitutionCreateForm" style="padding-top: 1rem;">
                     <p:messages ></p:messages>
-                    <h:panelGroup id="display">
-                        <p:tabView  rendered="#{institutionController.selected != null}">
-                            <p:tab title="Details">
-                                <h:panelGrid columns="2">
-                                    <h:outputLabel value="Type:" for="institutionType" />
-                                    <h:selectOneMenu disabled="true" id="institutionType"  class="form-control"
-                                                     value="#{institutionController.selected.institutionType}" title="InstitutionType" 
-                                                     >
-                                        <f:selectItems value="#{applicationController.institutionTypes}" 
-                                                       var="institutionTypes"
-                                                       itemValue="#{institutionTypes}"
-                                                       itemLabel="#{institutionTypes.label}"></f:selectItems>
-                                    </h:selectOneMenu>
+
+                    <p:panelGrid columns="2" class="w-100" >
+                        <f:facet name="header" >
+                            <h:outputText value="Manage Institutions" ></h:outputText>
+                            <h:commandButton 
+                                style="float: right;" 
+                                class="btn btn-success" 
+                                action="#{institutionController.saveOrUpdateInstitution()}" 
+                                value="Save"/>
+
+                        </f:facet>
+
+                        <h:outputLabel value="Type:" for="institutionType" />
+                        <p:selectOneMenu 
+
+                            id="institutionType" 
+                            filter="true"
+                            filterMatchMode="contains"
+                            class="form-control"
+                            value="#{institutionController.selected.institutionType}" title="InstitutionType" 
+                            >
+                            <f:selectItems value="#{applicationController.institutionTypes}" 
+                                           var="institutionTypes"
+                                           itemValue="#{institutionTypes}"
+                                           itemLabel="#{institutionTypes.label}"></f:selectItems>
+                        </p:selectOneMenu>
 
 
-                                    <h:outputLabel value="Name:" for="name" />
-                                    <h:inputText id="name" 
-                                                  disabled="true" 
-                                                 autocomplete="off"
-                                                 class="form-control"
-                                                 value="#{institutionController.selected.name}" title="Name" />
+                        <h:outputLabel value="Name:" for="name" />
+                        <p:inputText id="name" 
 
-                                    <h:outputLabel value="Code:" for="code" />
-                                    <h:inputText id="code" 
-                                                  disabled="true" 
-                                                 autocomplete="off"
-                                                 class="form-control"
-                                                 value="#{institutionController.selected.code}" title="Code" />
+                                     autocomplete="off"
+                                     class="form-control"
+                                     value="#{institutionController.selected.name}" title="Name" />
 
+                        <h:outputLabel value="Code:" for="code" />
+                        <p:inputText id="code" 
 
-                                    <h:outputLabel value="Fuel Supply Depot:" for="depo" />
-                                    <p:autoComplete  id="depo" 
-                                                     class="d-block" 
-                                                     inputStyleClass="form-control" 
-                                                     value="#{institutionController.selected.supplyInstitution}" 
-                                                     completeMethod="#{institutionController.completeDepots}"
-                                                     var="i" 
-                                                     itemLabel="#{i.name}" 
-                                                     itemValue="#{i}" 
-                                                     forceSelection="True"
-                                                     maxResults="15" 
-                                                     minQueryLength="3">
-                                    </p:autoComplete >
+                                     autocomplete="off"
+                                     class="form-control"
+                                     value="#{institutionController.selected.code}" title="Code" />
 
 
-                                    <h:outputLabel value="Parent:" for="parent" />
-                                    <p:autoComplete  id="parent" class="d-block" inputStyleClass="form-control" 
-                                                     value="#{institutionController.selected.parent}" 
-                                                     completeMethod="#{institutionController.completeInstitutions}"
-                                                     var="i" 
-                                                      disabled="true" 
-                                                     itemLabel="#{i.name}" 
-                                                     itemValue="#{i}" 
-                                                     forceSelection="True"
-                                                     maxResults="15" 
-                                                     minQueryLength="3">
-                                    </p:autoComplete >
-                                </h:panelGrid>
-                            </p:tab>
-                            <p:tab title="Contact Details" rendered="true" >
-                                <h:panelGrid columns="2">
-                                    <h:outputLabel value="Address:" for="address" />
-                                    <h:inputText id="address" class="form-control"  value="#{institutionController.selected.address}" title="Address" />
+                        <h:outputLabel value="Fuel Supply Depot:" for="depo" />
+                        <p:autoComplete  id="depo" 
+                                         class="d-block" 
+                                         inputStyleClass="form-control" 
+                                         value="#{institutionController.selected.supplyInstitution}" 
+                                         completeMethod="#{institutionController.completeDepots}"
+                                         var="i" 
+                                         itemLabel="#{i.name}" 
+                                         itemValue="#{i}" 
+                                         forceSelection="True"
+                                         maxResults="15" 
+                                         minQueryLength="3">
+                        </p:autoComplete >
 
-                                    <h:outputLabel value="Fax:" for="fax" />
-                                    <h:inputText id="fax" class="form-control" value="#{institutionController.selected.fax}" title="Fax" />
 
-                                    <h:outputLabel value="Email:" for="email" />
-                                    <h:inputText id="email" class="form-control" value="#{institutionController.selected.email}" title="Email" />
+                        <h:outputLabel value="Parent:" for="parent" />
+                        <p:selectOneMenu 
+                            filter="true"
+                            value="#{institutionController.selected.parent}" 
+                            filterMatchMode="contains"
+                            id="parent" 
+                            class="form-control form-control-sm w-100" 
+                            required="false">
+                            <f:selectItem itemLabel="Please Select" ></f:selectItem>
+                            <f:selectItems value="#{webUserController.loggableInstitutions}"
+                                           var="ins" 
+                                           itemLabel="#{ins.name}"
+                                           itemValue="#{ins}" ></f:selectItems>
+                        </p:selectOneMenu>
 
-                                    <h:outputLabel value="Phone:" for="phone" />
-                                    <h:inputText id="phone" class="form-control" value="#{institutionController.selected.phone}" title="Phone" />
+                        <h:outputLabel value="Address:" for="address" />
+                        <p:inputText id="address" class="form-control"  value="#{institutionController.selected.address}" title="Address" />
 
-                                    <h:outputLabel value="Mobile:" for="mobile" />
-                                    <h:inputText id="mobile" class="form-control" value="#{institutionController.selected.mobile}" title="Mobile" />
+                        <h:outputLabel value="Email:" for="email" />
+                        <p:inputText id="email" class="form-control" value="#{institutionController.selected.email}" title="Email" />
 
-                                    <h:outputLabel value="Web:" for="web" />
-                                    <h:inputText id="web" class="form-control" value="#{institutionController.selected.web}" title="Web" />
-                                </h:panelGrid>
-                            </p:tab>
-                        </p:tabView>
+                        <h:outputLabel value="Phone:" for="phone" />
+                        <p:inputText id="phone" class="form-control" value="#{institutionController.selected.phone}" title="Phone" />
 
-                        <h:commandButton style="margin-left: 1.4em" class="btn btn-success" 
-                                         actionListener="#{institutionController.saveOrUpdateInstitution()}" 
-                                         value="Save"/>
 
-                    </h:panelGroup>
+
+                    </p:panelGrid>
+
+
+
+
                 </h:form>
             </ui:define>
         </ui:composition>

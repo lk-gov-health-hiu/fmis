@@ -38,25 +38,46 @@
                                     <div class="row">
                                         <div class="col-12 p-2">
                                             <h:form>
-                                                <h:commandLink value="View Users" action="#{menuController.toListUsers()}"
-                                                               class="btn btn-outline-primary btn-lg btn-block w-100">
-                                                </h:commandLink>
-                                            </h:form>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-12 p-2">
-                                            <h:form>
-                                                <h:commandLink value="List Vehicles" 
-                                                               action="#{menuController.toListVehicles()}"
+                                                <h:commandLink value="List Users" action="#{menuController.toListUsers()}"
                                                                class="btn btn-outline-primary btn-lg btn-block w-100">
                                                 </h:commandLink>
                                             </h:form>
                                         </div>
                                     </div>
 
-                                    
+                                    <div class="row">
+                                        <div class="col-12 p-2">
+                                            <h:form>
+                                                <h:commandButton value="New Vehicle"
+                                                                 action="#{menuController.toAddNewVehicle()}"
+                                                                 class="btn btn-outline-primary btn-lg btn-block w-100"></h:commandButton>
+                                            </h:form>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 p-2">
+                                            <h:form>
+                                                <h:commandButton 
+                                                    value="List Vehicles" 
+                                                    action="#{menuController.toListVehicles()}"
+                                                    class="btn btn-outline-primary btn-lg btn-block w-100">
+                                                </h:commandButton>
+                                            </h:form>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 p-2">
+                                            <h:form>
+                                                <h:commandLink value="Add Institutions" 
+                                                               action="#{menuController.toAddNewInstitution()}"
+                                                               class="btn btn-outline-primary btn-lg btn-block w-100">
+                                                </h:commandLink>
+                                            </h:form>
+                                        </div>
+                                    </div>
+
                                     <div class="row">
                                         <div class="col-12 p-2">
                                             <h:form>
@@ -83,12 +104,46 @@
                                     <div class="row">
                                         <div class="col-12 p-2">
                                             <h:form>
-                                                <h:commandLink value="List Drivers" action="#{menuController.toListDriverss()}"
-                                                               class="btn btn-outline-primary btn-lg btn-block w-100">
+                                                <h:commandLink 
+                                                    value="List Drivers"
+                                                    action="#{menuController.toListDriverss()}"
+                                                    class="btn btn-outline-primary btn-lg btn-block w-100">
                                                 </h:commandLink>
                                             </h:form>
                                         </div>
                                     </div>
+
+
+
+
+                                    <div class="row">
+                                        <div class="col-12 p-2">
+                                            <h:form>
+                                                <h:commandLink 
+                                                    value="Add Fuel Station" 
+                                                    action="#{menuController.toAddNewFuelStation()}"
+                                                    class="btn btn-outline-primary btn-lg btn-block w-100">
+                                                </h:commandLink>
+                                            </h:form>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 p-2">
+                                            <h:form>
+                                                <h:commandLink 
+                                                    value="List Fuel Station" 
+                                                    action="#{menuController.toListFuelStations()}"
+                                                    class="btn btn-outline-primary btn-lg btn-block w-100">
+                                                </h:commandLink>
+                                            </h:form>
+                                        </div>
+                                    </div>
+
+
+
+
+
 
 
                                 </div>

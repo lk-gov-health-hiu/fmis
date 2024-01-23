@@ -248,6 +248,7 @@ public class VehicleController implements Serializable {
     }
 
     public List<Vehicle> fillVehicles(List<Institution> institutions) {
+        System.out.println("fillVehicles");
         List<Vehicle> resIns = new ArrayList<>();
         if (institutions == null) {
             return resIns;
@@ -258,6 +259,7 @@ public class VehicleController implements Serializable {
         List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
 
         for (Vehicle vehicle : allVehicles) {
+            System.out.println("vehicle = " + vehicle);
             boolean canInclude = true;
             if (vehicle.getInstitution() == null) {
                 continue;
@@ -267,6 +269,7 @@ public class VehicleController implements Serializable {
                     canInclude = true;
                 }
             }
+            System.out.println("canInclude = " + canInclude);
             if (canInclude) {
                 resIns.add(vehicle);
             }
@@ -406,16 +409,17 @@ public class VehicleController implements Serializable {
         } else {
             items = webUserController.findAutherizedVehicles();
         }
+        webUserController.setManagableVehicles(items);
     }
 
-    public void saveOrUpdateVehicle() {
+    public String saveOrUpdateVehicle() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing to select");
-            return;
+            return null;
         }
         if (selected.getVehicleNumber() == null || selected.getVehicleNumber().trim().equals("")) {
             JsfUtil.addErrorMessage("Number is required");
-            return;
+            return null;
         }
 
         if (selected.getName() == null || selected.getName().trim().equals("")) {
@@ -426,7 +430,6 @@ public class VehicleController implements Serializable {
             selected.setCreatedAt(new Date());
             selected.setCreater(webUserController.getLoggedUser());
             getFacade().create(selected);
-
             vehicleApplicationController.getVehicles().add(selected);
             items = null;
             JsfUtil.addSuccessMessage("Saved");
@@ -434,9 +437,9 @@ public class VehicleController implements Serializable {
             selected.setEditedAt(new Date());
             selected.setEditer(webUserController.getLoggedUser());
             getFacade().edit(selected);
-            items = null;
             JsfUtil.addSuccessMessage("Updates");
         }
+        return menuController.toListVehicles();
     }
 
     public void save(Vehicle ins) {

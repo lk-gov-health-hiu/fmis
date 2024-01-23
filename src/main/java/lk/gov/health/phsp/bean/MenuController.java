@@ -167,15 +167,23 @@ public class MenuController implements Serializable {
         institutionController.prepareToAddNewInstitution();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
-            case CTB:
                 return "/national/admin/institution";
-            case FUEL_REQUESTING_INSTITUTION:
-                return "/institution/admin/institution";
             default:
-                return "";
+                return "/institution/admin/institution";
         }
     }
 
+    public String toAddNewFuelStation() {
+        institutionController.prepareToAddNewFuelStation();
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case HEALTH_MINISTRY:
+                return "/national/admin/fuel_station";
+            default:
+                return "/institution/admin/fuel_station";
+        }
+    }
+
+    
     public String toAddNewVehicle() {
         vehicleController.prepareToAddNewVehicle();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -254,16 +262,25 @@ public class MenuController implements Serializable {
         }
     }
 
+    
+    public String toListFuelStations() {
+        institutionController.prepareToListFuelStations();
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case HEALTH_MINISTRY:
+                return "/national/admin/fuel_station_list";
+            default:
+               return "/institution/admin/fuel_station_list";
+        }
+    }
+
+    
     public String toListVehicles() {
         vehicleController.prepareToListVehicle();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case CTB:
-            case FUEL_REQUESTING_INSTITUTION:
-                return "/institution/admin/vehicle_list";
             case HEALTH_MINISTRY:
                 return "/national/admin/vehicle_list";
             default:
-                return "";
+                return "/institution/admin/vehicle_list";
         }
     }
 
@@ -283,12 +300,10 @@ public class MenuController implements Serializable {
         driverController.prepareToListDriver();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case CTB:
-            case FUEL_REQUESTING_INSTITUTION:
-                return "/institution/admin/driver_list";
             case HEALTH_MINISTRY:
                 return "/national/admin/driver_list";
             default:
-                return "";
+                return "/institution/admin/driver_list";
         }
     }
 
@@ -385,6 +400,17 @@ public class MenuController implements Serializable {
         }
     }
 
+    public String toEditFuelStation() {
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case HEALTH_MINISTRY:
+                return "/national/admin/fuel_station";
+            default:
+                return "/institution/admin/fuel_station";
+        }
+    }
+
+    
+    
     public String toEditDriver() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case FUEL_REQUESTING_INSTITUTION:
