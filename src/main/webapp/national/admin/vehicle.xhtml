@@ -45,7 +45,7 @@
                                            itemLabel="#{vt.label}"/>
                         </h:selectOneMenu>
 
-                        <h:outputLabel value="Purpose:" for="vehiclePurpose" />
+                        <h:outputLabel value="Main Purpose:" for="vehiclePurpose" />
                         <h:selectOneMenu id="vehiclePurpose" class="form-control"
                                          value="#{vehicleController.selected.vehiclePurpose}" title="VehiclePurpose">
                             <f:selectItems value="#{applicationController.vehiclePurposes}" 
@@ -68,7 +68,7 @@
                                          minQueryLength="3">
                         </p:autoComplete >
 
-                        <h:outputLabel value="Name:" for="name" />
+                        <h:outputLabel value="Make:" for="name" />
                         <h:inputText id="name" 
                                      autocomplete="off"
                                      class="form-control"
