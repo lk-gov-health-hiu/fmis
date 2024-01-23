@@ -38,7 +38,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 
@@ -249,33 +251,32 @@ public class VehicleController implements Serializable {
 
     public List<Vehicle> fillVehicles(List<Institution> institutions) {
         System.out.println("fillVehicles");
-        List<Vehicle> resIns = new ArrayList<>();
-        if (institutions == null) {
-            return resIns;
+        List<Vehicle> filteredVehicles = new ArrayList<>();
+
+        if (institutions == null || institutions.isEmpty()) {
+            return filteredVehicles;
         }
-        if (institutions.isEmpty()) {
-            return resIns;
-        }
+
         List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
+        System.out.println("allVehicles = " + allVehicles);
+        System.out.println("institutionSet = " + institutions);
 
         for (Vehicle vehicle : allVehicles) {
-//            System.out.println("vehicle = " + vehicle);
-            boolean canInclude = true;
+            System.out.println("vehicle = " + vehicle);
             if (vehicle.getInstitution() == null) {
                 continue;
             }
+            System.out.println("vehicle's Institution = " + vehicle.getInstitution());
             for (Institution ins : institutions) {
                 if (vehicle.getInstitution().equals(ins)) {
-                    canInclude = true;
+                    System.out.println("canInclude = true");
+                    filteredVehicles.add(vehicle);
+                    break; // Break the inner loop as we found the institution
                 }
             }
-//            System.out.println("canInclude = " + canInclude);
-            if (canInclude) {
-                resIns.add(vehicle);
-            }
         }
-        System.out.println("resIns = " + resIns);
-        return resIns;
+        System.out.println("filteredVehicles = " + filteredVehicles.size());
+        return filteredVehicles;
     }
 
     public List<Vehicle> fillVehicles(VehicleType type, String nameQry) {
@@ -402,15 +403,12 @@ public class VehicleController implements Serializable {
     }
 
     public void prepareToListVehicle() {
-        System.out.println("prepareToListVehicle");
         if (webUserController.getLoggedUser() == null) {
             items = null;
         }
         if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
-            System.out.println("1");
             items = vehicleApplicationController.getVehicles();
         } else {
-            System.out.println("2");
             items = webUserController.findAutherizedVehicles();
         }
         webUserController.setManagableVehicles(items);
