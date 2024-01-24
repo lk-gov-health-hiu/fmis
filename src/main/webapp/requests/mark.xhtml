@@ -24,7 +24,7 @@
                                 <div class="card" >
                                     <div class="card-header" >
                                         <div class="row" >
-                                            <h2><h:outputText value="Mark Vehicle Fuel Requests"></h:outputText></h2>
+                                            <h2><h:outputText value="Mark Diesel as Received"></h:outputText></h2>
                                         </div>
 
 
@@ -63,7 +63,7 @@
                                                             id="depo" 
                                                             class="d-block" 
                                                             inputStyleClass="form-control" 
-                                                            value="#{fuelRequestAndIssueController.selected.toInstitution}" 
+                                                            value="#{fuelRequestAndIssueController.selected.issuedInstitution}" 
                                                             completeMethod="#{institutionController.completeDepots}"
                                                             var="i" 
                                                             disabled="true"

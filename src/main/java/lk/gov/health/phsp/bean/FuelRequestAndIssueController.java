@@ -91,7 +91,6 @@ public class FuelRequestAndIssueController implements Serializable {
 
         Institution toInstitution = webUserController.getLoggedInstitution();
         List<Vehicle> vs = vehicleController.searchVehicles(searchingFuelRequestVehicleNumber);
-        System.out.println("vs = " + vs);
         if (vs == null || vs.isEmpty()) {
             JsfUtil.addErrorMessage("No Matching Vehicle");
             return "";
@@ -105,7 +104,6 @@ public class FuelRequestAndIssueController implements Serializable {
                 null,
                 null, null, null);
 
-        System.out.println("searchResults = " + searchResults);
 
         if (searchResults == null || searchResults.isEmpty()) {
             JsfUtil.addErrorMessage("No search results. Please check and retry.");
@@ -129,7 +127,6 @@ public class FuelRequestAndIssueController implements Serializable {
 
         Institution toInstitution = webUserController.getLoggedInstitution();
         List<Vehicle> vs = vehicleController.searchVehicles(searchingFuelRequestVehicleNumber);
-        System.out.println("vs = " + vs);
         if (vs == null || vs.isEmpty()) {
             JsfUtil.addErrorMessage("No Matching Vehicle");
             return "";
@@ -143,7 +140,6 @@ public class FuelRequestAndIssueController implements Serializable {
                 null,
                 false, false, false);
 
-        System.out.println("searchResults = " + searchResults);
 
         if (searchResults == null || searchResults.isEmpty()) {
             JsfUtil.addErrorMessage("No search results. Please check and retry.");
@@ -164,7 +160,12 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToMarkVehicleFuelRequest() {
-        System.out.println("navigateToMarkVehicleFuelRequest");
+        if(selected==null){
+            JsfUtil.addErrorMessage("Nothing selected");
+            return "";
+        }
+        selected.setIssuedQuantity(selected.getRequestQuantity());
+        selected.setIssuedInstitution(selected.getToInstitution());
         return "/requests/mark?faces-redirect=true";
     }
 
@@ -227,7 +228,6 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void saveSelected() {
-        System.out.println("saveCurrentDocument = " + selected);
         if (selected == null) {
             return;
         }
@@ -307,7 +307,6 @@ public class FuelRequestAndIssueController implements Serializable {
     }
     
     public String submitMarkVehicleFuelRequestIssue() {
-        System.out.println("submitMarkVehicleFuelRequestIssue");
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
             return "";
@@ -338,7 +337,6 @@ public class FuelRequestAndIssueController implements Serializable {
 //        selected.setStockBeforeTheTransaction(institutionApplicationController.getInstitutionStock(webUserController.getLoggedInstitution()));
 //        selected.setStockAfterTheTransaction(institutionApplicationController.deductFromStock(webUserController.getLoggedInstitution(), selected.getIssuedQuantity()));
         save(selected);
-        System.out.println("1");
         JsfUtil.addSuccessMessage("Successfully Issued");
         listInstitutionRequestsToMark();
         return navigateToListInstitutionRequestsToMark();
@@ -508,9 +506,7 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String onCaptureOfVehicleQr(CaptureEvent captureEvent) {
-        System.out.println("onCapture");
         byte[] imageData = captureEvent.getData();
-        System.out.println("imageData = " + imageData);
         searchingFuelRequestVehicleNumber = qrCodeController.scanQRCode(imageData);
         return searchFuelRequestToIssueByVehicleNumber();
     }
@@ -586,11 +582,8 @@ public class FuelRequestAndIssueController implements Serializable {
             j += " AND ft.transactionType in :ftxs ";
             params.put("ftxs", txTypes);
         }
-        System.out.println("params = " + params);
-        System.out.println("j = " + j);
         List<FuelTransaction> fuelTransactions = getFacade().findByJpql(j, params);
         if (fuelTransactions != null) {
-            System.out.println("fuelTransactions = " + fuelTransactions.size());
         }
         return fuelTransactions;
     }
@@ -647,11 +640,8 @@ public class FuelRequestAndIssueController implements Serializable {
             j += " AND ft.transactionType = :ftxs ";
             params.put("ftxs", type);
         }
-        System.out.println("params = " + params);
-        System.out.println("j = " + j);
         List<FuelTransaction> fuelTransactions = getFacade().findByJpql(j, params);
         if (fuelTransactions != null) {
-            System.out.println("fuelTransactions = " + fuelTransactions.size());
         }
         return fuelTransactions;
     }
