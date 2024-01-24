@@ -26,9 +26,11 @@ package lk.gov.health.phsp.bean;
 // <editor-fold defaultstate="collapsed" desc="Import">
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.inject.Named;
 import javax.enterprise.context.ApplicationScoped;
@@ -204,7 +206,6 @@ public class InstitutionApplicationController {
         fillHospitals();
         return hospitals;
     }
-    
 
     public void fillHospitals() {
         hospitals = new ArrayList<>();
@@ -215,12 +216,10 @@ public class InstitutionApplicationController {
         }
     }
 
-    
     public List<Institution> getFuelStations() {
         fillFuelStations();
         return fuelStations;
     }
-    
 
     public void fillFuelStations() {
         fuelStations = new ArrayList<>();
@@ -231,8 +230,6 @@ public class InstitutionApplicationController {
         }
     }
 
-    
-    
     public boolean institutionTypeCorrect(List<InstitutionType> its, InstitutionType it) {
 
         boolean correct = false;
@@ -264,7 +261,6 @@ public class InstitutionApplicationController {
         return hospitalTypes;
     }
 
-    
     public List<InstitutionType> getFuelStationTypes() {
         if (fuelStationsTypes == null || fuelStationsTypes.isEmpty()) {
             fuelStationsTypes = new ArrayList<>();
@@ -276,7 +272,6 @@ public class InstitutionApplicationController {
         return fuelStationsTypes;
     }
 
-    
     public Institution findInstitution(Long insId) {
         Institution ri = null;
         for (Institution i : getInstitutions()) {
@@ -300,12 +295,18 @@ public class InstitutionApplicationController {
     }
 
     public List<Institution> findChildrenInstitutions(Institution parentInstitution, List<Institution> allInstitutions) {
+        Set<Institution> visited = new HashSet<>();
+        return findChildrenInstitutionsHelper(parentInstitution, allInstitutions, visited);
+    }
+
+    private List<Institution> findChildrenInstitutionsHelper(Institution parentInstitution, List<Institution> allInstitutions, Set<Institution> visited) {
         List<Institution> children = new ArrayList<>();
 
         for (Institution institution : allInstitutions) {
-            if (institution.getParent() != null && institution.getParent().equals(parentInstitution)) {
+            if (!visited.contains(institution) && institution.getParent() != null && institution.getParent().equals(parentInstitution)) {
+                visited.add(institution);
                 children.add(institution);
-                children.addAll(findChildrenInstitutions(institution, allInstitutions));
+                children.addAll(findChildrenInstitutionsHelper(institution, allInstitutions, visited));
             }
         }
 
@@ -322,7 +323,7 @@ public class InstitutionApplicationController {
         }
         return moh;
     }
-    
+
     public Institution findCpc() {
         Institution cpc = null;
         for (Institution i : getInstitutions()) {

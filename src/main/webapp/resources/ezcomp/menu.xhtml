@@ -12,12 +12,12 @@
                        autoDisplay="false"
                        class="navbar navbar-expand-lg navbar-dark bg-primary W-100" style="border: none;">
                 <p:menuitem class="text-white" ajax="false" value="Home" icon="ui-icon-home" action="#{menuController.toIndex()}" />
-                <p:submenu class="submenu" label="Diseal Orders" rendered="#{webUserController.loggedUser.webUserRoleLevel eq 'FUEL_REQUESTING_INSTITUTION'}" >
+                <p:submenu class="submenu" label="Diesel Orders" rendered="#{webUserController.loggedUser.webUserRoleLevel eq 'FUEL_REQUESTING_INSTITUTION'}" >
                     <p:menuitem class="submenu-item" ajax="false" value="Create Order" 
                                 action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="Create Special Order" 
                                 action="#{fuelRequestAndIssueController.navigateToAddSpecialVehicleFuelRequest()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Mark Received" 
+                    <p:menuitem class="submenu-item" ajax="false" value="Mark Received Orders" 
                                 action="#{fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="View Orders" 
                                 action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />

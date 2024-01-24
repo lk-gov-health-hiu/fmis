@@ -35,19 +35,31 @@
                                     </f:facet>
                                     <p:outputLabel 
                                         value="Vehicle" 
-                                        
+
                                         for="acVehicle">
                                     </p:outputLabel>
                                     <p:outputLabel 
                                         value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" 
-                                        
+
                                         rendered="#{fuelRequestAndIssueController.selected.vehicle ne null}"
                                         >
                                     </p:outputLabel>
-                                    <p:selectOneMenu id="acVehicle"
+                                    <p:autoComplete 
+                                        id="acVehicle"
+                                        value="#{fuelRequestAndIssueController.selected.vehicle}"
+                                        completeMethod="#{vehicleController.completeVehicles}"
+                                        var="v"
+                                        class="w-100"
+                                        inputStyleClass="w-100"
+                                        maxResults="20"
+                                        itemLabel="#{v.vehicleNumber}"
+                                        itemValue="#{v}" >
+                                    </p:autoComplete>
+                                    <p:selectOneMenu id="acVehicle1"
+                                                     
                                                      value="#{fuelRequestAndIssueController.selected.vehicle}"
                                                      filter="true"
-                                                     rendered="#{fuelRequestAndIssueController.selected.vehicle eq null}"
+                                                     rendered="false"
                                                      filterMatchMode="contains"
                                                      required="true"
                                                      requiredMessage="You must select a vehicle"
@@ -60,12 +72,12 @@
 
                                     <p:outputLabel 
                                         value="Driver" 
-                                        
+
                                         for="acVehicle">
                                     </p:outputLabel>
                                     <p:outputLabel 
                                         value="#{fuelRequestAndIssueController.selected.driver.name}" 
-                                        
+
                                         rendered="#{fuelRequestAndIssueController.selected.driver ne null}"
                                         >
                                     </p:outputLabel>
