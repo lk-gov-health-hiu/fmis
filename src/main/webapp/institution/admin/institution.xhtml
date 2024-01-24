@@ -48,21 +48,16 @@
                                      class="form-control"
                                      value="#{institutionController.selected.name}" title="Name" />
 
-                        <h:outputLabel value="Code:" for="code" />
-                        <p:inputText id="code" 
 
-                                     autocomplete="off"
-                                     class="form-control"
-                                     value="#{institutionController.selected.code}" title="Code" />
-
-
-                        <h:outputLabel value="Fuel Supply Depot:" for="depo" />
+                        <h:outputLabel value="Fuel Station:" for="depo" />
                         <p:autoComplete  id="depo" 
                                          class="d-block" 
                                          inputStyleClass="form-control" 
                                          value="#{institutionController.selected.supplyInstitution}" 
                                          completeMethod="#{institutionController.completeDepots}"
                                          var="i" 
+                                         required="true"
+                                         requiredMessage="Please Enter a fuel station"
                                          itemLabel="#{i.name}" 
                                          itemValue="#{i}" 
                                          forceSelection="True"
@@ -71,7 +66,7 @@
                         </p:autoComplete >
 
 
-                        <h:outputLabel value="Parent:" for="parent" />
+                        <h:outputLabel value="Parent (Governed By) :" for="parent" />
                         <p:selectOneMenu 
                             filter="true"
                             value="#{institutionController.selected.parent}" 

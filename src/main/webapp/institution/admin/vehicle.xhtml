@@ -30,15 +30,18 @@
 
                         <h:outputLabel value="Number:" for="number" />
                         <h:inputText id="number" 
-
+                                     required="true"
+                                     requiredMessage="Please enter the number"
                                      autocomplete="off"
                                      class="form-control"
                                      value="#{vehicleController.selected.vehicleNumber}" 
                                      title="Number" />
 
                         <h:outputLabel value="Type:" for="vehicleType" />
-                        <h:selectOneMenu id="vehicleType" class="form-control"
-
+                        <h:selectOneMenu id="vehicleType" 
+                                         class="form-control"
+                                         required="true"
+                                         requiredMessage="Please select a Type"
                                          value="#{vehicleController.selected.vehicleType}" title="VehicleType">
                             <f:selectItems value="#{applicationController.vehicleTypes}" 
                                            var="vt"
@@ -47,8 +50,10 @@
                         </h:selectOneMenu>
 
                         <h:outputLabel value="Main Purpose:" for="vehiclePurpose" />
-                        <h:selectOneMenu id="vehiclePurpose" class="form-control"
-
+                        <h:selectOneMenu id="vehiclePurpose" 
+                                         class="form-control"
+                                         required="true"
+                                         requiredMessage="Please select the Main Purpose the vehicle is used for"
                                          value="#{vehicleController.selected.vehiclePurpose}" title="VehiclePurpose">
                             <f:selectItems value="#{applicationController.vehiclePurposes}" 
                                            var="vp"
@@ -64,7 +69,8 @@
                             filterMatchMode="contains"
                             class="form-control form-control-sm w-100" 
                             value="#{vehicleController.selected.institution}" 
-                            required="true">
+                            required="true"
+                            requiredMessage="Please select the institute">
                             <f:selectItem itemLabel="Please Select" ></f:selectItem>
                             <f:selectItems value="#{webUserController.loggableInstitutions}"
                                            var="ins" 

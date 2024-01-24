@@ -280,7 +280,7 @@ public class WebUserController implements Serializable {
                 users.addAll(webUserApplicationController.getItems());
                 break;
             default:
-                 users.addAll(fillWebUsers(loggableInstitutions));
+                users.addAll(fillWebUsers(loggableInstitutions));
                 break;
         }
         System.out.println("users = " + users);
@@ -880,7 +880,11 @@ public class WebUserController implements Serializable {
     }
 
     public void addWebUserPrivileges(WebUser u, Privilege p) {
-        String j = "Select up from UserPrivilege up where "
+        if (u == null || u.getId() == null) {
+            return;
+        }
+        try{
+            String j = "Select up from UserPrivilege up where "
                 + " up.webUser=:u and up.privilege=:p "
                 + " order by up.id desc";
         Map m = new HashMap();
@@ -903,6 +907,12 @@ public class WebUserController implements Serializable {
 
             getUserPrivilegeFacade().edit(up);
         }
+        }catch(Exception e){
+            System.out.println("e = " + e);
+        }
+        
+        
+        
     }
 
     public boolean hasPrivilege(String privilege) {
@@ -1304,18 +1314,23 @@ public class WebUserController implements Serializable {
     }
 
     public void save(WebUser u) {
-        if (u == null) {
-            return;
+        try {
+            if (u == null) {
+                return;
+            }
+            if (u.getId() == null) {
+                u.setCreatedAt(new Date());
+                u.setCreater(getLoggedUser());
+                getFacade().create(u);
+            } else {
+                u.setLastEditBy(getLoggedUser());
+                u.setLastEditeAt(new Date());
+                getFacade().edit(u);
+            }
+        } catch (Exception e) {
+            System.out.println("e = " + e);
         }
-        if (u.getId() == null) {
-            u.setCreatedAt(new Date());
-            u.setCreater(getLoggedUser());
-            getFacade().create(u);
-        } else {
-            u.setLastEditBy(getLoggedUser());
-            u.setLastEditeAt(new Date());
-            getFacade().edit(u);
-        }
+
     }
 
     public String update() {
