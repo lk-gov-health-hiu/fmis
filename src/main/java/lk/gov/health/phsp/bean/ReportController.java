@@ -205,45 +205,33 @@ public class ReportController implements Serializable {
     }
 
     public String navigateToIndividualTransactionsFromHealthInstitution() {
-        // Set filter for health institution
         fromInstitution = institutionController.getInstitutionById(healthInstitutionId);
-        // Reset other filters if necessary
         toInstitution = null;
-        // Call the method to fill the individual transactions based on the set filters
-        fillAllInstitutionFuelTransactions();
-        // Navigate to the page that lists individual transactions
-        return navigateToDieselDistributionFuelStationSummary();
+        return navigateToListFuelRequests();
     }
 
     public String navigateToIndividualTransactionsFromFuelStation() {
-        // Set filter for fuel station
         toInstitution = institutionController.getInstitutionById(fuelStationId);
-        // Reset other filters if necessary
         fromInstitution = null;
-        // Call the method to fill the individual transactions based on the set filters
-        fillAllInstitutionFuelTransactions();
-        // Navigate to the page that lists individual transactions
-        return navigateToDieselDistributionFuelStationSummary();
+        return navigateToListFuelRequests();
     }
 
     public String navigateToIndividualTransactionsFromDate() {
-        // Set fromDate and toDate to the selectedDate
         fromDate = selectedDate;
         toDate = selectedDate;
-        // Call the method to fill the individual transactions based on the set filters
-        fillAllInstitutionFuelTransactions();
-        // Navigate to the page that lists individual transactions
-        return navigateToDieselDistributionFuelStationSummary();
+        fromInstitution = null;
+        toInstitution = null;
+        return navigateToListFuelRequests();
     }
 
     // </editor-fold> 
     // <editor-fold defaultstate="collapsed" desc="Functional Methods">
     public void fillAllInstitutionFuelTransactions() {
-        transactionLights = fillFuelTransactions(fromInstitution, toInstitution, fromDate, toDate, vehicleType, vehiclePurpose, driver, institutionType);
+        transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
     }
 
     public List<FuelTransactionLight> fillFuelTransactions(
-            Institution requestingInstitution, Institution fuelStation, Date fromDate, Date toDate,
+            Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
             VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType) {
 
         StringBuilder jpqlBuilder = new StringBuilder();
@@ -272,10 +260,10 @@ public class ReportController implements Serializable {
             jpqlBuilder.append("AND ft.issuedInstitution = :fuelStation ");
             parameters.put("fuelStation", fuelStation);
         }
-        if (fromDate != null && toDate != null) {
+        if (fd != null && td != null) {
             jpqlBuilder.append("AND ft.requestAt BETWEEN :fromDate AND :toDate ");
-            parameters.put("fromDate", fromDate);
-            parameters.put("toDate", toDate);
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
         }
         if (vehicleType != null) {
             jpqlBuilder.append("AND v.vehicleType = :vType ");
@@ -302,18 +290,18 @@ public class ReportController implements Serializable {
     }
 
     public void fillDieselDistributionFuelStationSummary() {
-        issuedSummaries = fillFuelIssuedFromFuelStationSummary(fromDate, toDate);
+        issuedSummaries = fillFuelIssuedFromFuelStationSummary(getFromDate(), getToDate());
     }
 
     public void fillDieselDistributionHealthInstitutionSummary() {
-        issuedSummaries = fillFuelIssuedToHealthInstitutionSummary(fromDate, toDate);
+        issuedSummaries = fillFuelIssuedToHealthInstitutionSummary(getFromDate(), getToDate());
     }
 
     public void fillComprehensiveDieselIssuanceSummary() {
-        issuedSummaries = fillFuelIssuedSummary(fromInstitution, toInstitution, fromDate, toDate);
+        issuedSummaries = fillFuelIssuedSummary(fromInstitution, toInstitution, getFromDate(), getToDate());
     }
 
-    public List<FuelIssuedSummary> fillFuelIssuedToHealthInstitutionSummary(Date fromDate, Date toDate) {
+    public List<FuelIssuedSummary> fillFuelIssuedToHealthInstitutionSummary(Date fd, Date td) {
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
                 .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
@@ -327,10 +315,10 @@ public class ReportController implements Serializable {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("ret", false);
 
-        if (fromDate != null && toDate != null) {
+        if (fd != null && td != null) {
             jpqlBuilder.append("AND ft.issuedAt BETWEEN :fromDate AND :toDate ");
-            parameters.put("fromDate", fromDate);
-            parameters.put("toDate", toDate);
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
         }
 
         // Include all non-aggregated fields in the GROUP BY clause
@@ -341,7 +329,7 @@ public class ReportController implements Serializable {
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
     }
 
-    public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummary(Date fromDate, Date toDate) {
+    public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummary(Date fd, Date td) {
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
                 .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
@@ -355,10 +343,10 @@ public class ReportController implements Serializable {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("ret", false);
 
-        if (fromDate != null && toDate != null) {
+        if (fd != null && td != null) {
             jpqlBuilder.append("AND ft.issuedAt BETWEEN :fromDate AND :toDate ");
-            parameters.put("fromDate", fromDate);
-            parameters.put("toDate", toDate);
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
         }
 
         // Include all non-aggregated fields in the GROUP BY clause
@@ -369,7 +357,7 @@ public class ReportController implements Serializable {
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
     }
 
-    public List<FuelIssuedSummary> fillFuelIssuedSummary(Institution fromInstitution, Institution toInstitution, Date fromDate, Date toDate) {
+    public List<FuelIssuedSummary> fillFuelIssuedSummary(Institution fromInstitution, Institution toInstitution, Date fd, Date td) {
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
                 .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
@@ -394,10 +382,10 @@ public class ReportController implements Serializable {
             jpqlBuilder.append("AND ft.toInstitution = :toInstitute ");
             parameters.put("toInstitute", toInstitution);
         }
-        if (fromDate != null && toDate != null) {
+        if (fd != null && td != null) {
             jpqlBuilder.append("AND ft.issuedAt BETWEEN :fromDate AND :toDate ");
-            parameters.put("fromDate", fromDate);
-            parameters.put("toDate", toDate);
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
         }
 
         // Include all non-aggregated fields in the GROUP BY clause
@@ -505,7 +493,7 @@ public class ReportController implements Serializable {
 
     public Date getFromDate() {
         if (fromDate == null) {
-            fromDate = CommonController.startOfTheYear();
+            fromDate = CommonController.startOfTheMonth();
         }
         return fromDate;
     }
