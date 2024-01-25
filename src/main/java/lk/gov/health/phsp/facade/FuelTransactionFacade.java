@@ -33,7 +33,7 @@ import lk.gov.health.phsp.entity.FuelTransaction;
  * @author Dr M H B Ariyaratne<buddhika.ari@gmail.com>
  */
 @Stateless
-public class FuelTrnasactionFacade extends AbstractFacade<FuelTransaction> {
+public class FuelTransactionFacade extends AbstractFacade<FuelTransaction> {
 
     @PersistenceContext(unitName = "hmisPU")
     private EntityManager em;
@@ -43,7 +43,7 @@ public class FuelTrnasactionFacade extends AbstractFacade<FuelTransaction> {
         return em;
     }
 
-    public FuelTrnasactionFacade() {
+    public FuelTransactionFacade() {
         super(FuelTransaction.class);
     }
     

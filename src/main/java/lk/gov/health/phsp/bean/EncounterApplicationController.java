@@ -76,7 +76,6 @@ public class EncounterApplicationController {
         System.out.println("m = " + m);
         System.out.println("j = " + j);
         e = encounterFacade.findFirstByJpql(j, m);
-        System.out.println("e = " + e);
         return e;
     }
 

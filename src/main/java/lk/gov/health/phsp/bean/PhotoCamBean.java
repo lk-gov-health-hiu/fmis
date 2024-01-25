@@ -43,7 +43,6 @@ public class PhotoCamBean implements Serializable {
     public void onCapture(CaptureEvent captureEvent) {
         System.out.println("onCapture");
         byte[] imageData = captureEvent.getData();
-        System.out.println("imageData = " + imageData);
         qrCodeController.scanQRCode(imageData);
     }
 }

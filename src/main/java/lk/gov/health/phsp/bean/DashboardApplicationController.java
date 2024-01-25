@@ -208,7 +208,6 @@ public class DashboardApplicationController {
                     null,
                     null
             );
-            System.out.println("tempTodayRat = " + tempTodayRat);
             tempList.add(tempTodayPcr.toString());
             tempList.add(tempTodayRat.toString());
             hashMap.put(ins.getName(), tempList);
@@ -471,7 +470,6 @@ public Map<String, String> getSeriesOfCases(
             m.put("ri", lab);
         }
         System.out.println("m = " + m);
-        System.out.println("j = " + j);
         return encounterFacade.findLongByJpql(j, m, TemporalType.TIMESTAMP);
     }
 

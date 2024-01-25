@@ -81,10 +81,8 @@ public class SmsManagerEjb {
                 Logger.getLogger(SmsManagerEjb.class.getName()).log(Level.SEVERE, null, ex);
             }
             String pPara = (String) m.getKey();
-            System.out.println("pPara = " + pPara);
             targetURL += pPara + "=" + pVal.toString() + "&";
         }
-        System.out.println("targetURL = " + targetURL);
         if (parameters != null && !parameters.isEmpty()) {
             targetURL += "last=true";
         }
@@ -114,12 +112,9 @@ public class SmsManagerEjb {
             }
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-            System.out.println();
             while ((inputLine = in.readLine()) != null) {
-                System.out.println(inputLine);
             }
         } catch (Exception e) {
-            System.out.println("e = " + e);
         }
         return inputLine;
     }
@@ -145,10 +140,8 @@ public class SmsManagerEjb {
                 Logger.getLogger(SmsManagerEjb.class.getName()).log(Level.SEVERE, null, ex);
             }
             String pPara = (String) m.getKey();
-            System.out.println("pPara = " + pPara);
             targetURL += pPara + "=" + pVal.toString() + "&";
         }
-        System.out.println("targetURL = " + targetURL);
         if (parameters != null && !parameters.isEmpty()) {
             targetURL += "last=true";
         }
@@ -191,7 +184,6 @@ public class SmsManagerEjb {
         m.put("message", message);
         m.put("key", decKey);
         String res = executePost("https://hims.health.gov.lk/sms-mw", m);
-        System.out.println("res = " + res);
         if (res == null) {
             return false;
         } else if (res.toUpperCase().contains("200")) {

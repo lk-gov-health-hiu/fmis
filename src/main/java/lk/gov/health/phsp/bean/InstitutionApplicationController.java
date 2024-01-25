@@ -108,7 +108,6 @@ public class InstitutionApplicationController {
 
     public Double addToStock(Institution ins, Double qty) {
         System.out.println("addToStock");
-        System.out.println("qty = " + qty);
         if (ins == null) {
             return null;
         }
@@ -122,7 +121,6 @@ public class InstitutionApplicationController {
                 i.setCurrentStock(cs);
                 ins.setCurrentStock(cs);
                 institutionFacade.edit(i);
-                System.out.println("cs = " + cs);
                 return cs;
             }
         }

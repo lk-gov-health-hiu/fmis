@@ -35,14 +35,7 @@
                                     </f:facet>
                                     <p:outputLabel 
                                         value="Vehicle" 
-
                                         for="acVehicle">
-                                    </p:outputLabel>
-                                    <p:outputLabel 
-                                        value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" 
-
-                                        rendered="#{fuelRequestAndIssueController.selected.vehicle ne null}"
-                                        >
                                     </p:outputLabel>
                                     <p:autoComplete 
                                         id="acVehicle"
@@ -51,46 +44,36 @@
                                         var="v"
                                         class="w-100"
                                         inputStyleClass="w-100"
+                                        forceSelection="true"
                                         maxResults="20"
                                         itemLabel="#{v.vehicleNumber}"
                                         itemValue="#{v}" >
+                                        <p:ajax process="acVehicle" update="lblIns acDriver" ></p:ajax>
                                     </p:autoComplete>
-                                    <p:selectOneMenu id="acVehicle1"
-                                                     
-                                                     value="#{fuelRequestAndIssueController.selected.vehicle}"
-                                                     filter="true"
-                                                     rendered="false"
-                                                     filterMatchMode="contains"
-                                                     required="true"
-                                                     requiredMessage="You must select a vehicle"
-                                                     styleClass="form-control w-100">
-                                        <f:selectItem itemLabel="Select a vehicle" noSelectionOption="true" />
-                                        <f:selectItems value="#{webUserController.managableVehicles}" var="v"
-                                                       itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
-                                    </p:selectOneMenu>
 
+                                    <p:outputLabel 
+                                        value="Institution">
+                                    </p:outputLabel>
+                                    <p:inputText
+                                        id="lblIns"
+                                        value="#{fuelRequestAndIssueController.selected.vehicle.institution.name}" >
+                                    </p:inputText>
 
                                     <p:outputLabel 
                                         value="Driver" 
-
                                         for="acVehicle">
                                     </p:outputLabel>
-                                    <p:outputLabel 
-                                        value="#{fuelRequestAndIssueController.selected.driver.name}" 
-
-                                        rendered="#{fuelRequestAndIssueController.selected.driver ne null}"
-                                        >
-                                    </p:outputLabel>
-                                    <p:selectOneMenu id="acDriver"
-                                                     value="#{fuelRequestAndIssueController.selected.driver}"
-                                                     filter="true"
-                                                     rendered="#{fuelRequestAndIssueController.selected.driver eq null}"
-                                                     filterMatchMode="contains"
-                                                     required="true"
-                                                     requiredMessage="You must select a vehicle"
-                                                     styleClass="form-control w-100">
+                                    <p:selectOneMenu 
+                                        id="acDriver"
+                                        value="#{fuelRequestAndIssueController.selected.driver}"
+                                        filter="true"
+                                        rendered="#{fuelRequestAndIssueController.selected.driver eq null}"
+                                        filterMatchMode="contains"
+                                        required="true"
+                                        requiredMessage="You must select a vehicle"
+                                        styleClass="form-control w-100">
                                         <f:selectItem itemLabel="Select a vehicle" noSelectionOption="true" />
-                                        <f:selectItems value="#{webUserController.managableDrivers}" var="d"
+                                        <f:selectItems value="#{driverController.institutionDrivers(fuelRequestAndIssueController.selected.vehicle.institution)}" var="d"
                                                        itemLabel="#{d.name}" itemValue="#{d}" />
                                     </p:selectOneMenu>
 
@@ -105,7 +88,7 @@
                                                      class="d-block" 
                                                      inputStyleClass="form-control" 
                                                      value="#{fuelRequestAndIssueController.selected.toInstitution}" 
-                                                     completeMethod="#{institutionController.completeDepots}"
+                                                     completeMethod="#{institutionController.completeFuelStations}"
                                                      var="i" 
                                                      itemLabel="#{i.name}" 
                                                      itemValue="#{i}" 

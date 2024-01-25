@@ -350,7 +350,7 @@ public class InstitutionController implements Serializable {
         return fillInstitutions(InstitutionType.CTB_Depot, nameQry, null);
     }
 
-    public List<Institution> completeDepots(String qry) {
+    public List<Institution> completeFuelStations(String qry) {
         List<InstitutionType> its = new ArrayList<>();
         its.add(InstitutionType.CTB_Depot);
         its.add(InstitutionType.CTB_Country_Office);
@@ -359,8 +359,8 @@ public class InstitutionController implements Serializable {
         return fillInstitutions(its, qry, null);
     }
 
-    public List<Institution> completeLab(String qry) {
-        List<InstitutionType> its = new ArrayList<>();
+    public List<Institution> completeFuelRequestingFromInstitutions(String qry) {
+        List<InstitutionType> its = fuelRequestsFromInstitutionTypes();
         return fillInstitutions(its, qry, null);
     }
 
@@ -382,6 +382,47 @@ public class InstitutionController implements Serializable {
                 case Teaching_Hospital:
                 case Divisional_Hospital:
                     ts.add(t);
+                    break;
+            }
+        }
+        return ts;
+    }
+
+    public List<InstitutionType> fuelRequestsFromInstitutionTypes() {
+        List<InstitutionType> ts = new ArrayList<>();
+        InstitutionType[] ta = InstitutionType.values();
+        for (InstitutionType t : ta) {
+            switch (t) {
+                case Base_Hospital:
+                case District_General_Hospital:
+                case National_Hospital:
+                case Primary_Medical_Care_Unit:
+                case Teaching_Hospital:
+                case Divisional_Hospital:
+                case Hospital:
+                case MOH_Office:
+                case Ministry_of_Health:
+                case OtherSpecializedUnit:
+                case Provincial_Department_of_Health_Services:
+                case Provincial_General_Hospital:
+                case Regional_Department_of_Health_Department:
+                    ts.add(t);
+                    break;
+                case Audit:
+                case CB:
+                case CPC_Depot:
+                case CPC_Head_Office:
+                case CTB_Country_Office:
+                case CTB_Depot:
+                case CTB_Head_Office:
+                case DistrictSecretariat:
+                case Donar:
+                case ERD:
+                case Fuel_Station:
+                case Other:
+                case Other_Ministry:
+                case Police_Department:
+                case Police_Station:
                     break;
             }
         }
@@ -861,8 +902,6 @@ public class InstitutionController implements Serializable {
     public void setFuelStations(List<Institution> fuelStations) {
         this.fuelStations = fuelStations;
     }
-    
-    
 
     public String getSuccessMessage() {
         return successMessage;

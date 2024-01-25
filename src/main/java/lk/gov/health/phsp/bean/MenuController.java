@@ -275,7 +275,6 @@ public class MenuController implements Serializable {
 
     
     public String toListVehicles() {
-        System.out.println("toListVehicles");
         vehicleController.prepareToListVehicle();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:

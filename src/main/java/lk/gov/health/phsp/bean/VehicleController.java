@@ -266,16 +266,13 @@ public class VehicleController implements Serializable {
             if (vehicle.getInstitution() == null) {
                 continue;
             }
-            System.out.println("vehicle's Institution = " + vehicle.getInstitution());
             for (Institution ins : institutions) {
                 if (vehicle.getInstitution().equals(ins)) {
-                    System.out.println("canInclude = true");
                     filteredVehicles.add(vehicle);
                     break; // Break the inner loop as we found the institution
                 }
             }
         }
-        System.out.println("filteredVehicles = " + filteredVehicles.size());
         return filteredVehicles;
     }
 

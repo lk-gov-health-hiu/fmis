@@ -158,7 +158,6 @@ public class ApiResource {
         }else{
             requestIp = "IP Address is NULL";
         }
-        System.out.println("requestIp = " + requestIp);
 
         JSONObject jSONObjectOut;
         if (name == null || name.trim().equals("")) {
@@ -268,7 +267,6 @@ public class ApiResource {
         json.put("api_key", encodedJwt);
         json.put("status", 200);
         json.put("message", "success");
-        System.out.println(json.toString());
         return json;
     }
 
@@ -332,7 +330,6 @@ public class ApiResource {
 
         Long rid = CommonController.getLongValue(request_id);
 
-        System.out.println("rid = " + rid);
 
         FuelTransaction e = encounterApplicationController.getEncounter(rid);
 

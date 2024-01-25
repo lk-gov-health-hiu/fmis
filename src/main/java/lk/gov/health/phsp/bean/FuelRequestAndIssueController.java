@@ -26,7 +26,7 @@ import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.entity.WebUser;
 import lk.gov.health.phsp.enums.FuelTransactionType;
-import lk.gov.health.phsp.facade.FuelTrnasactionFacade;
+import lk.gov.health.phsp.facade.FuelTransactionFacade;
 import lk.gov.health.phsp.facade.InstitutionFacade;
 import lk.gov.health.phsp.facade.VehicleFacade;
 import lk.gov.health.phsp.facade.WebUserFacade;
@@ -39,7 +39,7 @@ public class FuelRequestAndIssueController implements Serializable {
     @EJB
     private FuelTransactionHistoryFacade fuelTransactionHistoryFacade;
     @EJB
-    private FuelTrnasactionFacade fuelTransactionFacade;
+    private FuelTransactionFacade fuelTransactionFacade;
     @EJB
     InstitutionFacade institutionFacade;
     @EJB
