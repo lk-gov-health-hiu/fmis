@@ -666,6 +666,42 @@ public class InstitutionController implements Serializable {
         }
         return menuController.toListInstitutions();
     }
+    
+    public String updateMyInstitution() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing to select");
+            return "";
+        }
+        if (selected.getName() == null || selected.getName().trim().equals("")) {
+            JsfUtil.addErrorMessage("Name is required");
+            return "";
+        }
+
+        if (selected.getSname() == null || selected.getSname().trim().equals("")) {
+            selected.setSname(selected.getName());
+        }
+
+        if (selected.getTname() == null || selected.getTname().trim().equals("")) {
+            selected.setTname(selected.getName());
+        }
+
+        if (selected.getId() == null) {
+            selected.setCreatedAt(new Date());
+            selected.setCreater(webUserController.getLoggedUser());
+            getFacade().create(selected);
+
+            institutionApplicationController.getInstitutions().add(selected);
+            items = null;
+            JsfUtil.addSuccessMessage("Saved");
+        } else {
+            selected.setEditedAt(new Date());
+            selected.setEditer(webUserController.getLoggedUser());
+            getFacade().edit(selected);
+            items = null;
+            JsfUtil.addSuccessMessage("Updates");
+        }
+        return menuController.toAdministrationIndex();
+    }
 
     public String saveOrUpdateFuelStation() {
         if (selected == null) {

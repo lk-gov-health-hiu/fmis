@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="/institution/admin/index.xhtml">
+            <ui:define name="admin">
+
+                <h:form id="InstitutionCreateForm" style="padding-top: 1rem;">
+                    <p:messages ></p:messages>
+
+                    <p:panelGrid columns="2" class="w-100" >
+                        <f:facet name="header" >
+                            <h:outputText value="Edit My Institution" ></h:outputText>
+                            <h:commandButton 
+                                style="float: right;" 
+                                class="btn btn-success" 
+                                action="#{institutionController.updateMyInstitution()}" 
+                                value="Save"/>
+                        </f:facet>
+
+                        <h:outputLabel value="Type:" for="institutionType" />
+                        <p:selectOneMenu 
+
+                            id="institutionType" 
+                            filter="true"
+                            filterMatchMode="contains"
+                            class="form-control"
+                            value="#{institutionController.selected.institutionType}" title="InstitutionType" 
+                            >
+                            <f:selectItems value="#{applicationController.institutionTypes}" 
+                                           var="institutionTypes"
+                                           itemValue="#{institutionTypes}"
+                                           itemLabel="#{institutionTypes.label}"></f:selectItems>
+                        </p:selectOneMenu>
+
+
+                        <h:outputLabel value="Name:" for="name" />
+                        <p:inputText id="name" 
+
+                                     autocomplete="off"
+                                     class="form-control"
+                                     value="#{institutionController.selected.name}" title="Name" />
+
+
+                        <h:outputLabel value="Fuel Station:" for="depo" />
+                        <p:autoComplete  id="depo" 
+                                         class="d-block" 
+                                         inputStyleClass="form-control" 
+                                         value="#{institutionController.selected.supplyInstitution}" 
+                                         completeMethod="#{institutionController.completeFuelStations}"
+                                         var="i" 
+                                         placeholder="Please select fuel station"
+                                         required="true"
+                                         requiredMessage="Please Enter a fuel station"
+                                         itemLabel="#{i.name}" 
+                                         itemValue="#{i}" 
+                                         forceSelection="True"
+                                         maxResults="15" 
+                                         minQueryLength="3">
+                        </p:autoComplete >
+
+
+                        <h:outputLabel value="Parent (Governed By) :" for="parent" />
+                        <p:autoComplete 
+                            completeMethod="#{institutionController.completeInstitutions}" 
+                            value="#{institutionController.selected.parent}"
+                            id="parent" 
+                            class="w-100" 
+                            required="false"
+                            placeholder="Please select Parent Institution"
+                            var="ins" 
+                            inputStyleClass="w-100"
+                            itemLabel="#{ins.name}"
+                            itemValue="#{ins}" >
+                        </p:autoComplete>
+
+                        <h:outputLabel value="Address:" for="address" />
+                        <p:inputText id="address" class="form-control"  value="#{institutionController.selected.address}" title="Address" />
+
+                        <h:outputLabel value="Email:" for="email" />
+                        <p:inputText id="email" class="form-control" value="#{institutionController.selected.email}" title="Email" />
+
+                        <h:outputLabel value="Phone:" for="phone" />
+                        <p:inputText id="phone" class="form-control" value="#{institutionController.selected.phone}" title="Phone" />
+
+
+
+                    </p:panelGrid>
+
+
+
+
+                </h:form>
+            </ui:define>
+        </ui:composition>
+
+    </body>
+</html>

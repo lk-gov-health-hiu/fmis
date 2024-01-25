@@ -162,6 +162,17 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Nothing selected");
             return "";
         }
+        if (selected.getFromInstitution() == null) {
+            JsfUtil.addErrorMessage("No from Institution");
+            return "";
+        }
+        if (selected.getFromInstitution().getSupplyInstitution() == null) {
+            JsfUtil.addErrorMessage("No Fuel Station selected for your Institution");
+            return "";
+        }
+        if (selected.getToInstitution() == null) {
+            selected.setToInstitution(selected.getFromInstitution().getSupplyInstitution());
+        }
         selected.setIssuedQuantity(selected.getRequestQuantity());
         selected.setIssuedInstitution(selected.getToInstitution());
         return "/requests/mark?faces-redirect=true";
@@ -359,6 +370,9 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setIssued(true);
         selected.setIssuedAt(new Date());
         selected.setIssuedUser(webUserController.getLoggedUser());
+        if (selected.getIssuedInstitution() == null) {
+            selected.setIssuedInstitution(selected.getToInstitution());
+        }
 //        selected.setStockBeforeTheTransaction(institutionApplicationController.getInstitutionStock(webUserController.getLoggedInstitution()));
 //        selected.setStockAfterTheTransaction(institutionApplicationController.deductFromStock(webUserController.getLoggedInstitution(), selected.getIssuedQuantity()));
         save(selected);
@@ -540,7 +554,6 @@ public class FuelRequestAndIssueController implements Serializable {
     public void listInstitutionRequestsToMark() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), false, false, false);
     }
-
 
     public void listCtbFuelRequestsFromInstitution() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null, null, FuelTransactionType.CtbFuelRequest);

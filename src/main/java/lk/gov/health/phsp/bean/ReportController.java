@@ -278,7 +278,7 @@ public class ReportController implements Serializable {
             parameters.put("drv", driver);
         }
         if (institutionType != null) {
-            jpqlBuilder.append("AND ft.requestedInstitution.institutionType = :instType ");
+            jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
             parameters.put("instType", institutionType);
         }
 
