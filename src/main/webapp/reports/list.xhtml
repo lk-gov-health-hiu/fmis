@@ -12,67 +12,77 @@
 
             <ui:define name="reports">
                 <h:form >
-                    <p:panelGrid columns="2" >
-                        <p:outputLabel value="From" >
-                        </p:outputLabel>
-                        <p:calendar value="#{reportController.fromDate}" 
-                                    pattern="dd MMMM yyyy">
-                        </p:calendar>
+                    <p:panelGrid columns="3" >
+                        <p:panelGrid columns="2" >
+                            <p:outputLabel value="From" >
+                            </p:outputLabel>
+                            <p:calendar value="#{reportController.fromDate}" 
+                                        pattern="dd MMMM yyyy">
+                            </p:calendar>
 
-                        <p:outputLabel value="To" >
-                        </p:outputLabel>
-                        <p:calendar value="#{reportController.toDate}" 
-                                    pattern="dd MMMM yyyy">
-                        </p:calendar>
+                            <p:outputLabel value="To" >
+                            </p:outputLabel>
+                            <p:calendar value="#{reportController.toDate}" 
+                                        pattern="dd MMMM yyyy">
+                            </p:calendar>
+                        </p:panelGrid>
+                        <p:panelGrid columns="2" >
+                            <p:outputLabel value="Requested for Institution" >
+                            </p:outputLabel>
+                            <p:autoComplete 
+                                value="#{reportController.fromInstitution}"
+                                completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
+                                var="fi"
+                                itemLabel="#{fi.name}"
+                                itemValue="#{fi}"></p:autoComplete>
 
-                        <p:outputLabel value="Requested for Institution" >
-                        </p:outputLabel>
-                        <p:autoComplete 
-                            value="#{reportController.fromInstitution}"
-                            completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
-                            var="fi"
-                            itemLabel="#{fi.name}"
-                            itemValue="#{fi}"></p:autoComplete>
+                            <p:outputLabel value="Requested from Fuel Station" >
+                            </p:outputLabel>
+                            <p:autoComplete 
+                                value="#{reportController.toInstitution}" 
+                                completeMethod="#{institutionController.completeFuelStations}"
+                                var="fs"
+                                itemLabel="#{fs.name}"
+                                itemValue="#{fs}"
+                                ></p:autoComplete>
+                        </p:panelGrid>
+                        <p:panelGrid columns="2" >
+                            <h:outputLabel value="Type:" for="vehicleType" />
+                            <p:selectOneMenu id="vehicleType" 
+                                             class="form-control"
+                                             value="#{reportController.vehicleType}"
+                                             title="Vehicle Type"
+                                             filter="true"
+                                             filterMatchMode="contains">
+                                <f:selectItem itemLabel="Any" ></f:selectItem>
+                                <f:selectItems value="#{applicationController.vehicleTypes}" 
+                                               var="vt"
+                                               itemValue="#{vt}"
+                                               itemLabel="#{vt.label}"/>
+                            </p:selectOneMenu>
 
-                        <p:outputLabel value="Requested from Fuel Station" >
-                        </p:outputLabel>
-                        <p:autoComplete 
-                            value="#{reportController.toInstitution}" 
-                            completeMethod="#{institutionController.completeFuelStations}"
-                            var="fs"
-                            itemLabel="#{fs.name}"
-                            itemValue="#{fs}"
-                            ></p:autoComplete>
+                            <h:outputLabel value="Purpose:" for="vehiclePurpose" />
+                            <p:selectOneMenu id="vehiclePurpose" 
+                                             class="form-control"
+                                             value="#{reportController.vehiclePurpose}"
+                                             title="VehiclePurpose"
+                                             filter="true"
+                                             filterMatchMode="contains">
+                                <f:selectItem itemLabel="Any" ></f:selectItem>
+                                <f:selectItems value="#{applicationController.vehiclePurposes}" 
+                                               var="vp"
+                                               itemValue="#{vp}"
+                                               itemLabel="#{vp.label}"/>
+                            </p:selectOneMenu>
+                        </p:panelGrid>
 
 
 
-                        <h:outputLabel value="Type:" for="vehicleType" />
-                        <p:selectOneMenu id="vehicleType" 
-                                         class="form-control"
-                                         value="#{reportController.vehicleType}"
-                                         title="Vehicle Type"
-                                         filter="true"
-                                         filterMatchMode="contains">
-                            <f:selectItem itemLabel="Any" ></f:selectItem>
-                            <f:selectItems value="#{applicationController.vehicleTypes}" 
-                                           var="vt"
-                                           itemValue="#{vt}"
-                                           itemLabel="#{vt.label}"/>
-                        </p:selectOneMenu>
 
-                        <h:outputLabel value="Purpose:" for="vehiclePurpose" />
-                        <p:selectOneMenu id="vehiclePurpose" 
-                                         class="form-control"
-                                         value="#{reportController.vehiclePurpose}"
-                                         title="VehiclePurpose"
-                                         filter="true"
-                                         filterMatchMode="contains">
-                            <f:selectItem itemLabel="Any" ></f:selectItem>
-                            <f:selectItems value="#{applicationController.vehiclePurposes}" 
-                                           var="vp"
-                                           itemValue="#{vp}"
-                                           itemLabel="#{vp.label}"/>
-                        </p:selectOneMenu>
+
+
+
+
 
                         <p:commandButton 
                             value="Process" 
