@@ -129,9 +129,12 @@ public class ReportController implements Serializable {
     private Driver driver;
     private InstitutionType institutionType;
     private List<FuelIssuedSummary> issuedSummaries;
+    Long fuelStationId;
+    Long healthInstitutionId;
+    private Date selectedDate; // This represents the date clicked in the comprehensive report
+
     // </editor-fold> 
     // <editor-fold defaultstate="collapsed" desc="Constructors">
-
     /**
      * Creates a new instance of ReportController
      */
@@ -141,23 +144,96 @@ public class ReportController implements Serializable {
     // </editor-fold> 
     // <editor-fold defaultstate="collapsed" desc="Navigational Methods">
     public String navigateToListFuelRequests() {
-        return "/reports/list";
+        fillAllInstitutionFuelTransactions();
+        return "/reports/list?faces-redirect=true;";
     }
 
     public String navigateToDieselDistributionFuelStationSummary() {
-        return "/reports/diesel_distribution_fuel_station_summary";
+        fillDieselDistributionFuelStationSummary();
+        return "/reports/diesel_distribution_fuel_station_summary?faces-redirect=true;";
     }
 
     public String navigateToDieselDistributionHealthInstitutionSummary() {
-        return "/reports/diesel_distribution_health_institution_summary";
+        fillDieselDistributionHealthInstitutionSummary();
+        return "/reports/diesel_distribution_health_institution_summary?faces-redirect=true;";
     }
 
     public String navigateToComprehensiveDieselIssuanceSummary() {
-        return "/reports/comprehensive_diesel_issuance_summary";
+        fillComprehensiveDieselIssuanceSummary();
+        return "/reports/comprehensive_diesel_issuance_summary?faces-redirect=true;";
     }
 
     public String navigateToReportsIndex() {
-        return "/reports/index";
+        return "/reports/index?faces-redirect=true;";
+    }
+
+    public String navigateToViewRequest() {
+        if (fuelTransactionLight == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        if (fuelTransactionLight.getId() == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        fuelTransaction = fuelTransactionFacade.find(fuelTransactionLight.getId());
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        return "/reports/request?faces-redirect=true;";
+    }
+
+    public String navigateToComprehensiveSummaryFromFuelStationSummary() {
+        toInstitution = institutionController.getInstitutionById(fuelStationId);
+        if (toInstitution == null) {
+            JsfUtil.addErrorMessage("Error");
+            return null;
+        }
+        fromInstitution = null;
+        return navigateToComprehensiveDieselIssuanceSummary();
+    }
+
+    public String navigateToComprehensiveSummaryFromHealthInstitutionSummary() {
+        fromInstitution = institutionController.getInstitutionById(healthInstitutionId);
+        if (fromInstitution == null) {
+            JsfUtil.addErrorMessage("Error");
+            return null;
+        }
+        toInstitution = null;
+        return navigateToComprehensiveDieselIssuanceSummary();
+    }
+
+    public String navigateToIndividualTransactionsFromHealthInstitution() {
+        // Set filter for health institution
+        fromInstitution = institutionController.getInstitutionById(healthInstitutionId);
+        // Reset other filters if necessary
+        toInstitution = null;
+        // Call the method to fill the individual transactions based on the set filters
+        fillAllInstitutionFuelTransactions();
+        // Navigate to the page that lists individual transactions
+        return navigateToDieselDistributionFuelStationSummary();
+    }
+
+    public String navigateToIndividualTransactionsFromFuelStation() {
+        // Set filter for fuel station
+        toInstitution = institutionController.getInstitutionById(fuelStationId);
+        // Reset other filters if necessary
+        fromInstitution = null;
+        // Call the method to fill the individual transactions based on the set filters
+        fillAllInstitutionFuelTransactions();
+        // Navigate to the page that lists individual transactions
+        return navigateToDieselDistributionFuelStationSummary();
+    }
+
+    public String navigateToIndividualTransactionsFromDate() {
+        // Set fromDate and toDate to the selectedDate
+        fromDate = selectedDate;
+        toDate = selectedDate;
+        // Call the method to fill the individual transactions based on the set filters
+        fillAllInstitutionFuelTransactions();
+        // Navigate to the page that lists individual transactions
+        return navigateToDieselDistributionFuelStationSummary();
     }
 
     // </editor-fold> 
@@ -225,26 +301,24 @@ public class ReportController implements Serializable {
         return resultList;
     }
 
-    
-    
-
     public void fillDieselDistributionFuelStationSummary() {
-        issuedSummaries = fillFuelIssuedToFuelStationSummary(fromDate, toDate);
+        issuedSummaries = fillFuelIssuedFromFuelStationSummary(fromDate, toDate);
     }
 
     public void fillDieselDistributionHealthInstitutionSummary() {
-        issuedSummaries = fillFuelIssuedFromHealthInstitutionSummary(fromDate, toDate);
+        issuedSummaries = fillFuelIssuedToHealthInstitutionSummary(fromDate, toDate);
     }
-    
+
     public void fillComprehensiveDieselIssuanceSummary() {
         issuedSummaries = fillFuelIssuedSummary(fromInstitution, toInstitution, fromDate, toDate);
     }
 
-    public List<FuelIssuedSummary> fillFuelIssuedFromHealthInstitutionSummary(Date fromDate, Date toDate) {
+    public List<FuelIssuedSummary> fillFuelIssuedToHealthInstitutionSummary(Date fromDate, Date toDate) {
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
                 .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
                 .append("fi.name, ") // fromInstitution name
+                .append("fi.id, ") // fromInstitution ID
                 .append("SUM(ft.issuedQuantity)") // sum of issued qty
                 .append(") FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -259,18 +333,20 @@ public class ReportController implements Serializable {
             parameters.put("toDate", toDate);
         }
 
-        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), fi.name ");
+        // Include all non-aggregated fields in the GROUP BY clause
+        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), fi.name, fi.id ");
         jpqlBuilder.append("ORDER BY FUNCTION('date', ft.issuedAt), fi.name");
 
         return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
     }
 
-    public List<FuelIssuedSummary> fillFuelIssuedToFuelStationSummary(Date fromDate, Date toDate) {
+    public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummary(Date fromDate, Date toDate) {
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
                 .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
                 .append("ti.name, ") // toInstitution name
+                .append("ti.id, ") // toInstitution ID
                 .append("SUM(ft.issuedQuantity)") // sum of issued qty
                 .append(") FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.toInstitution ti ")
@@ -285,7 +361,8 @@ public class ReportController implements Serializable {
             parameters.put("toDate", toDate);
         }
 
-        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), ti.name ");
+        // Include all non-aggregated fields in the GROUP BY clause
+        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), ti.name, ti.id ");
         jpqlBuilder.append("ORDER BY FUNCTION('date', ft.issuedAt), ti.name");
 
         return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
@@ -297,7 +374,9 @@ public class ReportController implements Serializable {
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
                 .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
                 .append("fi.name, ") // fromInstitution name
+                .append("fi.id, ") // fromInstitution ID
                 .append("ti.name, ") // toInstitution name
+                .append("ti.id, ") // toInstitution ID
                 .append("SUM(ft.issuedQuantity)") // sum of issued qty
                 .append(") FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -321,8 +400,8 @@ public class ReportController implements Serializable {
             parameters.put("toDate", toDate);
         }
 
-        // Group by date, from institution, and to institution
-        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), fi.name, ti.name ");
+        // Include all non-aggregated fields in the GROUP BY clause
+        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), fi.name, fi.id, ti.name, ti.id ");
         jpqlBuilder.append("ORDER BY FUNCTION('date', ft.issuedAt), fi.name, ti.name");
 
         List<FuelIssuedSummary> resultList = (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
@@ -330,28 +409,56 @@ public class ReportController implements Serializable {
         return resultList;
     }
 
-    
-    
-    
-    public String navigateToViewRequest() {
-        if (fuelTransactionLight == null) {
-            JsfUtil.addErrorMessage("Error");
-            return "";
-        }
-        if (fuelTransactionLight.getId() == null) {
-            JsfUtil.addErrorMessage("Error");
-            return "";
-        }
-        fuelTransaction = fuelTransactionFacade.find(fuelTransactionLight.getId());
-        if (fuelTransaction == null) {
-            JsfUtil.addErrorMessage("Error");
-            return "";
-        }
-        return "/reports/request";
-    }
-
     // </editor-fold>  
     // <editor-fold defaultstate="collapsed" desc="Getters and Setters">
+    public Driver getDriver() {
+        return driver;
+    }
+
+    public void setDriver(Driver driver) {
+        this.driver = driver;
+    }
+
+    public InstitutionType getInstitutionType() {
+        return institutionType;
+    }
+
+    public void setInstitutionType(InstitutionType institutionType) {
+        this.institutionType = institutionType;
+    }
+
+    public List<FuelIssuedSummary> getIssuedSummaries() {
+        return issuedSummaries;
+    }
+
+    public void setIssuedSummaries(List<FuelIssuedSummary> issuedSummaries) {
+        this.issuedSummaries = issuedSummaries;
+    }
+
+    public Long getFuelStationId() {
+        return fuelStationId;
+    }
+
+    public void setFuelStationId(Long fuelStationId) {
+        this.fuelStationId = fuelStationId;
+    }
+
+    public Long getHealthInstitutionId() {
+        return healthInstitutionId;
+    }
+
+    public void setHealthInstitutionId(Long healthInstitutionId) {
+        this.healthInstitutionId = healthInstitutionId;
+    }
+
+    public Date getSelectedDate() {
+        return selectedDate;
+    }
+
+    public void setSelectedDate(Date selectedDate) {
+        this.selectedDate = selectedDate;
+    }
+
     public WebUserController getWebUserController() {
         return webUserController;
     }
@@ -649,28 +756,4 @@ public class ReportController implements Serializable {
     }
 
     // </editor-fold> 
-    public Driver getDriver() {
-        return driver;
-    }
-
-    public void setDriver(Driver driver) {
-        this.driver = driver;
-    }
-
-    public InstitutionType getInstitutionType() {
-        return institutionType;
-    }
-
-    public void setInstitutionType(InstitutionType institutionType) {
-        this.institutionType = institutionType;
-    }
-
-    public List<FuelIssuedSummary> getIssuedSummaries() {
-        return issuedSummaries;
-    }
-
-    public void setIssuedSummaries(List<FuelIssuedSummary> issuedSummaries) {
-        this.issuedSummaries = issuedSummaries;
-    }
-
 }

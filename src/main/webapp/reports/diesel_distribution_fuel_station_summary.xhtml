@@ -19,27 +19,17 @@
                             <p:outputLabel value="To" />
                             <p:calendar value="#{reportController.toDate}" pattern="dd MMMM yyyy" />
                         </p:panelGrid>
-                        
-                        <!-- Fuel Station Filter (To Institution) -->
-                        <p:panelGrid columns="2">
-                            <p:outputLabel value="Fuel Station" />
-                            <p:autoComplete value="#{reportController.toInstitution}"
-                                            completeMethod="#{institutionController.completeFuelStations}"
-                                            var="fs"
-                                            itemLabel="#{fs.name}"
-                                            itemValue="#{fs}" />
-                        </p:panelGrid>
-                        
+
                         <!-- Process Button -->
                         <p:commandButton value="Process"
                                          ajax="false"
-                                         action="#{reportController.fillFuelIssuedToFuelStationSummary()}" />
+                                         action="#{reportController.fillDieselDistributionFuelStationSummary()}" />
 
                     </p:panelGrid>
 
                     <!-- Data Table -->
                     <p:dataTable var="summary"
-                                 value="#{reportController.issuedFuelStationSummaries}"
+                                 value="#{reportController.issuedSummaries}"
                                  paginator="true"
                                  rows="10"
                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
@@ -53,12 +43,18 @@
                             </h:outputText>
                         </p:column>
 
-                        <p:column headerText="Fuel Station" sortBy="#{summary.toInstitutionName}" filterBy="#{summary.toInstitutionName}" filterMatchMode="contains">
-                            <h:outputText value="#{summary.toInstitutionName}" />
+                        <p:column headerText="Fuel Station" sortBy="#{summary.institutionName}" filterBy="#{summary.toInstitutionName}" filterMatchMode="contains">
+                            <h:outputText value="#{summary.institutionName}" />
                         </p:column>
 
                         <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" filterMatchMode="numeric">
                             <h:outputText value="#{summary.sumOfIssuedQty}" />
+                        </p:column>
+
+                        <p:column headerText="Action">
+                            <p:commandButton value="View Details" action="#{reportController.navigateToComprehensiveSummaryFromFuelStationSummary()}" ajax="false">
+                                <f:setPropertyActionListener value="#{summary.institutionId}" target="#{reportController.fuelStationId}" />
+                            </p:commandButton>
                         </p:column>
 
                     </p:dataTable>

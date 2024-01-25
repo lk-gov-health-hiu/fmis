@@ -20,25 +20,15 @@
                             <p:calendar value="#{reportController.toDate}" pattern="dd MMMM yyyy" />
                         </p:panelGrid>
 
-                        <!-- Health Institution Filter (From Institution) -->
-                        <p:panelGrid columns="2">
-                            <p:outputLabel value="Health Institution" />
-                            <p:autoComplete value="#{reportController.fromInstitution}"
-                                            completeMethod="#{institutionController.completeHealthInstitutions}"
-                                            var="hi"
-                                            itemLabel="#{hi.name}"
-                                            itemValue="#{hi}" />
-                        </p:panelGrid>
-
                         <!-- Process Button -->
                         <p:commandButton value="Process"
                                          ajax="false"
-                                         action="#{reportController.fillFuelIssuedFromHealthInstitutionSummary()}" />
+                                         action="#{reportController.fillDieselDistributionHealthInstitutionSummary}" />
                     </p:panelGrid>
 
                     <!-- Data Table -->
                     <p:dataTable var="summary"
-                                 value="#{reportController.issuedHealthInstitutionSummaries}"
+                                 value="#{reportController.issuedSummaries}"
                                  paginator="true"
                                  rows="10"
                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
@@ -52,12 +42,18 @@
                             </h:outputText>
                         </p:column>
 
-                        <p:column headerText="Health Institution" sortBy="#{summary.fromInstitutionName}" filterBy="#{summary.fromInstitutionName}" filterMatchMode="contains">
-                            <h:outputText value="#{summary.fromInstitutionName}" />
+                        <p:column headerText="Health Institution" sortBy="#{summary.institutionName}" filterBy="#{summary.fromInstitutionName}" filterMatchMode="contains">
+                            <h:outputText value="#{summary.institutionName}" />
                         </p:column>
 
                         <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" filterMatchMode="numeric">
                             <h:outputText value="#{summary.sumOfIssuedQty}" />
+                        </p:column>
+
+                        <p:column headerText="Action">
+                            <p:commandButton value="View Details" action="#{reportController.navigateToComprehensiveSummaryFromHealthInstitutionSummary()}" ajax="false">
+                                <f:setPropertyActionListener value="#{summary.institutionId}" target="#{reportController.healthInstitutionId}" />
+                            </p:commandButton>
                         </p:column>
 
                     </p:dataTable>

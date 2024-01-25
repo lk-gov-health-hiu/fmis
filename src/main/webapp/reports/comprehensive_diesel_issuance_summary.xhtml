@@ -20,14 +20,14 @@
                         </p:panelGrid>
 
                         <p:panelGrid columns="2">
-                            <p:outputLabel value="From Institution" />
+                            <p:outputLabel value="Health Institution" />
                             <p:autoComplete value="#{reportController.fromInstitution}"
                                             completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
                                             var="fi"
                                             itemLabel="#{fi.name}"
                                             itemValue="#{fi}" />
 
-                            <p:outputLabel value="To Institution" />
+                            <p:outputLabel value="Fuel Station" />
                             <p:autoComplete value="#{reportController.toInstitution}"
                                             completeMethod="#{institutionController.completeFuelStations}"
                                             var="fs"
@@ -50,17 +50,24 @@
                                  widgetVar="summaryTable">
 
                         <p:column headerText="Issued Date" sortBy="#{summary.issuedDate}" filterBy="#{summary.issuedDate}" filterMatchMode="contains">
-                            <h:outputText value="#{summary.issuedDate}">
-                                <f:convertDateTime pattern="dd/MM/yyyy" />
-                            </h:outputText>
+                            <p:commandLink action="#{reportController.navigateToIndividualTransactionsFromDate()}" >
+                                <h:outputText value="#{summary.issuedDate}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                                </h:outputText>
+                                <f:setPropertyActionListener value="#{summary.issuedDate}" target="#{reportController.selectedDate}" />
+                            </p:commandLink>
                         </p:column>
 
-                        <p:column headerText="From Institution" sortBy="#{summary.fromInstitutionName}" filterBy="#{summary.fromInstitutionName}" filterMatchMode="contains">
-                            <h:outputText value="#{summary.fromInstitutionName}" />
+                        <p:column headerText="Health Institution" sortBy="#{summary.fromInstitutionName}" filterBy="#{summary.fromInstitutionName}" filterMatchMode="contains">
+                            <p:commandLink action="#{reportController.navigateToIndividualTransactionsFromHealthInstitution()}" value="#{summary.fromInstitutionName}">
+                                <f:setPropertyActionListener value="#{summary.fromInstitutionId}" target="#{reportController.healthInstitutionId}" />
+                            </p:commandLink>
                         </p:column>
 
-                        <p:column headerText="To Institution" sortBy="#{summary.toInstitutionName}" filterBy="#{summary.toInstitutionName}" filterMatchMode="contains">
-                            <h:outputText value="#{summary.toInstitutionName}" />
+                        <p:column headerText="Fuel Station" sortBy="#{summary.toInstitutionName}" filterBy="#{summary.toInstitutionName}" filterMatchMode="contains">
+                            <p:commandLink action="#{reportController.navigateToIndividualTransactionsFromFuelStation()}" value="#{summary.toInstitutionName}">
+                                <f:setPropertyActionListener value="#{summary.toInstitutionId}" target="#{reportController.fuelStationId}" />
+                            </p:commandLink>
                         </p:column>
 
                         <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" filterMatchMode="numeric">
@@ -68,6 +75,7 @@
                         </p:column>
 
                     </p:dataTable>
+
                 </h:form>
             </ui:define>
         </ui:composition>
