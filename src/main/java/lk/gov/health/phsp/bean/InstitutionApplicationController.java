@@ -107,7 +107,6 @@ public class InstitutionApplicationController {
     }
 
     public Double addToStock(Institution ins, Double qty) {
-        System.out.println("addToStock");
         if (ins == null) {
             return null;
         }

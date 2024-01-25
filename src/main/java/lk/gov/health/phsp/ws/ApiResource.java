@@ -150,8 +150,6 @@ public class ApiResource {
             ipadd = requestContext.getRemoteAddr();
         }
 
-        System.out.println("ipadd = " + ipadd);
-        System.out.println("name = " + name);
         String requestIp = "";
         if(ipadd!=null){
             requestIp = ipadd.trim().toLowerCase();
@@ -233,8 +231,6 @@ public class ApiResource {
     }
 
     private JSONObject authenticate(String username, String password) {
-        System.out.println(username);
-        System.out.println(password);
 
         if (username== null || username.trim().length() == 0) {
             return errorMessageLogin();
@@ -326,7 +322,6 @@ public class ApiResource {
             return errorMessageNoPcrRequestId();
         }
 
-        System.out.println("request_id = " + request_id);
 
         Long rid = CommonController.getLongValue(request_id);
 

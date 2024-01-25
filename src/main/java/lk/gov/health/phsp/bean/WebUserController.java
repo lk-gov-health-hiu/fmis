@@ -265,7 +265,6 @@ public class WebUserController implements Serializable {
     }
 
     public List<WebUser> findManagableUsers() {
-        System.out.println("findManagableUsers = " + this);
         List<WebUser> users = new ArrayList<>();
         if (loggedUser == null) {
             return users;
@@ -296,7 +295,6 @@ public class WebUserController implements Serializable {
         }
 
         for (WebUser w : webUserApplicationController.getItems()) {
-            System.out.println("w = " + w);
             boolean canInclude = false;
             if (w.getInstitution() == null) {
                 continue;

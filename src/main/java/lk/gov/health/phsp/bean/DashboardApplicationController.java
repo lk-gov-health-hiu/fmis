@@ -187,7 +187,6 @@ public class DashboardApplicationController {
         Date now = calendar.getTime();
 
         for (Institution ins:myInstitutions) {
-            System.out.println("mohArea = " + ins.getName());
             List<String> tempList = new ArrayList<>();
             Long tempTodayPcr = this.getOrderCount(
                     ins,
@@ -198,7 +197,6 @@ public class DashboardApplicationController {
                     null,
                     null
             );
-            System.out.println("tempTodayPcr = " + tempTodayPcr);
             Long tempTodayRat = this.getOrderCount(
                     ins,
                     todayStart,
@@ -469,7 +467,6 @@ public Map<String, String> getSeriesOfCases(
             j += " and c.referalInstitution=:ri ";
             m.put("ri", lab);
         }
-        System.out.println("m = " + m);
         return encounterFacade.findLongByJpql(j, m, TemporalType.TIMESTAMP);
     }
 

@@ -61,9 +61,6 @@ public class SmsManagerEjb {
     }
 
     public String executePost(String targetURL, Map<String, String> parameters) {
-        System.out.println("executePost");
-        System.out.println("parameters = " + parameters);
-        System.out.println("targetURL = " + targetURL);
 
         if (parameters != null && !parameters.isEmpty()) {
             targetURL += "?";
@@ -73,7 +70,6 @@ public class SmsManagerEjb {
         while (it.hasNext()) {
             Map.Entry m = (Map.Entry) it.next();
             String pVal;
-            System.out.println("m.getValue() = " + m.getValue());
             try {
                 pVal = java.net.URLEncoder.encode(m.getValue().toString(), "UTF-8");
             } catch (UnsupportedEncodingException ex) {
@@ -91,22 +87,18 @@ public class SmsManagerEjb {
             URL hh = new URL(targetURL);
             URLConnection connection = hh.openConnection();
             String redirect = connection.getHeaderField("Location");
-            System.out.println("redirect = " + redirect);
             if (redirect != null) {
                 connection = new URL(redirect).openConnection();
             }
             redirect = connection.getHeaderField("Location");
-            System.out.println("redirect = " + redirect);
             if (redirect != null) {
                 connection = new URL(redirect).openConnection();
             }
             redirect = connection.getHeaderField("Location");
-            System.out.println("redirect = " + redirect);
             if (redirect != null) {
                 connection = new URL(redirect).openConnection();
             }
             redirect = connection.getHeaderField("Location");
-            System.out.println("redirect = " + redirect);
             if (redirect != null) {
                 connection = new URL(redirect).openConnection();
             }
@@ -120,9 +112,6 @@ public class SmsManagerEjb {
     }
 
     public String executePostOld(String targetURL, Map<String, String> parameters) {
-        System.out.println("executePost");
-        System.out.println("parameters = " + parameters);
-        System.out.println("targetURL = " + targetURL);
         HttpURLConnection connection = null;
         if (parameters != null && !parameters.isEmpty()) {
             targetURL += "?";
@@ -132,7 +121,6 @@ public class SmsManagerEjb {
         while (it.hasNext()) {
             Map.Entry m = (Map.Entry) it.next();
             String pVal;
-            System.out.println("m.getValue() = " + m.getValue());
             try {
                 pVal = java.net.URLEncoder.encode(m.getValue().toString(), "UTF-8");
             } catch (UnsupportedEncodingException ex) {

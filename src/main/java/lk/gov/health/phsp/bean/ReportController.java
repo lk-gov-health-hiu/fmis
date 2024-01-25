@@ -207,7 +207,6 @@ public class ReportController implements Serializable {
 
         jpqlBuilder.append("ORDER BY ft.requestAt");
 
-        System.out.println("parameters = " + parameters);
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);

@@ -104,7 +104,6 @@ public class FuelRequestAndIssueController implements Serializable {
                 null,
                 null, null, null);
 
-
         if (searchResults == null || searchResults.isEmpty()) {
             JsfUtil.addErrorMessage("No search results. Please check and retry.");
             return "";
@@ -140,7 +139,6 @@ public class FuelRequestAndIssueController implements Serializable {
                 null,
                 false, false, false);
 
-
         if (searchResults == null || searchResults.isEmpty()) {
             JsfUtil.addErrorMessage("No search results. Please check and retry.");
             return "";
@@ -160,7 +158,7 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToMarkVehicleFuelRequest() {
-        if(selected==null){
+        if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
             return "";
         }
@@ -252,6 +250,33 @@ public class FuelRequestAndIssueController implements Serializable {
         return navigateToViewInstitutionFuelRequestToSltbDepot();
     }
 
+    public String submitSpecialVehicleFuelRequest() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return "";
+        }
+        if (selected.getTransactionType() == null) {
+            JsfUtil.addErrorMessage("Transaction Type is not set.");
+            return "";
+        }
+        if (selected.getTransactionType() != FuelTransactionType.SpecialVehicleFuelRequest) {
+            JsfUtil.addErrorMessage("Wrong Transaction Type");
+            return "";
+        }
+        if (selected.getVehicle() == null) {
+            JsfUtil.addErrorMessage("No Vehicle Selected");
+            return "";
+        }
+        if (selected.getVehicle().getInstitution() == null) {
+            JsfUtil.addErrorMessage("No Institution foind for the selected Vehicle");
+            return "";
+        }
+        selected.setInstitution(selected.getVehicle().getInstitution());
+        save(selected);
+        JsfUtil.addSuccessMessage("Special Fuel Request Submitted");
+        return navigateToViewInstitutionFuelRequestToSltbDepot();
+    }
+
     public String submitSltbFuelRequestFromCpc() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
@@ -305,7 +330,7 @@ public class FuelRequestAndIssueController implements Serializable {
         JsfUtil.addSuccessMessage("Successfully Issued");
         return navigateToSearchRequestsForVehicleFuelIssue();
     }
-    
+
     public String submitMarkVehicleFuelRequestIssue() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
@@ -468,12 +493,7 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setRequestedInstitution(webUserController.getLoggedInstitution());
         selected.setFromInstitution(webUserController.getLoggedInstitution());
         selected.setInstitution(webUserController.getLoggedInstitution());
-        if (webUserController.getManagableVehicles().size() == 1) {
-            selected.setVehicle(webUserController.getManagableVehicles().get(0));
-        }
-        if (webUserController.getManagableDrivers().size() == 1) {
-            selected.setDriver(webUserController.getManagableDrivers().get(0));
-        }
+        selected.setToInstitution(webUserController.getLoggedInstitution().getSupplyInstitution());
         return "/requests/special_request";
     }
 
@@ -494,10 +514,12 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToListInstitutionRequests() {
+        listInstitutionRequests();
         return "/requests/list";
     }
 
     public String navigateToListInstitutionRequestsToMark() {
+        listInstitutionRequestsToMark();
         return "/requests/list_to_mark";
     }
 
@@ -512,15 +534,16 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listInstitutionRequests() {
-        transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate, null, null, null);
+        transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null);
     }
 
     public void listInstitutionRequestsToMark() {
-        transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate, false, false, false);
+        transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), false, false, false);
     }
 
-    public void listCtbFuelRequestsFromCpc() {
-        transactions = findFuelTransactions(webUserController.getLoggedInstitution(), null, null, null, fromDate, toDate, null, null, null, null, FuelTransactionType.CtbFuelRequest);
+
+    public void listCtbFuelRequestsFromInstitution() {
+        transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null, null, FuelTransactionType.CtbFuelRequest);
     }
 
     public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution,

@@ -61,8 +61,6 @@ public class EncounterApplicationController {
     }
 
     public FuelTransaction getEncounter(Long id) {
-        System.out.println("getEncounter");
-        System.out.println("id = " + id);
         
         FuelTransaction e = null;
         if (id == null) {
@@ -73,8 +71,6 @@ public class EncounterApplicationController {
                 + " where e.id=:eid";
         Map m = new HashMap();
         m.put("eid", id);
-        System.out.println("m = " + m);
-        System.out.println("j = " + j);
         e = encounterFacade.findFirstByJpql(j, m);
         return e;
     }

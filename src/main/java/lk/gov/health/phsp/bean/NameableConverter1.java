@@ -64,7 +64,6 @@ public class NameableConverter1 implements Serializable, Converter<Nameable> {
         if (value == null || value.length() == 0) {
             return null;
         }
-        System.out.println("value = " + value);
         Institution ins = institutionFacade.find(getKey(value));
         if (ins != null) {
             return ins;
