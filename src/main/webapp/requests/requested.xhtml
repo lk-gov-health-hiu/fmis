@@ -24,26 +24,35 @@
                                 <div class="card" >
                                     <div class="card-header" >
                                         <div class="row" >
-                                            <div class="col-md-6" >
+                                            <div class="col-md-4" >
                                                 <h2><h:outputText value="Fuel Request Details"></h:outputText></h2>
 
                                             </div>
-                                            <div class="col-md-6" >
-                                                <h:commandButton  value="New Vehicle Fuel Request" 
+                                            <div class="col-md-8" >
+                                                <p:commandButton  value="New Order" 
+                                                                  ajax="false"
                                                                   class="btn btn-primary m-2 p-1"
                                                                   action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}"
                                                                   >
-                                                </h:commandButton>
-                                                <h:commandButton  value="New Special Vehicle Fuel Request" 
+                                                </p:commandButton>
+                                                <p:commandButton  value="New Special Order" 
+                                                                  ajax="false"
                                                                   class="btn btn-primary m-2 p-1"
                                                                   action="#{fuelRequestAndIssueController.navigateToAddSpecialVehicleFuelRequest()}"
                                                                   >
-                                                </h:commandButton>
-                                                <h:commandButton  value="View Requests" 
+                                                </p:commandButton>
+                                                <p:commandButton  value="To Mark Orders as Received" 
+                                                                  ajax="false"
+                                                                  class="btn btn-primary m-2 p-1"
+                                                                  action="#{fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark()}"
+                                                                  >
+                                                </p:commandButton>
+                                                <p:commandButton  value="View Requests" 
+                                                                  ajax="false"
                                                                   class="btn btn-primary m-2 p-1"
                                                                   action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}"
                                                                   >
-                                                </h:commandButton>
+                                                </p:commandButton>
                                             </div>
                                         </div>
 

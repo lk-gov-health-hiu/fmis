@@ -150,15 +150,12 @@ public class ApiResource {
             ipadd = requestContext.getRemoteAddr();
         }
 
-        System.out.println("ipadd = " + ipadd);
-        System.out.println("name = " + name);
         String requestIp = "";
         if(ipadd!=null){
             requestIp = ipadd.trim().toLowerCase();
         }else{
             requestIp = "IP Address is NULL";
         }
-        System.out.println("requestIp = " + requestIp);
 
         JSONObject jSONObjectOut;
         if (name == null || name.trim().equals("")) {
@@ -234,8 +231,6 @@ public class ApiResource {
     }
 
     private JSONObject authenticate(String username, String password) {
-        System.out.println(username);
-        System.out.println(password);
 
         if (username== null || username.trim().length() == 0) {
             return errorMessageLogin();
@@ -268,7 +263,6 @@ public class ApiResource {
         json.put("api_key", encodedJwt);
         json.put("status", 200);
         json.put("message", "success");
-        System.out.println(json.toString());
         return json;
     }
 
@@ -328,11 +322,9 @@ public class ApiResource {
             return errorMessageNoPcrRequestId();
         }
 
-        System.out.println("request_id = " + request_id);
 
         Long rid = CommonController.getLongValue(request_id);
 
-        System.out.println("rid = " + rid);
 
         FuelTransaction e = encounterApplicationController.getEncounter(rid);
 

@@ -19,100 +19,35 @@
                         <h:outputLabel value="Reports" ></h:outputLabel>
                     </div>
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <h:form class="form">
-                                <p:accordionPanel activeIndex="#{webUserController.reportTabIndex}">
-                                    <p:ajax event="tabChange" update="@this" />
-                                    <p:tab title="Excel Templates"  >
-                                        <h:panelGrid columns="1" >
-                                            <p:commandButton value="MOH Summery"   style="width:20em;margin:auto;"
-                                                             action="#{reportController.toInstitutionMonthlySummeries()}"
-                                                             ajax="false"></p:commandButton>
+                                <p:commandButton 
+                                    value="List of Transactions"   
+                                    class="w-100 m-1"
+                                    action="#{reportController.navigateToListFuelRequests()}"
+                                    ajax="false"></p:commandButton>
+                                <p:commandButton 
+                                    value="Diesel Distribution to Fuel Stations Summary"   
+                                    class="w-100 m-1"
+                                    action="#{reportController.navigateToDieselDistributionFuelStationSummary()}"
+                                    ajax="false"></p:commandButton>
 
-                                            <p:commandButton value="Consolidated Summeries"   style="width:20em;margin:auto;"
-                                                             action="#{reportController.toConsolidateSummeries()}"
-                                                             ajax="false"></p:commandButton>
+                                <p:commandButton 
+                                    value="Diesel Distribution from Health Institutions Summary"   
+                                    class="w-100 m-1"
+                                    action="#{reportController.navigateToDieselDistributionHealthInstitutionSummary()}"
+                                    ajax="false"></p:commandButton>
 
-                                            <p:commandButton value="My Summeries" rendered="false"   style="width:20em;margin:auto;"
-                                                             action="#{reportController.toViewMySummeries()}"
-                                                             ajax="false"></p:commandButton>
-
-                                        </h:panelGrid>
-                                    </p:tab>
-
-                                    <p:tab title="Counts"  >
-                                        <h:panelGrid columns="1" >
-                                            <p:outputLabel value="Episodes" ></p:outputLabel>
-                                            <p:commandButton value="MOH-vice"   style="width:20em;margin:auto;"
-                                                             action="#{reportController.toViewClinicVisitsByInstitution()}"
-                                                             ajax="false"></p:commandButton>
-                                            <p:commandButton value="District-vice" style="width:20em;margin:auto;"
-                                                             action="#{reportController.toViewClientRegistrationsByDistrict()}"
-                                                             rendered="#{webUserController.hasPrivilege('System_Administration')}"
-                                                             ajax="false"></p:commandButton>
-                                            <p:commandButton value="Province-vice" style="width:20em;margin:auto;"
-                                                             action="#{reportController.toViewClientRegistrationsByProvince()}"
-                                                             rendered="#{webUserController.hasPrivilege('System_Administration')}"
-                                                             ajax="false"></p:commandButton>
-                                            <p:commandButton value="By Day"   style="width:20em;margin:auto;"
-                                                             action="#{reportController.toViewDailyClinicsVisitCounts()}"
-                                                             ajax="false"></p:commandButton>
-                                            <hr/>
-                                            <p:outputLabel value="Registrations" ></p:outputLabel>
-                                            <p:commandButton value="Institution-vice"   style="width:20em;margin:auto;"
-                                                             action="#{reportController.toViewClientRegistrationsByInstitution()}"
-                                                             ajax="false"></p:commandButton>
-                                            <p:commandButton value="District-vice" style="width:20em;margin:auto;"
-                                                             action="#{reportController.toViewClientRegistrationsByDistrict()}"
-                                                             rendered="#{webUserController.hasPrivilege('System_Administration')}"
-                                                             ajax="false"></p:commandButton>
-                                            <p:commandButton value="Province-vice" style="width:20em;margin:auto;"
-                                                             action="#{reportController.toViewClientRegistrationsByProvince()}"
-                                                             rendered="#{webUserController.hasPrivilege('System_Administration')}"
-                                                             ajax="false"></p:commandButton>
-                                            <p:commandButton value="By Day"   style="width:20em;margin:auto;"
-                                                             action="#{reportController.toViewDailyClinicsRegistrationCounts()}"
-                                                             ajax="false"></p:commandButton>
-                                        </h:panelGrid>
-                                    </p:tab>
-
-                                    <p:tab title="Lists" >
-
-                                        <h:panelGrid columns="1" >
-                                            <p:commandButton value="Registrations"   style="width:20em;margin:auto;"
-                                                             action="#{reportController.toViewClientRegistrations()}"
-                                                             ajax="false"></p:commandButton>
-                                            <p:commandButton value="Episodes"   style="width:20em;margin:auto;"
-                                                             action="#{reportController.toViewClinicVisits()}"
-                                                             ajax="false"></p:commandButton>
-
-                                            <p:commandButton value="Episode Data"   style="width:20em;margin:auto;"
-                                                             action="#{reportController.toViewDataForms()}"
-                                                             ajax="false"></p:commandButton>
-
-                                        </h:panelGrid>
+                                <p:commandButton 
+                                    value="Comprehensive Diesel Issuance Summary"   
+                                    class="w-100 m-1"
+                                    action="#{reportController.navigateToComprehensiveDieselIssuanceSummary()}"
+                                    ajax="false"></p:commandButton>
 
 
-                                    </p:tab>
-
-                                    <p:tab title="Data" >
-                                        <h:panelGrid columns="1" >
-
-
-                                            <p:commandButton value="Clinical Data"   style="width:20em;margin:auto;"
-                                                             action="#{reportController.toSingleVariableClinicalData()}"
-                                                             ajax="false"></p:commandButton>
-
-                                        </h:panelGrid>
-
-
-
-                                    </p:tab>
-
-                                </p:accordionPanel>
                             </h:form>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-10">
                             <ui:insert name="reports">
 
                             </ui:insert>

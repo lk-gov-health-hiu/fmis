@@ -8,13 +8,10 @@
 
     <h:body>
 
-        <ui:composition template="/template.xhtml">
+        <ui:composition template="/reports/index.xhtml">
 
-            <ui:define name="title">
-                Request Details
-            </ui:define>
 
-            <ui:define name="content">
+            <ui:define name="reports">
 
                 <div class="container-fluid p-2 w-100" >
                     <h:form >
@@ -24,20 +21,9 @@
                                 <div class="card" >
                                     <div class="card-header" >
                                         <div class="row" >
-                                            <div class="col-md-6" >
-                                                <h2><h:outputText value="Fuel Requests for SLTB Depots from CPC"></h:outputText></h2>
-                                            </div>
-                                            <div class="col-md-6" >
-                                                <p:commandButton  value="New Request" 
-                                                                  class="btn btn-primary m-2 p-1"
-                                                                  action="#{fuelRequestAndIssueController.navigateToAddCpcFuelRequest()}"
-                                                                  >
-                                                </p:commandButton>
-                                                <p:commandButton  value="View Requests" 
-                                                                  class="btn btn-primary m-2 p-1"
-                                                                  action="#{fuelRequestAndIssueController.navigateToListSltbRequestsFromCpc()}"
-                                                                  >
-                                                </p:commandButton>
+                                            <div class="col-md-12" >
+                                                <h2><h:outputText value="Fuel Request Details"></h:outputText></h2>
+
                                             </div>
                                         </div>
 
@@ -58,74 +44,96 @@
                                                                 Request Details
                                                             </th>
                                                         </tr>
-                                                         <tr>
-                                                            <td><b>Requested Institute:</b></td>
-                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.institution.name}" /></td>
+                                                        <tr>
+                                                            <td><b>Requested Institution:</b></td>
+                                                            <td>
+                                                                <h:outputText value="#{reportController.fuelTransaction.fromInstitution.name}" />
+                                                            </td>
                                                         </tr>
                                                         <tr>
-                                                            <td><b>Requested For:</b></td>
-                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.fromInstitution.name}" /></td>
+                                                            <td><b>Requested Fuel Station:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.toInstitution.name}" /></td>
                                                         </tr>
                                                         <tr>
-                                                            <td><b>Requested From:</b></td>
-                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.toInstitution.name}" /></td>
+                                                            <td><b>Vehicle:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.vehicle.vehicleNumber}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Driver:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.driver.name}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Request Quantity:</b></td>
-                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}" /></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.requestQuantity}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>ODO Reading:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.odoMeterReading}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Request Reference No.:</b></td>
-                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}" /></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.requestReferenceNumber}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Comments:</b></td>
-                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.comments}" /></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.comments}" /></td>
                                                         </tr>
                                                         <tr>
-                                                            <td><b>Requested By:</b></td>
-                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestedBy.person.name}" /></td>
+                                                            <td><b>Requested User:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.requestedBy.person.name}" /></td>
                                                         </tr>
                                                         <tr>
-                                                            <td><b>Requested At:</b></td>
+                                                            <td><b>Requested Date/Time:</b></td>
                                                             <td>
-                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.requestAt}">
+                                                                <h:outputText value="#{reportController.fuelTransaction.requestAt}">
                                                                     <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
                                                                 </h:outputText>
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>ID:</b></td>
-                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.id}" /></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.id}" /></td>
                                                         </tr>
                                                     </table>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <!-- Issue Details -->
-                                                    <ui:fragment rendered="#{fuelRequestAndIssueController.selected.issued}">
+                                                    <ui:fragment rendered="#{reportController.fuelTransaction.issued}">
                                                         <table class="table">
                                                             <tr>
                                                                 <th colspan="2" class="text-center bg-primary text-white">
-                                                                    Request Details
+                                                                    Issue Details
                                                                 </th>
                                                             </tr>
                                                             <tr>
-                                                                <td><b>Requested by:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.fromInstitution.name}" /></td>
+                                                                <td><b>Issued by:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.toInstitution.name}" /></td>
                                                             </tr>
                                                             <!-- Other table rows for request details -->
                                                             <tr>
                                                                 <td><b>Issued Quantity:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedQuantity}" /></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.issuedQuantity}" /></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><b>Issued From:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedInstitution.name}" /></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.issuedInstitution.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Issue Marked User:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.issuedUser.person.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Issue Recorded At:</b></td>
+                                                                <td>
+                                                                    <h:outputText value="#{reportController.fuelTransaction.issuedAt}" >
+                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
+                                                                    </h:outputText>
+                                                                </td>
                                                             </tr>
                                                             <!-- Other table rows for issued details -->
                                                         </table>
                                                     </ui:fragment>
-                                                    <ui:fragment rendered="#{!fuelRequestAndIssueController.selected.issued}">
+                                                    <ui:fragment rendered="#{!reportController.fuelTransaction.issued}">
                                                         <table class="table">
                                                             <tr>
                                                                 <th class="text-center bg-danger text-white">
@@ -136,9 +144,10 @@
                                                     </ui:fragment>
 
 
+
                                                     <!-- Rejection Details -->
                                                     <table class="table">
-                                                        <ui:fragment rendered="#{fuelRequestAndIssueController.selected.rejected}">
+                                                        <ui:fragment rendered="#{reportController.fuelTransaction.rejected}">
                                                             <tr>
                                                                 <th colspan="2" class="text-center bg-danger text-white">
                                                                     Request Rejected
@@ -146,26 +155,28 @@
                                                             </tr>
                                                             <tr>
                                                                 <td><b>Rejected By:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.rejectedBy.person.name}" /></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.rejectedBy.person.name}" /></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><b>Rejection Time:</b></td>
                                                                 <td>
-                                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.rejectedAt}">
+                                                                    <h:outputText value="#{reportController.fuelTransaction.rejectedAt}">
                                                                         <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
                                                                     </h:outputText>
                                                                 </td>
                                                             </tr>
                                                             <tr>
                                                                 <td><b>Rejection Institution:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.rejectedInstitution.name}" /></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.rejectedInstitution.name}" /></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><b>Rejection Comments:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.rejectedComments}" /></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.rejectedComments}" /></td>
                                                             </tr>
                                                         </ui:fragment>
-                                                        <ui:fragment rendered="#{!fuelRequestAndIssueController.selected.rejected}">
+
+
+                                                        <ui:fragment rendered="#{!reportController.fuelTransaction.rejected}">
                                                             <tr>
                                                                 <th colspan="2" class="text-center bg-success text-white">
                                                                     Request Not Rejected
@@ -178,7 +189,7 @@
 
                                                     <!-- Cancellation Details -->
                                                     <table class="table">
-                                                        <ui:fragment rendered="#{fuelRequestAndIssueController.selected.cancelled}">
+                                                        <ui:fragment rendered="#{reportController.fuelTransaction.cancelled}">
                                                             <tr>
                                                                 <th colspan="2" class="text-center bg-danger text-white">
                                                                     Request Cancelled
@@ -186,26 +197,26 @@
                                                             </tr>
                                                             <tr>
                                                                 <td><b>Cancelled By:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.cancelledBy.person.name}" /></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.cancelledBy.person.name}" /></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><b>Cancellation Time:</b></td>
                                                                 <td>
-                                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.cancelledAt}">
+                                                                    <h:outputText value="#{reportController.fuelTransaction.cancelledAt}">
                                                                         <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
                                                                     </h:outputText>
                                                                 </td>
                                                             </tr>
                                                             <tr>
                                                                 <td><b>Cancellation Institution:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.cancelledInstitution.name}" /></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.cancelledInstitution.name}" /></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><b>Cancellation Comments:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.cancellationComments}" /></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.cancellationComments}" /></td>
                                                             </tr>
                                                         </ui:fragment>
-                                                        <ui:fragment rendered="#{!fuelRequestAndIssueController.selected.cancelled}">
+                                                        <ui:fragment rendered="#{!reportController.fuelTransaction.cancelled}">
                                                             <tr>
                                                                 <th colspan="2" class="text-center bg-success text-white">
                                                                     Request Not Cancelled

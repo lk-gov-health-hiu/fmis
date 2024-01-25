@@ -246,7 +246,6 @@ public class WebUserController implements Serializable {
     }
 
     public List<Vehicle> findAutherizedVehicles() {
-        System.out.println("findAutherizedVehicles");
         List<Vehicle> ins = new ArrayList<>();
         if (loggedUser == null) {
             return ins;
@@ -266,7 +265,6 @@ public class WebUserController implements Serializable {
     }
 
     public List<WebUser> findManagableUsers() {
-        System.out.println("findManagableUsers = " + this);
         List<WebUser> users = new ArrayList<>();
         if (loggedUser == null) {
             return users;
@@ -283,12 +281,10 @@ public class WebUserController implements Serializable {
                 users.addAll(fillWebUsers(loggableInstitutions));
                 break;
         }
-        System.out.println("users = " + users);
         return users;
     }
 
     private List<WebUser> fillWebUsers(List<Institution> inss) {
-        System.out.println("fillWebUsers");
 //        System.out.println("inss = " + inss);
         List<WebUser> wus = new ArrayList<>();
         if (inss == null) {
@@ -299,7 +295,6 @@ public class WebUserController implements Serializable {
         }
 
         for (WebUser w : webUserApplicationController.getItems()) {
-            System.out.println("w = " + w);
             boolean canInclude = false;
             if (w.getInstitution() == null) {
                 continue;
@@ -309,7 +304,6 @@ public class WebUserController implements Serializable {
                     canInclude = true;
                 }
             }
-            System.out.println("canInclude = " + canInclude);
             if (canInclude) {
                 wus.add(w);
             }
@@ -908,7 +902,6 @@ public class WebUserController implements Serializable {
             getUserPrivilegeFacade().edit(up);
         }
         }catch(Exception e){
-            System.out.println("e = " + e);
         }
         
         
@@ -1328,7 +1321,6 @@ public class WebUserController implements Serializable {
                 getFacade().edit(u);
             }
         } catch (Exception e) {
-            System.out.println("e = " + e);
         }
 
     }

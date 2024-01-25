@@ -29,20 +29,13 @@
                                             <h:commandButton  value="Submit" 
                                                               style="float: right;"
                                                               class="btn btn-primary"
-                                                              action="#{fuelRequestAndIssueController.submitVehicleFuelRequest()}" >
+                                                              action="#{fuelRequestAndIssueController.submitSpecialVehicleFuelRequest()}" >
                                             </h:commandButton>
                                         </h2>
                                     </f:facet>
                                     <p:outputLabel 
                                         value="Vehicle" 
-
                                         for="acVehicle">
-                                    </p:outputLabel>
-                                    <p:outputLabel 
-                                        value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" 
-
-                                        rendered="#{fuelRequestAndIssueController.selected.vehicle ne null}"
-                                        >
                                     </p:outputLabel>
                                     <p:autoComplete 
                                         id="acVehicle"
@@ -51,46 +44,42 @@
                                         var="v"
                                         class="w-100"
                                         inputStyleClass="w-100"
+                                        forceSelection="true"
                                         maxResults="20"
                                         itemLabel="#{v.vehicleNumber}"
-                                        itemValue="#{v}" >
+                                        itemValue="#{v}" 
+                                        required="true"
+                                        requiredMessage="Please select a Vehicle"
+                                        title="Please select a vehicle"
+                                        placeholder="Select a vehicle by typing few letters to search">
+                                        <p:ajax process="acVehicle" update="lblIns acDriver" ></p:ajax>
                                     </p:autoComplete>
-                                    <p:selectOneMenu id="acVehicle1"
-                                                     
-                                                     value="#{fuelRequestAndIssueController.selected.vehicle}"
-                                                     filter="true"
-                                                     rendered="false"
-                                                     filterMatchMode="contains"
-                                                     required="true"
-                                                     requiredMessage="You must select a vehicle"
-                                                     styleClass="form-control w-100">
-                                        <f:selectItem itemLabel="Select a vehicle" noSelectionOption="true" />
-                                        <f:selectItems value="#{webUserController.managableVehicles}" var="v"
-                                                       itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
-                                    </p:selectOneMenu>
 
+                                    <p:outputLabel 
+                                        value="Institution">
+                                    </p:outputLabel>
+                                    <p:inputText
+                                        id="lblIns"
+                                        disabled="true"
+                                        class="w-100"
+                                        value="#{fuelRequestAndIssueController.selected.vehicle.institution.name}" >
+                                    </p:inputText>
 
                                     <p:outputLabel 
                                         value="Driver" 
-
                                         for="acVehicle">
                                     </p:outputLabel>
-                                    <p:outputLabel 
-                                        value="#{fuelRequestAndIssueController.selected.driver.name}" 
-
-                                        rendered="#{fuelRequestAndIssueController.selected.driver ne null}"
-                                        >
-                                    </p:outputLabel>
-                                    <p:selectOneMenu id="acDriver"
-                                                     value="#{fuelRequestAndIssueController.selected.driver}"
-                                                     filter="true"
-                                                     rendered="#{fuelRequestAndIssueController.selected.driver eq null}"
-                                                     filterMatchMode="contains"
-                                                     required="true"
-                                                     requiredMessage="You must select a vehicle"
-                                                     styleClass="form-control w-100">
-                                        <f:selectItem itemLabel="Select a vehicle" noSelectionOption="true" />
-                                        <f:selectItems value="#{webUserController.managableDrivers}" var="d"
+                                    <p:selectOneMenu 
+                                        id="acDriver"
+                                        value="#{fuelRequestAndIssueController.selected.driver}"
+                                        filter="true"
+                                        rendered="#{fuelRequestAndIssueController.selected.driver eq null}"
+                                        filterMatchMode="contains"
+                                        required="true"
+                                        requiredMessage="You must select a driver"
+                                        styleClass="form-control w-100">
+                                        <f:selectItem itemLabel="Select a driver"  />
+                                        <f:selectItems value="#{driverController.institutionDrivers(fuelRequestAndIssueController.selected.vehicle.institution)}" var="d"
                                                        itemLabel="#{d.name}" itemValue="#{d}" />
                                     </p:selectOneMenu>
 
@@ -101,17 +90,19 @@
                                         value="Fuel Station / Depot" 
                                         >
                                     </p:outputLabel>
-                                    <p:autoComplete  id="depo" 
-                                                     class="d-block" 
-                                                     inputStyleClass="form-control" 
-                                                     value="#{fuelRequestAndIssueController.selected.toInstitution}" 
-                                                     completeMethod="#{institutionController.completeDepots}"
-                                                     var="i" 
-                                                     itemLabel="#{i.name}" 
-                                                     itemValue="#{i}" 
-                                                     forceSelection="True"
-                                                     maxResults="15" 
-                                                     minQueryLength="3">
+                                    <p:autoComplete  
+                                        id="depo" 
+                                        class="d-block" 
+                                        inputStyleClass="form-control" 
+                                        value="#{fuelRequestAndIssueController.selected.toInstitution}" 
+                                        completeMethod="#{institutionController.completeFuelStations}"
+                                        var="i" 
+                                        disabled="true"
+                                        itemLabel="#{i.name}" 
+                                        itemValue="#{i}" 
+                                        forceSelection="True"
+                                        maxResults="15" 
+                                        minQueryLength="3">
                                     </p:autoComplete >
 
 

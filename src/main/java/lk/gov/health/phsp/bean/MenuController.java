@@ -51,11 +51,8 @@ public class MenuController implements Serializable {
 
     @Inject
     private WebUserController webUserController;
-    @Inject
-    WebUserApplicationController webUserApplicationController;
-    @Inject
-    FuelRequestAndIssueController letterController;
 
+    
     @Inject
     InstitutionController institutionController;
     @Inject
@@ -183,7 +180,6 @@ public class MenuController implements Serializable {
         }
     }
 
-    
     public String toAddNewVehicle() {
         vehicleController.prepareToAddNewVehicle();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -262,20 +258,17 @@ public class MenuController implements Serializable {
         }
     }
 
-    
     public String toListFuelStations() {
         institutionController.prepareToListFuelStations();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
                 return "/national/admin/fuel_station_list";
             default:
-               return "/institution/admin/fuel_station_list";
+                return "/institution/admin/fuel_station_list";
         }
     }
 
-    
     public String toListVehicles() {
-        System.out.println("toListVehicles");
         vehicleController.prepareToListVehicle();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
@@ -401,6 +394,20 @@ public class MenuController implements Serializable {
         }
     }
 
+    public String toEditMyInstitution() {
+        institutionController.setSelected(webUserController.getLoggedInstitution());
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+
+            case FUEL_REQUESTING_INSTITUTION:
+            case CTB:
+                return "/institution/admin/my_institution";
+            case HEALTH_MINISTRY:
+                return "/national/admin/institution";
+            default:
+                return "";
+        }
+    }
+
     public String toEditFuelStation() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
@@ -410,8 +417,6 @@ public class MenuController implements Serializable {
         }
     }
 
-    
-    
     public String toEditDriver() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case FUEL_REQUESTING_INSTITUTION:
@@ -461,5 +466,7 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
+    
+    
 
 }

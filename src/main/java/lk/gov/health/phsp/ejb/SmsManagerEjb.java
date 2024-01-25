@@ -61,9 +61,6 @@ public class SmsManagerEjb {
     }
 
     public String executePost(String targetURL, Map<String, String> parameters) {
-        System.out.println("executePost");
-        System.out.println("parameters = " + parameters);
-        System.out.println("targetURL = " + targetURL);
 
         if (parameters != null && !parameters.isEmpty()) {
             targetURL += "?";
@@ -73,7 +70,6 @@ public class SmsManagerEjb {
         while (it.hasNext()) {
             Map.Entry m = (Map.Entry) it.next();
             String pVal;
-            System.out.println("m.getValue() = " + m.getValue());
             try {
                 pVal = java.net.URLEncoder.encode(m.getValue().toString(), "UTF-8");
             } catch (UnsupportedEncodingException ex) {
@@ -81,10 +77,8 @@ public class SmsManagerEjb {
                 Logger.getLogger(SmsManagerEjb.class.getName()).log(Level.SEVERE, null, ex);
             }
             String pPara = (String) m.getKey();
-            System.out.println("pPara = " + pPara);
             targetURL += pPara + "=" + pVal.toString() + "&";
         }
-        System.out.println("targetURL = " + targetURL);
         if (parameters != null && !parameters.isEmpty()) {
             targetURL += "last=true";
         }
@@ -93,41 +87,31 @@ public class SmsManagerEjb {
             URL hh = new URL(targetURL);
             URLConnection connection = hh.openConnection();
             String redirect = connection.getHeaderField("Location");
-            System.out.println("redirect = " + redirect);
             if (redirect != null) {
                 connection = new URL(redirect).openConnection();
             }
             redirect = connection.getHeaderField("Location");
-            System.out.println("redirect = " + redirect);
             if (redirect != null) {
                 connection = new URL(redirect).openConnection();
             }
             redirect = connection.getHeaderField("Location");
-            System.out.println("redirect = " + redirect);
             if (redirect != null) {
                 connection = new URL(redirect).openConnection();
             }
             redirect = connection.getHeaderField("Location");
-            System.out.println("redirect = " + redirect);
             if (redirect != null) {
                 connection = new URL(redirect).openConnection();
             }
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-            System.out.println();
             while ((inputLine = in.readLine()) != null) {
-                System.out.println(inputLine);
             }
         } catch (Exception e) {
-            System.out.println("e = " + e);
         }
         return inputLine;
     }
 
     public String executePostOld(String targetURL, Map<String, String> parameters) {
-        System.out.println("executePost");
-        System.out.println("parameters = " + parameters);
-        System.out.println("targetURL = " + targetURL);
         HttpURLConnection connection = null;
         if (parameters != null && !parameters.isEmpty()) {
             targetURL += "?";
@@ -137,7 +121,6 @@ public class SmsManagerEjb {
         while (it.hasNext()) {
             Map.Entry m = (Map.Entry) it.next();
             String pVal;
-            System.out.println("m.getValue() = " + m.getValue());
             try {
                 pVal = java.net.URLEncoder.encode(m.getValue().toString(), "UTF-8");
             } catch (UnsupportedEncodingException ex) {
@@ -145,10 +128,8 @@ public class SmsManagerEjb {
                 Logger.getLogger(SmsManagerEjb.class.getName()).log(Level.SEVERE, null, ex);
             }
             String pPara = (String) m.getKey();
-            System.out.println("pPara = " + pPara);
             targetURL += pPara + "=" + pVal.toString() + "&";
         }
-        System.out.println("targetURL = " + targetURL);
         if (parameters != null && !parameters.isEmpty()) {
             targetURL += "last=true";
         }
@@ -191,7 +172,6 @@ public class SmsManagerEjb {
         m.put("message", message);
         m.put("key", decKey);
         String res = executePost("https://hims.health.gov.lk/sms-mw", m);
-        System.out.println("res = " + res);
         if (res == null) {
             return false;
         } else if (res.toUpperCase().contains("200")) {

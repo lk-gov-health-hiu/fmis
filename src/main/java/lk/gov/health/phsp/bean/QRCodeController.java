@@ -21,14 +21,12 @@ public class QRCodeController implements Serializable {
     private String qrData;
 
     public String scanQRCode(byte[] imageData) {
-        System.out.println("scanQRCode");
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(imageData);
             BufferedImage bufferedImage = ImageIO.read(bais);
             BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(new BufferedImageLuminanceSource(bufferedImage)));
             Result qrCodeResult = new MultiFormatReader().decode(binaryBitmap);
             qrData = qrCodeResult.getText();
-            System.out.println("qrData = " + qrData);
         } catch (IOException|NotFoundException e) {
             e.printStackTrace();
             qrData="Error";

@@ -41,12 +41,21 @@ import lk.gov.health.phsp.enums.FuelTransactionType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.persistence.TemporalType;
+import lk.gov.health.phsp.bean.util.JsfUtil;
+import lk.gov.health.phsp.entity.Driver;
 import lk.gov.health.phsp.entity.Upload;
+import lk.gov.health.phsp.enums.InstitutionType;
 import lk.gov.health.phsp.enums.Quarter;
 import lk.gov.health.phsp.enums.TimePeriodType;
+import lk.gov.health.phsp.enums.VehiclePurpose;
+import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
+import lk.gov.health.phsp.facade.FuelTransactionFacade;
 import lk.gov.health.phsp.facade.UploadFacade;
 import lk.gov.health.phsp.pojcs.AreaCount;
+import lk.gov.health.phsp.pojcs.FuelIssuedSummary;
+import lk.gov.health.phsp.pojcs.FuelTransactionLight;
 import lk.gov.health.phsp.pojcs.InstitutionCount;
 import lk.gov.health.phsp.pojcs.ReportTimePeriod;
 import org.primefaces.model.StreamedContent;
@@ -59,52 +68,48 @@ import org.primefaces.model.StreamedContent;
 @Named
 @SessionScoped
 public class ReportController implements Serializable {
-// <editor-fold defaultstate="collapsed" desc="EJBs">
 
-
+    // <editor-fold defaultstate="collapsed" desc="EJBs">
     @EJB
     private FuelTransactionHistoryFacade encounterFacade;
     @EJB
     private UploadFacade uploadFacade;
-// </editor-fold>     
-// <editor-fold defaultstate="collapsed" desc="Controllers">
+    @EJB
+    FuelTransactionFacade fuelTransactionFacade;
+    // </editor-fold>  
+
+    // <editor-fold defaultstate="collapsed" desc="Controllers">
     @Inject
     private WebUserController webUserController;
     @Inject
     private InstitutionController institutionController;
     @Inject
     InstitutionApplicationController institutionApplicationController;
-    
+
     @Inject
     private ExcelReportController excelReportController;
-   
+
     @Inject
     private UserTransactionController userTransactionController;
-   
-// </editor-fold>  
-// <editor-fold defaultstate="collapsed" desc="Class Variables">
-    private List<FuelTransaction> encounters;
+
+    // </editor-fold>
+    // <editor-fold defaultstate="collapsed" desc="Class Variables">
+    private List<FuelTransaction> transactions;
+    private FuelTransaction fuelTransaction;
+    private FuelTransactionLight fuelTransactionLight;
+    private List<FuelTransactionLight> transactionLights;
     private Date fromDate;
     private Date toDate;
     private Institution institution;
+    private Institution fromInstitution;
+    private Institution toInstitution;
     private Area area;
     private StreamedContent file;
     private String mergingMessage;
-// </editor-fold> 
-
-// <editor-fold defaultstate="collapsed" desc="Constructors">
-    /**
-     * Creates a new instance of ReportController
-     */
-    public ReportController() {
-    }
-
-// </editor-fold> 
     private List<InstitutionCount> institutionCounts;
     private Long reportCount;
     private List<AreaCount> areaCounts;
     private Long areaRepCount;
-
 
     private Upload currentUpload;
     private StreamedContent downloadingFile;
@@ -119,7 +124,410 @@ public class ReportController implements Serializable {
     private Quarter quarterEnum;
     private boolean recalculate;
 
-   
+    private VehicleType vehicleType;
+    private VehiclePurpose vehiclePurpose;
+    private Driver driver;
+    private InstitutionType institutionType;
+    private List<FuelIssuedSummary> issuedSummaries;
+    Long fuelStationId;
+    Long healthInstitutionId;
+    private Date selectedDate; // This represents the date clicked in the comprehensive report
+
+    // </editor-fold> 
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
+    /**
+     * Creates a new instance of ReportController
+     */
+    public ReportController() {
+    }
+
+    // </editor-fold> 
+    // <editor-fold defaultstate="collapsed" desc="Navigational Methods">
+    public String navigateToListFuelRequests() {
+        fillAllInstitutionFuelTransactions();
+        return "/reports/list?faces-redirect=true;";
+    }
+
+    public String navigateToDieselDistributionFuelStationSummary() {
+        fillDieselDistributionFuelStationSummary();
+        return "/reports/diesel_distribution_fuel_station_summary?faces-redirect=true;";
+    }
+
+    public String navigateToDieselDistributionHealthInstitutionSummary() {
+        fillDieselDistributionHealthInstitutionSummary();
+        return "/reports/diesel_distribution_health_institution_summary?faces-redirect=true;";
+    }
+
+    public String navigateToComprehensiveDieselIssuanceSummary() {
+        fillComprehensiveDieselIssuanceSummary();
+        return "/reports/comprehensive_diesel_issuance_summary?faces-redirect=true;";
+    }
+
+    public String navigateToReportsIndex() {
+        return "/reports/index?faces-redirect=true;";
+    }
+
+    public String navigateToViewRequest() {
+        if (fuelTransactionLight == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        if (fuelTransactionLight.getId() == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        fuelTransaction = fuelTransactionFacade.find(fuelTransactionLight.getId());
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        return "/reports/request?faces-redirect=true;";
+    }
+
+    public String navigateToComprehensiveSummaryFromFuelStationSummary() {
+        toInstitution = institutionController.getInstitutionById(fuelStationId);
+        if (toInstitution == null) {
+            JsfUtil.addErrorMessage("Error");
+            return null;
+        }
+        fromInstitution = null;
+        return navigateToComprehensiveDieselIssuanceSummary();
+    }
+
+    public String navigateToComprehensiveSummaryFromHealthInstitutionSummary() {
+        fromInstitution = institutionController.getInstitutionById(healthInstitutionId);
+        if (fromInstitution == null) {
+            JsfUtil.addErrorMessage("Error");
+            return null;
+        }
+        toInstitution = null;
+        return navigateToComprehensiveDieselIssuanceSummary();
+    }
+
+    public String navigateToIndividualTransactionsFromHealthInstitution() {
+        fromInstitution = institutionController.getInstitutionById(healthInstitutionId);
+        toInstitution = null;
+        return navigateToListFuelRequests();
+    }
+
+    public String navigateToIndividualTransactionsFromFuelStation() {
+        toInstitution = institutionController.getInstitutionById(fuelStationId);
+        fromInstitution = null;
+        return navigateToListFuelRequests();
+    }
+
+    public String navigateToIndividualTransactionsFromDate() {
+        fromDate = selectedDate;
+        toDate = selectedDate;
+        fromInstitution = null;
+        toInstitution = null;
+        return navigateToListFuelRequests();
+    }
+
+    // </editor-fold> 
+    // <editor-fold defaultstate="collapsed" desc="Functional Methods">
+    public void fillAllInstitutionFuelTransactions() {
+        transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
+    }
+
+    public List<FuelTransactionLight> fillFuelTransactions(
+            Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
+            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType) {
+
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
+                .append("ft.id, ft.requestAt, ft.requestReferenceNumber, ")
+                .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
+                .append("ft.issueReferenceNumber, ")
+                .append("fi.name, ") // fromInstitution name
+                .append("ti.name, ") // toInstitution name
+                .append("COALESCE(d.name, 'No Driver')") // driver name or 'No Driver' if null
+                .append(") FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.vehicle v ")
+                .append("LEFT JOIN ft.driver d ")
+                .append("LEFT JOIN ft.fromInstitution fi ")
+                .append("LEFT JOIN ft.toInstitution ti ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+
+        if (requestingInstitution != null) {
+            jpqlBuilder.append("AND ft.requestedInstitution = :reqInstitute ");
+            parameters.put("reqInstitute", requestingInstitution);
+        }
+        if (fuelStation != null) {
+            jpqlBuilder.append("AND ft.issuedInstitution = :fuelStation ");
+            parameters.put("fuelStation", fuelStation);
+        }
+        if (fd != null && td != null) {
+            jpqlBuilder.append("AND ft.requestAt BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+        if (vehicleType != null) {
+            jpqlBuilder.append("AND v.vehicleType = :vType ");
+            parameters.put("vType", vehicleType);
+        }
+        if (vehiclePurpose != null) {
+            jpqlBuilder.append("AND v.vehiclePurpose = :vPurpose ");
+            parameters.put("vPurpose", vehiclePurpose);
+        }
+        if (driver != null) {
+            jpqlBuilder.append("AND ft.driver = :drv ");
+            parameters.put("drv", driver);
+        }
+        if (institutionType != null) {
+            jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
+            parameters.put("instType", institutionType);
+        }
+
+        jpqlBuilder.append("ORDER BY ft.requestAt");
+
+        List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+        return resultList;
+    }
+
+    public void fillDieselDistributionFuelStationSummary() {
+        issuedSummaries = fillFuelIssuedFromFuelStationSummary(getFromDate(), getToDate());
+    }
+
+    public void fillDieselDistributionHealthInstitutionSummary() {
+        issuedSummaries = fillFuelIssuedToHealthInstitutionSummary(getFromDate(), getToDate());
+    }
+
+    public void fillComprehensiveDieselIssuanceSummary() {
+        issuedSummaries = fillFuelIssuedSummary(fromInstitution, toInstitution, getFromDate(), getToDate());
+    }
+
+    public List<FuelIssuedSummary> fillFuelIssuedToHealthInstitutionSummary(Date fd, Date td) {
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
+                .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
+                .append("fi.name, ") // fromInstitution name
+                .append("fi.id, ") // fromInstitution ID
+                .append("SUM(ft.issuedQuantity)") // sum of issued qty
+                .append(") FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.fromInstitution fi ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+
+        if (fd != null && td != null) {
+            jpqlBuilder.append("AND ft.issuedAt BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+
+        // Include all non-aggregated fields in the GROUP BY clause
+        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), fi.name, fi.id ");
+        jpqlBuilder.append("ORDER BY FUNCTION('date', ft.issuedAt), fi.name");
+
+        return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+    }
+
+    public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummary(Date fd, Date td) {
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
+                .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
+                .append("ti.name, ") // toInstitution name
+                .append("ti.id, ") // toInstitution ID
+                .append("SUM(ft.issuedQuantity)") // sum of issued qty
+                .append(") FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.toInstitution ti ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+
+        if (fd != null && td != null) {
+            jpqlBuilder.append("AND ft.issuedAt BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+
+        // Include all non-aggregated fields in the GROUP BY clause
+        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), ti.name, ti.id ");
+        jpqlBuilder.append("ORDER BY FUNCTION('date', ft.issuedAt), ti.name");
+
+        return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+    }
+
+    public List<FuelIssuedSummary> fillFuelIssuedSummary(Institution fromInstitution, Institution toInstitution, Date fd, Date td) {
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
+                .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
+                .append("fi.name, ") // fromInstitution name
+                .append("fi.id, ") // fromInstitution ID
+                .append("ti.name, ") // toInstitution name
+                .append("ti.id, ") // toInstitution ID
+                .append("SUM(ft.issuedQuantity)") // sum of issued qty
+                .append(") FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.fromInstitution fi ")
+                .append("LEFT JOIN ft.toInstitution ti ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+
+        if (fromInstitution != null) {
+            jpqlBuilder.append("AND ft.fromInstitution = :fromInstitute ");
+            parameters.put("fromInstitute", fromInstitution);
+        }
+        if (toInstitution != null) {
+            jpqlBuilder.append("AND ft.toInstitution = :toInstitute ");
+            parameters.put("toInstitute", toInstitution);
+        }
+        if (fd != null && td != null) {
+            jpqlBuilder.append("AND ft.issuedAt BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+
+        // Include all non-aggregated fields in the GROUP BY clause
+        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), fi.name, fi.id, ti.name, ti.id ");
+        jpqlBuilder.append("ORDER BY FUNCTION('date', ft.issuedAt), fi.name, ti.name");
+
+        List<FuelIssuedSummary> resultList = (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+        return resultList;
+    }
+
+    // </editor-fold>  
+    // <editor-fold defaultstate="collapsed" desc="Getters and Setters">
+    public Driver getDriver() {
+        return driver;
+    }
+
+    public void setDriver(Driver driver) {
+        this.driver = driver;
+    }
+
+    public InstitutionType getInstitutionType() {
+        return institutionType;
+    }
+
+    public void setInstitutionType(InstitutionType institutionType) {
+        this.institutionType = institutionType;
+    }
+
+    public List<FuelIssuedSummary> getIssuedSummaries() {
+        return issuedSummaries;
+    }
+
+    public void setIssuedSummaries(List<FuelIssuedSummary> issuedSummaries) {
+        this.issuedSummaries = issuedSummaries;
+    }
+
+    public Long getFuelStationId() {
+        return fuelStationId;
+    }
+
+    public void setFuelStationId(Long fuelStationId) {
+        this.fuelStationId = fuelStationId;
+    }
+
+    public Long getHealthInstitutionId() {
+        return healthInstitutionId;
+    }
+
+    public void setHealthInstitutionId(Long healthInstitutionId) {
+        this.healthInstitutionId = healthInstitutionId;
+    }
+
+    public Date getSelectedDate() {
+        return selectedDate;
+    }
+
+    public void setSelectedDate(Date selectedDate) {
+        this.selectedDate = selectedDate;
+    }
+
+    public WebUserController getWebUserController() {
+        return webUserController;
+    }
+
+    public FuelTransaction getFuelTransaction() {
+        return fuelTransaction;
+    }
+
+    public void setFuelTransaction(FuelTransaction fuelTransaction) {
+        this.fuelTransaction = fuelTransaction;
+    }
+
+    public FuelTransactionLight getFuelTransactionLight() {
+        return fuelTransactionLight;
+    }
+
+    public void setFuelTransactionLight(FuelTransactionLight fuelTransactionLight) {
+        this.fuelTransactionLight = fuelTransactionLight;
+    }
+
+    public VehicleType getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(VehicleType vehicleType) {
+        this.vehicleType = vehicleType;
+    }
+
+    public VehiclePurpose getVehiclePurpose() {
+        return vehiclePurpose;
+    }
+
+    public void setVehiclePurpose(VehiclePurpose vehiclePurpose) {
+        this.vehiclePurpose = vehiclePurpose;
+    }
+
+    public List<FuelTransaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<FuelTransaction> transactions) {
+        this.transactions = transactions;
+    }
+
+    public Date getFromDate() {
+        if (fromDate == null) {
+            fromDate = CommonController.startOfTheMonth();
+        }
+        return fromDate;
+    }
+
+    public void setFromDate(Date fromDate) {
+        this.fromDate = fromDate;
+    }
+
+    public Date getToDate() {
+        if (toDate == null) {
+            toDate = new Date();
+        }
+        return toDate;
+    }
+
+    public void setToDate(Date toDate) {
+        this.toDate = toDate;
+    }
+
+    public Institution getInstitution() {
+        return institution;
+    }
+
+    public void setInstitution(Institution institution) {
+        this.institution = institution;
+    }
+
+    public Area getArea() {
+        return area;
+    }
+
+    public void setArea(Area area) {
+        this.area = area;
+    }
 
     public TimePeriodType getTimePeriodType() {
         if (timePeriodType == null) {
@@ -215,7 +623,6 @@ public class ReportController implements Serializable {
         this.quarterEnum = quarterEnum;
     }
 
-
     public ReportTimePeriod getReportTimePeriod() {
         return reportTimePeriod;
     }
@@ -224,75 +631,14 @@ public class ReportController implements Serializable {
         this.reportTimePeriod = reportTimePeriod;
     }
 
-
-// </editor-fold>   
-// <editor-fold defaultstate="collapsed" desc="Getters and Setters">
-  
-
-    public WebUserController getWebUserController() {
-        return webUserController;
-    }
-
-    public List<FuelTransaction> getEncounters() {
-        return encounters;
-    }
-
-    public void setEncounters(List<FuelTransaction> encounters) {
-        this.encounters = encounters;
-    }
-
- 
-
-    public Date getFromDate() {
-        if (fromDate == null) {
-            fromDate = CommonController.startOfTheYear();
-        }
-        return fromDate;
-    }
-
-    public void setFromDate(Date fromDate) {
-        this.fromDate = fromDate;
-    }
-
-    public Date getToDate() {
-        if (toDate == null) {
-            toDate = new Date();
-        }
-        return toDate;
-    }
-
-    public void setToDate(Date toDate) {
-        this.toDate = toDate;
-    }
-
-    public Institution getInstitution() {
-        return institution;
-    }
-
-    public void setInstitution(Institution institution) {
-        this.institution = institution;
-    }
-
-    public Area getArea() {
-        return area;
-    }
-
-    public void setArea(Area area) {
-        this.area = area;
-    }
-
-// </editor-fold> 
     public InstitutionController getInstitutionController() {
         return institutionController;
     }
-
-   
 
     public StreamedContent getFile() {
         return file;
     }
 
-   
     public String getMergingMessage() {
         return mergingMessage;
     }
@@ -300,8 +646,6 @@ public class ReportController implements Serializable {
     public void setMergingMessage(String mergingMessage) {
         this.mergingMessage = mergingMessage;
     }
-
-   
 
     public FuelTransactionHistoryFacade getEncounterFacade() {
         return encounterFacade;
@@ -311,13 +655,9 @@ public class ReportController implements Serializable {
         this.encounterFacade = encounterFacade;
     }
 
-   
-
     public UploadFacade getUploadFacade() {
         return uploadFacade;
     }
-
-  
 
     public Upload getCurrentUpload() {
         return currentUpload;
@@ -351,8 +691,6 @@ public class ReportController implements Serializable {
         this.resultExcelFile = resultExcelFile;
     }
 
-   
-
     public ExcelReportController getExcelReportController() {
         return excelReportController;
     }
@@ -361,7 +699,6 @@ public class ReportController implements Serializable {
         this.excelReportController = excelReportController;
     }
 
-   
     public List<AreaCount> getAreaCounts() {
         return areaCounts;
     }
@@ -386,5 +723,25 @@ public class ReportController implements Serializable {
         this.recalculate = recalculate;
     }
 
-   
+    public Institution getFromInstitution() {
+        return fromInstitution;
+    }
+
+    public void setFromInstitution(Institution fromInstitution) {
+        this.fromInstitution = fromInstitution;
+    }
+
+    public Institution getToInstitution() {
+        return toInstitution;
+    }
+
+    public void setToInstitution(Institution toInstitution) {
+        this.toInstitution = toInstitution;
+    }
+
+    public List<FuelTransactionLight> getTransactionLights() {
+        return transactionLights;
+    }
+
+    // </editor-fold> 
 }

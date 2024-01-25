@@ -14,7 +14,6 @@ public class CorsFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
-        System.out.println("In CorsFilter, method: " + request.getMethod());
 
         // Authorize (allow) all domains to consume the content
         response.addHeader("Access-Control-Allow-Origin", "*");

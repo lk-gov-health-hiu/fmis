@@ -890,7 +890,6 @@ public class CommonController implements Serializable {
         try {
             l = Long.parseLong(result);
         } catch (Exception e) {
-            System.err.println("e = " + e);
             l = null;
         }
         return l;

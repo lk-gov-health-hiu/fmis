@@ -21,6 +21,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
+import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.AreaFacade;
 
@@ -160,7 +161,6 @@ public class DriverController implements Serializable {
         for (Driver i : driverApplicationController.getDrivers()) {
             if (i.getName() != null && i.getName().equalsIgnoreCase(nic)) {
                 if (ni != null) {
-                    System.err.println("Duplicate Driver NIC : " + nic);
                 }
                 ni = i;
             }
@@ -243,6 +243,17 @@ public class DriverController implements Serializable {
             items = driverApplicationController.findDriversByInstitutions(webUserController.getLoggableInstitutions());
         }
         webUserController.setManagableDrivers(items);
+    }
+
+    public List<Driver> institutionDrivers(Institution ins) {
+        List<Driver> insDrivers = new ArrayList<>();
+        if (ins == null) {
+            return insDrivers;
+        }
+        List<Institution> inss = new ArrayList<>();
+        inss.add(ins);
+        insDrivers= driverApplicationController.findDriversByInstitutions(inss);
+        return insDrivers;
     }
 
     public String saveOrUpdateDriver() {

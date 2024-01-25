@@ -16,13 +16,12 @@
 
                     <p:panelGrid columns="2" class="w-100" >
                         <f:facet name="header" >
-                            <h:outputText value="Manage Institutions" ></h:outputText>
+                            <h:outputText value="Edit My Institution" ></h:outputText>
                             <h:commandButton 
                                 style="float: right;" 
                                 class="btn btn-success" 
-                                action="#{institutionController.saveOrUpdateInstitution()}" 
+                                action="#{institutionController.updateMyInstitution()}" 
                                 value="Save"/>
-
                         </f:facet>
 
                         <h:outputLabel value="Type:" for="institutionType" />
@@ -56,6 +55,7 @@
                                          value="#{institutionController.selected.supplyInstitution}" 
                                          completeMethod="#{institutionController.completeFuelStations}"
                                          var="i" 
+                                         placeholder="Please select fuel station"
                                          required="true"
                                          requiredMessage="Please Enter a fuel station"
                                          itemLabel="#{i.name}" 
@@ -67,19 +67,18 @@
 
 
                         <h:outputLabel value="Parent (Governed By) :" for="parent" />
-                        <p:selectOneMenu 
-                            filter="true"
-                            value="#{institutionController.selected.parent}" 
-                            filterMatchMode="contains"
+                        <p:autoComplete 
+                            completeMethod="#{institutionController.completeInstitutions}" 
+                            value="#{institutionController.selected.parent}"
                             id="parent" 
-                            class="form-control form-control-sm w-100" 
-                            required="false">
-                            <f:selectItem itemLabel="Please Select" ></f:selectItem>
-                            <f:selectItems value="#{webUserController.loggableInstitutions}"
-                                           var="ins" 
-                                           itemLabel="#{ins.name}"
-                                           itemValue="#{ins}" ></f:selectItems>
-                        </p:selectOneMenu>
+                            class="w-100" 
+                            required="false"
+                            placeholder="Please select Parent Institution"
+                            var="ins" 
+                            inputStyleClass="w-100"
+                            itemLabel="#{ins.name}"
+                            itemValue="#{ins}" >
+                        </p:autoComplete>
 
                         <h:outputLabel value="Address:" for="address" />
                         <p:inputText id="address" class="form-control"  value="#{institutionController.selected.address}" title="Address" />

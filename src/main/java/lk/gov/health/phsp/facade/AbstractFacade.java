@@ -312,28 +312,22 @@ public abstract class AbstractFacade<T> {
     }
 
     public List<?> findLightsByJpql(String jpql, Map<String, Object> parameters, TemporalType tt) {
-        Query qry = getEntityManager().createQuery(jpql);
-        Set<Map.Entry<String, Object>> entries = parameters.entrySet();
-
-        for (Map.Entry<String, Object> entry : entries) {
-            String paramName = entry.getKey();
-            Object paramValue = entry.getValue();
-
-            if (paramValue instanceof Date) {
-                qry.setParameter(paramName, (Date) paramValue, tt);
-            } else {
-                qry.setParameter(paramName, paramValue);
-            }
-        }
-
-        List<?> resultList;
         try {
-            resultList = qry.getResultList();
-        } catch (Exception e) {
-            resultList = new ArrayList<>();
-        }
+            Query qry = getEntityManager().createQuery(jpql);
+            parameters.forEach((key, value) -> {
+                if (value instanceof Date) {
+                    qry.setParameter(key, (Date) value, tt);
+                } else {
+                    qry.setParameter(key, value);
+                }
+            });
 
-        return resultList;
+            return qry.getResultList();
+        } catch (Exception e) {
+            // Log the exception here to get more details
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     public List<T> findByJpql(String jpql, int maxResults) {

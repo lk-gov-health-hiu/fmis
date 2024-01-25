@@ -250,7 +250,6 @@ public class VehicleController implements Serializable {
     }
 
     public List<Vehicle> fillVehicles(List<Institution> institutions) {
-        System.out.println("fillVehicles");
         List<Vehicle> filteredVehicles = new ArrayList<>();
 
         if (institutions == null || institutions.isEmpty()) {
@@ -258,24 +257,18 @@ public class VehicleController implements Serializable {
         }
 
         List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
-        System.out.println("allVehicles = " + allVehicles);
-        System.out.println("institutionSet = " + institutions);
 
         for (Vehicle vehicle : allVehicles) {
-            System.out.println("vehicle = " + vehicle);
             if (vehicle.getInstitution() == null) {
                 continue;
             }
-            System.out.println("vehicle's Institution = " + vehicle.getInstitution());
             for (Institution ins : institutions) {
                 if (vehicle.getInstitution().equals(ins)) {
-                    System.out.println("canInclude = true");
                     filteredVehicles.add(vehicle);
                     break; // Break the inner loop as we found the institution
                 }
             }
         }
-        System.out.println("filteredVehicles = " + filteredVehicles.size());
         return filteredVehicles;
     }
 
