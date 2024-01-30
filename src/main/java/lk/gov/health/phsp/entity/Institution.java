@@ -63,6 +63,7 @@ public class Institution implements Serializable, Nameable {
     private String phone;
     private String mobile;
     private String web;
+    private String cityName;
     private String poiNumber;
     @ManyToOne
     private Institution supplyInstitution;
@@ -485,5 +486,15 @@ public class Institution implements Serializable, Nameable {
     public void setCurrentStock(Double currentStock) {
         this.currentStock = currentStock;
     }
+
+    public String getCityName() {
+        return cityName;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+    
+    
 
 }

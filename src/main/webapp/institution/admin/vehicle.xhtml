@@ -38,16 +38,19 @@
                                      title="Number" />
 
                         <h:outputLabel value="Type:" for="vehicleType" />
-                        <h:selectOneMenu id="vehicleType" 
+                        <p:selectOneMenu id="vehicleType" 
                                          class="form-control"
-                                         required="true"
+                                         filter="true"
+                                         filterMatchMode="contains"
+                                         required="true" 
                                          requiredMessage="Please select a Type"
                                          value="#{vehicleController.selected.vehicleType}" title="VehicleType">
                             <f:selectItems value="#{applicationController.vehicleTypes}" 
                                            var="vt"
                                            itemValue="#{vt}"
                                            itemLabel="#{vt.label}"/>
-                        </h:selectOneMenu>
+                             <p:ajax update="makeLabel makeSelect makeNameLabel makeNameInput"  process="@this" />
+                        </p:selectOneMenu>
 
                         <h:outputLabel value="Main Purpose:" for="vehiclePurpose" />
                         <h:selectOneMenu id="vehiclePurpose" 
@@ -78,10 +81,40 @@
                                            itemValue="#{ins}" ></f:selectItems>
                         </p:selectOneMenu>
 
+                       
+                        <h:panelGroup id="makeLabel">
+                            <h:outputLabel for="make" value="Make:" rendered="#{vehicleController.selected.vehicleType.vehicle}" />
+                        </h:panelGroup>
 
-                        <h:outputLabel value="Make:" for="name" />
-                        <h:inputText id="name" 
+                        <h:panelGroup id="makeSelect">
+                            <p:selectOneMenu id="make" 
+                                             filter="true"
+                                             filterMatchMode="contains"
+                                             class="form-control"
+                                             value="#{vehicleController.selected.make}" 
+                                             title="Make" 
+                                             rendered="#{vehicleController.selected.vehicleType.vehicle}">
+                                <f:selectItem itemLabel="Select" ></f:selectItem>
+                                <f:selectItems value="#{commonController.vehicleMakes}" ></f:selectItems>
+                            </p:selectOneMenu>
+                        </h:panelGroup>
 
+                        <h:panelGroup id="makeNameLabel">
+                            <h:outputLabel for="makeName" value="Make:" rendered="#{!vehicleController.selected.vehicleType.vehicle}" />
+                        </h:panelGroup>
+
+                        <h:panelGroup id="makeNameInput">
+                            <h:inputText id="makeName" 
+                                         autocomplete="off"
+                                         class="form-control"
+                                         value="#{vehicleController.selected.vehicleMake}" 
+                                         title="Name"
+                                         rendered="#{!vehicleController.selected.vehicleType.vehicle}" />
+                        </h:panelGroup>
+
+
+                        <h:outputLabel value="Model:" for="model" />
+                        <h:inputText id="model" 
                                      autocomplete="off"
                                      class="form-control"
                                      value="#{vehicleController.selected.name}" 

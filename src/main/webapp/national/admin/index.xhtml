@@ -27,12 +27,30 @@
                                                      class="list-group-item list-group-item-action"></h:commandButton>
                                 </div>
                                 <div class="list-group mt-3">
-                                    <h:commandButton value="New Institution"
-                                                     action="#{menuController.toAddNewInstitution()}"
-                                                     class="list-group-item list-group-item-action"></h:commandButton>
-                                    <h:commandButton value="List Institutions"
-                                                     action="#{menuController.toListInstitutions()}"
-                                                     class="list-group-item list-group-item-action"></h:commandButton>
+                                    <h:commandButton 
+                                        value="New Institution"
+                                        action="#{menuController.toAddNewInstitution()}"
+                                        class="list-group-item list-group-item-action"></h:commandButton>
+                                    <h:commandButton 
+                                        value="List Institutions"
+                                        action="#{menuController.toListInstitutions()}"
+                                        class="list-group-item list-group-item-action"></h:commandButton>
+
+
+                                    <h:commandButton 
+                                        value="Add Fuel Station" 
+                                        action="#{menuController.toAddNewFuelStation()}"
+                                        class="list-group-item list-group-item-action">
+                                    </h:commandButton>
+
+
+                                    <h:commandButton 
+                                        value="List Fuel Station" 
+                                        action="#{menuController.toListFuelStations()}"
+                                        class="list-group-item list-group-item-action">
+                                    </h:commandButton>
+
+
                                     <h:commandButton value="List Institutions &amp; Users"
                                                      action="#{menuController.toListInstitutionsWithUsers()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
@@ -51,7 +69,7 @@
                                                      action="#{menuController.toListVehicles()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
                                 </div>
-                                 <div class="list-group mt-3">
+                                <div class="list-group mt-3">
                                     <h:commandButton value="New Driver"
                                                      action="#{menuController.toAddNewDriver()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>

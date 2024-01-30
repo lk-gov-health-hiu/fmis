@@ -48,6 +48,7 @@ import lk.gov.health.phsp.enums.RelationshipType;
 import lk.gov.health.phsp.enums.RenderType;
 import lk.gov.health.phsp.enums.SelectionDataType;
 import lk.gov.health.phsp.enums.TimePeriodType;
+import lk.gov.health.phsp.enums.VehicleMake;
 import lk.gov.health.phsp.pojcs.TimePeriod;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.text.BasicTextEncryptor;
@@ -110,6 +111,10 @@ public class CommonController implements Serializable {
 
     public SearchFilterType[] getSearchFilterTypes() {
         return SearchFilterType.values();
+    }
+    
+    public VehicleMake[] getVehicleMakes() {
+        return VehicleMake.values();
     }
 
     public String toViewClient() {

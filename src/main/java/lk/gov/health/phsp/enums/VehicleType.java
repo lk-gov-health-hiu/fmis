@@ -8,28 +8,34 @@ package lk.gov.health.phsp.enums;
  * @author Dr M H B Ariyaratne
  */
 public enum VehicleType {
-    Ambulance("Ambulance"),
-    Bowser("Bowser"),
-    Bus("Bus"),
-    Cab("Cab"),
-    Car("Car"),
-    FoggingMachine("Fogging Machine"),
-    Generator("Generator"),
-    GullyBowser("Gully Bowser"),
-    Incinerator("Incinerator"),
-    Jeep("Jeep"),
-    Lorry("Lorry"),
-    ThreeWheeler("Three Wheeler"),
-    Tractor("Tractor"),
-    Van("Van");
+    Ambulance("Ambulance", true),
+    Bowser("Bowser", true),
+    Bus("Bus", true),
+    Cab("Cab", true),
+    Car("Car", true),
+    FoggingMachine("Fogging Machine", false),
+    Generator("Generator", false),
+    GullyBowser("Gully Bowser", true),
+    Incinerator("Incinerator", false),
+    Jeep("Jeep", true),
+    Lorry("Lorry", true),
+    ThreeWheeler("Three Wheeler", true),
+    Tractor("Tractor", true),
+    Van("Van", true);
 
     private final String label;
+    private final boolean isVehicle;
 
-    private VehicleType(String label) {
+    private VehicleType(String label, boolean isVehicle) {
         this.label = label;
+        this.isVehicle = isVehicle;
     }
 
     public String getLabel() {
         return label;
+    }
+
+    public boolean isVehicle() {
+        return isVehicle;
     }
 }
