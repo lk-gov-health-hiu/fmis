@@ -22,8 +22,8 @@
                                         filterMatchMode="contains"
                                         id="institutionType" 
                                         class="form-control"
-                                                     value="#{institutionController.selected.institutionType}" title="InstitutionType" 
-                                                     >
+                                        value="#{institutionController.selected.institutionType}" title="InstitutionType" 
+                                        >
                                         <f:selectItems value="#{applicationController.institutionTypes}" 
                                                        var="institutionTypes"
                                                        itemValue="#{institutionTypes}"
@@ -37,7 +37,7 @@
                                                  class="form-control"
                                                  value="#{institutionController.selected.name}" title="Name" />
 
-                                    
+
 
                                     <h:outputLabel value="Fuel Station /  Depot:" for="depo" />
                                     <p:autoComplete  id="depo" 
@@ -48,6 +48,20 @@
                                                      var="i" 
                                                      itemLabel="#{i.name}" 
                                                      itemValue="#{i}" 
+                                                     forceSelection="True"
+                                                     maxResults="15" 
+                                                     minQueryLength="3">
+                                    </p:autoComplete >
+
+                                    <h:outputLabel value="Alternative Fuel Station:" for="adepo" />
+                                    <p:autoComplete  id="adepo" 
+                                                     class="d-block" 
+                                                     inputStyleClass="form-control" 
+                                                     value="#{institutionController.selected.alternativeSupplyInstitution}" 
+                                                     completeMethod="#{institutionController.completeFuelStations}"
+                                                     var="ai" 
+                                                     itemLabel="#{ai.name}" 
+                                                     itemValue="#{ai}" 
                                                      forceSelection="True"
                                                      maxResults="15" 
                                                      minQueryLength="3">

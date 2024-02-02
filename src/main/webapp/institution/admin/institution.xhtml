@@ -64,6 +64,20 @@
                                          maxResults="15" 
                                          minQueryLength="3">
                         </p:autoComplete >
+                        
+                        <h:outputLabel value="ALternative Fuel Station:" for="adepo" />
+                        <p:autoComplete  id="adepo" 
+                                         class="d-block" 
+                                         inputStyleClass="form-control" 
+                                         value="#{institutionController.selected.alternativeSupplyInstitution}" 
+                                         completeMethod="#{institutionController.completeFuelStations}"
+                                         var="ai" 
+                                         itemLabel="#{ai.name}" 
+                                         itemValue="#{ai}" 
+                                         forceSelection="True"
+                                         maxResults="15" 
+                                         minQueryLength="3">
+                        </p:autoComplete >
 
 
                         <h:outputLabel value="Parent (Governed By) :" for="parent" />

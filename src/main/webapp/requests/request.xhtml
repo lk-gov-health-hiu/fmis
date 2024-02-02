@@ -51,7 +51,27 @@
                                     </p:selectOneMenu>
 
                                     <p:outputLabel value="Depot / Fuel Station" />
-                                    <p:inputText  readonly="true" class="w-100"  value="#{fuelRequestAndIssueController.selected.toInstitution.name}" />
+                                    <h:panelGroup >
+                                        <p:inputText  
+                                            readonly="true" 
+                                            class="w-100" 
+                                            rendered="#{webUserController.loggedInstitution.alternativeSupplyInstitution eq null}"
+                                            value="#{fuelRequestAndIssueController.selected.toInstitution.name}" />
+                                        <p:selectOneMenu  
+                                            rendered="#{webUserController.loggedInstitution.alternativeSupplyInstitution ne null}"
+                                            class="w-100" 
+                                            required="true"
+                                            requiredMessage="Select a Fuel "
+                                            value="#{fuelRequestAndIssueController.selected.toInstitution}" >
+                                            <f:selectItem 
+                                                itemLabel="#{webUserController.loggedInstitution.supplyInstitution.name}" 
+                                                itemValue="#{webUserController.loggedInstitution.supplyInstitution}" ></f:selectItem>
+                                            <f:selectItem 
+                                                itemLabel="#{webUserController.loggedInstitution.alternativeSupplyInstitution.name}" 
+                                                itemValue="#{webUserController.loggedInstitution.alternativeSupplyInstitution}" ></f:selectItem>
+                                        </p:selectOneMenu>
+
+                                    </h:panelGroup>
 
                                     <p:outputLabel for="txtQty" value="Requesting Diesel Quantity in Liters" />
                                     <p:inputText id="txtQty"

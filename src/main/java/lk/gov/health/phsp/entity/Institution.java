@@ -67,6 +67,8 @@ public class Institution implements Serializable, Nameable {
     private String poiNumber;
     @ManyToOne
     private Institution supplyInstitution;
+    @ManyToOne
+    private Institution alternativeSupplyInstitution;
     private Long lastHin;
 
     @ManyToOne
@@ -403,11 +405,6 @@ public class Institution implements Serializable, Nameable {
     }
 
     public Institution getSupplyInstitution() {
-        if (this.getId() != null) {
-            if (supplyInstitution == null) {
-                supplyInstitution = this;
-            }
-        }
         return supplyInstitution;
     }
 
@@ -493,6 +490,14 @@ public class Institution implements Serializable, Nameable {
 
     public void setCityName(String cityName) {
         this.cityName = cityName;
+    }
+
+    public Institution getAlternativeSupplyInstitution() {
+        return alternativeSupplyInstitution;
+    }
+
+    public void setAlternativeSupplyInstitution(Institution alternativeSupplyInstitution) {
+        this.alternativeSupplyInstitution = alternativeSupplyInstitution;
     }
     
     

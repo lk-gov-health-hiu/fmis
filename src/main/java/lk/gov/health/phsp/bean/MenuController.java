@@ -52,7 +52,6 @@ public class MenuController implements Serializable {
     @Inject
     private WebUserController webUserController;
 
-    
     @Inject
     InstitutionController institutionController;
     @Inject
@@ -108,6 +107,7 @@ public class MenuController implements Serializable {
                 return "/national/admin/index";
             case CTB:
             case FUEL_REQUESTING_INSTITUTION:
+            case MONITERING:
                 return "/institution/admin/index";
             default:
                 return "";
@@ -207,7 +207,7 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
-    
+
     public String toAddNewArea() {
         areaController.prepareCreate();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -315,7 +315,7 @@ public class MenuController implements Serializable {
                 return "/institution/admin/driver_list";
         }
     }
-    
+
     public String toListAreas() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case CTB:
@@ -491,7 +491,5 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
-    
-    
 
 }
