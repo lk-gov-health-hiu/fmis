@@ -30,8 +30,8 @@ package lk.gov.health.phsp.enums;
 public enum WebUserRoleLevel {
     HEALTH_MINISTRY("Health Ministry"),
     FUEL_REQUESTING_INSTITUTION("Vehicle Fuel Requesting Institution"),
-    CTB("SLTB"),
-    
+    CTB("Fuel Stations"),
+    MONITERING("Vehicle Fuel Requesting Institution"),
     ;
     private final String label;
 

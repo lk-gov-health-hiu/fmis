@@ -313,7 +313,6 @@ public class WebUser implements Serializable, Nameable {
 //    public Boolean getWebUser() {
 //        return true;
 //    }
-
     @Override
     public int hashCode() {
         int hash = 0;
@@ -494,8 +493,24 @@ public class WebUser implements Serializable, Nameable {
                 case CTB_ADMINISTRATOR:
                 case CTB_SUPER_USER:
                 case CTB_USER:
+                case CPC_ADMINISTRATOR:
+                case CPC_SUPER_USER:
+                case CPC_USER:
                     webUserRoleLevel = WebUserRoleLevel.CTB;
-
+                    break;
+                case AUDITOR_ADMINISTRATOR:
+                case AUDITOR_SUPER_USER:
+                case AUDITOR_USER:
+                case CB_ADMINISTRATOR:
+                case CB_SUPER_USER:
+                case CB_USER:
+                case DONOR_ADMINISTRATOR:
+                case DONOR_SUPER_USER:
+                case DONOR_USER:
+                case ERD_ADMINISTRATOR:
+                case ERD_SUPER_USER:
+                case ERD_USER:
+                    webUserRoleLevel = WebUserRoleLevel.MONITERING;
             }
         }
         return webUserRoleLevel;

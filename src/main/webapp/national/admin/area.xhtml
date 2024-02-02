@@ -37,7 +37,7 @@
                                         <h:inputText id="name" class="form-control my-2" value="#{areaController.selected.name}" autocomplete="off" title="#{bundleClinical.EditAreaTitle_name}" />
                                     </div>
                                 </div>
-                                <div class="form-group row">
+<!--                                <div class="form-group row">
                                     <h:outputLabel value="#{bundleClinical.EditAreaLabel_code}" class="col-md-2" for="code" />
                                     <div class="col-md-4">
                                         <h:inputText id="code" class="form-control my-2" value="#{areaController.selected.code}" autocomplete="off" title="#{bundleClinical.EditAreaTitle_code}" />
@@ -48,17 +48,19 @@
                                     <div class="col-md-4">
                                         <h:inputText id="id" class="form-control my-2" value="#{areaController.selected.areauid}" autocomplete="off" title="Area ID" />
                                     </div>
-                                </div>
+                                </div>-->
                                 <div class="form-group row">
-                                    <h:outputLabel value="#{bundleClinical.EditAreaLabel_parentArea}" class="col-md-2" for="parentArea" />
+                                    <h:outputLabel value="Parent Area : " class="col-md-2" for="parentArea" />
                                     <div class="col-md-4">
                                         <p:autoComplete id="parentArea" class=" my-2" value="#{areaController.selected.parentArea}"
                                                         completeMethod="#{areaController.completeAreas}"
+                                                        styleClass="w-100"
+                                                        inputStyleClass="w-100"
                                                         var="parentAreaItem" itemLabel="#{parentAreaItem.name}"
                                                         itemValue="#{parentAreaItem}"></p:autoComplete>
                                     </div>
                                 </div>
-                                <div class="form-group row">
+<!--                                <div class="form-group row">
                                     <h:outputLabel value="PHI:" class="col-md-2" />
                                     <div class="col-md-4">
                                         <p:autoComplete class=" my-2" value="#{areaController.selected.phi}"
@@ -111,8 +113,8 @@
                                                         var="parentAreaItem" itemLabel="#{parentAreaItem.name}"
                                                         itemValue="#{parentAreaItem}"></p:autoComplete>   
                                     </div>
-                                </div>
-                                <div class="form-group row">
+                                </div>-->
+<!--                                <div class="form-group row">
                                     <h:outputLabel value="#{bundleClinical.EditAreaLabel_centreLongitude}" class="col-md-2"/>
                                     <div class="col-md-4">
                                         <h:inputText id="centreLongitude" class="form-control my-2" value="#{areaController.selected.centreLongitude}" autocomplete="off" title="#{bundleClinical.EditAreaTitle_centreLongitude}" />  
@@ -129,7 +131,7 @@
                                     <div class="col-md-4 my-2">
                                         <h:inputText id="zoomLavel" value="#{areaController.selected.zoomLavel}" autocomplete="off" title="#{bundleClinical.EditAreaTitle_zoomLavel}" />
                                     </div>
-                                </div>
+                                </div>-->
                                 <div class="card-footer bg-white">
                                     <h:commandButton class="btn btn-success px-5 my-3" action="#{areaController.saveOrUpdateAreaForSystemAdmin()}" value="#{bundleClinical.Save}"/>
                                 </div>

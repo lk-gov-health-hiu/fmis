@@ -63,6 +63,8 @@ public class MenuController implements Serializable {
     PreferenceController preferenceController;
     @Inject
     DashboardController dashboardController;
+    @Inject
+    AreaController areaController;
 
     /**
      * Creates a new instance of MenuController
@@ -205,6 +207,19 @@ public class MenuController implements Serializable {
                 return "";
         }
     }
+    
+    public String toAddNewArea() {
+        areaController.prepareCreate();
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case HEALTH_MINISTRY:
+            case CTB:
+                return "/national/admin/area";
+            case FUEL_REQUESTING_INSTITUTION:
+                return "/institution/admin/area";
+            default:
+                return "";
+        }
+    }
 
     public String toAddMultipleNewInstitutions() {
         institutionController.prepareToAddNewInstitution();
@@ -298,6 +313,16 @@ public class MenuController implements Serializable {
                 return "/national/admin/driver_list";
             default:
                 return "/institution/admin/driver_list";
+        }
+    }
+    
+    public String toListAreas() {
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case CTB:
+            case HEALTH_MINISTRY:
+                return "/national/admin/area_list";
+            default:
+                return "/institution/admin/area_list";
         }
     }
 

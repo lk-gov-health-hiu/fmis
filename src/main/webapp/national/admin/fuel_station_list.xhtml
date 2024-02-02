@@ -42,11 +42,11 @@
                                 <h:outputText value="#{item.code}" />
                             </p:column>
 
-                            <p:column sortBy="#{item.cityName}" filterBy="#{item.cityName}" filterMatchMode="contains">
+                            <p:column sortBy="#{item.district.name}" filterBy="#{item.district.name}" filterMatchMode="contains">
                                 <f:facet name="header">
-                                    <h:outputText value="City" />
+                                    <h:outputText value="District" />
                                 </f:facet>
-                                <h:outputText value="#{item.cityName}" />
+                                <h:outputText value="#{item.district.name}" />
                             </p:column>
 
 

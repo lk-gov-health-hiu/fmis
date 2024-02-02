@@ -32,18 +32,21 @@
                                      autocomplete="off"
                                      class="form-control"
                                      value="#{institutionController.selected.name}" title="Name" />
-                        
+
                         <h:outputLabel value="Dealer Number:" for="dn" />
                         <p:inputText id="dn" 
                                      class="form-control" 
                                      value="#{institutionController.selected.code}"
                                      title="Dealer Number" />
 
-                        <h:outputLabel value="City:" for="city" />
-                        <p:inputText 
-                            id="city" 
+                        <h:outputLabel value="District:" for="district" />
+                        <p:selectOneMenu 
+                            id="district" 
                             class="form-control" 
-                            value="#{institutionController.selected.cityName}" title="Email" />
+                            value="#{institutionController.selected.district}" 
+                            title="District" >
+                            <f:selectItems value="#{areaController.districts}" var="d" itemLabel="#{d.name}" itemValue="#{d}" ></f:selectItems>
+                        </p:selectOneMenu>
 
 
                         <h:outputLabel value="Address:" for="address" />

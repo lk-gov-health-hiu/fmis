@@ -534,6 +534,8 @@ public class AreaController implements Serializable {
         }
         j += " order by a.name";
         List<Area> areas = getFacade().findByJpql(j, m);
+        System.out.println("j = " + j);
+        System.out.println("m = " + m);
         return areas;
     }
 
@@ -835,6 +837,9 @@ public class AreaController implements Serializable {
     }
 
     public Area getSelected() {
+        if(selected==null){
+            selected = new Area();
+        }
         return selected;
     }
 
