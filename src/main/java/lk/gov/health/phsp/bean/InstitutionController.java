@@ -66,6 +66,7 @@ public class InstitutionController implements Serializable {
 
     private List<Institution> items = null;
     private List<Institution> fuelStations = null;
+    private List<Institution> institutionsWithoutfuelStations = null;
     private Institution selected;
     private Institution deleting;
     private List<Area> gnAreasOfSelected;
@@ -666,7 +667,7 @@ public class InstitutionController implements Serializable {
         }
         return menuController.toListInstitutions();
     }
-    
+
     public String updateMyInstitution() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing to select");
@@ -970,6 +971,21 @@ public class InstitutionController implements Serializable {
     public void setFile(UploadedFile file) {
         this.file = file;
     }
+
+    public List<Institution> getInstitutionsWithoutfuelStations() {
+        if(institutionsWithoutfuelStations==null){
+            institutionsWithoutfuelStations = fillInstitutions(types, null, null);
+        }
+        return institutionsWithoutfuelStations;
+    }
+
+    public void setInstitutionsWithoutfuelStations(List<Institution> institutionsWithoutfuelStations) {
+        this.institutionsWithoutfuelStations = institutionsWithoutfuelStations;
+    }
+    
+    
+    
+    
 
     @FacesConverter(forClass = Institution.class)
     public static class InstitutionControllerConverter implements Converter {

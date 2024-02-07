@@ -46,6 +46,24 @@
                                 </f:facet>
                                 <h:outputText value="#{item.institution.name}"/>
                             </p:column>
+                            
+                            <p:column sortBy="#{item.institution.supplyInstitution.name}" 
+                                      filterBy="#{item.institution.supplyInstitution.name}"
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Main Fuel Station"/>
+                                </f:facet>
+                                <h:outputText value="#{item.institution.supplyInstitution.name}"/>
+                            </p:column>
+                            
+                            <p:column sortBy="#{item.institution.alternativeSupplyInstitution.name}" 
+                                      filterBy="#{item.institution.alternativeSupplyInstitution.name}"
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Alternative Fuel Station"/>
+                                </f:facet>
+                                <h:outputText value="#{item.institution.alternativeSupplyInstitution.name}"/>
+                            </p:column>
 
                             <p:column sortBy="#{item.vehicleType}" 
                                       filterBy="#{item.vehicleType}" filterMatchMode="contains" >
