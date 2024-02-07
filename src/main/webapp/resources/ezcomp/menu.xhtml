@@ -38,6 +38,7 @@
                     <p:menuitem value="Change My Details" action="#{webUserController.toChangeMyDetails()}" ajax="false" />
                     <p:menuitem value="Change My Institution Details" action="#{webUserController.toChangeMyInstitutionDetails()}" rendered="#{webUserController.hasPrivilege('Institution_Administration')}" ajax="false" />
                     <p:menuitem value="Change My Username" action="#{webUserController.toChangeMyUsername()}" ajax="false" />
+                    <p:menuitem value="API Keys" action="#{apiKeyController.toManageMyApiKeys()}" ajax="false" />
                     <p:separator />
                     <p:menuitem value="Logout" action="#{webUserController.logOut()}" ajax="false" />
                 </p:submenu>

@@ -72,6 +72,16 @@ import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.hmac.HMACSigner;
 import io.fusionauth.jwt.hmac.HMACVerifier;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.core.Response;
+import lk.gov.health.phsp.bean.ApiKeyController;
+import lk.gov.health.phsp.bean.FuelRequestAndIssueController;
+import lk.gov.health.phsp.entity.ApiKey;
+import org.json.JSONException;
 
 /**
  * REST Web Service
@@ -95,17 +105,21 @@ public class ApiResource {
     ItemApplicationController itemApplicationController;
     @Inject
     ApplicationController applicationController;
-   
+    @Inject
+    ApiKeyController apiKeyController;
+
     @Inject
     WebUserController webUserController;
-   
+
     @Inject
     WebUserApplicationController webUserApplicationController;
-  
+
     @Inject
     EncounterApplicationController encounterApplicationController;
     @Inject
     SessionController sessionController;
+    @Inject
+    FuelRequestAndIssueController fuelRequestAndIssueController;
 
     /**
      * Creates a new instance of GenericResource
@@ -113,126 +127,129 @@ public class ApiResource {
     public ApiResource() {
     }
 
+    @Path("/checkApi")
     @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response checkApi() {
+        return Response.ok("API is functioning properly.").build();
+    }
+
+    @GET
+    @Path("/institution")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getJson(@QueryParam("name") String name,
-            @QueryParam("year") String year,
-            @QueryParam("month") String month,
-            @QueryParam("institute_id") String instituteId,
-            @QueryParam("id") String id,
-            @QueryParam("api_key") String jwt,
-            @QueryParam("username") String username,
-            @QueryParam("password") String password,
-            @QueryParam("test_number") String test_number,
-            @QueryParam("referring_lab_id") String referring_lab_id,
-            @QueryParam("client_name") String client_name,
-            @QueryParam("client_address") String client_address,
-            @QueryParam("client_phone_number") String client_phone_number,
-            @QueryParam("client_nic") String client_nic,
-            @QueryParam("client_passport_number") String client_passport_number,
-            @QueryParam("client_age_in_years") String client_age_in_years,
-            @QueryParam("client_age_in_months") String client_age_in_months,
-            @QueryParam("client_age_in_days") String client_age_in_days,
-            @QueryParam("client_gender") String client_gender,
-            @QueryParam("client_citizenship") String client_citizenship,
-            @QueryParam("ordering_category_id") String ordering_category_id,
-            @QueryParam("moh_id") String moh_id,
-            @QueryParam("district_id") String district_id,
-            @QueryParam("gn_area_id") String gn_area_id,
-            @QueryParam("phi_area_id") String phi_area_id,
-            @QueryParam("comments") String comments,
-            @QueryParam("request_id") String request_id,
-            @Context HttpServletRequest requestContext,
-            @Context SecurityContext context) {
-
-        String ipadd = requestContext.getHeader("X-FORWARDED-FOR");
-        if (ipadd == null) {
-            ipadd = requestContext.getRemoteAddr();
+    public Response listInstitutions() {
+        List<Institution> institutions = institutionApplicationController.getInstitutions();
+        if (institutions == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Institutions not found").build();
         }
+        JSONArray responseArray = new JSONArray();
 
-        String requestIp = "";
-        if(ipadd!=null){
-            requestIp = ipadd.trim().toLowerCase();
-        }else{
-            requestIp = "IP Address is NULL";
-        }
-
-        JSONObject jSONObjectOut;
-        if (name == null || name.trim().equals("")) {
-            jSONObjectOut = errorMessageInstruction();
-        } else {
-            switch (name) {
-                case "get_lab_list":
-                    jSONObjectOut = labList();
-                    break;
-                case "get_moh_list":
-                    jSONObjectOut = mohList();
-                    break;
-                case "get_ordering_category_list":
-                    jSONObjectOut = orderingCategoryList();
-                    break;
-                case "get_province_list":
-                    jSONObjectOut = provinceList();
-                    break;
-                case "get_district_list":
-                    jSONObjectOut = districtList();
-                    break;
-                case "get_institutes_list":
-                case "get_institute_list":
-                    jSONObjectOut = instituteList();
-                    break;
-                case "get_gender_list":
-                    jSONObjectOut = genderList();
-                    break;
-                case "get_citizenship_list":
-                    jSONObjectOut = citizenshipList();
-                    break;
-                case "get_gn_area_list":
-                    jSONObjectOut = gnAreaList();
-                    break;
-                case "get_institutes_registered_list":
-                    jSONObjectOut = phiAreaList();
-                    break;
-                case "get_vaccination_statuses":
-                    jSONObjectOut = vaccinationStatusesList();
-                    break;
-                case "get_symptomatic_statuses":
-                    jSONObjectOut = symptomaticStatusesList();
-                    break;
-                case "submit_pcr_request":
-                    
-                    break;
-                case "request_pcr_result":
-                    jSONObjectOut = requestPcrResult(ipadd,
-                            username,
-                            password,
-                            request_id);
-                    break;
-                case "submit_pcr_result":
-                    jSONObjectOut = requestPcrResult(ipadd,
-                            username,
-                            password,
-                            test_number);
-                    break;
-                case "authenticate":
-                    jSONObjectOut = authenticate(username, password);
-                    break;
-                case "submit_rat_result":
-                    jSONObjectOut = submitRatResult();
-                    break;
-
-                default:
-                    jSONObjectOut = errorMessage();
+        for (Institution institution : institutions) {
+            JSONObject institutionData = new JSONObject();
+            institutionData.put("name", institution.getName());
+            institutionData.put("code", institution.getCode());
+            if (institution.getInstitutionType() != null && institution.getInstitutionType().getLabel() != null) {
+                institutionData.put("type", institution.getInstitutionType().getLabel());
             }
+            responseArray.put(institutionData);
         }
 
-        String json = null ;
-        return json;
+        return Response.ok(responseArray.toString()).build();
+    }
+
+    @GET
+    @Path("/fuel_station")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listFuelStations() {
+        List<Institution> institutions = institutionApplicationController.getFuelStations();
+        if (institutions == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Fuel stations not found").build();
+        }
+        JSONArray responseArray = new JSONArray();
+
+        for (Institution institution : institutions) {
+            JSONObject institutionData = new JSONObject();
+            institutionData.put("name", institution.getName());
+            institutionData.put("code", institution.getCode());
+            // Checking null for district and its name
+            if (institution.getDistrict() != null && institution.getDistrict().getName() != null && !institution.getDistrict().getName().trim().equals("")) {
+                institutionData.put("district", institution.getDistrict().getName());
+            }
+            responseArray.put(institutionData);
+        }
+
+        return Response.ok(responseArray.toString()).build();
+    }
+
+    @POST
+    @Path("/diesel_received")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createDieselReceivedRecord(@Context HttpServletRequest requestContext, String jsonRequest) {
+        String apiKey = requestContext.getHeader("SUWASARIYA");
+        if (!isValidKey(apiKey)) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid or missing API key.").build();
+        }
+        try {
+            JSONObject requestObject = new JSONObject(jsonRequest);
+
+            // Extract string values from the request JSON
+            String fuelStationCode = requestObject.optString("fuelStationCode");
+            String vehicleNumber = requestObject.optString("vehicleNumber");
+            String driverNic = requestObject.optString("driverNic");
+            String comments = requestObject.optString("comments");
+            String requestQuantity = requestObject.optString("requestQuantity");
+            String issuedQuantity = requestObject.optString("issuedQuantity");
+            String odoMeterReading = requestObject.optString("odoMeterReading");
+            String requestReferenceNumber = requestObject.optString("requestReferenceNumber");
+            String issueReferenceNumber = requestObject.optString("issueReferenceNumber");
+
+            // Call a method to handle the creation of the FuelTransaction entity
+            // Assuming createFuelTransaction is a method that returns an ID or some identifier of the created record
+            String transactionId = createFuelTransaction(fuelStationCode, vehicleNumber, driverNic, comments,
+                    requestQuantity, issuedQuantity, odoMeterReading, requestReferenceNumber, issueReferenceNumber);
+
+            // Return a success response
+            JSONObject responseObject = new JSONObject();
+            responseObject.put("message", "Diesel receipt record created successfully");
+            responseObject.put("transactionId", transactionId);
+            return Response.ok(responseObject.toString()).build();
+
+        } catch (JSONException e) {
+            // Handle JSON parsing errors
+            return Response.status(Response.Status.BAD_REQUEST).entity("Invalid JSON format").build();
+        } catch (Exception e) {
+            // Handle other exceptions
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error creating diesel receipt record: " + e.getMessage()).build();
+        }
+    }
+
+    private boolean isValidKey(String key) {
+        if (key == null || key.trim().equals("")) {
+            return false;
+        }
+        ApiKey k = apiKeyController.findApiKey(key);
+        if (k == null) {
+            return false;
+        }
+        if (k.getWebUser() == null) {
+            return false;
+        }
+        if (k.getWebUser().isRetired()) {
+            return false;
+        }
+        if (!k.getWebUser().isActivated()) {
+            return false;
+        }
+        if (k.getDateOfExpiary().before(new Date())) {
+            return false;
+        }
+        return true;
     }
 
     private JSONObject authenticate(String username, String password) {
 
-        if (username== null || username.trim().length() == 0) {
+        if (username == null || username.trim().length() == 0) {
             return errorMessageLogin();
         }
 
@@ -293,8 +310,6 @@ public class ApiResource {
 
     }
 
-   
-
     private JSONObject requestPcrResult(String ipadd,
             String username,
             String password,
@@ -322,23 +337,15 @@ public class ApiResource {
             return errorMessageNoPcrRequestId();
         }
 
-
         Long rid = CommonController.getLongValue(request_id);
-
 
         FuelTransaction e = encounterApplicationController.getEncounter(rid);
 
         if (e == null) {
             return errorMessageNoSuchPcrRequestId();
         }
-        
-
-
-
 
         JSONObject ja = new JSONObject();
-
-       
 
         jSONObjectOut.put("data", array);
         jSONObjectOut.put("status", successMessage());
@@ -389,7 +396,7 @@ public class ApiResource {
             ja.put("institute_code", a.getCode());
             ja.put("name", a.getName());
             ja.put("hin", a.getPoiNumber());
-           ja.put("address", a.getAddress());
+            ja.put("address", a.getAddress());
             ja.put("type", a.getInstitutionType());
             ja.put("type_label", a.getInstitutionType().getLabel());
             if (a.getEditedAt() != null) {
@@ -733,12 +740,20 @@ public class ApiResource {
 
             for (Institution i_ : instList) {
                 if (childInstitions == null) {
-                    childInstitions = institution.getCode()+ ":" + i_.getCode();
+                    childInstitions = institution.getCode() + ":" + i_.getCode();
                 } else {
                     childInstitions += "^" + institution.getCode() + ":" + i_.getCode();
                 }
             }
         }
         return childInstitions;
+    }
+
+    private String createFuelTransaction(String fuelStationCode, String vehicleNumber, String driverNic, String comments, String requestQuantity, String suedQuantity, String odoMeterReading, String requestReferenceNumber, String sueReferenceNumber) {
+        FuelTransaction ft = new FuelTransaction();
+        ft.setInvoiceNo(comments);
+        ft.setComments(comments);
+        fuelRequestAndIssueController.save(ft);
+        return ft.getIdString();
     }
 }
