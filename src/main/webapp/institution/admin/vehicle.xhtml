@@ -45,11 +45,12 @@
                                          required="true" 
                                          requiredMessage="Please select a Type"
                                          value="#{vehicleController.selected.vehicleType}" title="VehicleType">
+                            <f:selectItem itemLabel="Select Vehicle Type" ></f:selectItem>
                             <f:selectItems value="#{applicationController.vehicleTypes}" 
                                            var="vt"
                                            itemValue="#{vt}"
                                            itemLabel="#{vt.label}"/>
-                             <p:ajax update="makeLabel makeSelect makeNameLabel makeNameInput"  process="@this" />
+                            <p:ajax update="makeLabel makeSelect"  process="@this" />
                         </p:selectOneMenu>
 
                         <h:outputLabel value="Main Purpose:" for="vehiclePurpose" />
@@ -81,9 +82,11 @@
                                            itemValue="#{ins}" ></f:selectItems>
                         </p:selectOneMenu>
 
-                       
+
                         <h:panelGroup id="makeLabel">
                             <h:outputLabel for="make" value="Make:" rendered="#{vehicleController.selected.vehicleType.vehicle}" />
+                            <h:outputLabel for="makeName" value="Make:" rendered="#{!vehicleController.selected.vehicleType.vehicle}" />
+
                         </h:panelGroup>
 
                         <h:panelGroup id="makeSelect">
@@ -97,13 +100,6 @@
                                 <f:selectItem itemLabel="Select" ></f:selectItem>
                                 <f:selectItems value="#{commonController.vehicleMakes}" ></f:selectItems>
                             </p:selectOneMenu>
-                        </h:panelGroup>
-
-                        <h:panelGroup id="makeNameLabel">
-                            <h:outputLabel for="makeName" value="Make:" rendered="#{!vehicleController.selected.vehicleType.vehicle}" />
-                        </h:panelGroup>
-
-                        <h:panelGroup id="makeNameInput">
                             <h:inputText id="makeName" 
                                          autocomplete="off"
                                          class="form-control"
@@ -112,14 +108,12 @@
                                          rendered="#{!vehicleController.selected.vehicleType.vehicle}" />
                         </h:panelGroup>
 
-
-                        <h:outputLabel value="Model:" for="model" />
+                        <h:outputLabel value="Estimated Monthly Fuel Consumption" for="model" />
                         <h:inputText id="model" 
                                      autocomplete="off"
                                      class="form-control"
-                                     value="#{vehicleController.selected.name}" 
-                                     title="Name" />
-
+                                     value="#{vehicleController.selected.estiamtedMonthlyFuelConsumption}" 
+                                     title="Estimated Monthly Fuel Consumption" />
 
                     </p:panelGrid>
 

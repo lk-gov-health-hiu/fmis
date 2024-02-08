@@ -518,43 +518,35 @@ public class InstitutionController implements Serializable {
 
     public List<Institution> fillInstitutions(List<InstitutionType> types, String nameQry, Institution parent) {
         List<Institution> resIns = new ArrayList<>();
-        if (nameQry == null) {
-            return resIns;
-        }
-        if (nameQry.trim().equals("")) {
-            return resIns;
-        }
         List<Institution> allIns = institutionApplicationController.getInstitutions();
 
         for (Institution i : allIns) {
             boolean canInclude = true;
             if (parent != null) {
-                if (i.getParent() == null) {
+                if (i.getParent() == null || !i.getParent().equals(parent)) {
                     canInclude = false;
-                } else {
-                    if (!i.getParent().equals(parent)) {
-                        canInclude = false;
-                    }
                 }
             }
             boolean typeFound = false;
             for (InstitutionType type : types) {
-                if (type != null) {
-                    if (i.getInstitutionType() != null && i.getInstitutionType().equals(type)) {
-                        typeFound = true;
-                    }
+                if (type != null && i.getInstitutionType() != null && i.getInstitutionType().equals(type)) {
+                    typeFound = true;
+                    break; // Optimisation: stop checking types once a match is found
                 }
             }
             if (!typeFound) {
                 canInclude = false;
             }
-            if (i.getName() == null || i.getName().trim().equals("")) {
-                canInclude = false;
-            } else {
-                if (!i.getName().toLowerCase().contains(nameQry.trim().toLowerCase())) {
+            // Modify name checking logic: Only check name if nameQry is not null/empty
+            if (nameQry != null && !nameQry.trim().isEmpty()) {
+                if (i.getName() == null || !i.getName().toLowerCase().contains(nameQry.trim().toLowerCase())) {
                     canInclude = false;
                 }
+            } else {
+                // If nameQry is null or empty, skip name-based filtering entirely
+                // This else block is intentionally left empty to clarify the logic flow
             }
+
             if (canInclude) {
                 resIns.add(i);
             }
@@ -622,6 +614,7 @@ public class InstitutionController implements Serializable {
         }
         if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
             items = institutionApplicationController.getInstitutions();
+
         } else {
             items = webUserController.findAutherizedInstitutions();
         }
@@ -973,7 +966,50 @@ public class InstitutionController implements Serializable {
     }
 
     public List<Institution> getInstitutionsWithoutfuelStations() {
-        if(institutionsWithoutfuelStations==null){
+        if (institutionsWithoutfuelStations == null) {
+            List<InstitutionType> types = new ArrayList<>();
+            types.add(InstitutionType.Base_Hospital);
+            types.add(InstitutionType.District_General_Hospital);
+            types.add(InstitutionType.Divisional_Hospital);
+            types.add(InstitutionType.Hospital);
+            types.add(InstitutionType.MOH_Office);
+            types.add(InstitutionType.Ministry_of_Health);
+            types.add(InstitutionType.National_Hospital);
+            types.add(InstitutionType.Other);
+            types.add(InstitutionType.OtherSpecializedUnit);
+            types.add(InstitutionType.Other_Ministry);
+            types.add(InstitutionType.Primary_Medical_Care_Unit);
+            types.add(InstitutionType.Provincial_Department_of_Health_Services);
+            types.add(InstitutionType.Provincial_General_Hospital);
+            types.add(InstitutionType.Regional_Department_of_Health_Department);
+            types.add(InstitutionType.Teaching_Hospital);
+            types.add(InstitutionType.Base_Hospital);
+
+            institutionsWithoutfuelStations = fillInstitutions(types, null, null);
+        }
+        return institutionsWithoutfuelStations;
+    }
+
+    public List<Institution> fillInstitutionsWithoutfuelStations() {
+        if (institutionsWithoutfuelStations == null) {
+            List<InstitutionType> types = new ArrayList<>();
+            types.add(InstitutionType.Base_Hospital);
+            types.add(InstitutionType.District_General_Hospital);
+            types.add(InstitutionType.Divisional_Hospital);
+            types.add(InstitutionType.Hospital);
+            types.add(InstitutionType.MOH_Office);
+            types.add(InstitutionType.Ministry_of_Health);
+            types.add(InstitutionType.National_Hospital);
+            types.add(InstitutionType.Other);
+            types.add(InstitutionType.OtherSpecializedUnit);
+            types.add(InstitutionType.Other_Ministry);
+            types.add(InstitutionType.Primary_Medical_Care_Unit);
+            types.add(InstitutionType.Provincial_Department_of_Health_Services);
+            types.add(InstitutionType.Provincial_General_Hospital);
+            types.add(InstitutionType.Regional_Department_of_Health_Department);
+            types.add(InstitutionType.Teaching_Hospital);
+            types.add(InstitutionType.Base_Hospital);
+
             institutionsWithoutfuelStations = fillInstitutions(types, null, null);
         }
         return institutionsWithoutfuelStations;
@@ -982,10 +1018,6 @@ public class InstitutionController implements Serializable {
     public void setInstitutionsWithoutfuelStations(List<Institution> institutionsWithoutfuelStations) {
         this.institutionsWithoutfuelStations = institutionsWithoutfuelStations;
     }
-    
-    
-    
-    
 
     @FacesConverter(forClass = Institution.class)
     public static class InstitutionControllerConverter implements Converter {
