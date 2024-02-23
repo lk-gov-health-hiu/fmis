@@ -46,7 +46,7 @@
                                 </f:facet>
                                 <h:outputText value="#{item.institution.name}"/>
                             </p:column>
-                            
+
                             <p:column sortBy="#{item.institution.supplyInstitution.name}" 
                                       filterBy="#{item.institution.supplyInstitution.name}"
                                       filterMatchMode="contains" >
@@ -55,7 +55,7 @@
                                 </f:facet>
                                 <h:outputText value="#{item.institution.supplyInstitution.name}"/>
                             </p:column>
-                            
+
                             <p:column sortBy="#{item.institution.alternativeSupplyInstitution.name}" 
                                       filterBy="#{item.institution.alternativeSupplyInstitution.name}"
                                       filterMatchMode="contains" >
@@ -90,13 +90,13 @@
                                 <h:outputText value="#{item.vehicleMake}"/>
                             </p:column>
 
-                            <p:column sortBy="#{item.name}" filterBy="#{item.name}" filterMatchMode="contains" >
+                           <p:column sortBy="#{item.estiamtedMonthlyFuelConsumption}" 
+                                      filterBy="#{item.estiamtedMonthlyFuelConsumption}" filterMatchMode="contains" >
                                 <f:facet name="header">
-                                    <h:outputText value="Model"/>
+                                    <h:outputText value="Estiamted Monthly Fuel Consumption"/>
                                 </f:facet>
-                                <h:outputText value="#{item.name}"/>
+                               <h:outputText value="#{item.estiamtedMonthlyFuelConsumption}"/>
                             </p:column>
-
 
 
                             <p:column headerText="Actions" >

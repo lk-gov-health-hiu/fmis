@@ -242,6 +242,7 @@ public class WebUserController implements Serializable {
         }
         ins.add(loggedUser.getInstitution());
         ins.addAll(institutionApplicationController.findChildrenInstitutions(loggedUser.getInstitution()));
+        
         return ins;
     }
 

@@ -49,7 +49,7 @@
                                  currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
                                  widgetVar="summaryTable">
 
-                        <p:column headerText="Issued Date" sortBy="#{summary.issuedDate}" filterBy="#{summary.issuedDate}" filterMatchMode="contains">
+                        <p:column headerText="Issued Date" sortBy="#{summary.issuedDate}" >
                             <p:commandLink action="#{reportController.navigateToIndividualTransactionsFromDate()}" >
                                 <h:outputText value="#{summary.issuedDate}">
                                     <f:convertDateTime pattern="dd/MM/yyyy" />
@@ -70,7 +70,7 @@
                             </p:commandLink>
                         </p:column>
 
-                        <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" filterMatchMode="numeric">
+                        <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" >
                             <h:outputText value="#{summary.sumOfIssuedQty}" />
                         </p:column>
 

@@ -168,8 +168,27 @@ public class InstitutionController implements Serializable {
         getFacade().edit(deleting);
         JsfUtil.addSuccessMessage("Deleted");
         institutionApplicationController.getInstitutions().remove(deleting);
+        institutionApplicationController.resetAllInstitutions();
         fillItems();
         return "/institution/list";
+    }
+
+    public String deleteFuelStation() {
+        if (deleting == null) {
+            JsfUtil.addErrorMessage("Please select");
+            return "";
+        }
+        if (thisIsAParentInstitution(deleting)) {
+            JsfUtil.addErrorMessage("Can't delete. This has child institutions.");
+            return "";
+        }
+        deleting.setRetired(true);
+        deleting.setRetiredAt(new Date());
+        deleting.setRetirer(webUserController.getLoggedUser());
+        getFacade().edit(deleting);
+        JsfUtil.addSuccessMessage("Deleted");
+        institutionApplicationController.getInstitutions().remove(deleting);
+        return menuController.toListFuelStations();
     }
 
     public String toListInstitutions() {
@@ -407,6 +426,12 @@ public class InstitutionController implements Serializable {
                 case Provincial_Department_of_Health_Services:
                 case Provincial_General_Hospital:
                 case Regional_Department_of_Health_Department:
+                case Indigenous_Medicine_Department:
+                case Ayurvedic_Department:
+                case Provincial_Ayurvedic_Department:
+                case District_Ayurvedic_Department:
+                case Ayurvedic_Hospital:
+                case Herbal_Guardian:
                     ts.add(t);
                     break;
                 case Audit:
@@ -658,6 +683,7 @@ public class InstitutionController implements Serializable {
             items = null;
             JsfUtil.addSuccessMessage("Updates");
         }
+        institutionApplicationController.resetAllInstitutions();
         return menuController.toListInstitutions();
     }
 
@@ -966,27 +992,43 @@ public class InstitutionController implements Serializable {
     }
 
     public List<Institution> getInstitutionsWithoutfuelStations() {
-        if (institutionsWithoutfuelStations == null) {
-            List<InstitutionType> types = new ArrayList<>();
-            types.add(InstitutionType.Base_Hospital);
-            types.add(InstitutionType.District_General_Hospital);
-            types.add(InstitutionType.Divisional_Hospital);
-            types.add(InstitutionType.Hospital);
-            types.add(InstitutionType.MOH_Office);
-            types.add(InstitutionType.Ministry_of_Health);
-            types.add(InstitutionType.National_Hospital);
-            types.add(InstitutionType.Other);
-            types.add(InstitutionType.OtherSpecializedUnit);
-            types.add(InstitutionType.Other_Ministry);
-            types.add(InstitutionType.Primary_Medical_Care_Unit);
-            types.add(InstitutionType.Provincial_Department_of_Health_Services);
-            types.add(InstitutionType.Provincial_General_Hospital);
-            types.add(InstitutionType.Regional_Department_of_Health_Department);
-            types.add(InstitutionType.Teaching_Hospital);
-            types.add(InstitutionType.Base_Hospital);
 
-            institutionsWithoutfuelStations = fillInstitutions(types, null, null);
-        }
+        List<InstitutionType> types = new ArrayList<>();
+        types.add(InstitutionType.Base_Hospital);
+        types.add(InstitutionType.District_General_Hospital);
+        types.add(InstitutionType.Divisional_Hospital);
+        types.add(InstitutionType.Hospital);
+        types.add(InstitutionType.MOH_Office);
+        types.add(InstitutionType.Ministry_of_Health);
+        types.add(InstitutionType.National_Hospital);
+        types.add(InstitutionType.Other);
+        types.add(InstitutionType.OtherSpecializedUnit);
+        types.add(InstitutionType.Other_Ministry);
+        types.add(InstitutionType.Primary_Medical_Care_Unit);
+        types.add(InstitutionType.Provincial_Department_of_Health_Services);
+        types.add(InstitutionType.Provincial_General_Hospital);
+        types.add(InstitutionType.Regional_Department_of_Health_Department);
+        types.add(InstitutionType.Teaching_Hospital);
+        types.add(InstitutionType.Base_Hospital);
+        types.add(InstitutionType.Ayurvedic_Department);
+        types.add(InstitutionType.Ayurvedic_Hospital);
+        types.add(InstitutionType.Provincial_Ayurvedic_Department);
+        types.add(InstitutionType.District_Ayurvedic_Department);
+        types.add(InstitutionType.Herbal_Guardian);
+        types.add(InstitutionType.Other);
+        types.add(InstitutionType.Indigenous_Medicine_Department);
+        types.add(InstitutionType.District_Ayurvedic_Department);
+
+        /**
+         * Indigenous_Medicine_Department("Indigenous Medicine Department"),
+         * Ayurvedic_Department("Ayurvedic Department"),
+         * Ayurvedic_Hospital("Ayurvedic Hospital"),
+         * Provincial_Ayurvedic_Department("Provincial Ayurvedic Department"),
+         * District_Ayurvedic_Department("District Ayurvedic Department"),
+         * Herbal_Guardian("Herbal Guardian"),
+         */
+        institutionsWithoutfuelStations = fillInstitutions(types, null, null);
+
         return institutionsWithoutfuelStations;
     }
 
@@ -1009,6 +1051,12 @@ public class InstitutionController implements Serializable {
             types.add(InstitutionType.Regional_Department_of_Health_Department);
             types.add(InstitutionType.Teaching_Hospital);
             types.add(InstitutionType.Base_Hospital);
+            types.add(InstitutionType.Indigenous_Medicine_Department);
+            types.add(InstitutionType.Ayurvedic_Department);
+            types.add(InstitutionType.Ayurvedic_Hospital);
+            types.add(InstitutionType.Herbal_Guardian);
+            types.add(InstitutionType.Provincial_Ayurvedic_Department);
+            types.add(InstitutionType.District_Ayurvedic_Department);
 
             institutionsWithoutfuelStations = fillInstitutions(types, null, null);
         }

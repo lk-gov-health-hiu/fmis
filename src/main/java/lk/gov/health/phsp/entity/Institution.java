@@ -139,6 +139,13 @@ public class Institution implements Serializable, Nameable {
             case National_Hospital:
             case Teaching_Hospital:
             case Provincial_General_Hospital:
+            case Indigenous_Medicine_Department:
+            case Ayurvedic_Department:
+            case Provincial_Ayurvedic_Department:
+            case District_Ayurvedic_Department:
+            case Ayurvedic_Hospital:
+            case Herbal_Guardian:
+                
                 institutionTypeRootTrans = InstitutionType.Hospital;
             default:
                 institutionTypeRootTrans = getInstitutionType();
@@ -499,7 +506,5 @@ public class Institution implements Serializable, Nameable {
     public void setAlternativeSupplyInstitution(Institution alternativeSupplyInstitution) {
         this.alternativeSupplyInstitution = alternativeSupplyInstitution;
     }
-    
-    
 
 }

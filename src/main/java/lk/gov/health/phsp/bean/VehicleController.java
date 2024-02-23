@@ -139,6 +139,7 @@ public class VehicleController implements Serializable {
         getFacade().edit(deleting);
         JsfUtil.addSuccessMessage("Deleted");
         vehicleApplicationController.getVehicles().remove(deleting);
+        vehicleApplicationController.fillAllVehicles();
         fillItems();
         return "/vehicle/list";
     }
@@ -237,10 +238,7 @@ public class VehicleController implements Serializable {
     }
 
     public void fillItems() {
-        if (vehicleApplicationController.getVehicles() != null) {
-            items = vehicleApplicationController.getVehicles();
-            return;
-        }
+        items = vehicleApplicationController.getVehicles();
     }
 
     public void resetAllVehicles() {
@@ -434,6 +432,7 @@ public class VehicleController implements Serializable {
             getFacade().edit(selected);
             JsfUtil.addSuccessMessage("Updated");
         }
+        vehicleApplicationController.fillAllVehicles();
         return menuController.toListVehicles();
     }
 

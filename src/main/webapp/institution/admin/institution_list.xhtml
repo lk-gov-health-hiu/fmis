@@ -9,6 +9,9 @@
             <ui:define name="admin">
                 <h:form>
                     <p:panel class="bg-white border-light">
+                         <h:commandButton value="Download as Excel" class="btn btn-primary" >
+                            <p:dataExporter fileName="Institution List" target="datalist" type="xlsx" ></p:dataExporter>
+                        </h:commandButton>
                         <p:commandButton icon="pi pi-align-justify" class="btn btn-sm btn-secondary" id="toggler" type="button"
                                          value="Columns" />
                         <p:columnToggler datasource="datalist" trigger="toggler" />
@@ -39,7 +42,7 @@
                                 </f:facet>
                                 <h:outputText value="#{item.parent.name}" />
                             </p:column>
-                            <p:column headerText="Actions">
+                            <p:column headerText="Actions" exportable="false">
                                 <div class="d-flex flex-column">
                                     <h:commandLink class="btn btn-warning m-2 w-100" id="editButton" value="Edit"
                                                    action="#{menuController.toEditInstitution()}">
