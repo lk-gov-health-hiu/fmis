@@ -1,7 +1,6 @@
 package lk.gov.health.phsp.enums;
 
 /**
- *
  * @author Dr M H B Ariyaratne
  */
 public enum InstitutionType {
@@ -32,6 +31,12 @@ public enum InstitutionType {
     CPC_Depot("CPC Depot"),
     ERD("ERD"),
     CB("CB"),
+    Indigenous_Medicine_Department("Indigenous Medicine Department"),
+    Ayurvedic_Department("Ayurvedic Department"),
+    Ayurvedic_Hospital("Ayurvedic Hospital"),
+    Provincial_Ayurvedic_Department("Provincial Ayurvedic Department"),
+    District_Ayurvedic_Department("District Ayurvedic Department"),
+    Herbal_Guardian("Herbal Guardian"),
     Other("Other");
 
     private final String label;

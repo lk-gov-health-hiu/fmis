@@ -45,6 +45,12 @@ public enum VehicleMake {
     BRIGGS_AND_STRATTON, 
     WESTINGHOUSE, 
     CHAMPION,
+    MICRO_SSANGYONG,
+    EICHER,
+    SWARAJ,
+    HINO,
+    FORCE,
+    MAZDA,
     OTHER;
 
 }

@@ -42,7 +42,9 @@
                                     <div class="row">
                                         <div class="col-12 p-2">
                                             <h:form>
-                                                <h:commandLink value="Add New User" action="#{menuController.toAddNewUser()}"
+                                                <h:commandLink
+                                                    
+                                                    value="Add New User" action="#{menuController.toAddNewUser()}"
                                                                class="btn btn-outline-primary btn-lg btn-block w-100">
                                                 </h:commandLink>
                                             </h:form>
@@ -63,6 +65,7 @@
                                         <div class="col-12 p-2">
                                             <h:form>
                                                 <h:commandButton value="New Vehicle"
+                                                                 disabled="true"
                                                                  action="#{menuController.toAddNewVehicle()}"
                                                                  class="btn btn-outline-primary btn-lg btn-block w-100"></h:commandButton>
                                             </h:form>
@@ -85,6 +88,7 @@
                                         <div class="col-12 p-2">
                                             <h:form>
                                                 <h:commandLink value="Add Institutions" 
+                                                               disabled="true"
                                                                action="#{menuController.toAddNewInstitution()}"
                                                                class="btn btn-outline-primary btn-lg btn-block w-100">
                                                 </h:commandLink>
@@ -135,6 +139,7 @@
                                             <h:form>
                                                 <h:commandLink 
                                                     value="Add Fuel Station" 
+                                                    disabled="true"
                                                     action="#{menuController.toAddNewFuelStation()}"
                                                     class="btn btn-outline-primary btn-lg btn-block w-100">
                                                 </h:commandLink>

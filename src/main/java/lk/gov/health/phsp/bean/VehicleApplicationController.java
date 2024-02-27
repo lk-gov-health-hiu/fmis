@@ -67,7 +67,7 @@ public class VehicleApplicationController {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Getters & Setters">
-    private List<Vehicle> fillAllVehicles() {
+    public List<Vehicle> fillAllVehicles() {
         String j;
         Map m = new HashMap();
         j = "select i "

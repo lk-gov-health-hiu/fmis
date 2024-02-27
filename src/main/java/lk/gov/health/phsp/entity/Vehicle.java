@@ -53,7 +53,7 @@ public class Vehicle implements Serializable, Nameable {
 
     @Enumerated(EnumType.STRING)
     private VehicleType vehicleType;
-    
+
     @Enumerated(EnumType.STRING)
     private VehiclePurpose vehiclePurpose;
 
@@ -68,9 +68,8 @@ public class Vehicle implements Serializable, Nameable {
     private Institution institution;
     @Enumerated(EnumType.STRING)
     private VehicleMake make;
-    
 
-
+    private Double estiamtedMonthlyFuelConsumption;
 
     @ManyToOne
     private WebUser creater;
@@ -87,10 +86,6 @@ public class Vehicle implements Serializable, Nameable {
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date retiredAt;
     private String retireComments;
-
-   
-
-   
 
     @Override
     public int hashCode() {
@@ -125,7 +120,7 @@ public class Vehicle implements Serializable, Nameable {
     public Long getId() {
         return id;
     }
-    
+
     public String getIdString() {
         return id + "";
     }
@@ -153,31 +148,25 @@ public class Vehicle implements Serializable, Nameable {
         this.name = name;
     }
 
-
     public String getVehicleNumber() {
         return vehicleNumber;
     }
 
-  
     public void setVehicleNumber(String vehicleNumber) {
         this.vehicleNumber = vehicleNumber;
     }
 
- 
     public String getVehicleMake() {
         return vehicleMake;
     }
 
-   
     public void setVehicleMake(String vehicleMake) {
         this.vehicleMake = vehicleMake;
     }
 
-  
     public String getVehicleModel() {
         return vehicleModel;
     }
-
 
     public void setVehicleModel(String vehicleModel) {
         this.vehicleModel = vehicleModel;
@@ -279,7 +268,13 @@ public class Vehicle implements Serializable, Nameable {
         this.make = make;
     }
 
-    
+    public Double getEstiamtedMonthlyFuelConsumption() {
+        return estiamtedMonthlyFuelConsumption;
+    }
+
+    public void setEstiamtedMonthlyFuelConsumption(Double estiamtedMonthlyFuelConsumption) {
+        this.estiamtedMonthlyFuelConsumption = estiamtedMonthlyFuelConsumption;
+    }
     
     
 
