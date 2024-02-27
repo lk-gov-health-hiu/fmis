@@ -17,8 +17,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.EJB;
@@ -233,17 +235,25 @@ public class WebUserController implements Serializable {
     }
 
     public List<Institution> findAutherizedInstitutions() {
-        List<Institution> ins = new ArrayList<>();
-        if (loggedUser == null) {
-            return ins;
+        Set<Institution> insSet = new HashSet<>();
+        if (loggedUser == null || loggedUser.getInstitution() == null) {
+            return new ArrayList<>(insSet);
         }
-        if (loggedUser.getInstitution() == null) {
-            return ins;
+        insSet.add(loggedUser.getInstitution());
+        insSet.addAll(institutionApplicationController.findChildrenInstitutions(loggedUser.getInstitution()));
+
+        return new ArrayList<>(insSet);
+    }
+
+    public List<Institution> findAuthorizedInstitutions() {
+        Set<Institution> insSet = new HashSet<>();
+        if (loggedUser == null || loggedUser.getInstitution() == null) {
+            return new ArrayList<>(insSet);
         }
-        ins.add(loggedUser.getInstitution());
-        ins.addAll(institutionApplicationController.findChildrenInstitutions(loggedUser.getInstitution()));
-        
-        return ins;
+        insSet.add(loggedUser.getInstitution());
+        insSet.addAll(institutionApplicationController.findChildrenInstitutions(loggedUser.getInstitution()));
+
+        return new ArrayList<>(insSet);
     }
 
     public List<Vehicle> findAutherizedVehicles() {
@@ -878,35 +888,33 @@ public class WebUserController implements Serializable {
         if (u == null || u.getId() == null) {
             return;
         }
-        try{
+        try {
             String j = "Select up from UserPrivilege up where "
-                + " up.webUser=:u and up.privilege=:p "
-                + " order by up.id desc";
-        Map m = new HashMap();
-        m.put("u", u);
-        m.put("p", p);
-        UserPrivilege up = getUserPrivilegeFacade().findFirstByJpql(j, m);
-        if (up == null) {
-            up = new UserPrivilege();
-            up.setCreatedAt(new Date());
-            up.setCreatedBy(loggedUser);
-            up.setWebUser(u);
-            up.setPrivilege(p);
-            getUserPrivilegeFacade().create(up);
-        } else {
-            up.setRetired(false);
-            up.setCreatedAt(new Date());
-            up.setCreatedBy(loggedUser);
-            up.setWebUser(u);
-            up.setPrivilege(p);
+                    + " up.webUser=:u and up.privilege=:p "
+                    + " order by up.id desc";
+            Map m = new HashMap();
+            m.put("u", u);
+            m.put("p", p);
+            UserPrivilege up = getUserPrivilegeFacade().findFirstByJpql(j, m);
+            if (up == null) {
+                up = new UserPrivilege();
+                up.setCreatedAt(new Date());
+                up.setCreatedBy(loggedUser);
+                up.setWebUser(u);
+                up.setPrivilege(p);
+                getUserPrivilegeFacade().create(up);
+            } else {
+                up.setRetired(false);
+                up.setCreatedAt(new Date());
+                up.setCreatedBy(loggedUser);
+                up.setWebUser(u);
+                up.setPrivilege(p);
 
-            getUserPrivilegeFacade().edit(up);
+                getUserPrivilegeFacade().edit(up);
+            }
+        } catch (Exception e) {
         }
-        }catch(Exception e){
-        }
-        
-        
-        
+
     }
 
     public boolean hasPrivilege(String privilege) {

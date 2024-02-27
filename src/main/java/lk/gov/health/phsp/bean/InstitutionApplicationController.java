@@ -281,14 +281,19 @@ public class InstitutionApplicationController {
 
     public List<Institution> findChildrenInstitutions(Institution parentInstitution) {
         List<Institution> allInstitutions = getInstitutions();
-        List<Institution> children = new ArrayList<>();
+        return findChildrenInstitutionsHelper1(parentInstitution, allInstitutions, new HashSet<>());
+    }
+
+    private List<Institution> findChildrenInstitutionsHelper1(Institution parentInstitution, List<Institution> allInstitutions, Set<Institution> processed) {
+        Set<Institution> childrenSet = new HashSet<>();
         for (Institution institution : allInstitutions) {
-            if (institution.getParent() != null && institution.getParent().equals(parentInstitution)) {
-                children.add(institution);
-                children.addAll(findChildrenInstitutions(institution, allInstitutions));
+            if (!processed.contains(institution) && institution.getParent() != null && institution.getParent().equals(parentInstitution)) {
+                childrenSet.add(institution);
+                processed.add(institution);
+                childrenSet.addAll(findChildrenInstitutionsHelper(institution, allInstitutions, processed));
             }
         }
-        return children;
+        return new ArrayList<>(childrenSet);
     }
 
     public List<Institution> findChildrenInstitutions(Institution parentInstitution, List<Institution> allInstitutions) {
