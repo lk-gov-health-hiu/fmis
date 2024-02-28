@@ -172,6 +172,18 @@ public class MenuController implements Serializable {
         }
     }
 
+    
+    public String toAddNewHealthInstitution() {
+        institutionController.prepareToAddNewInstitution();
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case HEALTH_MINISTRY:
+                return "/national/admin/institution_health";
+            default:
+                return "/institution/admin/institution";
+        }
+    }
+
+    
     public String toAddNewFuelStation() {
         institutionController.prepareToAddNewFuelStation();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -273,6 +285,21 @@ public class MenuController implements Serializable {
         }
     }
 
+    
+    public String toListInstitutionsHealth() {
+        institutionController.prepareToListInstitution();
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case CTB:
+            case FUEL_REQUESTING_INSTITUTION:
+                return "/institution/admin/institution_list_health";
+            case HEALTH_MINISTRY:
+                return "/national/admin/institution_list";
+            default:
+                return "";
+        }
+    }
+
+    
     public String toListFuelStations() {
         institutionController.prepareToListFuelStations();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
@@ -411,9 +438,9 @@ public class MenuController implements Serializable {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case FUEL_REQUESTING_INSTITUTION:
             case CTB:
-                return "/institution/admin/institution";
+                return "/institution/admin/institution_health";
             case HEALTH_MINISTRY:
-                return "/national/admin/institution";
+                return "/national/admin/institution_health";
             default:
                 return "";
         }

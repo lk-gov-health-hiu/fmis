@@ -28,10 +28,12 @@ import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import lk.gov.health.phsp.entity.Area;
@@ -41,10 +43,15 @@ import lk.gov.health.phsp.enums.FuelTransactionType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.persistence.TemporalType;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.entity.Driver;
 import lk.gov.health.phsp.entity.Upload;
+import lk.gov.health.phsp.entity.Vehicle;
+import lk.gov.health.phsp.entity.WebUser;
+import lk.gov.health.phsp.enums.FuelEstimateRowType;
+import lk.gov.health.phsp.enums.InstitutionCategory;
 import lk.gov.health.phsp.enums.InstitutionType;
 import lk.gov.health.phsp.enums.Quarter;
 import lk.gov.health.phsp.enums.TimePeriodType;
@@ -75,7 +82,7 @@ public class ReportController implements Serializable {
     @EJB
     private UploadFacade uploadFacade;
     @EJB
-    FuelTransactionFacade fuelTransactionFacade;
+    private FuelTransactionFacade fuelTransactionFacade;
     // </editor-fold>  
 
     // <editor-fold defaultstate="collapsed" desc="Controllers">
@@ -84,13 +91,15 @@ public class ReportController implements Serializable {
     @Inject
     private InstitutionController institutionController;
     @Inject
-    InstitutionApplicationController institutionApplicationController;
+    private InstitutionApplicationController institutionApplicationController;
 
     @Inject
     private ExcelReportController excelReportController;
 
     @Inject
     private UserTransactionController userTransactionController;
+    @Inject
+    private VehicleController vehicleController;
 
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Class Variables">
@@ -110,6 +119,9 @@ public class ReportController implements Serializable {
     private Long reportCount;
     private List<AreaCount> areaCounts;
     private Long areaRepCount;
+    private List<Institution> hospitals;
+    private double totalFuelEstimate;
+    private List<FuelEstimateRow> fuelEstimateRows;
 
     private Upload currentUpload;
     private StreamedContent downloadingFile;
@@ -129,6 +141,7 @@ public class ReportController implements Serializable {
     private Driver driver;
     private InstitutionType institutionType;
     private List<FuelIssuedSummary> issuedSummaries;
+    private FuelEstimate fuelEstimate;
     Long fuelStationId;
     Long healthInstitutionId;
     private Date selectedDate; // This represents the date clicked in the comprehensive report
@@ -163,16 +176,81 @@ public class ReportController implements Serializable {
         return "/reports/comprehensive_diesel_issuance_summary?faces-redirect=true;";
     }
 
+    public String navigateToListFuelRequestsForFuelDispensor() {
+        fillAllInstitutionFuelTransactions();
+        return "/reports/fuel_dispensor/list?faces-redirect=true;";
+    }
+
+    public String navigateToListHospitalEstimatessForCpcToPrint() {
+        fillAllInstitutionFuelTransactions();
+        return "/reports/fuel_dispensor/national_estimate_print?faces-redirect=true;";
+    }
+    
+     public String navigateToListHospitalEstimatessForCpcToDownload() {
+        fillAllInstitutionFuelTransactions();
+        return "/reports/fuel_dispensor/national_estimate_to_download?faces-redirect=true;";
+    }
+     
+      public String navigateToListHospitalEstimatessToPrint() {
+        fillAllInstitutionFuelTransactions();
+        return "/reports/national_estimate_print?faces-redirect=true;";
+    }
+    
+     public String navigateToListHospitalEstimatessToDownload() {
+        fillAllInstitutionFuelTransactions();
+        return "/reports/national_estimate_to_download?faces-redirect=true;";
+    }
+
+    public String navigateToDieselDistributionFuelStationSummaryForFuelDispensor() {
+        fillDieselDistributionFuelStationSummary();
+        return "/reports/fuel_dispensor/diesel_distribution_fuel_station_summary?faces-redirect=true;";
+    }
+
+    public String navigateToDieselDistributionHealthInstitutionSummaryForFuelDispensor() {
+        fillDieselDistributionHealthInstitutionSummary();
+        return "/reports/fuel_dispensor/diesel_distribution_health_institution_summary?faces-redirect=true;";
+    }
+
+    public String navigateToComprehensiveDieselIssuanceSummaryForFuelDispensor() {
+        fillComprehensiveDieselIssuanceSummary();
+        return "/reports/fuel_dispensor/comprehensive_diesel_issuance_summary?faces-redirect=true;";
+    }
+
     public String navigateToReportsIndex() {
-        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case HEALTH_MINISTRY:
-            case MONITERING:
-            case CTB:
+        WebUser loggedUser = webUserController.getLoggedUser();
+        if (loggedUser == null) {
+            JsfUtil.addErrorMessage("No Logged User");
+            return ""; // Redirect to login or a relevant page
+        }
+
+        Institution userInstitution = loggedUser.getInstitution();
+        if (userInstitution == null) {
+            JsfUtil.addErrorMessage("No Institution for Logged User");
+            return ""; // Redirect to login or a relevant page
+        }
+
+        InstitutionType institutionType = userInstitution.getInstitutionType();
+        if (institutionType == null) {
+            JsfUtil.addErrorMessage("No Institution type for the Logged Institution");
+            return ""; // Redirect to login or a relevant page
+        }
+
+        InstitutionCategory category = institutionType.getCategory();
+        if (category == null) {
+            JsfUtil.addErrorMessage("No Category for Logged Institution");
+            return ""; // Redirect to login or a relevant page
+        }
+
+        switch (category) {
+            case FUEL_DISPENSOR:
+                return "/reports/fuel_dispensor/index";
+            case FUEL_RECEIVER:
                 return "/reports/index?faces-redirect=true;";
-            case FUEL_REQUESTING_INSTITUTION:
+            case MONITORING_AND_EVALUATION:
+            case OTHER:
                 return "/institution/reports/index";
             default:
-                return "";
+                return "/default"; // Redirect to a default page
         }
     }
 
@@ -312,6 +390,121 @@ public class ReportController implements Serializable {
 
     public void fillComprehensiveDieselIssuanceSummary() {
         issuedSummaries = fillFuelIssuedSummary(fromInstitution, toInstitution, getFromDate(), getToDate());
+    }
+
+    public void fillAllHospitalsEstimatesToDownload() {
+        List<FuelEstimateRow> estimateRows = new ArrayList<>();
+
+        List<InstitutionType> fuelReceivingInstitutionTypes = Arrays.stream(InstitutionType.values())
+                .filter(it -> it.getCategory() == InstitutionCategory.FUEL_DISPENSOR)
+                .collect(Collectors.toList());
+        List<Institution> fuelStations = institutionController.fillInstitutions(fuelReceivingInstitutionTypes);
+
+        for (Institution fuelStation : fuelStations) {
+            // Fuel station row
+            FuelEstimateRow fuelStationRow = new FuelEstimateRow();
+            fuelStationRow.setRow(FuelEstimateRowType.FUEL_STATION_HEADING_ROW);
+            fuelStationRow.setFuelStation(fuelStation);
+            estimateRows.add(fuelStationRow);
+
+            double fuelShedTotalEstimate = 0.0;
+            List<Institution> suppliedInstitutions = institutionController.findInstitutionsByMainFuelStation(fuelStation);
+
+            for (Institution institution : suppliedInstitutions) {
+                // Institution row
+                FuelEstimateRow institutionRow = new FuelEstimateRow();
+                institutionRow.setRow(FuelEstimateRowType.INSTITUTION_HEADING_ROW);
+                institutionRow.setInstitution(institution);
+                estimateRows.add(institutionRow);
+
+                List<Vehicle> vehicles = vehicleController.fillVehicles(institution);
+                double institutionFuelEstimate = 0.0;
+
+                if (vehicles != null) {
+                    for (Vehicle vehicle : vehicles) {
+                        // Vehicle row
+                        FuelEstimateRow vehicleRow = new FuelEstimateRow();
+                        vehicleRow.setRow(FuelEstimateRowType.VEHICLE_ROW);
+                        vehicleRow.setVehicle(vehicle);
+                        Double vehicleFuelConsumption = vehicle.getEstiamtedMonthlyFuelConsumption();
+                        vehicleFuelConsumption = vehicleFuelConsumption != null ? vehicleFuelConsumption : 0.0;
+                        vehicleRow.setTotalEstimate(vehicleFuelConsumption);
+                        estimateRows.add(vehicleRow);
+
+                        institutionFuelEstimate += vehicleFuelConsumption;
+                    }
+                }
+
+                fuelShedTotalEstimate += institutionFuelEstimate;
+                institutionRow.setInstitutionEstimate(institutionFuelEstimate);
+            }
+
+            fuelStationRow.setFuelStationEstimate(fuelShedTotalEstimate);
+        }
+
+        // Total row
+        FuelEstimateRow totalRow = new FuelEstimateRow();
+        totalRow.setRow(FuelEstimateRowType.TOTAL_ROW);
+        totalRow.setTotalEstimate(estimateRows.stream()
+                .map(FuelEstimateRow::getTotalEstimate)
+                .filter(Objects::nonNull) // Filter out null values
+                .mapToDouble(Double::doubleValue) // Convert to double
+                .sum());
+        estimateRows.add(totalRow);
+
+        this.fuelEstimateRows = estimateRows;
+    }
+
+    public void fillAllHospitalsEstimatesToPrint() {
+        fuelEstimate = new FuelEstimate();
+        List<FuelShedEstimate> fuelShedEstimates = new ArrayList<>();
+
+        List<InstitutionType> fuelReceivingInstitutionTypes = Arrays.stream(InstitutionType.values())
+                .filter(it -> it.getCategory() == InstitutionCategory.FUEL_DISPENSOR)
+                .collect(Collectors.toList());
+        List<Institution> fuelStations = institutionController.fillInstitutions(fuelReceivingInstitutionTypes);
+
+        double totalEstimate = 0.0;
+
+        for (Institution fuelStation : fuelStations) {
+            System.out.println("fuelStation = " + fuelStation.getName());
+            FuelShedEstimate fuelShedEstimate = new FuelShedEstimate();
+            fuelShedEstimate.setFuelStation(fuelStation);
+
+            List<InstitutionEstimate> institutionEstimates = new ArrayList<>();
+
+            double fuelShedTotalEstimate = 0.0;
+            List<Institution> suppliedInstitutions = institutionController.findInstitutionsByMainFuelStation(fuelStation);
+
+            for (Institution institution : suppliedInstitutions) {
+                InstitutionEstimate institutionEstimate = new InstitutionEstimate();
+                institutionEstimate.setInstitution(institution);
+
+                List<Vehicle> vehicles = vehicleController.fillVehicles(institution);
+                if (vehicles != null) {
+                    double institutionFuelEstimate = vehicles.stream()
+                            .filter(Objects::nonNull) // Filter out null vehicles
+                            .mapToDouble(v -> v.getEstiamtedMonthlyFuelConsumption() != null ? v.getEstiamtedMonthlyFuelConsumption() : 0.0) // Safely handle null values
+                            .sum();
+
+                    institutionEstimate.setVehicles(vehicles);
+                    institutionEstimate.setInstitutionFuelEstimate(institutionFuelEstimate);
+
+                    fuelShedTotalEstimate += institutionFuelEstimate;
+                }
+
+                institutionEstimates.add(institutionEstimate);
+            }
+
+            fuelShedEstimate.setFuelShedEstimate(fuelShedTotalEstimate);
+            fuelShedEstimate.setInstitutionEstimates(institutionEstimates);
+
+            totalEstimate += fuelShedTotalEstimate;
+            fuelShedEstimates.add(fuelShedEstimate);
+        }
+
+        fuelEstimate.setTotalEstimate(totalEstimate);
+        fuelEstimate.setFuelShedEstimates(fuelShedEstimates);
     }
 
     public List<FuelIssuedSummary> fillFuelIssuedToHealthInstitutionSummary(Date fd, Date td) {
@@ -787,4 +980,238 @@ public class ReportController implements Serializable {
     }
 
     // </editor-fold> 
+    public List<Institution> getHospitals() {
+        return hospitals;
+    }
+
+    public void setHospitals(List<Institution> hospitals) {
+        this.hospitals = hospitals;
+    }
+
+    public double getTotalFuelEstimate() {
+        return totalFuelEstimate;
+    }
+
+    public void setTotalFuelEstimate(double totalFuelEstimate) {
+        this.totalFuelEstimate = totalFuelEstimate;
+    }
+
+    public FuelEstimate getFuelEstimate() {
+        return fuelEstimate;
+    }
+
+    public void setFuelEstimate(FuelEstimate fuelEstimate) {
+        this.fuelEstimate = fuelEstimate;
+
+    }
+
+    public FuelTransactionFacade getFuelTransactionFacade() {
+        return fuelTransactionFacade;
+    }
+
+    public void setFuelTransactionFacade(FuelTransactionFacade fuelTransactionFacade) {
+        this.fuelTransactionFacade = fuelTransactionFacade;
+    }
+
+    public InstitutionApplicationController getInstitutionApplicationController() {
+        return institutionApplicationController;
+    }
+
+    public void setInstitutionApplicationController(InstitutionApplicationController institutionApplicationController) {
+        this.institutionApplicationController = institutionApplicationController;
+    }
+
+    public VehicleController getVehicleController() {
+        return vehicleController;
+    }
+
+    public void setVehicleController(VehicleController vehicleController) {
+        this.vehicleController = vehicleController;
+    }
+
+    public List<FuelEstimateRow> getFuelEstimateRows() {
+        return fuelEstimateRows;
+    }
+
+    public void setFuelEstimateRows(List<FuelEstimateRow> fuelEstimateRows) {
+        this.fuelEstimateRows = fuelEstimateRows;
+    }
+
+    public UserTransactionController getUserTransactionController() {
+        return userTransactionController;
+    }
+
+    public void setUserTransactionController(UserTransactionController userTransactionController) {
+        this.userTransactionController = userTransactionController;
+    }
+
+    public StreamedContent getDownloadingFile() {
+        return downloadingFile;
+    }
+
+    public void setDownloadingFile(StreamedContent downloadingFile) {
+        this.downloadingFile = downloadingFile;
+    }
+
+    public class FuelEstimate {
+
+        private double totalEstimate;
+        private List<FuelShedEstimate> fuelShedEstimates;
+
+        public FuelEstimate() {
+        }
+
+        public double getTotalEstimate() {
+            return totalEstimate;
+        }
+
+        public void setTotalEstimate(double totalEstimate) {
+            this.totalEstimate = totalEstimate;
+        }
+
+        public List<FuelShedEstimate> getFuelShedEstimates() {
+            return fuelShedEstimates;
+        }
+
+        public void setFuelShedEstimates(List<FuelShedEstimate> fuelShedEstimates) {
+            this.fuelShedEstimates = fuelShedEstimates;
+        }
+    }
+
+    public class FuelShedEstimate {
+
+        private double fuelShedEstimate;
+        private Institution fuelStation;
+        private List<InstitutionEstimate> institutionEstimates;
+
+        public FuelShedEstimate() {
+        }
+
+        public double getFuelShedEstimate() {
+            return fuelShedEstimate;
+        }
+
+        public void setFuelShedEstimate(double fuelShedEstimate) {
+            this.fuelShedEstimate = fuelShedEstimate;
+        }
+
+        public List<InstitutionEstimate> getInstitutionEstimates() {
+            return institutionEstimates;
+        }
+
+        public void setInstitutionEstimates(List<InstitutionEstimate> institutionEstimates) {
+            this.institutionEstimates = institutionEstimates;
+        }
+
+        public Institution getFuelStation() {
+            return fuelStation;
+        }
+
+        public void setFuelStation(Institution fuelStation) {
+            this.fuelStation = fuelStation;
+        }
+    }
+
+    public class InstitutionEstimate {
+
+        private Institution institution;
+        private double institutionFuelEstimate;
+        private List<Vehicle> vehicles;
+
+        public InstitutionEstimate() {
+        }
+
+        public Institution getInstitution() {
+            return institution;
+        }
+
+        public void setInstitution(Institution institution) {
+            this.institution = institution;
+        }
+
+        public double getInstitutionFuelEstimate() {
+            return institutionFuelEstimate;
+        }
+
+        public void setInstitutionFuelEstimate(double institutionFuelEstimate) {
+            this.institutionFuelEstimate = institutionFuelEstimate;
+        }
+
+        public List<Vehicle> getVehicles() {
+            return vehicles;
+        }
+
+        public void setVehicles(List<Vehicle> vehicles) {
+            this.vehicles = vehicles;
+        }
+    }
+
+    public class FuelEstimateRow {
+
+        private FuelEstimateRowType row;
+        private Institution fuelStation;
+        private Double fuelStationEstimate;
+        private Institution institution;
+        private Double institutionEstimate;
+        private Vehicle vehicle;
+        private Double totalEstimate;
+
+        public FuelEstimateRowType getRow() {
+            return row;
+        }
+
+        public void setRow(FuelEstimateRowType row) {
+            this.row = row;
+        }
+
+        public Institution getFuelStation() {
+            return fuelStation;
+        }
+
+        public void setFuelStation(Institution fuelStation) {
+            this.fuelStation = fuelStation;
+        }
+
+        public Double getFuelStationEstimate() {
+            return fuelStationEstimate;
+        }
+
+        public void setFuelStationEstimate(Double fuelStationEstimate) {
+            this.fuelStationEstimate = fuelStationEstimate;
+        }
+
+        public Institution getInstitution() {
+            return institution;
+        }
+
+        public void setInstitution(Institution institution) {
+            this.institution = institution;
+        }
+
+        public Double getInstitutionEstimate() {
+            return institutionEstimate;
+        }
+
+        public void setInstitutionEstimate(Double institutionEstimate) {
+            this.institutionEstimate = institutionEstimate;
+        }
+
+        public Vehicle getVehicle() {
+            return vehicle;
+        }
+
+        public void setVehicle(Vehicle vehicle) {
+            this.vehicle = vehicle;
+        }
+
+        public Double getTotalEstimate() {
+            return totalEstimate;
+        }
+
+        public void setTotalEstimate(Double totalEstimate) {
+            this.totalEstimate = totalEstimate;
+        }
+
+    }
+
 }

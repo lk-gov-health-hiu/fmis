@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2024 buddhika.
+ * Copyright 2024 Dr M H B Ariyaratne <buddhika.ari at gmail.com>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,33 +25,11 @@ package lk.gov.health.phsp.enums;
 
 /**
  *
- * @author buddhika
+ * @author Dr M H B Ariyaratne <buddhika.ari at gmail.com>
  */
-public enum VehicleMake {
-    TOYOTA, HONDA, NISSAN, SUZUKI, KIA, HYUNDAI, MAHINDRA, TATA,
-    MERCEDES_BENZ, BMW, AUDI, LAND_ROVER, PORSCHE, LEXUS,
-    MITSUBISHI, MG, PEUGEOT, CITROEN, SKODA, VOLKSWAGEN, JEEP,
-    BAJAJ, PIAGGIO,
-    FORD,
-    ISSUZU,
-    ASHOK_LEYLAND,
-    JOHN_DEERE, MASSEY_FERGUSON, KUBOTA, NEW_HOLLAND,
-    BOWSER,
-    CATERPILLAR,
-    CUMMINS,
-    GENERAC,
-    KOHLER,
-    YANMAR,
-    BRIGGS_AND_STRATTON, 
-    WESTINGHOUSE, 
-    CHAMPION,
-    MICRO_SSANGYONG,
-    EICHER,
-    SWARAJ,
-    HINO,
-    FORCE,
-    MAZDA,
-    MICRO,
-    OTHER;
-
+public enum InstitutionCategory {
+    FUEL_RECEIVER,
+    FUEL_DISPENSOR,
+    MONITORING_AND_EVALUATION,
+    OTHER
 }

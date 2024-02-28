@@ -556,20 +556,18 @@ public class InstitutionController implements Serializable {
             for (InstitutionType type : types) {
                 if (type != null && i.getInstitutionType() != null && i.getInstitutionType().equals(type)) {
                     typeFound = true;
-                    break; // Optimisation: stop checking types once a match is found
+                    break; // Stop checking types once a match is found
                 }
             }
             if (!typeFound) {
                 canInclude = false;
             }
-            // Modify name checking logic: Only check name if nameQry is not null/empty
+
+            // Check name only if nameQry is provided and not empty
             if (nameQry != null && !nameQry.trim().isEmpty()) {
                 if (i.getName() == null || !i.getName().toLowerCase().contains(nameQry.trim().toLowerCase())) {
                     canInclude = false;
                 }
-            } else {
-                // If nameQry is null or empty, skip name-based filtering entirely
-                // This else block is intentionally left empty to clarify the logic flow
             }
 
             if (canInclude) {
@@ -577,6 +575,26 @@ public class InstitutionController implements Serializable {
             }
         }
         return resIns;
+    }
+
+    public List<Institution> findInstitutionsByMainFuelStation(Institution fuelStation) {
+        List<Institution> instittuionsForFuelStationAsMain = new ArrayList<>();
+        if (fuelStation == null) {
+            return instittuionsForFuelStationAsMain;
+        }
+        List<Institution> allIns = institutionApplicationController.getInstitutions();
+        for (Institution i : allIns) {
+            if (i.getSupplyInstitution() != null) {
+                if (i.getSupplyInstitution().equals(fuelStation)) {
+                    instittuionsForFuelStationAsMain.add(i);
+                }
+            }
+        }
+        return instittuionsForFuelStationAsMain;
+    }
+
+    public List<Institution> fillInstitutions(List<InstitutionType> types) {
+        return fillInstitutions(types, null, null);
     }
 
     public List<Institution> completeInstitutionsByWords(String nameQry) {
@@ -685,6 +703,43 @@ public class InstitutionController implements Serializable {
         }
         institutionApplicationController.resetAllInstitutions();
         return menuController.toListInstitutions();
+    }
+
+    public String saveOrUpdateInstitutionHealth() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing to select");
+            return "";
+        }
+        if (selected.getName() == null || selected.getName().trim().equals("")) {
+            JsfUtil.addErrorMessage("Name is required");
+            return "";
+        }
+
+        if (selected.getSname() == null || selected.getSname().trim().equals("")) {
+            selected.setSname(selected.getName());
+        }
+
+        if (selected.getTname() == null || selected.getTname().trim().equals("")) {
+            selected.setTname(selected.getName());
+        }
+
+        if (selected.getId() == null) {
+            selected.setCreatedAt(new Date());
+            selected.setCreater(webUserController.getLoggedUser());
+            getFacade().create(selected);
+
+            institutionApplicationController.getInstitutions().add(selected);
+            items = null;
+            JsfUtil.addSuccessMessage("Saved");
+        } else {
+            selected.setEditedAt(new Date());
+            selected.setEditer(webUserController.getLoggedUser());
+            getFacade().edit(selected);
+            items = null;
+            JsfUtil.addSuccessMessage("Updates");
+        }
+        institutionApplicationController.resetAllInstitutions();
+        return menuController.toListInstitutionsHealth();
     }
 
     public String updateMyInstitution() {
