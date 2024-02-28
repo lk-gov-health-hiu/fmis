@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+        <ui:composition template="./index.xhtml">
+            <ui:define name="reports">
+                <h:form>
+
+
+
+                    <p:commandButton value="Process"
+                                     ajax="false"
+                                     action="#{reportController.fillAllHospitalsEstimatesToPrint}"
+                                     class="ui-button-success m-1" />
+                    <!-- Data Export Buttons -->
+                    <p:commandButton  ajax="false" value="Export to PDF" type="button" class="ui-button-success m-1">
+                        <p:dataExporter type="pdf" target="fuelEstimateTable" fileName="FuelEstimates" />
+                    </p:commandButton>
+
+                    <p:commandButton ajax="false" value="Print" type="button" icon="pi pi-print" class="ui-button-success m-1" >
+                        <p:printer target="fuelEstimateTable" />
+                    </p:commandButton>
+
+
+                   
+
+
+                    <p:dataTable id="fuelEstimateTable"
+                                 var="fuelShed" 
+                                 value="#{reportController.fuelEstimate.fuelShedEstimates}" 
+                                 class="table table-bordered"
+                                 rowKey="#{fuelShed.fuelStation.id}"
+                                 >
+                        <p:column headerText="CPC Acc" width="100" filterBy="#{fuelShed.fuelStation.code}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.code}">
+                            <h:outputLabel value="#{fuelShed.fuelStation.code}" ></h:outputLabel>    
+                        </p:column>
+
+                        <p:column headerText="Fuel Station"  filterBy="#{fuelShed.fuelStation.name}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.name}">
+                            <h:outputLabel value="#{fuelShed.fuelStation.name}" ></h:outputLabel>    
+                        </p:column>
+
+
+                        <p:column headerText="Location" width="120" filterBy="#{fuelShed.fuelStation.address}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.address}">
+                            <h:outputLabel value="#{fuelShed.fuelStation.address}" ></h:outputLabel>    
+                        </p:column>
+                        <p:column headerText="District" width="120" filterBy="#{fuelShed.fuelStation.district.name}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.district.name}">
+                            <h:outputLabel value="#{fuelShed.fuelStation.district.name}" ></h:outputLabel>    
+                        </p:column>
+
+                        <p:column headerText="Est." width="80" filterBy="#{fuelShed.fuelShedEstimate}" filterMatchMode="contains" sortBy="#{fuelShed.fuelShedEstimate}">
+                            <h:outputLabel value="#{fuelShed.fuelShedEstimate}" >
+                                <f:convertNumber pattern="#0" ></f:convertNumber>
+                            </h:outputLabel>
+                        </p:column>
+
+
+                        <p:column headerText="Institutions" width="630">
+                            <h:outputText value="No Institutions Found" 
+                                          rendered="#{fuelShed.institutionEstimates.isEmpty()}" 
+                                          styleClass="no-data-message" />
+
+
+                            <p:dataTable
+                                rendered="#{not fuelShed.institutionEstimates.isEmpty()}" 
+                                var="ie" value="#{fuelShed.institutionEstimates}" styleClass="table table-bordered">
+                                <p:column headerText="Institution Name" >
+                                    #{ie.institution.name}
+                                </p:column>
+                                <p:column headerText="Est" width="80">
+                                    <h:outputLabel value="#{ie.institutionFuelEstimate}" >
+                                        <f:convertNumber pattern="#0" ></f:convertNumber>
+                                    </h:outputLabel>
+                                </p:column>
+                                <p:column headerText="Vehicles" width="270">
+                                    <h:outputText value="No Vehicles Found" 
+                                                  rendered="#{ie.vehicles.isEmpty()}"
+                                                  styleClass="no-data-message" />
+                                    <p:dataTable 
+                                        rendered="#{not ie.vehicles.isEmpty()}"
+                                        var="vehicle" value="#{ie.vehicles}" styleClass="table table-bordered">
+                                        <p:column headerText="Vehicle" >
+                                            <h:outputText rendered="#{vehicle.vehicleNumber ne ''}" value="#{vehicle.vehicleNumber}" ></h:outputText>
+                                            <h:outputText rendered="#{vehicle.vehicleNumber eq ''}" value="#{vehicle.name}" ></h:outputText>
+                                        </p:column>
+                                        <p:column headerText="Est" width="80">
+                                            <h:outputLabel value="#{vehicle.estiamtedMonthlyFuelConsumption}" >
+                                                <f:convertNumber pattern="#0" ></f:convertNumber>
+                                            </h:outputLabel>
+                                        </p:column>
+                                    </p:dataTable>
+                                </p:column>
+                            </p:dataTable>
+                        </p:column>
+                    </p:dataTable>
+
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

@@ -32,7 +32,7 @@
                                      autocomplete="off"
                                      class="form-control"
                                      value="#{institutionController.selected.name}" title="Name" />
-                        
+
                         <h:outputLabel value="Dealer Number:" for="dn" />
                         <p:inputText id="dn" 
                                      class="form-control" 
@@ -47,8 +47,19 @@
                             title="District" >
                             <f:selectItems value="#{areaController.districts}" var="d" itemLabel="#{d.name}" itemValue="#{d}" ></f:selectItems>
                         </p:selectOneMenu>
-                        
-                        
+
+
+                        <h:outputLabel value="Parent:" for="parent" />
+                        <p:autoComplete  id="parent" class="d-block" inputStyleClass="form-control" 
+                                         value="#{institutionController.selected.parent}" 
+                                         completeMethod="#{institutionController.completeInstitutions}"
+                                         var="i" 
+                                         itemLabel="#{i.name}" 
+                                         itemValue="#{i}" 
+                                         forceSelection="True"
+                                         maxResults="15" 
+                                         minQueryLength="3">
+                        </p:autoComplete >
 
 
                         <h:outputLabel value="Address:" for="address" />
