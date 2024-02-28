@@ -21,6 +21,19 @@
                     <div class="row">
                         <div class="col-md-2">
                             <h:form class="form">
+                                
+                                
+                                <p:commandButton 
+                                    value="National Estimates to Print"   
+                                    class="w-100 m-1"
+                                    action="#{reportController.navigateToListHospitalEstimatessToPrint()}"
+                                    ajax="false"></p:commandButton>
+                                <p:commandButton 
+                                    value="National Estimates to Download"   
+                                    class="w-100 m-1"
+                                    action="#{reportController.navigateToListHospitalEstimatessToDownload()}"
+                                    ajax="false"></p:commandButton>
+                                <hr/>
                                 <p:commandButton 
                                     value="List of Transactions"   
                                     class="w-100 m-1"

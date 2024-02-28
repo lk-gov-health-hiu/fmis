@@ -185,18 +185,18 @@ public class ReportController implements Serializable {
         fillAllInstitutionFuelTransactions();
         return "/reports/fuel_dispensor/national_estimate_print?faces-redirect=true;";
     }
-    
-     public String navigateToListHospitalEstimatessForCpcToDownload() {
+
+    public String navigateToListHospitalEstimatessForCpcToDownload() {
         fillAllInstitutionFuelTransactions();
         return "/reports/fuel_dispensor/national_estimate_to_download?faces-redirect=true;";
     }
-     
-      public String navigateToListHospitalEstimatessToPrint() {
+
+    public String navigateToListHospitalEstimatessToPrint() {
         fillAllInstitutionFuelTransactions();
         return "/reports/national_estimate_print?faces-redirect=true;";
     }
-    
-     public String navigateToListHospitalEstimatessToDownload() {
+
+    public String navigateToListHospitalEstimatessToDownload() {
         fillAllInstitutionFuelTransactions();
         return "/reports/national_estimate_to_download?faces-redirect=true;";
     }
@@ -401,54 +401,57 @@ public class ReportController implements Serializable {
         List<Institution> fuelStations = institutionController.fillInstitutions(fuelReceivingInstitutionTypes);
 
         for (Institution fuelStation : fuelStations) {
-            // Fuel station row
-            FuelEstimateRow fuelStationRow = new FuelEstimateRow();
-            fuelStationRow.setRow(FuelEstimateRowType.FUEL_STATION_HEADING_ROW);
-            fuelStationRow.setFuelStation(fuelStation);
-            estimateRows.add(fuelStationRow);
-
-            double fuelShedTotalEstimate = 0.0;
             List<Institution> suppliedInstitutions = institutionController.findInstitutionsByMainFuelStation(fuelStation);
 
-            for (Institution institution : suppliedInstitutions) {
-                // Institution row
-                FuelEstimateRow institutionRow = new FuelEstimateRow();
-                institutionRow.setRow(FuelEstimateRowType.INSTITUTION_HEADING_ROW);
-                institutionRow.setInstitution(institution);
-                estimateRows.add(institutionRow);
+            if (!suppliedInstitutions.isEmpty()) {
+                // Add fuel station row only if there are supplied institutions
+                FuelEstimateRow fuelStationRow = new FuelEstimateRow();
+                fuelStationRow.setRow(FuelEstimateRowType.FUEL_STATION_HEADING_ROW);
+                fuelStationRow.setFuelStation(fuelStation);
+                estimateRows.add(fuelStationRow);
 
-                List<Vehicle> vehicles = vehicleController.fillVehicles(institution);
-                double institutionFuelEstimate = 0.0;
+                double fuelShedTotalEstimate = 0.0;
 
-                if (vehicles != null) {
-                    for (Vehicle vehicle : vehicles) {
-                        // Vehicle row
-                        FuelEstimateRow vehicleRow = new FuelEstimateRow();
-                        vehicleRow.setRow(FuelEstimateRowType.VEHICLE_ROW);
-                        vehicleRow.setVehicle(vehicle);
-                        Double vehicleFuelConsumption = vehicle.getEstiamtedMonthlyFuelConsumption();
-                        vehicleFuelConsumption = vehicleFuelConsumption != null ? vehicleFuelConsumption : 0.0;
-                        vehicleRow.setTotalEstimate(vehicleFuelConsumption);
-                        estimateRows.add(vehicleRow);
+                for (Institution institution : suppliedInstitutions) {
+                    // Add institution row
+                    FuelEstimateRow institutionRow = new FuelEstimateRow();
+                    institutionRow.setRow(FuelEstimateRowType.INSTITUTION_HEADING_ROW);
+                    institutionRow.setInstitution(institution);
+                    estimateRows.add(institutionRow);
 
-                        institutionFuelEstimate += vehicleFuelConsumption;
+                    List<Vehicle> vehicles = vehicleController.fillVehicles(institution);
+                    double institutionFuelEstimate = 0.0;
+
+                    if (vehicles != null) {
+                        for (Vehicle vehicle : vehicles) {
+                            // Add vehicle row
+                            FuelEstimateRow vehicleRow = new FuelEstimateRow();
+                            vehicleRow.setRow(FuelEstimateRowType.VEHICLE_ROW);
+                            vehicleRow.setVehicle(vehicle);
+                            Double vehicleFuelConsumption = vehicle.getEstiamtedMonthlyFuelConsumption();
+                            vehicleFuelConsumption = vehicleFuelConsumption != null ? vehicleFuelConsumption : 0.0;
+                            vehicleRow.setTotalEstimate(vehicleFuelConsumption);
+                            estimateRows.add(vehicleRow);
+
+                            institutionFuelEstimate += vehicleFuelConsumption;
+                        }
                     }
+
+                    fuelShedTotalEstimate += institutionFuelEstimate;
+                    institutionRow.setInstitutionEstimate(institutionFuelEstimate);
                 }
 
-                fuelShedTotalEstimate += institutionFuelEstimate;
-                institutionRow.setInstitutionEstimate(institutionFuelEstimate);
+                fuelStationRow.setFuelStationEstimate(fuelShedTotalEstimate);
             }
-
-            fuelStationRow.setFuelStationEstimate(fuelShedTotalEstimate);
         }
 
-        // Total row
+        // Add total row
         FuelEstimateRow totalRow = new FuelEstimateRow();
         totalRow.setRow(FuelEstimateRowType.TOTAL_ROW);
         totalRow.setTotalEstimate(estimateRows.stream()
                 .map(FuelEstimateRow::getTotalEstimate)
-                .filter(Objects::nonNull) // Filter out null values
-                .mapToDouble(Double::doubleValue) // Convert to double
+                .filter(Objects::nonNull)
+                .mapToDouble(Double::doubleValue)
                 .sum());
         estimateRows.add(totalRow);
 
@@ -467,40 +470,39 @@ public class ReportController implements Serializable {
         double totalEstimate = 0.0;
 
         for (Institution fuelStation : fuelStations) {
-            System.out.println("fuelStation = " + fuelStation.getName());
-            FuelShedEstimate fuelShedEstimate = new FuelShedEstimate();
-            fuelShedEstimate.setFuelStation(fuelStation);
-
-            List<InstitutionEstimate> institutionEstimates = new ArrayList<>();
-
-            double fuelShedTotalEstimate = 0.0;
             List<Institution> suppliedInstitutions = institutionController.findInstitutionsByMainFuelStation(fuelStation);
 
-            for (Institution institution : suppliedInstitutions) {
-                InstitutionEstimate institutionEstimate = new InstitutionEstimate();
-                institutionEstimate.setInstitution(institution);
+            if (!suppliedInstitutions.isEmpty()) { // Only proceed if there are supplied institutions
+                FuelShedEstimate fuelShedEstimate = new FuelShedEstimate();
+                fuelShedEstimate.setFuelStation(fuelStation);
+                List<InstitutionEstimate> institutionEstimates = new ArrayList<>();
 
-                List<Vehicle> vehicles = vehicleController.fillVehicles(institution);
-                if (vehicles != null) {
-                    double institutionFuelEstimate = vehicles.stream()
-                            .filter(Objects::nonNull) // Filter out null vehicles
-                            .mapToDouble(v -> v.getEstiamtedMonthlyFuelConsumption() != null ? v.getEstiamtedMonthlyFuelConsumption() : 0.0) // Safely handle null values
-                            .sum();
+                double fuelShedTotalEstimate = 0.0;
+
+                for (Institution institution : suppliedInstitutions) {
+                    InstitutionEstimate institutionEstimate = new InstitutionEstimate();
+                    institutionEstimate.setInstitution(institution);
+
+                    List<Vehicle> vehicles = vehicleController.fillVehicles(institution);
+                    double institutionFuelEstimate = vehicles != null ? vehicles.stream()
+                            .filter(Objects::nonNull)
+                            .mapToDouble(v -> v.getEstiamtedMonthlyFuelConsumption() != null ? v.getEstiamtedMonthlyFuelConsumption() : 0.0)
+                            .sum() : 0.0;
 
                     institutionEstimate.setVehicles(vehicles);
                     institutionEstimate.setInstitutionFuelEstimate(institutionFuelEstimate);
 
                     fuelShedTotalEstimate += institutionFuelEstimate;
+                    institutionEstimates.add(institutionEstimate);
                 }
 
-                institutionEstimates.add(institutionEstimate);
+                if (!institutionEstimates.isEmpty()) {
+                    fuelShedEstimate.setFuelShedEstimate(fuelShedTotalEstimate);
+                    fuelShedEstimate.setInstitutionEstimates(institutionEstimates);
+                    fuelShedEstimates.add(fuelShedEstimate);
+                    totalEstimate += fuelShedTotalEstimate;
+                }
             }
-
-            fuelShedEstimate.setFuelShedEstimate(fuelShedTotalEstimate);
-            fuelShedEstimate.setInstitutionEstimates(institutionEstimates);
-
-            totalEstimate += fuelShedTotalEstimate;
-            fuelShedEstimates.add(fuelShedEstimate);
         }
 
         fuelEstimate.setTotalEstimate(totalEstimate);

@@ -11,10 +11,7 @@
             <ui:define name="reports">
                 <h:form>
 
-                    <p:commandButton value="Process"
-                                     ajax="false"
-                                     action="#{reportController.fillAllHospitalsEstimatesToDownload}"
-                                     class="ui-button-success m-1" />
+
 
                     <p:commandButton value="Process"
                                      ajax="false"
@@ -22,13 +19,7 @@
                                      class="ui-button-success m-1" />
                     <!-- Data Export Buttons -->
                     <p:commandButton  ajax="false" value="Export to PDF" type="button" class="ui-button-success m-1">
-                        <p:dataExporter type="pdf" target="fuelEstimateTable" fileName="FuelEstimates" class="ui-button-success m-1" />
-                    </p:commandButton>
-
-                    <p:commandButton ajax="false" value="Export to Excel" type="button" class="ui-button-success m-1">
-                        <p:dataExporter type="csv" target="fuelEstimateTable"
-                                        
-                                        fileName="FuelEstimates"  />
+                        <p:dataExporter type="pdf" target="fuelEstimateTable" fileName="FuelEstimates" />
                     </p:commandButton>
 
                     <p:commandButton ajax="false" value="Print" type="button" icon="pi pi-print" class="ui-button-success m-1" >
@@ -36,90 +27,70 @@
                     </p:commandButton>
 
 
-
-                    <p:dataTable id="fuelEstimateTable"  
-                                 rendered="true"
-                                 var="row" value="#{reportController.fuelEstimateRows}" styleClass="table table-bordered">
+                   
 
 
-                        <p:column headerText="CPC No">
-                            #{row.fuelStation.code}
-                        </p:column>
-                        <p:column headerText="Fuel Station Name">
-                            #{row.fuelStation.name}
-                        </p:column>
-                        <p:column headerText="Location">
-                            #{row.fuelStation.address}
-                        </p:column>
-                        <p:column headerText="District">
-                            #{row.fuelStation.district.name}
-                        </p:column>
-                        <p:column headerText="Fuel Station Estimate">
-                            #{row.fuelStationEstimate}
-                        </p:column>
-                        <p:column headerText="Institution">
-                            #{row.institution != null ? row.institution.name : ''}
-                        </p:column>
-                        <p:column headerText="Parent">
-                            #{row.institution != null ? row.institution.parent.name : ''}
-                        </p:column>
-                        <p:column headerText="Institution Estimate">
-                            #{row.institutionEstimate}
-                        </p:column>
-                        <p:column headerText="Vehicle">
-                            #{row.vehicle != null ? row.vehicle.name : ''}
-                        </p:column>
-                        <p:column headerText="Vehicle Estimate">
-                            #{row.totalEstimate}
-                        </p:column>
-                    </p:dataTable>
-
-
-                    Fuel Estimate Table 
-                    <p:dataTable id="fuelEstimateTable1" rendered="false" var="fuelShed" value="#{reportController.fuelEstimate.fuelShedEstimates}" styleClass="table table-bordered">
-                        <p:column headerText="CPC Account No" width="170" filterBy="#{fuelShed.fuelStation.code}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.code}">
+                    <p:dataTable id="fuelEstimateTable"
+                                 var="fuelShed" 
+                                 value="#{reportController.fuelEstimate.fuelShedEstimates}" 
+                                 class="table table-bordered"
+                                 rowKey="#{fuelShed.fuelStation.id}"
+                                 >
+                        <p:column headerText="CPC Acc" width="100" filterBy="#{fuelShed.fuelStation.code}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.code}">
                             <h:outputLabel value="#{fuelShed.fuelStation.code}" ></h:outputLabel>    
                         </p:column>
 
-                        <p:column headerText="Fuel Station" width="300">
+                        <p:column headerText="Fuel Station"  filterBy="#{fuelShed.fuelStation.name}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.name}">
                             <h:outputLabel value="#{fuelShed.fuelStation.name}" ></h:outputLabel>    
                         </p:column>
 
 
-                        <p:column headerText="Location" width="170" filterBy="#{fuelShed.fuelStation.address}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.address}">
+                        <p:column headerText="Location" width="120" filterBy="#{fuelShed.fuelStation.address}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.address}">
                             <h:outputLabel value="#{fuelShed.fuelStation.address}" ></h:outputLabel>    
                         </p:column>
-                        <p:column headerText="District" width="170" filterBy="#{fuelShed.fuelStation.district.name}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.district.name}">
+                        <p:column headerText="District" width="120" filterBy="#{fuelShed.fuelStation.district.name}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.district.name}">
                             <h:outputLabel value="#{fuelShed.fuelStation.district.name}" ></h:outputLabel>    
                         </p:column>
 
-                        <p:column headerText="Estimate" width="50">
+                        <p:column headerText="Est." width="80" filterBy="#{fuelShed.fuelShedEstimate}" filterMatchMode="contains" sortBy="#{fuelShed.fuelShedEstimate}">
                             <h:outputLabel value="#{fuelShed.fuelShedEstimate}" >
-                                <f:convertNumber pattern="0.00" ></f:convertNumber>
+                                <f:convertNumber pattern="#0" ></f:convertNumber>
                             </h:outputLabel>
                         </p:column>
 
-                        Nested Table for Institutions 
-                        <p:column headerText="Institutions" width="560">
-                            <p:dataTable var="ie" value="#{fuelShed.institutionEstimates}" styleClass="table table-bordered">
-                                <p:column headerText="Institution Name" width="200">
+
+                        <p:column headerText="Institutions" width="630">
+                            <h:outputText value="No Institutions Found" 
+                                          rendered="#{fuelShed.institutionEstimates.isEmpty()}" 
+                                          styleClass="no-data-message" />
+
+
+                            <p:dataTable
+                                rendered="#{not fuelShed.institutionEstimates.isEmpty()}" 
+                                var="ie" value="#{fuelShed.institutionEstimates}" styleClass="table table-bordered">
+                                <p:column headerText="Institution Name" >
                                     #{ie.institution.name}
                                 </p:column>
-                                <p:column headerText="Estimate" width="60">
-                                    #{ie.institutionFuelEstimate}
+                                <p:column headerText="Est" width="80">
+                                    <h:outputLabel value="#{ie.institutionFuelEstimate}" >
+                                        <f:convertNumber pattern="#0" ></f:convertNumber>
+                                    </h:outputLabel>
                                 </p:column>
-
-                                Nested Table for Vehicles 
-                                <p:column headerText="Vehicles" width="290">
-                                    <p:dataTable var="vehicle" value="#{ie.vehicles}" styleClass="table table-bordered">
-                                        <p:column headerText="Vehicle" width="100">
-                                            #{vehicle.vehicleNumber}
+                                <p:column headerText="Vehicles" width="270">
+                                    <h:outputText value="No Vehicles Found" 
+                                                  rendered="#{ie.vehicles.isEmpty()}"
+                                                  styleClass="no-data-message" />
+                                    <p:dataTable 
+                                        rendered="#{not ie.vehicles.isEmpty()}"
+                                        var="vehicle" value="#{ie.vehicles}" styleClass="table table-bordered">
+                                        <p:column headerText="Vehicle" >
+                                            <h:outputText rendered="#{vehicle.vehicleNumber ne ''}" value="#{vehicle.vehicleNumber}" ></h:outputText>
+                                            <h:outputText rendered="#{vehicle.vehicleNumber eq ''}" value="#{vehicle.name}" ></h:outputText>
                                         </p:column>
-                                        <p:column headerText="Vehicle" width="100">
-                                            #{vehicle.name}
-                                        </p:column>
-                                        <p:column headerText="Estimate" width="60">
-                                            #{vehicle.estiamtedMonthlyFuelConsumption}
+                                        <p:column headerText="Est" width="80">
+                                            <h:outputLabel value="#{vehicle.estiamtedMonthlyFuelConsumption}" >
+                                                <f:convertNumber pattern="#0" ></f:convertNumber>
+                                            </h:outputLabel>
                                         </p:column>
                                     </p:dataTable>
                                 </p:column>
