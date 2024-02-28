@@ -55,6 +55,15 @@
                                 </f:facet>
                                 <h:outputText value="#{item.institution.supplyInstitution.name}"/>
                             </p:column>
+                            
+                             <p:column sortBy="#{item.institution.supplyInstitution.district.name}" 
+                                      filterBy="#{item.institution.supplyInstitution.district.name}"
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Main Fuel Station District"/>
+                                </f:facet>
+                                 <h:outputText value="#{item.institution.supplyInstitution.district.name}"/>
+                            </p:column>
 
                             <p:column sortBy="#{item.institution.alternativeSupplyInstitution.name}" 
                                       filterBy="#{item.institution.alternativeSupplyInstitution.name}"
