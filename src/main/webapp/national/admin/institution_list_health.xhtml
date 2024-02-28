@@ -19,7 +19,7 @@
                             class="w-100"
                             resizableColumns="true" multiViewState="true" resizeMode="expand" 
                             id="tbl" 
-                            value="#{institutionController.items}" 
+                            value="#{institutionController.institutionsWithoutfuelStations}" 
                             var="item"
                             selectionMode="single" 
                             selection="#{institutionController.selected}"
@@ -53,16 +53,14 @@
                                 <h:outputText value="#{item.parent.name}"/>
                             </p:column>
 
-                            <p:column sortBy="#{item.district.name}" 
-                                      filterBy="#{item.district.name}" 
+                            <p:column sortBy="#{item.supplyInstitution.name}" 
+                                      filterBy="#{item.supplyInstitution.name}" 
                                       filterMatchMode="contains" >
                                 <f:facet name="header">
-                                    <h:outputText value="District"/>
+                                    <h:outputText value="Fuel Depot"/>
                                 </f:facet>
-                                <h:outputText value="#{item.district.name}"/>
+                                <h:outputText value="#{item.supplyInstitution.name}"/>
                             </p:column>
-                            
-                            
 
                             <p:column exportable="false" headerText="Actions" >
                                 <h:commandLink class="btn btn-primary m-2" id="editButton"

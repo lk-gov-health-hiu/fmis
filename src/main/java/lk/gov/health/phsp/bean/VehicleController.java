@@ -38,6 +38,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -249,13 +250,10 @@ public class VehicleController implements Serializable {
 
     public List<Vehicle> fillVehicles(List<Institution> institutions) {
         List<Vehicle> filteredVehicles = new ArrayList<>();
-
         if (institutions == null || institutions.isEmpty()) {
             return filteredVehicles;
         }
-
         List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
-
         for (Vehicle vehicle : allVehicles) {
             if (vehicle.getInstitution() == null) {
                 continue;
@@ -268,6 +266,13 @@ public class VehicleController implements Serializable {
             }
         }
         return filteredVehicles;
+    }
+
+    public List<Vehicle> fillVehicles(Institution institution) {
+        if (institution == null) {
+            return new ArrayList<>();
+        }
+        return fillVehicles(Collections.singletonList(institution));
     }
 
     public List<Vehicle> fillVehicles(VehicleType type, String nameQry) {

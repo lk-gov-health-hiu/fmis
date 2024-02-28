@@ -27,12 +27,23 @@
                                                      class="list-group-item list-group-item-action"></h:commandButton>
                                 </div>
                                 <div class="list-group mt-3">
+
+
                                     <h:commandButton 
                                         value="New Institution"
                                         action="#{menuController.toAddNewInstitution()}"
                                         class="list-group-item list-group-item-action"></h:commandButton>
                                     <h:commandButton 
                                         value="List Institutions"
+                                        action="#{menuController.toListInstitutions()}"
+                                        class="list-group-item list-group-item-action"></h:commandButton>
+
+                                    <h:commandButton 
+                                        value="New Health Institution"
+                                        action="#{menuController.toAddNewHealthInstitution()}"
+                                        class="list-group-item list-group-item-action"></h:commandButton>
+                                    <h:commandButton 
+                                        value="List Health Institutions"
                                         action="#{menuController.toListInstitutions()}"
                                         class="list-group-item list-group-item-action"></h:commandButton>
 
