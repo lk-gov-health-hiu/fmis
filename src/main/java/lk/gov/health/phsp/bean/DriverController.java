@@ -22,6 +22,7 @@ import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
 import lk.gov.health.phsp.entity.Institution;
+import lk.gov.health.phsp.enums.InstitutionCategory;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.AreaFacade;
 
@@ -239,6 +240,8 @@ public class DriverController implements Serializable {
         }
         if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
             items = driverApplicationController.getDrivers();
+        } else if (webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory()==InstitutionCategory.FUEL_DISPENSOR) {
+            items = driverApplicationController.getDrivers();
         } else {
             items = driverApplicationController.findDriversByInstitutions(webUserController.getLoggableInstitutions());
         }
@@ -252,7 +255,7 @@ public class DriverController implements Serializable {
         }
         List<Institution> inss = new ArrayList<>();
         inss.add(ins);
-        insDrivers= driverApplicationController.findDriversByInstitutions(inss);
+        insDrivers = driverApplicationController.findDriversByInstitutions(inss);
         return insDrivers;
     }
 

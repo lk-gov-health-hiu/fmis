@@ -483,26 +483,34 @@ public class MenuController implements Serializable {
     }
 
     public String toEditUser() {
-        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case FUEL_REQUESTING_INSTITUTION:
-            case CTB:
-                return "/institution/admin/user_edit";
+        WebUserRoleLevel roleLevel = webUserController.getLoggedUser().getWebUserRoleLevel();
+        InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
+
+        switch (roleLevel) {
             case HEALTH_MINISTRY:
                 return "/national/admin/user_edit";
             default:
-                return "";
+                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                    return "/cpc/admin/user_edit";
+                } else {
+                    return "/institution/admin/user_edit";
+                }
         }
     }
 
     public String toEditInstitution() {
-        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case FUEL_REQUESTING_INSTITUTION:
-            case CTB:
-                return "/institution/admin/institution_health";
+        WebUserRoleLevel roleLevel = webUserController.getLoggedUser().getWebUserRoleLevel();
+        InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
+
+        switch (roleLevel) {
             case HEALTH_MINISTRY:
                 return "/national/admin/institution_health";
             default:
-                return "";
+                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                    return "/cpc/admin/institution_health";
+                } else {
+                    return "/institution/admin/institution_health";
+                }
         }
     }
 
@@ -524,11 +532,18 @@ public class MenuController implements Serializable {
     }
 
     public String toEditFuelStation() {
-        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+        WebUserRoleLevel roleLevel = webUserController.getLoggedUser().getWebUserRoleLevel();
+        InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
+
+        switch (roleLevel) {
             case HEALTH_MINISTRY:
                 return "/national/admin/fuel_station";
             default:
-                return "/institution/admin/fuel_station";
+                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                    return "/cpc/admin/fuel_station";
+                } else {
+                    return "/institution/admin/fuel_station";
+                }
         }
     }
 
@@ -546,14 +561,18 @@ public class MenuController implements Serializable {
 
     public String toEditPassword() {
         webUserController.prepareEditPassword();
-        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case FUEL_REQUESTING_INSTITUTION:
-            case CTB:
-                return "/institution/admin/user_password";
+        WebUserRoleLevel roleLevel = webUserController.getLoggedUser().getWebUserRoleLevel();
+        InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
+
+        switch (roleLevel) {
             case HEALTH_MINISTRY:
                 return "/national/admin/user_password";
             default:
-                return "";
+                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                    return "/cpc/admin/user_password";
+                } else {
+                    return "/institution/admin/user_password";
+                }
         }
     }
 

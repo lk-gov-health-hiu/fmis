@@ -5,7 +5,7 @@
       xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui" xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <body>
-        <ui:composition template="/institution/admin/index.xhtml">
+         <ui:composition template="/cpc/admin/index.xhtml">
             <ui:define name="admin">
                 <h:form>
                     <p:panel class="bg-white border-light">
@@ -52,11 +52,11 @@
 
                             <p:column headerText="Actions">
                                 <div class="d-flex flex-column">
-                                    <h:commandLink class="btn btn-warning m-2 w-100" id="editButton" value="Edit"
+                                    <h:commandLink class="btn btn-success m-2 w-100" id="editButton" value="Edit"
                                                    action="#{menuController.toEditFuelStation()}">
                                         <f:setPropertyActionListener value="#{item}" target="#{institutionController.selected}">
                                         </f:setPropertyActionListener>
-                                        <i class="bi bi-pencil m-2"></i>
+                                        <i class="bi bi-eye m-2"></i>
                                     </h:commandLink>
 
                                 </div>
