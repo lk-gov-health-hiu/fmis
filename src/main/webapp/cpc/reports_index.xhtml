@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <ui:define name="title">
+            Institutional Reports Index
+        </ui:define>
+    </h:head>
+    <h:body>
+        <ui:composition template="/template.xhtml">
+            <ui:define name="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12 p-2">
+                            <p:messages></p:messages>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h:outputLabel value="Orders"></h:outputLabel>
+                                </div>
+                                <div class="card-body container-fluid">
+                                    <div class="row">
+                                        <div class="col-12 p-2">
+                                            <h:form>
+
+                                                <h:commandLink value="Letters Received Register (Received Outside the System)" 
+                                                               rendered="false"
+                                                               action="#{letterController.toReportsLetterReceived()}"
+                                                               class="btn btn-outline-primary w-100 btn-block my-2">
+                                                </h:commandLink>
+                                                
+                                                <h:commandLink value="Letter Copy/Forward Register" 
+                                                               rendered="false"
+                                                               action="#{letterController.toReportsLetterCopyForwardActions()}"
+                                                               class="btn btn-outline-primary w-100 btn-block my-2">
+                                                </h:commandLink>
+                                                
+                                                
+                                                <h:commandLink value="Letter Accept Register (Received withint the system)" 
+                                                               rendered="false"
+                                                               action="#{letterController.toReportsLetterAcceptRegister()}"
+                                                               class="btn btn-outline-primary w-100 btn-block my-2">
+                                                </h:commandLink>
+                                                
+                                            </h:form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-9">
+                            <ui:insert name="reports">
+                                
+                                <h1>Under Construction</h1>
+                            </ui:insert>
+                        </div>
+                    </div>
+                </div>
+            </ui:define>
+
+        </ui:composition>
+
+    </h:body>
+
+</html>

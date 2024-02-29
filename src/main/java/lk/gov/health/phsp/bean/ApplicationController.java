@@ -41,6 +41,7 @@ import lk.gov.health.phsp.enums.AreaType;
 import lk.gov.health.phsp.facade.AreaFacade;
 import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.InstitutionType;
+import lk.gov.health.phsp.enums.OwnershipType;
 import lk.gov.health.phsp.enums.VehiclePurpose;
 import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.enums.WebUserRole;
@@ -211,6 +212,10 @@ public class ApplicationController {
 // <editor-fold defaultstate="collapsed" desc="Enums">
     public InstitutionType[] getInstitutionTypes() {
         return InstitutionType.values();
+    }
+    
+    public OwnershipType[] getOwnershipTypes() {
+        return OwnershipType.values();
     }
 
     public VehicleType[] getVehicleTypes() {

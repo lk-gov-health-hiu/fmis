@@ -35,6 +35,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
+import lk.gov.health.phsp.enums.OwnershipType;
 import lk.gov.health.phsp.pojcs.Nameable;
 
 /**
@@ -52,6 +53,9 @@ public class Institution implements Serializable, Nameable {
 
     @Enumerated(EnumType.STRING)
     private InstitutionType institutionType;
+    
+    @Enumerated(EnumType.ORDINAL)
+    private OwnershipType ownershipType;
 
     private String name;
     private String tname;
@@ -156,6 +160,8 @@ public class Institution implements Serializable, Nameable {
     public void setId(Long id) {
         this.id = id;
     }
+    
+    
 
     @Override
     public int hashCode() {
@@ -505,6 +511,17 @@ public class Institution implements Serializable, Nameable {
 
     public void setAlternativeSupplyInstitution(Institution alternativeSupplyInstitution) {
         this.alternativeSupplyInstitution = alternativeSupplyInstitution;
+    }
+
+    public OwnershipType getOwnershipType() {
+        if(ownershipType==null){
+            ownershipType=OwnershipType.CPC_OWNED;
+        }
+        return ownershipType;
+    }
+
+    public void setOwnershipType(OwnershipType ownershipType) {
+        this.ownershipType = ownershipType;
     }
 
 }

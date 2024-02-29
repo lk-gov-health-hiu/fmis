@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+        <ui:composition template="/institution/admin/index.xhtml">
+            <ui:define name="admin">
+                <h:form>    
+
+                    <h:panelGrid columns="1" >
+                        <h:commandButton value="Download as Excel" class="btn btn-primary" >
+                            <p:dataExporter fileName="Vehicle List" target="tbl" type="xlsx" ></p:dataExporter>
+                        </h:commandButton>
+                        <p:dataTable 
+                            class="w-100"
+                            resizableColumns="true" multiViewState="true" resizeMode="expand" 
+                            id="tbl" value="#{webUserController.managableVehicles}" var="item"
+                            selectionMode="single" selection="#{vehicleController.selected}"
+                            rows="10"
+                            rowKey="#{item.id}"
+                            paginatorAlwaysVisible="false"
+                            paginator="true"
+                            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                            currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                            rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
+                            >
+
+                            <p:column sortBy="#{item.vehicleNumber}" 
+                                      filterBy="#{item.vehicleNumber}" filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Number"/>
+                                </f:facet>
+                                <h:outputText value="#{item.vehicleNumber}"/>
+                            </p:column>
+                            <p:column sortBy="#{item.institution.name}" 
+                                      filterBy="#{item.institution.name}"
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Institution"/>
+                                </f:facet>
+                                <h:outputText value="#{item.institution.name}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.institution.supplyInstitution.name}" 
+                                      filterBy="#{item.institution.supplyInstitution.name}"
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Main Fuel Station"/>
+                                </f:facet>
+                                <h:outputText value="#{item.institution.supplyInstitution.name}"/>
+                            </p:column>
+                            
+                            
+
+                            <p:column sortBy="#{item.institution.alternativeSupplyInstitution.name}" 
+                                      filterBy="#{item.institution.alternativeSupplyInstitution.name}"
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Alternative Fuel Station"/>
+                                </f:facet>
+                                <h:outputText value="#{item.institution.alternativeSupplyInstitution.name}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.vehicleType}" 
+                                      filterBy="#{item.vehicleType}" filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Type"/>
+                                </f:facet>
+                                <h:outputText value="#{item.vehicleType}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.vehiclePurpose}" 
+                                      filterBy="#{item.vehiclePurpose}" filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Type"/>
+                                </f:facet>
+                                <h:outputText value="#{item.vehiclePurpose.label}"/>
+                            </p:column>
+
+
+                            <p:column headerText="Actions" >
+                                <h:commandLink class="btn btn-primary m-2" id="editButton"
+                                               value="Edit"
+                                               action="#{vehicleController.toEditVehicle()}">
+                                    <f:setPropertyActionListener value="#{item}" target="#{vehicleController.selected}" ></f:setPropertyActionListener>
+                                    <i class="bi bi-pencil m-2"></i>
+                                </h:commandLink>
+                            </p:column>
+                        </p:dataTable>
+                    </h:panelGrid>
+
+
+
+
+
+
+                </h:form>
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
+</html>

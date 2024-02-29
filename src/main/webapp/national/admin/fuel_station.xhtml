@@ -61,6 +61,20 @@
                                          minQueryLength="3">
                         </p:autoComplete >
 
+                        <h:outputLabel value="Ownership:" for="ownership" />
+                        <p:selectOneMenu 
+                            filter="true"
+                            filterMatchMode="contains"
+                            id="ownership" 
+                            class="form-control"
+                            value="#{institutionController.selected.ownershipType}" title="Ownership Type" 
+                            >
+                            <f:selectItems value="#{applicationController.ownershipTypes}" 
+                                           var="ownershipTypes"
+                                           itemValue="#{ownershipTypes}"
+                                           itemLabel="#{ownershipTypes.label}"></f:selectItems>
+                        </p:selectOneMenu>
+
 
                         <h:outputLabel value="Address:" for="address" />
                         <p:inputText id="address" class="form-control"  value="#{institutionController.selected.address}" title="Address" />
