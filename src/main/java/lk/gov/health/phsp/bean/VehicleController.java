@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
+import lk.gov.health.phsp.enums.InstitutionCategory;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 
@@ -402,7 +403,8 @@ public class VehicleController implements Serializable {
         if (webUserController.getLoggedUser() == null) {
             items = null;
         }
-        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
+        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY ||
+                webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory()==InstitutionCategory.FUEL_DISPENSOR ) {
             items = vehicleApplicationController.getVehicles();
         } else {
             items = webUserController.findAutherizedVehicles();

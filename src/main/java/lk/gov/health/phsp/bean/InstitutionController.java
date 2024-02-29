@@ -36,6 +36,7 @@ import jxl.read.biff.BiffException;
 import lk.gov.health.phsp.entity.Area;
 import lk.gov.health.phsp.entity.Item;
 import lk.gov.health.phsp.enums.AreaType;
+import lk.gov.health.phsp.enums.InstitutionCategory;
 import lk.gov.health.phsp.enums.InstitutionType;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.AreaFacade;
@@ -657,7 +658,8 @@ public class InstitutionController implements Serializable {
         }
         if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
             items = institutionApplicationController.getInstitutions();
-
+        } else if (webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.FUEL_DISPENSOR) {
+            items = institutionApplicationController.getInstitutions();
         } else {
             items = webUserController.findAutherizedInstitutions();
         }

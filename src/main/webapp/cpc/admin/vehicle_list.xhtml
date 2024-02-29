@@ -84,10 +84,10 @@
 
                             <p:column headerText="Actions" >
                                 <h:commandLink class="btn btn-primary m-2" id="editButton"
-                                               value="Edit"
+                                               value="View"
                                                action="#{vehicleController.toEditVehicle()}">
                                     <f:setPropertyActionListener value="#{item}" target="#{vehicleController.selected}" ></f:setPropertyActionListener>
-                                    <i class="bi bi-pencil m-2"></i>
+                                    <i class="bi bi-eye m-2"></i>
                                 </h:commandLink>
                             </p:column>
                         </p:dataTable>

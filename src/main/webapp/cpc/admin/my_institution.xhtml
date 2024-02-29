@@ -26,7 +26,7 @@
 
                         <h:outputLabel value="Type:" for="institutionType" />
                         <p:selectOneMenu 
-
+                            disabled="true"
                             id="institutionType" 
                             filter="true"
                             filterMatchMode="contains"
@@ -48,45 +48,13 @@
                                      value="#{institutionController.selected.name}" title="Name" />
 
 
-                        <h:outputLabel value="Fuel Station:" for="depo" />
-                        <p:autoComplete  id="depo" 
-                                         class="d-block" 
-                                         inputStyleClass="form-control" 
-                                         value="#{institutionController.selected.supplyInstitution}" 
-                                         completeMethod="#{institutionController.completeFuelStations}"
-                                         var="i" 
-                                         placeholder="Please select fuel station"
-                                         required="true"
-                                         requiredMessage="Please Enter a fuel station"
-                                         itemLabel="#{i.name}" 
-                                         itemValue="#{i}" 
-                                         forceSelection="True"
-                                         maxResults="15" 
-                                         minQueryLength="3">
-                        </p:autoComplete >
-                        
-                        <h:outputLabel value="Alternative Fuel Station:" for="adepo" />
-                        <p:autoComplete  id="adepo" 
-                                         class="d-block" 
-                                         inputStyleClass="form-control" 
-                                         value="#{institutionController.selected.alternativeSupplyInstitution}" 
-                                         completeMethod="#{institutionController.completeFuelStations}"
-                                         var="ai" 
-                                         placeholder="Please alternative select fuel station"
-                                         itemLabel="#{ai.name}" 
-                                         itemValue="#{ai}" 
-                                         forceSelection="True"
-                                         maxResults="15" 
-                                         minQueryLength="3">
-                        </p:autoComplete >
-
-
                         <h:outputLabel value="Parent (Governed By) :" for="parent" />
                         <p:autoComplete 
                             completeMethod="#{institutionController.completeInstitutions}" 
                             value="#{institutionController.selected.parent}"
                             id="parent" 
                             class="w-100" 
+                            disabled="true"
                             required="false"
                             placeholder="Please select Parent Institution"
                             var="ins" 
