@@ -179,7 +179,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/institution_health";
             default:
-                return "/institution/admin/institution";
+                return "/institution/admin/institution_health";
         }
     }
 
@@ -293,7 +293,7 @@ public class MenuController implements Serializable {
             case FUEL_REQUESTING_INSTITUTION:
                 return "/institution/admin/institution_list_health";
             case HEALTH_MINISTRY:
-                return "/national/admin/institution_list";
+                return "/national/admin/institution_list_health";
             default:
                 return "";
         }

@@ -57,9 +57,18 @@
                                       filterBy="#{item.supplyInstitution.name}" 
                                       filterMatchMode="contains" >
                                 <f:facet name="header">
-                                    <h:outputText value="Fuel Depot"/>
+                                    <h:outputText value="Fuel Station"/>
                                 </f:facet>
                                 <h:outputText value="#{item.supplyInstitution.name}"/>
+                            </p:column>
+                            
+                            <p:column sortBy="#{item.alternativeSupplyInstitution.name}" 
+                                      filterBy="#{item.alternativeSupplyInstitution.name}" 
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Alternative Fuel Station"/>
+                                </f:facet>
+                                <h:outputText value="#{item.alternativeSupplyInstitution.name}"/>
                             </p:column>
 
                             <p:column exportable="false" headerText="Actions" >

@@ -52,6 +52,7 @@ public enum VehicleMake {
     FORCE,
     MAZDA,
     MICRO,
+    RENAULT,
     OTHER;
 
 }
