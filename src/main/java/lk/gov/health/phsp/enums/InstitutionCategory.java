@@ -28,8 +28,10 @@ package lk.gov.health.phsp.enums;
  * @author Dr M H B Ariyaratne <buddhika.ari at gmail.com>
  */
 public enum InstitutionCategory {
+    HEALTH_MINISTRY,
+    CPC_HEAD_OFFICE,
     FUEL_RECEIVER,
-    FUEL_DISPENSOR,
+    CPC,
     MONITORING_AND_EVALUATION,
     OTHER
 }

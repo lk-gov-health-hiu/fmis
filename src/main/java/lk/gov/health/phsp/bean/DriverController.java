@@ -83,7 +83,7 @@ public class DriverController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/driver";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/driver";
                 } else {
                     return "/institution/admin/driver";
@@ -246,9 +246,12 @@ public class DriverController implements Serializable {
         if (webUserController.getLoggedUser() == null) {
             items = null;
         }
-        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
+        WebUserRoleLevel roleLevel = webUserController.getLoggedUser().getWebUserRoleLevel();
+        InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
+
+        if (roleLevel == WebUserRoleLevel.HEALTH_MINISTRY) {
             items = driverApplicationController.getDrivers();
-        } else if (webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.FUEL_DISPENSOR) {
+        } else if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
             items = driverApplicationController.getDrivers();
         } else {
             items = driverApplicationController.findDriversByInstitutions(webUserController.getLoggableInstitutions());

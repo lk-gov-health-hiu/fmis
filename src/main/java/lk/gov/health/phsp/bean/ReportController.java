@@ -57,6 +57,7 @@ import lk.gov.health.phsp.enums.Quarter;
 import lk.gov.health.phsp.enums.TimePeriodType;
 import lk.gov.health.phsp.enums.VehiclePurpose;
 import lk.gov.health.phsp.enums.VehicleType;
+import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
 import lk.gov.health.phsp.facade.UploadFacade;
@@ -176,19 +177,28 @@ public class ReportController implements Serializable {
         return "/reports/comprehensive_diesel_issuance_summary?faces-redirect=true;";
     }
 
-    public String navigateToListFuelRequestsForFuelDispensor() {
-        fillAllInstitutionFuelTransactions();
-        return "/reports/fuel_dispensor/list?faces-redirect=true;";
+    public String navigateToListFuelRequestsForCpc() {
+        return "/reports/cpc/list?faces-redirect=true;";
+    }
+
+    public String navigateToListFuelRequestsForCpcHeadOffice() {
+        return "/reports/cpc_head_office/list?faces-redirect=true;";
     }
 
     public String navigateToListHospitalEstimatessForCpcToPrint() {
-        fillAllInstitutionFuelTransactions();
-        return "/reports/fuel_dispensor/national_estimate_print?faces-redirect=true;";
+        return "/reports/cpc/national_estimate_print?faces-redirect=true;";
     }
 
     public String navigateToListHospitalEstimatessForCpcToDownload() {
-        fillAllInstitutionFuelTransactions();
-        return "/reports/fuel_dispensor/national_estimate_to_download?faces-redirect=true;";
+        return "/reports/cpc/national_estimate_to_download?faces-redirect=true;";
+    }
+
+    public String navigateToListHospitalEstimatessForCpcHeadOfficeToPrint() {
+        return "/reports/cpc_head_office/national_estimate_print?faces-redirect=true;";
+    }
+
+    public String navigateToListHospitalEstimatessForCpcHeadOfficeToDownload() {
+        return "/reports/cpc_head_office/national_estimate_to_download?faces-redirect=true;";
     }
 
     public String navigateToListHospitalEstimatessToPrint() {
@@ -242,8 +252,10 @@ public class ReportController implements Serializable {
         }
 
         switch (category) {
-            case FUEL_DISPENSOR:
-                return "/reports/fuel_dispensor/index";
+            case CPC:
+                return "/reports/cpc/index";
+            case CPC_HEAD_OFFICE:
+                return "/reports/cpc_head_office/index";
             case FUEL_RECEIVER:
                 return "/reports/index?faces-redirect=true;";
             case MONITORING_AND_EVALUATION:
@@ -317,6 +329,29 @@ public class ReportController implements Serializable {
         transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
     }
 
+    public void fillFuelTransactionsForCpc() {
+        if (toInstitution == null) {
+            transactionLights = fillFuelTransactions(null,
+                    webUserController.findAutherizedInstitutions(),
+                    getFromDate(),
+                    getToDate(),
+                    null,
+                    null,
+                    null,
+                    null);
+        } else {
+            transactionLights = fillFuelTransactions(null,
+                    toInstitution,
+                    getFromDate(),
+                    getToDate(),
+                    null,
+                    null,
+                    null,
+                    null);
+        }
+
+    }
+
     public List<FuelTransactionLight> fillFuelTransactions(
             Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
             VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType) {
@@ -376,6 +411,74 @@ public class ReportController implements Serializable {
         return resultList;
     }
 
+    public List<FuelTransactionLight> fillFuelTransactions(
+            List<Institution> requestingInstitutions, List<Institution> fuelStations,
+            Date fd, Date td, VehicleType vehicleType, VehiclePurpose vehiclePurpose,
+            Driver driver, InstitutionType institutionType) {
+
+        StringBuilder jpqlBuilder = new StringBuilder();
+
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
+                .append("ft.id, ft.requestAt, ft.requestReferenceNumber, ")
+                .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
+                .append("ft.issueReferenceNumber, ")
+                .append("fi.name, ") // fromInstitution name
+                .append("ti.name, ") // toInstitution name
+                .append("COALESCE(d.name, 'No Driver')") // driver name or 'No Driver' if null
+                .append(") FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.vehicle v ")
+                .append("LEFT JOIN ft.driver d ")
+                .append("LEFT JOIN ft.fromInstitution fi ")
+                .append("LEFT JOIN ft.toInstitution ti ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+
+        if (requestingInstitutions != null && !requestingInstitutions.isEmpty()) {
+            jpqlBuilder.append("AND ft.requestedInstitution IN :reqInstitutes ");
+            parameters.put("reqInstitutes", requestingInstitutions);
+        }
+
+        if (fuelStations != null && !fuelStations.isEmpty()) {
+            jpqlBuilder.append("AND ft.issuedInstitution IN :fuelStations ");
+            parameters.put("fuelStations", fuelStations);
+        }
+
+        if (fd != null && td != null) {
+            jpqlBuilder.append("AND ft.requestAt BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+
+        if (vehicleType != null) {
+            jpqlBuilder.append("AND v.vehicleType = :vType ");
+            parameters.put("vType", vehicleType);
+        }
+
+        if (vehiclePurpose != null) {
+            jpqlBuilder.append("AND v.vehiclePurpose = :vPurpose ");
+            parameters.put("vPurpose", vehiclePurpose);
+        }
+
+        if (driver != null) {
+            jpqlBuilder.append("AND ft.driver = :drv ");
+            parameters.put("drv", driver);
+        }
+
+        if (institutionType != null) {
+            jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
+            parameters.put("instType", institutionType);
+        }
+
+        jpqlBuilder.append("ORDER BY ft.requestAt");
+
+        List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+
+        return resultList;
+    }
+
     public void fillDieselDistributionFuelStationSummary() {
         issuedSummaries = fillFuelIssuedFromFuelStationSummary(getFromDate(), getToDate());
     }
@@ -396,7 +499,7 @@ public class ReportController implements Serializable {
         List<FuelEstimateRow> estimateRows = new ArrayList<>();
 
         List<InstitutionType> fuelReceivingInstitutionTypes = Arrays.stream(InstitutionType.values())
-                .filter(it -> it.getCategory() == InstitutionCategory.FUEL_DISPENSOR)
+                .filter(it -> it.getCategory() == InstitutionCategory.CPC)
                 .collect(Collectors.toList());
         List<Institution> fuelStations = institutionController.fillInstitutions(fuelReceivingInstitutionTypes);
 
@@ -463,7 +566,7 @@ public class ReportController implements Serializable {
         List<FuelShedEstimate> fuelShedEstimates = new ArrayList<>();
 
         List<InstitutionType> fuelReceivingInstitutionTypes = Arrays.stream(InstitutionType.values())
-                .filter(it -> it.getCategory() == InstitutionCategory.FUEL_DISPENSOR)
+                .filter(it -> it.getCategory() == InstitutionCategory.CPC)
                 .collect(Collectors.toList());
         List<Institution> fuelStations = institutionController.fillInstitutions(fuelReceivingInstitutionTypes);
 

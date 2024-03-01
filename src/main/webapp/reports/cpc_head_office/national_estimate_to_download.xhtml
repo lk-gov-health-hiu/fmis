@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+        <ui:composition template="./index.xhtml">
+            <ui:define name="reports">
+                <h:form>
+
+                    <p:commandButton value="Process"
+                                     ajax="false"
+                                     action="#{reportController.fillAllHospitalsEstimatesToDownload()}"
+                                     class="ui-button-success m-1" />
+
+                    <!-- Data Export Buttons -->
+                    <p:commandButton ajax="false" value="Export to Excel"  class="ui-button-success m-1">
+                        <p:dataExporter 
+                            type="xlsx" 
+                            target="fuelEstimateTable"
+                            fileName="FuelEstimates"  />
+                    </p:commandButton>
+
+                    <p:commandButton ajax="false" value="Print" type="button" icon="pi pi-print" class="ui-button-success m-1" >
+                        <p:printer target="fuelEstimateTable" />
+                    </p:commandButton>
+
+
+
+
+                    <p:dataTable id="fuelEstimateTable"  
+                                 rendered="true"
+                                 var="row" 
+                                 paginator="true"
+                                 rows="20"
+                                 value="#{reportController.fuelEstimateRows}"
+                                 styleClass="table table-bordered">
+
+                        <p:column headerText="CPC No" 
+                                  filterMatchMode="contains">
+                            <h:outputText value="#{row.fuelStation.code}" />
+                        </p:column>
+                        <p:column headerText="Fuel Station Name" 
+                                  filterMatchMode="contains">
+                            <h:outputText value="#{row.fuelStation.name}" />
+                        </p:column>
+                        <p:column headerText="Location" 
+                                  filterMatchMode="contains">
+                            <h:outputText value="#{row.fuelStation.address}" />
+                        </p:column>
+                        <p:column headerText="District" 
+                                  filterMatchMode="contains">
+                            <h:outputText value="#{row.fuelStation.district.name}" />
+                        </p:column>
+                        <p:column headerText="Fuel Station Estimate" 
+                                  filterMatchMode="numeric">
+                            <h:outputText value="#{row.fuelStationEstimate}" />
+                        </p:column>
+                        <p:column headerText="Institution"
+                                  filterMatchMode="contains">
+                            <h:outputText value="#{row.institution != null ? row.institution.name : ''}" />
+                        </p:column>
+                        <p:column headerText="Parent" 
+                                  filterMatchMode="contains">
+                            <h:outputText value="#{row.institution != null ? row.institution.parent.name : ''}" />
+                        </p:column>
+                        <p:column headerText="Institution Estimate" 
+                                  filterMatchMode="numeric">
+                            <h:outputText value="#{row.institutionEstimate}" />
+                        </p:column>
+                        <p:column headerText="Vehicle" 
+                                  filterMatchMode="contains">
+                            <h:outputText value="#{row.vehicle != null ? row.vehicle.name : ''}" />
+                        </p:column>
+                        <p:column headerText="Vehicle Estimate" 
+                                  filterMatchMode="numeric">
+                            <h:outputText value="#{row.totalEstimate}" />
+                        </p:column>
+
+                    </p:dataTable>
+
+
+
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

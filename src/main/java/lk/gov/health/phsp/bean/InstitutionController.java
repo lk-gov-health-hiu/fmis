@@ -656,9 +656,11 @@ public class InstitutionController implements Serializable {
         if (webUserController.getLoggedUser() == null) {
             items = null;
         }
-        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
+        WebUserRoleLevel roleLevel = webUserController.getLoggedUser().getWebUserRoleLevel();
+        InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
+        if (roleLevel == WebUserRoleLevel.HEALTH_MINISTRY) {
             items = institutionApplicationController.getInstitutions();
-        } else if (webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.FUEL_DISPENSOR) {
+        } else if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
             items = institutionApplicationController.getInstitutions();
         } else {
             items = webUserController.findAutherizedInstitutions();

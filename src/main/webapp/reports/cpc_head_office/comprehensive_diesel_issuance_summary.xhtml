@@ -28,11 +28,25 @@
                                             itemValue="#{fi}" />
 
                             <p:outputLabel value="Fuel Station" />
-                            <p:autoComplete value="#{reportController.toInstitution}"
-                                            completeMethod="#{institutionController.completeFuelStations}"
-                                            var="fs"
-                                            itemLabel="#{fs.name}"
-                                            itemValue="#{fs}" />
+                            <h:panelGroup >
+                                <p:autoComplete 
+                                    rendered="#{webUserController.loggedUser.webUserRole.accessLevel eq 'NATIONAL'}"
+                                    value="#{reportController.toInstitution}"
+                                    completeMethod="#{institutionController.completeFuelStations}"
+                                    var="fs"
+                                    itemLabel="#{fs.name}"
+                                    itemValue="#{fs}" />
+                                <p:selectOneMenu 
+                                    filter="true"
+                                    filterMatchMode="contains"
+                                    value="#{reportController.toInstitution}"
+                                    rendered="#{webUserController.loggedUser.webUserRole.accessLevel eq 'NATIONAL'}" >
+                                    <f:selectItem itemLabel="Select" ></f:selectItem>
+                                    <f:selectItems value="#{webUserController.findAutherizedInstitutions}" var="i" itemLabel="#{i.name}" itemValue="#{i}" ></f:selectItems>
+                                </p:selectOneMenu>
+
+                            </h:panelGroup>
+
                         </p:panelGrid>
 
                         <p:commandButton value="Process"
@@ -49,7 +63,7 @@
                                  currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
                                  widgetVar="summaryTable">
 
-                        <p:column headerText="Issued Date" sortBy="#{summary.issuedDate}" filterBy="#{summary.issuedDate}" filterMatchMode="contains">
+                        <p:column headerText="Issued Date" sortBy="#{summary.issuedDate}" >
                             <p:commandLink action="#{reportController.navigateToIndividualTransactionsFromDate()}" >
                                 <h:outputText value="#{summary.issuedDate}">
                                     <f:convertDateTime pattern="dd/MM/yyyy" />
@@ -70,7 +84,7 @@
                             </p:commandLink>
                         </p:column>
 
-                        <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" filterMatchMode="numeric">
+                        <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" >
                             <h:outputText value="#{summary.sumOfIssuedQty}" />
                         </p:column>
 

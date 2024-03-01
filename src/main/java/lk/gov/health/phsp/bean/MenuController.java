@@ -109,7 +109,7 @@ public class MenuController implements Serializable {
         InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
         if (roleLevel == WebUserRoleLevel.HEALTH_MINISTRY) {
             return "/national/admin/index";
-        } else if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+        } else if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
             return "/cpc/admin/index";
         } else {
             return "/institution/admin/index";
@@ -141,7 +141,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/user_new";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/user_new";
                 } else {
                     return "/institution/admin/user_new";
@@ -176,7 +176,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/institution";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/institution";
                 } else {
                     return "/institution/admin/institution";
@@ -203,7 +203,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/fuel_station";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/fuel_station";
                 } else {
                     return "/institution/admin/fuel_station";
@@ -220,7 +220,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/vehicle";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/vehicle";
                 } else {
                     return "/institution/admin/vehicle";
@@ -237,7 +237,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/driver";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/driver";
                 } else {
                     return "/institution/admin/driver";
@@ -290,7 +290,7 @@ public class MenuController implements Serializable {
                 webUserController.fillAllUsers();
                 return "/national/admin/user_list";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/user_list";
                 } else {
                     return "/institution/admin/user_list";
@@ -312,7 +312,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/institution_list";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/institution_list";
                 } else {
                     return "/institution/admin/institution_list";
@@ -328,7 +328,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/institution_list_health";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/institution_list_health";
                 } else {
                     return "/institution/admin/institution_list_health";
@@ -345,7 +345,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/fuel_station_list";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/fuel_station_list";
                 } else {
                     return "/institution/admin/fuel_station_list";
@@ -362,7 +362,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/vehicle_list";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/vehicle_list";
                 } else {
                     return "/institution/admin/vehicle_list";
@@ -378,7 +378,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/vehicle";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/vehicle";
                 } else {
                     return "/institution/admin/vehicle";
@@ -395,7 +395,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/driver_list";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/driver_list";
                 } else {
                     return "/institution/admin/driver_list";
@@ -490,7 +490,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/user_edit";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/user_edit";
                 } else {
                     return "/institution/admin/user_edit";
@@ -506,7 +506,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/institution_health";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/institution_health";
                 } else {
                     return "/institution/admin/institution_health";
@@ -523,7 +523,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/institution";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/my_institution";
                 } else {
                     return "/institution/admin/my_institution";
@@ -538,7 +538,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/fuel_station";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/fuel_station";
                 } else {
                     return "/institution/admin/fuel_station";
@@ -554,7 +554,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/driver";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/driver";
                 } else {
                     return "/institution/admin/driver";
@@ -571,7 +571,7 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/user_password";
             default:
-                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
                     return "/cpc/admin/user_password";
                 } else {
                     return "/institution/admin/user_password";
