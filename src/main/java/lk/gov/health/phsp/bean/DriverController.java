@@ -76,11 +76,19 @@ public class DriverController implements Serializable {
     }
 
     public String toEditDriver() {
-        if (selected == null) {
-            JsfUtil.addErrorMessage("Please select");
-            return "";
+        WebUserRoleLevel roleLevel = webUserController.getLoggedUser().getWebUserRoleLevel();
+        InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
+
+        switch (roleLevel) {
+            case HEALTH_MINISTRY:
+                return "/national/admin/driver";
+            default:
+                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                    return "/cpc/admin/driver";
+                } else {
+                    return "/institution/admin/driver";
+                }
         }
-        return "/driver/driver";
     }
 
     public String deleteDriver() {
@@ -240,7 +248,7 @@ public class DriverController implements Serializable {
         }
         if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY) {
             items = driverApplicationController.getDrivers();
-        } else if (webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory()==InstitutionCategory.FUEL_DISPENSOR) {
+        } else if (webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.FUEL_DISPENSOR) {
             items = driverApplicationController.getDrivers();
         } else {
             items = driverApplicationController.findDriversByInstitutions(webUserController.getLoggableInstitutions());

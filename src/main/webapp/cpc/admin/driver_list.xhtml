@@ -66,18 +66,10 @@
                             
                             <p:column headerText="Actions" >
                                 <h:commandLink class="btn btn-primary m-2" id="editButton"
-                                               value="Edit"
-                                               action="#{menuController.toEditDriver()}">
+                                               value="View"
+                                               action="#{driverController.toEditDriver()}">
                                     <f:setPropertyActionListener value="#{item}" target="#{driverController.selected}" ></f:setPropertyActionListener>
-                                    <i class="bi bi-pencil m-2"></i>
-                                </h:commandLink>
-                                <h:commandLink class="btn btn-primary m-2" id="deleteButton" onclick="if (!confirm('Are you sure you want to delete?'))
-                                            return false"                                                        
-                                               value="Delete"
-                                               action="#{driverController.deleteDriver()}" 
-                                               >
-                                    <f:setPropertyActionListener value="#{item}" target="#{driverController.deleting}" ></f:setPropertyActionListener>
-                                    <i class="bi bi-trash m-2"></i>
+                                    <i class="bi bi-eye m-2"></i>
                                 </h:commandLink>
                             </p:column>
                         </p:dataTable>

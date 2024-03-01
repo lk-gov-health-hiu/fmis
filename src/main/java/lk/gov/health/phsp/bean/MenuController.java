@@ -390,7 +390,7 @@ public class MenuController implements Serializable {
         driverController.prepareToListDriver();
         WebUserRoleLevel roleLevel = webUserController.getLoggedUser().getWebUserRoleLevel();
         InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
-
+        System.out.println("institutionCategory = " + institutionCategory);
         switch (roleLevel) {
             case HEALTH_MINISTRY:
                 return "/national/admin/driver_list";
@@ -534,7 +534,6 @@ public class MenuController implements Serializable {
     public String toEditFuelStation() {
         WebUserRoleLevel roleLevel = webUserController.getLoggedUser().getWebUserRoleLevel();
         InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
-
         switch (roleLevel) {
             case HEALTH_MINISTRY:
                 return "/national/admin/fuel_station";
@@ -548,14 +547,18 @@ public class MenuController implements Serializable {
     }
 
     public String toEditDriver() {
-        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case FUEL_REQUESTING_INSTITUTION:
-            case CTB:
-                return "/institution/admin/driver";
+        WebUserRoleLevel roleLevel = webUserController.getLoggedUser().getWebUserRoleLevel();
+        InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
+
+        switch (roleLevel) {
             case HEALTH_MINISTRY:
                 return "/national/admin/driver";
             default:
-                return "";
+                if (institutionCategory == InstitutionCategory.FUEL_DISPENSOR) {
+                    return "/cpc/admin/driver";
+                } else {
+                    return "/institution/admin/driver";
+                }
         }
     }
 
