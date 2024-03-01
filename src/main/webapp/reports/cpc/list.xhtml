@@ -12,50 +12,59 @@
 
             <ui:define name="reports">
                 <h:form >
-                    <p:panelGrid columns="3" >
-                        <p:panelGrid columns="2" >
-                            <p:outputLabel value="From" >
-                            </p:outputLabel>
-                            <p:calendar value="#{reportController.fromDate}" 
-                                        pattern="dd MMMM yyyy">
-                            </p:calendar>
 
-                            <p:outputLabel value="To" >
-                            </p:outputLabel>
-                            <p:calendar value="#{reportController.toDate}" 
-                                        pattern="dd MMMM yyyy">
-                            </p:calendar>
-                            <p:outputLabel value="Requested for Institution" >
-                            </p:outputLabel>
-                            <p:selectOneMenu 
-                                id="ins"
-                                filter="true"
-                                filterMatchMode="contains"
-                                class="form-control form-control-sm w-100" 
-                                value="#{reportController.toInstitution}" 
-                                requiredMessage="Please select the institute">
-                                <f:selectItem itemLabel="All" ></f:selectItem>
-                                <f:selectItems value="#{webUserController.loggableInstitutions}"
-                                               var="ins" 
-                                               itemLabel="#{ins.name}"
-                                               itemValue="#{ins}" ></f:selectItems>
-                            </p:selectOneMenu>
-                        </p:panelGrid>
+                    <p:panelGrid columns="2" >
+                        <p:outputLabel value="From" >
+                        </p:outputLabel>
+                        <p:calendar value="#{reportController.fromDate}" 
+                                    pattern="dd MMMM yyyy">
+                        </p:calendar>
+
+                        <p:outputLabel value="To" >
+                        </p:outputLabel>
+                        <p:calendar value="#{reportController.toDate}" 
+                                    pattern="dd MMMM yyyy">
+                        </p:calendar>
+                        <p:outputLabel value="Fuel Station" >
+                        </p:outputLabel>
+                        <p:selectOneMenu 
+                            id="ins"
+                            filter="true"
+                            filterMatchMode="contains"
+                            class="form-control form-control-sm w-100" 
+                            value="#{reportController.toInstitution}" 
+                            requiredMessage="Please select the institute">
+                            <f:selectItem itemLabel="All" ></f:selectItem>
+                            <f:selectItems value="#{webUserController.loggableInstitutions}"
+                                           var="ins" 
+                                           itemLabel="#{ins.name}"
+                                           itemValue="#{ins}" ></f:selectItems>
+                        </p:selectOneMenu>
                         <p:commandButton 
                             value="Process" 
                             ajax="false" 
                             action="#{reportController.fillFuelTransactionsForCpc()}" ></p:commandButton>
+                        <p:commandButton
+                            ajax="false"
+                            value="Download"
+                            >
+                            <p:dataExporter target="tbl" fileName="Fuel Transactions" type="xlsx" ></p:dataExporter>
+                        </p:commandButton>
                     </p:panelGrid>
 
-                    <p:dataTable var="transaction" 
-                                 class="w-100"
-                                 value="#{reportController.transactionLights}" 
-                                 paginator="true" 
-                                 rows="10"
-                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                 rowsPerPageTemplate="5,10,15"
-                                 currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
-                                 widgetVar="transactionTable">
+
+
+                    <p:dataTable 
+                        id="tbl"
+                        var="transaction" 
+                        class="w-100"
+                        value="#{reportController.transactionLights}" 
+                        paginator="true" 
+                        rows="10"
+                        paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        rowsPerPageTemplate="5,10,15"
+                        currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
+                        widgetVar="transactionTable">
 
 
 

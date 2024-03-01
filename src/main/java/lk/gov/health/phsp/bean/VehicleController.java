@@ -404,7 +404,8 @@ public class VehicleController implements Serializable {
             items = null;
         }
         if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY ||
-                webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory()==InstitutionCategory.CPC ) {
+                webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory()==InstitutionCategory.CPC ||
+                webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory()==InstitutionCategory.CPC_HEAD_OFFICE) {
             items = vehicleApplicationController.getVehicles();
         } else {
             items = webUserController.findAutherizedVehicles();

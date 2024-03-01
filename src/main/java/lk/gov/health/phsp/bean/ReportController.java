@@ -328,6 +328,13 @@ public class ReportController implements Serializable {
     public void fillAllInstitutionFuelTransactions() {
         transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
     }
+    
+    public void fillAllInstitutionFuelTransactionsForCpcHeadOffice() {
+        transactionLights = fillFuelTransactions(fromInstitution, 
+                toInstitution, 
+                getFromDate(),
+                getToDate(), null, null, null, null);
+    }
 
     public void fillFuelTransactionsForCpc() {
         if (toInstitution == null) {

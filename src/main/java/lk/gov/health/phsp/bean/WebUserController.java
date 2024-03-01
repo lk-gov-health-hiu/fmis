@@ -1051,6 +1051,8 @@ public class WebUserController implements Serializable {
             JsfUtil.addErrorMessage(e, ("Error Occured. Please change username and try again."));
             return "";
         }
+        webUserApplicationController.resetWebUsers();
+        webUserApplicationController.getItems();
         userTransactionController.recordTransaction("New Web User Added by InsAdmin");
         return menuController.toListUsers();
     }

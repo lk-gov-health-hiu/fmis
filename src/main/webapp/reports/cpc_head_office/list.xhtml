@@ -13,20 +13,19 @@
             <ui:define name="reports">
                 <h:form >
                     <p:panelGrid columns="3" >
-                        <p:panelGrid columns="2" >
+                        <p:panelGrid columns="5" >
                             <p:outputLabel value="From" >
                             </p:outputLabel>
                             <p:calendar value="#{reportController.fromDate}" 
                                         pattern="dd MMMM yyyy">
                             </p:calendar>
-
+                            <p:spacer ></p:spacer>
                             <p:outputLabel value="To" >
                             </p:outputLabel>
                             <p:calendar value="#{reportController.toDate}" 
                                         pattern="dd MMMM yyyy">
                             </p:calendar>
-                        </p:panelGrid>
-                        <p:panelGrid columns="2" >
+
                             <p:outputLabel value="Requested for Institution" >
                             </p:outputLabel>
                             <p:autoComplete 
@@ -35,7 +34,7 @@
                                 var="fi"
                                 itemLabel="#{fi.name}"
                                 itemValue="#{fi}"></p:autoComplete>
-
+                            <p:spacer ></p:spacer>
                             <p:outputLabel value="Requested from Fuel Station" >
                             </p:outputLabel>
                             <p:autoComplete 
@@ -45,35 +44,21 @@
                                 itemLabel="#{fs.name}"
                                 itemValue="#{fs}"
                                 ></p:autoComplete>
-                        </p:panelGrid>
-                        <p:panelGrid columns="2" >
-                            <h:outputLabel value="Type:" for="vehicleType" />
-                            <p:selectOneMenu id="vehicleType" 
-                                             class="form-control"
-                                             value="#{reportController.vehicleType}"
-                                             title="Vehicle Type"
-                                             filter="true"
-                                             filterMatchMode="contains">
-                                <f:selectItem itemLabel="Any" ></f:selectItem>
-                                <f:selectItems value="#{applicationController.vehicleTypes}" 
-                                               var="vt"
-                                               itemValue="#{vt}"
-                                               itemLabel="#{vt.label}"/>
-                            </p:selectOneMenu>
-
-                            <h:outputLabel value="Purpose:" for="vehiclePurpose" />
-                            <p:selectOneMenu id="vehiclePurpose" 
-                                             class="form-control"
-                                             value="#{reportController.vehiclePurpose}"
-                                             title="VehiclePurpose"
-                                             filter="true"
-                                             filterMatchMode="contains">
-                                <f:selectItem itemLabel="Any" ></f:selectItem>
-                                <f:selectItems value="#{applicationController.vehiclePurposes}" 
-                                               var="vp"
-                                               itemValue="#{vp}"
-                                               itemLabel="#{vp.label}"/>
-                            </p:selectOneMenu>
+                            <p:spacer ></p:spacer>
+                            <p:spacer ></p:spacer>
+                            <p:spacer ></p:spacer>
+                            
+                            <p:commandButton 
+                                value="Process" 
+                                ajax="false" 
+                                action="#{reportController.fillAllInstitutionFuelTransactionsForCpcHeadOffice()}" ></p:commandButton>
+                            <p:commandButton
+                                ajax="false"
+                                value="Download"
+                                >
+                                <p:dataExporter target="tbl" fileName="Fuel Transactions" type="xlsx" ></p:dataExporter>
+                            </p:commandButton>
+                            
                         </p:panelGrid>
 
 
@@ -84,21 +69,20 @@
 
 
 
-                        <p:commandButton 
-                            value="Process" 
-                            ajax="false" 
-                            action="#{reportController.fillAllInstitutionFuelTransactions()}" ></p:commandButton>
+
                     </p:panelGrid>
 
-                    <p:dataTable var="transaction" 
-                                 class="w-100"
-                                 value="#{reportController.transactionLights}" 
-                                 paginator="true" 
-                                 rows="10"
-                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                 rowsPerPageTemplate="5,10,15"
-                                 currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
-                                 widgetVar="transactionTable">
+                    <p:dataTable 
+                        id="tbl"
+                        var="transaction" 
+                        class="w-100"
+                        value="#{reportController.transactionLights}" 
+                        paginator="true" 
+                        rows="10"
+                        paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        rowsPerPageTemplate="5,10,15"
+                        currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
+                        widgetVar="transactionTable">
 
 
 
