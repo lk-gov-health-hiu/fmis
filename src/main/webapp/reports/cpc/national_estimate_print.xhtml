@@ -17,11 +17,6 @@
                                      ajax="false"
                                      action="#{reportController.fillAllHospitalsEstimatesToPrint}"
                                      class="ui-button-success m-1" />
-                    <!-- Data Export Buttons -->
-                    <p:commandButton  ajax="false" value="Export to PDF" type="button" class="ui-button-success m-1">
-                        <p:dataExporter type="pdf" target="fuelEstimateTable" fileName="FuelEstimates" />
-                    </p:commandButton>
-
                     <p:commandButton ajax="false" value="Print" type="button" icon="pi pi-print" class="ui-button-success m-1" >
                         <p:printer target="fuelEstimateTable" />
                     </p:commandButton>
