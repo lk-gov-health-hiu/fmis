@@ -51,7 +51,8 @@
               </f:facet>
               <h:outputText value="#{item.pdhsArea.name}" />
             </p:column>
-            <p:column sortBy="#{item.district.name}" filterBy="#{item.district.name}" filterMatchMode="contains">
+            <p:column sortBy="#{item.district.name}" 
+                      filterBy="#{item.district.name}" filterMatchMode="startsWith">
               <f:facet name="header">
                 <h:outputText value="District" />
               </f:facet>
