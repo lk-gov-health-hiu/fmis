@@ -45,7 +45,7 @@
                         <p:column headerText="Location" width="120" filterBy="#{fuelShed.fuelStation.address}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.address}">
                             <h:outputLabel value="#{fuelShed.fuelStation.address}" ></h:outputLabel>    
                         </p:column>
-                        <p:column headerText="District" width="120" filterBy="#{fuelShed.fuelStation.district.name}" filterMatchMode="contains" sortBy="#{fuelShed.fuelStation.district.name}">
+                        <p:column headerText="District" width="120" filterBy="#{fuelShed.fuelStation.district.name}" filterMatchMode="startsWith" sortBy="#{fuelShed.fuelStation.district.name}">
                             <h:outputLabel value="#{fuelShed.fuelStation.district.name}" ></h:outputLabel>    
                         </p:column>
 

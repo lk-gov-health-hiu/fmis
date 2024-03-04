@@ -58,7 +58,7 @@
                             
                              <p:column sortBy="#{item.institution.supplyInstitution.district.name}" 
                                       filterBy="#{item.institution.supplyInstitution.district.name}"
-                                      filterMatchMode="contains" >
+                                      filterMatchMode="startsWith" >
                                 <f:facet name="header">
                                     <h:outputText value="Main Fuel Station District"/>
                                 </f:facet>
