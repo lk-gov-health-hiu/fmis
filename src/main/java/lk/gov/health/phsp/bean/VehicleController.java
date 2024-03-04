@@ -400,6 +400,7 @@ public class VehicleController implements Serializable {
     }
 
     public void prepareToListVehicle() {
+        vehicleApplicationController.resetAllVehicles();
         if (webUserController.getLoggedUser() == null) {
             items = null;
         }

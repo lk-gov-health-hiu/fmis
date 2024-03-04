@@ -13,15 +13,15 @@
                 <h:form id="InstitutionCreateForm" style="padding-top: 1rem;">
                     <p:messages ></p:messages>
                     <h:panelGroup id="display">
-                        <p:tabView  rendered="#{institutionController.selected != null}">
+                        <p:tabView  rendered="#{institutionController.selected != null}" class="w-100">
                             <p:tab title="Details">
-                                <h:panelGrid columns="2">
+                                <p:panelGrid columns="2" class="w-100">
                                     <h:outputLabel value="Type:" for="institutionType" />
                                     <p:selectOneMenu 
                                         filter="true"
                                         filterMatchMode="contains"
                                         id="institutionType" 
-                                        class="form-control"
+                                        class="form-control w-100"
                                         value="#{institutionController.selected.institutionType}" title="InstitutionType" 
                                         >
                                         <f:selectItems value="#{applicationController.institutionTypes}" 
@@ -51,6 +51,12 @@
                                                      forceSelection="True"
                                                      maxResults="15" 
                                                      minQueryLength="3">
+                                        <p:column headerText="Name" >
+                                            <h:outputText value="#{i.name}" ></h:outputText>
+                                        </p:column>
+                                        <p:column headerText="Dealer No" >
+                                            <h:outputText value="#{i.code}" ></h:outputText>
+                                        </p:column>
                                     </p:autoComplete >
 
                                     <h:outputLabel value="Alternative Fuel Station:" for="adepo" />
@@ -79,10 +85,10 @@
                                                      maxResults="15" 
                                                      minQueryLength="3">
                                     </p:autoComplete >
-                                </h:panelGrid>
+                                </p:panelGrid>
                             </p:tab>
                             <p:tab title="Contact Details" rendered="true" >
-                                <h:panelGrid columns="2">
+                                <p:panelGrid columns="2">
                                     <h:outputLabel value="Address:" for="address" />
                                     <h:inputText id="address" class="form-control"  value="#{institutionController.selected.address}" title="Address" />
 
@@ -100,7 +106,7 @@
 
                                     <h:outputLabel value="Web:" for="web" />
                                     <h:inputText id="web" class="form-control" value="#{institutionController.selected.web}" title="Web" />
-                                </h:panelGrid>
+                                </p:panelGrid>
                             </p:tab>
                         </p:tabView>
 
