@@ -11,7 +11,7 @@
             <ui:define name="admin">
                 <h:form>    
 
-                    <h:panelGrid columns="1" >
+                    <h:panelGrid columns="1" class="w-100">
                         <h:commandButton value="Download as Excel" class="btn btn-primary" >
                             <p:dataExporter fileName="Institution List" target="tbl" type="xlsx" ></p:dataExporter>
                         </h:commandButton>
@@ -60,6 +60,15 @@
                                     <h:outputText value="Fuel Station"/>
                                 </f:facet>
                                 <h:outputText value="#{item.supplyInstitution.name}"/>
+                            </p:column>
+                            
+                             <p:column sortBy="#{item.supplyInstitution.code}" 
+                                      filterBy="#{item.supplyInstitution.code}" 
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Dealer No."/>
+                                </f:facet>
+                                 <h:outputText value="#{item.supplyInstitution.code}"/>
                             </p:column>
                             
                             <p:column sortBy="#{item.alternativeSupplyInstitution.name}" 
