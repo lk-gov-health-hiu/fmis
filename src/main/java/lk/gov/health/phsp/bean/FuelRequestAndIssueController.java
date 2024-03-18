@@ -283,6 +283,12 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
         selected.setInstitution(selected.getVehicle().getInstitution());
+        if (selected.getTxDate() == null) {
+            selected.setTxDate(new Date());
+        }
+        if (selected.getTxTime() == null) {
+            selected.setTxTime(new Date());
+        }
         save(selected);
         JsfUtil.addSuccessMessage("Special Fuel Request Submitted");
         return navigateToViewInstitutionFuelRequestToSltbDepot();
@@ -731,6 +737,8 @@ public class FuelRequestAndIssueController implements Serializable {
             return;
         }
         if (saving.getId() == null) {
+            saving.setCreatedAt(new Date());
+            saving.setCreatedBy(webUserController.getLoggedUser());
             fuelTransactionFacade.create(saving);
         } else {
             fuelTransactionFacade.edit(saving);

@@ -76,6 +76,11 @@ public class FuelTransaction implements Serializable {
 
     private String requestReferenceNumber;
     private String issueReferenceNumber;
+    
+     @ManyToOne(fetch = FetchType.LAZY)
+    private WebUser createdBy;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date createdAt;
 
     private boolean issued;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -487,6 +492,22 @@ public class FuelTransaction implements Serializable {
 
     public void setOdoMeterReading(Double odoMeterReading) {
         this.odoMeterReading = odoMeterReading;
+    }
+
+    public WebUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(WebUser createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
     
     

@@ -15,13 +15,25 @@
                 <p:submenu 
                     class="submenu" 
                     label="Diesel Orders" 
-                    rendered="#{webUserController.loggedUser.webUserRoleLevel eq 'FUEL_REQUESTING_INSTITUTION'}" >
-                    <p:menuitem class="submenu-item" ajax="false" value="Create Order" 
-                                action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Create Special Order" 
-                                action="#{fuelRequestAndIssueController.navigateToAddSpecialVehicleFuelRequest()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Mark Received Orders" 
-                                action="#{fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark()}" />
+                    rendered="#{webUserController.dieselMenuAvailable}" >
+                    <p:menuitem 
+                        class="submenu-item" 
+                        ajax="false" 
+                        value="Create Order" 
+                        rendered="#{webUserController.dieselFuelRequestMenuAvailable}"
+                        action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}" />
+                    <p:menuitem 
+                        class="submenu-item" 
+                        ajax="false" 
+                        value="Create Special Order" 
+                        rendered="#{webUserController.dieselSpecialFuelRequestMenuAvailable}"
+                        action="#{fuelRequestAndIssueController.navigateToAddSpecialVehicleFuelRequest()}" />
+                    <p:menuitem 
+                        class="submenu-item" 
+                        ajax="false" 
+                        value="Mark Received Orders" 
+                        rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}"
+                        action="#{fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="View Orders" 
                                 action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
                 </p:submenu>
