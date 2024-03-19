@@ -103,6 +103,7 @@ public class DashboardController implements Serializable {
     public void init() {
         createStackedBarModelForHospitalDetails();
         createStackedBarModelForFuelStationDetails();
+        createPiChartForRemaining();
     }
 
     public void createStackedBarModelForHospitalDetails() {
@@ -315,6 +316,7 @@ public class DashboardController implements Serializable {
     }
 
     public void prepareNationalDashboard() {
+        System.out.println("prepareNationalDashboard = ");
         Calendar c = Calendar.getInstance();
         Date now = c.getTime();
         Date todayStart = CommonController.startOfTheDate();
