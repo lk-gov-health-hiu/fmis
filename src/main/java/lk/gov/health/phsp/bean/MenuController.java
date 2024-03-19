@@ -75,7 +75,7 @@ public class MenuController implements Serializable {
     }
 
     public String toIndex() {
-        dashboardController.preparePersonalDashboard();
+        dashboardController.prepareDashboard();
         return "/index";
     }
 
@@ -256,6 +256,10 @@ public class MenuController implements Serializable {
             default:
                 return "";
         }
+    }
+
+    public String navigateToAddTotalFuel() {
+        return "/national/admin/total_fuel";
     }
 
     public String toAddMultipleNewInstitutions() {

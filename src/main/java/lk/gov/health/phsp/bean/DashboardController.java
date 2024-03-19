@@ -28,19 +28,34 @@ import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.persistence.TemporalType;
 import lk.gov.health.phsp.bean.util.JsfUtil;
+import lk.gov.health.phsp.entity.Institution;
+import lk.gov.health.phsp.entity.WebUser;
+import lk.gov.health.phsp.enums.InstitutionCategory;
+import lk.gov.health.phsp.enums.InstitutionType;
 
 import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 import lk.gov.health.phsp.pojcs.InstitutionCount;
 import org.json.JSONObject;
+
+import org.primefaces.model.charts.ChartData;
+import org.primefaces.model.charts.axes.cartesian.CartesianScales;
+import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearAxes;
+import org.primefaces.model.charts.bar.BarChartModel;
+import org.primefaces.model.charts.bar.BarChartDataSet;
+import org.primefaces.model.charts.bar.BarChartOptions;
+import org.primefaces.model.charts.optionconfig.title.Title;
+import org.primefaces.model.charts.optionconfig.tooltip.Tooltip;
 
 /**
  *
@@ -66,208 +81,177 @@ public class DashboardController implements Serializable {
 
     private Date fromDate;
     private Date toDate;
-    private List<InstitutionCount> ics;
+    private List<InstitutionCount> fuelOrdersByInstitution;
+    private List<InstitutionCount> fuelOrdersByFuelStation;
+    private BarChartModel stackedBarModelForHospitalFuelDetails;
+     private BarChartModel stackedBarModelForFuelShedDetails;
 
-    private Long receivedLettersThroughSystemToday;
-    private Long myLettersToAccept;
-    private Long lettersToReceive;
-    private Long lettersEntered;
-    private Long lettersAccepted;
-    private Long yesterdayRat;
-    private Long yesterdayPositivePcr;
-    private Long yesterdayPositiveRat;
-    private Long yesterdayTests;
-    private Long todaysTests;
-    private String todayPcrPositiveRate;
-    private String todayRatPositiveRate;
-    private String yesterdayPcrPositiveRate;
-    private String yesterdayRatPositiveRate;
-//    PCR positive patients with no MOH are
-    private Long pcrPatientsWithNoMohArea;
-//    RAT positive patients with no MOH area
-    private Long ratPatientsWithNoMohArea;
-//    First encounters with no MOH area
-    private Long firstContactsWithNoMOHArea;
-//    HashMap to generate investigation chart at MOH dashboard
-    private JSONObject investigationHashmap;
+    Double totalOrderedButNotIssued;
+    Double totalIssued;
+    Double totalRemainingToBeIssued;
 
-    private Long samplesToReceive;
-    private Long samplesReceived;
-    private Long samplesRejected;
-    private Long samplesResultEntered;
-    private Long samplesResultReviewed;
-    private Long samplesResultsConfirmed;
-    private Long samplesPositive;
-//    Samples awaiting dispatch
-    private Long samplesAwaitingDispatch;
-
-//    Uses to convert doubles to rounded string value
     DecimalFormat df = new DecimalFormat("0.00");
 
     private List<InstitutionCount> orderingCategories;
 
-    public String toContactNational() {
-        orderingCategories = new ArrayList<>();
-        for (InstitutionCount oc : dashboardApplicationController.getOrderingCounts()) {
-            String code = "";
-            if (oc.getItemValue() != null && oc.getItemValue().getCode() != null) {
-                code = oc.getItemValue().getCode();
-            }
-            switch (code) {
-                case "exit_for_first_contacts":
-                case "first_contact_non_exit":
-                    orderingCategories.add(oc);
-                    break;
-                case "community_screening_random":
-                    break;
-                case "overseas_returnees_and_foreign_travelers_initial_or_arrival":
-                case "overseas_returnees_and_foreign_travelers_exit":
-                    break;
-                case "routine_for_procedures":
-                case "opd_symptomatic":
-                case "opd_inward_symptomatic":
-                    break;
-                case "postmortem_screening":
-                case "workplace_random":
-                case "workplace_routine":
-                case "covid_19_test_ordering_category_other":
-                case "":
-                    break;
-            }
-        }
-        return "/national/ordering_categories";
+    @PostConstruct
+    public void init() {
+        createStackedBarModelForHospitalDetails();
     }
 
-    public String toCommunityRandomNational() {
-        orderingCategories = new ArrayList<>();
-        for (InstitutionCount oc : dashboardApplicationController.getOrderingCounts()) {
-            String code = "";
-            if (oc.getItemValue() != null && oc.getItemValue().getCode() != null) {
-                code = oc.getItemValue().getCode();
-            }
-            switch (code) {
-                case "exit_for_first_contacts":
-                case "first_contact_non_exit":
-                    break;
-                case "community_screening_random":
-                case "workplace_random":
-                    orderingCategories.add(oc);
-                    break;
-                case "overseas_returnees_and_foreign_travelers_initial_or_arrival":
-                case "overseas_returnees_and_foreign_travelers_exit":
-                    break;
-                case "routine_for_procedures":
-                case "opd_symptomatic":
-                case "opd_inward_symptomatic":
-                    break;
-                case "postmortem_screening":
-                case "workplace_routine":
-                case "covid_19_test_ordering_category_other":
-                case "":
-                    break;
-            }
+    public void createStackedBarModelForHospitalDetails() {
+        fuelOrdersByInstitution = dashboardApplicationController.fuelOrdersByInstitution(getFromDate(), getToDate());
+        stackedBarModelForHospitalFuelDetails = new BarChartModel();
+        ChartData data = new ChartData();
+
+        BarChartDataSet requestedSet = new BarChartDataSet();
+        requestedSet.setLabel("Issued Quantity");
+        List<Number> requestedValues = new ArrayList<>();
+        List<String> bgColorRequested = new ArrayList<>();
+        List<String> borderColorRequested = new ArrayList<>();
+
+        BarChartDataSet remainingSet = new BarChartDataSet();
+        remainingSet.setLabel("Requested, but not issued Quantity");
+        List<Number> remainingValues = new ArrayList<>();
+        List<String> bgColorRemaining = new ArrayList<>();
+        List<String> borderColorRemaining = new ArrayList<>();
+
+        List<String> labels = new ArrayList<>();
+
+        for (InstitutionCount ic : fuelOrdersByInstitution) {
+            labels.add(ic.getInstitution().getName()); // Assumes Institution has a getName() method
+            requestedValues.add(ic.getRequestedQty());
+            remainingValues.add(ic.getRemainingQty());
+
+            // For "Requested Quantity", use a solid green color
+            bgColorRequested.clear(); // Clear existing colors if any
+            borderColorRequested.clear(); // Clear existing border colors if any
+
+            bgColorRequested.add("rgba(0, 128, 0, 1.0)"); // Solid green with full opacity
+            borderColorRequested.add("rgb(0, 128, 0)");  // Solid green for the border
+
+// For "Remaining Quantity", use a solid red color
+            bgColorRemaining.clear(); // Clear existing colors if any
+            borderColorRemaining.clear(); // Clear existing border colors if any
+
+            bgColorRemaining.add("rgba(255, 0, 0, 1.0)"); // Solid red with full opacity
+            borderColorRemaining.add("rgb(255, 0, 0)");  // Solid red for the border
+
         }
-        return "/national/ordering_categories";
+
+        requestedSet.setData(requestedValues);
+        requestedSet.setBackgroundColor(bgColorRequested);
+        requestedSet.setBorderColor(borderColorRequested);
+
+        remainingSet.setData(remainingValues);
+        remainingSet.setBackgroundColor(bgColorRemaining);
+        remainingSet.setBorderColor(borderColorRemaining);
+
+        data.addChartDataSet(requestedSet);
+        data.addChartDataSet(remainingSet);
+        data.setLabels(labels);
+
+        stackedBarModelForHospitalFuelDetails.setData(data);
+
+        // Options Configuration
+        BarChartOptions options = new BarChartOptions();
+        CartesianScales cScales = new CartesianScales();
+        CartesianLinearAxes linearAxes = new CartesianLinearAxes();
+        linearAxes.setStacked(true); // Important for stacking
+        cScales.addXAxesData(linearAxes);
+        cScales.addYAxesData(linearAxes);
+        options.setScales(cScales);
+
+        Title title = new Title();
+        title.setDisplay(true);
+        title.setText("Fuel Orders by Institution - Top 10");
+        options.setTitle(title);
+
+        Tooltip tooltip = new Tooltip();
+        tooltip.setMode("index");
+        tooltip.setIntersect(false);
+        options.setTooltip(tooltip);
+
+        stackedBarModelForHospitalFuelDetails.setOptions(options);
+    }
+    
+    public void createStackedBarModelForFuelStationDetails() {
+        fuelOrdersByFuelStation = dashboardApplicationController.fuelSupplyByFuelStations(getFromDate(), getToDate());
+        stackedBarModelForFuelShedDetails = new BarChartModel();
+        ChartData data = new ChartData();
+
+        BarChartDataSet requestedSet = new BarChartDataSet();
+        requestedSet.setLabel("Issued Quantity");
+        List<Number> requestedValues = new ArrayList<>();
+        List<String> bgColorRequested = new ArrayList<>();
+        List<String> borderColorRequested = new ArrayList<>();
+
+        BarChartDataSet remainingSet = new BarChartDataSet();
+        remainingSet.setLabel("Requested, but not issued Quantity");
+        List<Number> remainingValues = new ArrayList<>();
+        List<String> bgColorRemaining = new ArrayList<>();
+        List<String> borderColorRemaining = new ArrayList<>();
+
+        List<String> labels = new ArrayList<>();
+
+        for (InstitutionCount ic : fuelOrdersByFuelStation) {
+            labels.add(ic.getInstitution().getName()); // Assumes Institution has a getName() method
+            requestedValues.add(ic.getRequestedQty());
+            remainingValues.add(ic.getRemainingQty());
+
+            // For "Requested Quantity", use a solid green color
+            bgColorRequested.clear(); // Clear existing colors if any
+            borderColorRequested.clear(); // Clear existing border colors if any
+
+            bgColorRequested.add("rgba(0, 128, 0, 1.0)"); // Solid green with full opacity
+            borderColorRequested.add("rgb(0, 128, 0)");  // Solid green for the border
+
+// For "Remaining Quantity", use a solid red color
+            bgColorRemaining.clear(); // Clear existing colors if any
+            borderColorRemaining.clear(); // Clear existing border colors if any
+
+            bgColorRemaining.add("rgba(255, 0, 0, 1.0)"); // Solid red with full opacity
+            borderColorRemaining.add("rgb(255, 0, 0)");  // Solid red for the border
+
+        }
+
+        requestedSet.setData(requestedValues);
+        requestedSet.setBackgroundColor(bgColorRequested);
+        requestedSet.setBorderColor(borderColorRequested);
+
+        remainingSet.setData(remainingValues);
+        remainingSet.setBackgroundColor(bgColorRemaining);
+        remainingSet.setBorderColor(borderColorRemaining);
+
+        data.addChartDataSet(requestedSet);
+        data.addChartDataSet(remainingSet);
+        data.setLabels(labels);
+
+        stackedBarModelForFuelShedDetails.setData(data);
+
+        // Options Configuration
+        BarChartOptions options = new BarChartOptions();
+        CartesianScales cScales = new CartesianScales();
+        CartesianLinearAxes linearAxes = new CartesianLinearAxes();
+        linearAxes.setStacked(true); // Important for stacking
+        cScales.addXAxesData(linearAxes);
+        cScales.addYAxesData(linearAxes);
+        options.setScales(cScales);
+
+        Title title = new Title();
+        title.setDisplay(true);
+        title.setText("Fuel Issues by Fuel Stations - Top 10");
+        options.setTitle(title);
+
+        Tooltip tooltip = new Tooltip();
+        tooltip.setMode("index");
+        tooltip.setIntersect(false);
+        options.setTooltip(tooltip);
+
+        stackedBarModelForFuelShedDetails.setOptions(options);
     }
 
-    public String toForeign() {
-        orderingCategories = new ArrayList<>();
-        for (InstitutionCount oc : dashboardApplicationController.getOrderingCounts()) {
-            String code = "";
-            if (oc.getItemValue() != null && oc.getItemValue().getCode() != null) {
-                code = oc.getItemValue().getCode();
-            }
-            switch (code) {
-                case "exit_for_first_contacts":
-                case "first_contact_non_exit":
-                    break;
-                case "community_screening_random":
-                case "workplace_random":
-                    break;
-                case "overseas_returnees_and_foreign_travelers_initial_or_arrival":
-                case "overseas_returnees_and_foreign_travelers_exit":
-                    orderingCategories.add(oc);
-                    break;
-                case "routine_for_procedures":
-                case "opd_symptomatic":
-                case "opd_inward_symptomatic":
-                    break;
-                case "postmortem_screening":
-                case "workplace_routine":
-                case "covid_19_test_ordering_category_other":
-                case "":
-                    break;
-            }
-        }
-        return "/national/ordering_categories";
-    }
-
-    public String toHospital() {
-        orderingCategories = new ArrayList<>();
-        for (InstitutionCount oc : dashboardApplicationController.getOrderingCounts()) {
-            String code = "";
-            if (oc.getItemValue() != null && oc.getItemValue().getCode() != null) {
-                code = oc.getItemValue().getCode();
-            }
-            switch (code) {
-                case "exit_for_first_contacts":
-                case "first_contact_non_exit":
-                    break;
-                case "community_screening_random":
-                case "workplace_random":
-                    break;
-                case "overseas_returnees_and_foreign_travelers_initial_or_arrival":
-                case "overseas_returnees_and_foreign_travelers_exit":
-
-                    break;
-                case "routine_for_procedures":
-                case "opd_symptomatic":
-                case "opd_inward_symptomatic":
-                    orderingCategories.add(oc);
-                    break;
-                case "postmortem_screening":
-                case "workplace_routine":
-                case "covid_19_test_ordering_category_other":
-                case "":
-                    break;
-            }
-        }
-        return "/national/ordering_categories";
-    }
-
-    public String toOtherOrderingCategory() {
-        orderingCategories = new ArrayList<>();
-        for (InstitutionCount oc : dashboardApplicationController.getOrderingCounts()) {
-            String code = "";
-            if (oc.getItemValue() != null && oc.getItemValue().getCode() != null) {
-                code = oc.getItemValue().getCode();
-            }
-            switch (code) {
-                case "exit_for_first_contacts":
-                case "first_contact_non_exit":
-                    break;
-                case "community_screening_random":
-                case "workplace_random":
-                    break;
-                case "overseas_returnees_and_foreign_travelers_initial_or_arrival":
-                case "overseas_returnees_and_foreign_travelers_exit":
-                    break;
-                case "routine_for_procedures":
-                case "opd_symptomatic":
-                case "opd_inward_symptomatic":
-                    break;
-                case "postmortem_screening":
-                case "workplace_routine":
-                case "covid_19_test_ordering_category_other":
-                case "":
-                    orderingCategories.add(oc);
-                    break;
-            }
-        }
-        return "/national/ordering_categories";
-    }
-
-    public void prepareMohDashboard() {
+    public void prepareHospitalDashboard() {
         Calendar c = Calendar.getInstance();
         Date now = c.getTime();
         Date todayStart = CommonController.startOfTheDate();
@@ -277,15 +261,20 @@ public class DashboardController implements Serializable {
         Date yesterdayStart = CommonController.startOfTheDate(c.getTime());
         Date yesterdayEnd = CommonController.endOfTheDate(c.getTime());
 
-
     }
 
-    public void preparePersonalDashboard() {
+    public void prepareNationalDashboard() {
         Calendar c = Calendar.getInstance();
         Date now = c.getTime();
         Date todayStart = CommonController.startOfTheDate();
 
         c.add(Calendar.DATE, -1);
+
+        createStackedBarModelForHospitalDetails();
+        createStackedBarModelForFuelStationDetails();
+
+        Date yesterdayStart = CommonController.startOfTheDate(c.getTime());
+        Date yesterdayEnd = CommonController.endOfTheDate(c.getTime());
 
     }
 
@@ -304,305 +293,6 @@ public class DashboardController implements Serializable {
             return;
         }
 
-        receivedLettersThroughSystemToday = dashboardApplicationController.getOrderCountArea(webUserController.getLoggedInstitution().getRdhsArea(), todayStart, now,
-                itemApplicationController.getPcr(), null, null, null);
-        myLettersToAccept = dashboardApplicationController.getOrderCountArea(webUserController.getLoggedInstitution().getRdhsArea(), todayStart, now,
-                itemApplicationController.getRat(), null, null, null);
-        lettersAccepted = dashboardApplicationController.getOrderCountArea(webUserController.getLoggedInstitution().getRdhsArea(), yesterdayStart, yesterdayEnd,
-                itemApplicationController.getPcr(), null, null, null);
-        yesterdayRat = dashboardApplicationController.getOrderCountArea(webUserController.getLoggedInstitution().getRdhsArea(), yesterdayStart, yesterdayEnd,
-                itemApplicationController.getRat(), null, null, null);
-
-        lettersToReceive = dashboardApplicationController.getConfirmedCount(
-                webUserController.getLoggedInstitution().getRdhsArea().getDistrict(),
-                todayStart,
-                now,
-                itemApplicationController.getPcr(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null);
-        lettersEntered = dashboardApplicationController.getConfirmedCount(
-                webUserController.getLoggedInstitution().getRdhsArea().getDistrict(),
-                todayStart,
-                now,
-                itemApplicationController.getRat(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null);
-
-        yesterdayPositivePcr = dashboardApplicationController.getConfirmedCount(
-                webUserController.getLoggedInstitution().getRdhsArea().getDistrict(),
-                yesterdayStart,
-                yesterdayEnd,
-                itemApplicationController.getPcr(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null);
-        yesterdayPositiveRat = dashboardApplicationController.getConfirmedCount(
-                webUserController.getLoggedInstitution().getRdhsArea().getDistrict(),
-                yesterdayStart,
-                yesterdayEnd,
-                itemApplicationController.getRat(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null);
-
-//      Set patients with no MOH area for last two days
-        Long tmepPcrPatientsWithNoMohArea = dashboardApplicationController.getOrderCountWithoutMoh(
-                webUserController.getLoggedInstitution().getRdhsArea(),
-                yesterdayStart,
-                now,
-                itemApplicationController.getPcr(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null
-        );
-
-        if (tmepPcrPatientsWithNoMohArea == null) {
-            this.pcrPatientsWithNoMohArea = 0L;
-        } else {
-            this.pcrPatientsWithNoMohArea = tmepPcrPatientsWithNoMohArea;
-        }
-
-//      Set RAT positive patients with no MOH area for the last two days
-        Long tempRatPatientsWithNoMohArea = dashboardApplicationController.getOrderCountWithoutMoh(
-                webUserController.getLoggedInstitution().getRdhsArea(),
-                yesterdayStart,
-                now,
-                itemApplicationController.getRat(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null
-        );
-
-        if (tempRatPatientsWithNoMohArea == null) {
-            this.ratPatientsWithNoMohArea = 0L;
-        } else {
-            this.ratPatientsWithNoMohArea = tempRatPatientsWithNoMohArea;
-        }
-
-//        Set first encounters for the last two days with no MOH area
-//        Set samples awaiting dispatch
-        this.samplesAwaitingDispatch = dashboardApplicationController.samplesAwaitingDispatch(
-                this.webUserController.getLoggedInstitution().getRdhsArea(),
-                yesterdayStart,
-                now,
-                null,
-                itemApplicationController.getPcr()
-        );
-
-//      Calculate today's positive PCR percentage
-        if (this.receivedLettersThroughSystemToday != 0) {
-            double tempRate = ((double) this.lettersToReceive / this.receivedLettersThroughSystemToday) * 100;
-            this.todayPcrPositiveRate = df.format(tempRate) + "%";
-        } else {
-            this.todayPcrPositiveRate = "0.00%";
-        }
-//      Calculate today's RAT percentage
-        if (this.myLettersToAccept != 0) {
-            double tempRate = ((double) this.lettersEntered / this.myLettersToAccept) * 100;
-            this.todayRatPositiveRate = df.format(tempRate) + "%";
-        } else {
-            this.todayRatPositiveRate = "0.00%";
-        }
-//        Calculate yesterday's PCR positive percentage
-        if (this.lettersAccepted != 0) {
-            double tempRate = ((double) this.yesterdayPositivePcr / this.lettersAccepted) * 100;
-            this.yesterdayPcrPositiveRate = df.format(tempRate) + "%";
-        } else {
-            this.yesterdayPcrPositiveRate = "0.00%";
-        }
-//        Calculates yesterday's Rat positive percentage
-        if (this.yesterdayRat != 0) {
-            double tempRate = ((double) this.yesterdayPositiveRat / this.yesterdayRat) * 100;
-            this.yesterdayRatPositiveRate = df.format(tempRate) + "%";
-        } else {
-            this.yesterdayRatPositiveRate = "0.00%";
-        }
-
-        // The json is used to generate chart for available insitutions in a given RDHS area
-        this.investigationHashmap = new JSONObject(dashboardApplicationController.generateRdhsInvestigationHashmap(
-                this.webUserController.getLoggableInstitutions()
-        ));
-
-    }
-
-    public void prepareProvincialDashboard() {
-        Calendar c = Calendar.getInstance();
-        Date now = c.getTime();
-        Date todayStart = CommonController.startOfTheDate();
-
-        c.add(Calendar.DATE, -1);
-
-        Date yesterdayStart = CommonController.startOfTheDate(c.getTime());
-        Date yesterdayEnd = CommonController.endOfTheDate(c.getTime());
-
-        if (webUserController.getLoggedInstitution().getPdhsArea() == null) {
-            JsfUtil.addErrorMessage("Province is not set. Please inform the support team. Dashboard will not be prepared.");
-            return;
-        }
-
-        receivedLettersThroughSystemToday = dashboardApplicationController.getOrderCountArea(webUserController.getLoggedInstitution().getPdhsArea(), todayStart, now,
-                itemApplicationController.getPcr(), null, null, null);
-        myLettersToAccept = dashboardApplicationController.getOrderCountArea(webUserController.getLoggedInstitution().getPdhsArea(), todayStart, now,
-                itemApplicationController.getRat(), null, null, null);
-        lettersAccepted = dashboardApplicationController.getOrderCountArea(webUserController.getLoggedInstitution().getPdhsArea(), yesterdayStart, yesterdayEnd,
-                itemApplicationController.getPcr(), null, null, null);
-        yesterdayRat = dashboardApplicationController.getOrderCountArea(webUserController.getLoggedInstitution().getPdhsArea(), yesterdayStart, yesterdayEnd,
-                itemApplicationController.getRat(), null, null, null);
-
-        lettersToReceive = dashboardApplicationController.getConfirmedCountArea(
-                webUserController.getLoggedInstitution().getPdhsArea(),
-                todayStart,
-                now,
-                itemApplicationController.getPcr(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null);
-        lettersEntered = dashboardApplicationController.getConfirmedCountArea(
-                webUserController.getLoggedInstitution().getPdhsArea(),
-                todayStart,
-                now,
-                itemApplicationController.getRat(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null);
-
-        yesterdayPositivePcr = dashboardApplicationController.getConfirmedCountArea(
-                webUserController.getLoggedInstitution().getPdhsArea(),
-                yesterdayStart,
-                yesterdayEnd,
-                itemApplicationController.getPcr(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null);
-        yesterdayPositiveRat = dashboardApplicationController.getConfirmedCountArea(
-                webUserController.getLoggedInstitution().getPdhsArea(),
-                yesterdayStart,
-                yesterdayEnd,
-                itemApplicationController.getRat(),
-                null,
-                itemApplicationController.getPcrPositive(),
-                null);
-
-//      Calculate today's positive PCR percentage
-        if (this.receivedLettersThroughSystemToday != 0 || this.receivedLettersThroughSystemToday != null) {
-            double tempRate = ((double) this.lettersToReceive / this.receivedLettersThroughSystemToday) * 100;
-            this.todayPcrPositiveRate = df.format(tempRate) + "%";
-        } else {
-            this.todayPcrPositiveRate = "0.00%";
-        }
-//      Calculate today's RAT percentage
-        if (this.myLettersToAccept != 0 || this.myLettersToAccept != null) {
-            double tempRate = ((double) this.lettersEntered / this.myLettersToAccept) * 100;
-            this.todayRatPositiveRate = df.format(tempRate) + "%";
-        } else {
-            this.todayRatPositiveRate = "0.00%";
-        }
-//        Calculate yesterday's PCR positive percentage
-        if (this.lettersAccepted != 0 || this.lettersAccepted != null) {
-            double tempRate = ((double) this.yesterdayPositivePcr / this.lettersAccepted) * 100;
-            this.yesterdayPcrPositiveRate = df.format(tempRate) + "%";
-        } else {
-            this.yesterdayPcrPositiveRate = "0.00%";
-        }
-//        Calculates yesterday's Rat positive percentage
-        if (this.yesterdayRat != 0 || this.yesterdayRat != null) {
-            double tempRate = ((double) this.yesterdayPositiveRat / this.yesterdayRat) * 100;
-            this.yesterdayRatPositiveRate = df.format(tempRate) + "%";
-        } else {
-            this.yesterdayRatPositiveRate = "0.00%";
-        }
-    }
-
-    public void prepareLabDashboard() {
-        String j;
-        Map m;
-
-        j = "select count(e) "
-                + " from Encounter e "
-                + " where e.retired=false "
-                + " and e.sentToLabAt between :fd and :td "
-                + " and e.receivedAtLab is null "
-                + " and e.referalInstitution=:lab";
-        m = new HashMap();
-        m.put("fd", CommonController.startOfTheDate(fromDate));
-        m.put("td", CommonController.endOfTheDate(toDate));
-        m.put("lab", webUserController.getLoggedInstitution());
-        samplesToReceive = encounterFacade.countByJpql(j, m, TemporalType.TIMESTAMP);
-
-        j = "select count(e) "
-                + " from Encounter e "
-                + " where e.retired=false "
-                + " and e.sampledAt between :fd and :td "
-                + " and e.referalInstitution=:lab";
-        m = new HashMap();
-        m.put("fd", CommonController.startOfTheDate(fromDate));
-        m.put("td", CommonController.endOfTheDate(toDate));
-        m.put("lab", webUserController.getLoggedInstitution());
-        samplesReceived = encounterFacade.countByJpql(j, m, TemporalType.TIMESTAMP);
-
-        j = "select count(e) "
-                + " from Encounter e "
-                + " where e.retired=false "
-                + " and e.resultEnteredAt between :fd and :td "
-                + " and e.referalInstitution=:lab";
-        m = new HashMap();
-        m.put("fd", CommonController.startOfTheDate(fromDate));
-        m.put("td", CommonController.endOfTheDate(toDate));
-        m.put("lab", webUserController.getLoggedInstitution());
-        samplesResultEntered = encounterFacade.countByJpql(j, m, TemporalType.TIMESTAMP);
-
-        j = "select count(e) "
-                + " from Encounter e "
-                + " where e.retired=false "
-                + " and e.resultEnteredAt between :fd and :td "
-                + " and e.referalInstitution=:lab";
-        m = new HashMap();
-        m.put("fd", CommonController.startOfTheDate(fromDate));
-        m.put("td", CommonController.endOfTheDate(toDate));
-        m.put("lab", webUserController.getLoggedInstitution());
-        samplesResultEntered = encounterFacade.countByJpql(j, m, TemporalType.TIMESTAMP);
-
-        j = "select count(e) "
-                + " from Encounter e "
-                + " where e.retired=false "
-                + " and e.resultReviewedAt between :fd and :td "
-                + " and e.referalInstitution=:lab";
-        m = new HashMap();
-        m.put("fd", CommonController.startOfTheDate(fromDate));
-        m.put("td", CommonController.endOfTheDate(toDate));
-        m.put("lab", webUserController.getLoggedInstitution());
-        samplesResultReviewed = encounterFacade.countByJpql(j, m, TemporalType.TIMESTAMP);
-
-        j = "select count(e) "
-                + " from Encounter e "
-                + " where e.retired=false "
-                + " and e.resultConfirmedAt between :fd and :td "
-                + " and e.referalInstitution=:lab";
-        m = new HashMap();
-        m.put("fd", CommonController.startOfTheDate(fromDate));
-        m.put("td", CommonController.endOfTheDate(toDate));
-        m.put("lab", webUserController.getLoggedInstitution());
-        samplesResultsConfirmed = encounterFacade.countByJpql(j, m, TemporalType.TIMESTAMP);
-
-        j = "select count(e) "
-                + " from Encounter e "
-                + " where e.retired=false "
-                + " and e.resultConfirmedAt between :fd and :td "
-                + " and e.referalInstitution=:lab "
-                + " and e.pcrResult=:pos";
-        m = new HashMap();
-        m.put("fd", CommonController.startOfTheDate(fromDate));
-        m.put("td", CommonController.endOfTheDate(toDate));
-        m.put("lab", webUserController.getLoggedInstitution());
-        m.put("pos", itemApplicationController.getPcrPositive());
-        samplesPositive = encounterFacade.countByJpql(j, m, TemporalType.TIMESTAMP);
-
-    }
-
-    public String toCalculateNumbers() {
-        return "/systemAdmin/calculate_numbers";
     }
 
     /**
@@ -611,8 +301,18 @@ public class DashboardController implements Serializable {
     public DashboardController() {
     }
 
-    //    Generates a hashmap that will give PCR and RAT investigations of each MOH under a given RDHS area
+    public BarChartModel getStackedBarModelForHospitalFuelDetails() {
+        return stackedBarModelForHospitalFuelDetails;
+    }
+
     public Date getFromDate() {
+        if (fromDate == null) {
+            Calendar c = Calendar.getInstance();
+            c.set(Calendar.YEAR, 2024);
+            c.set(Calendar.MONTH, 1);
+            c.set(Calendar.DATE, 1);
+            fromDate = c.getTime();
+        }
         return fromDate;
     }
 
@@ -621,6 +321,9 @@ public class DashboardController implements Serializable {
     }
 
     public Date getToDate() {
+        if (toDate == null) {
+            toDate = new Date();
+        }
         return toDate;
     }
 
@@ -628,310 +331,44 @@ public class DashboardController implements Serializable {
         this.toDate = toDate;
     }
 
-    public FuelTransactionHistoryFacade getEncounterFacade() {
-        return encounterFacade;
-    }
-
-    public void setEncounterFacade(FuelTransactionHistoryFacade encounterFacade) {
-        this.encounterFacade = encounterFacade;
-    }
-
-
-    public List<InstitutionCount> getIcs() {
-        return ics;
-    }
-
-    public void setIcs(List<InstitutionCount> ics) {
-        this.ics = ics;
-    }
-
-    public ItemController getItemController() {
-        return itemController;
-    }
-
-    public void setItemController(ItemController itemController) {
-        this.itemController = itemController;
-    }
-
-    public DashboardApplicationController getDashboardApplicationController() {
-        return dashboardApplicationController;
-    }
-
-    public void setDashboardApplicationController(DashboardApplicationController dashboardApplicationController) {
-        this.dashboardApplicationController = dashboardApplicationController;
-    }
-
-    public Long getSamplesReceived() {
-        return samplesReceived;
-    }
-
-    public void setSamplesReceived(Long samplesReceived) {
-        this.samplesReceived = samplesReceived;
-    }
-
-    public Long getSamplesRejected() {
-        return samplesRejected;
-    }
-
-    public void setSamplesRejected(Long samplesRejected) {
-        this.samplesRejected = samplesRejected;
-    }
-
-    public Long getSamplesResultEntered() {
-        return samplesResultEntered;
-    }
-
-    public void setSamplesResultEntered(Long samplesResultEntered) {
-        this.samplesResultEntered = samplesResultEntered;
-    }
-
-    public Long getSamplesResultReviewed() {
-        return samplesResultReviewed;
-    }
-
-    public void setSamplesResultReviewed(Long samplesResultReviewed) {
-        this.samplesResultReviewed = samplesResultReviewed;
-    }
-
-    public Long getSamplesResultsConfirmed() {
-        return samplesResultsConfirmed;
-    }
-
-    public void setSamplesResultsConfirmed(Long samplesResultsConfirmed) {
-        this.samplesResultsConfirmed = samplesResultsConfirmed;
-    }
-
-    public Long getSamplesPositive() {
-        return samplesPositive;
-    }
-
-    public void setSamplesPositive(Long samplesPositive) {
-        this.samplesPositive = samplesPositive;
-    }
-
-    public WebUserController getWebUserController() {
-        return webUserController;
-    }
-
-    public void setWebUserController(WebUserController webUserController) {
-        this.webUserController = webUserController;
-    }
-
-    public ItemApplicationController getItemApplicationController() {
-        return itemApplicationController;
-    }
-
-    public void setItemApplicationController(ItemApplicationController itemApplicationController) {
-        this.itemApplicationController = itemApplicationController;
-    }
-
-    public Long getSamplesToReceive() {
-        return samplesToReceive;
-    }
-
-    public void setSamplesToReceive(Long samplesToReceive) {
-        this.samplesToReceive = samplesToReceive;
-    }
-
-    public Long getReceivedLettersThroughSystemToday() {
-        if (receivedLettersThroughSystemToday == null) {
-            prepareMohDashboard();
+    void prepareDashboard() {
+        WebUser loggedUser = webUserController.getLoggedUser();
+        if (loggedUser == null) {
+            return;
         }
-        return receivedLettersThroughSystemToday;
-    }
-
-    public Long getMyLettersToAccept() {
-        if (myLettersToAccept == null) {
-            prepareMohDashboard();
+        Institution userInstitution = loggedUser.getInstitution();
+        if (userInstitution == null) {
+            JsfUtil.addErrorMessage("No Institution for Logged User");
+            return;
         }
-        return myLettersToAccept;
-    }
-
-    public Long getLettersToReceive() {
-        if (lettersToReceive == null) {
-            prepareMohDashboard();
+        InstitutionType institutionType = userInstitution.getInstitutionType();
+        if (institutionType == null) {
+            JsfUtil.addErrorMessage("No Institution type for the Logged Institution");
+            return;
         }
-        return lettersToReceive;
-    }
-
-    public Long getLettersEntered() {
-        if (lettersEntered == null) {
-            prepareMohDashboard();
+        InstitutionCategory category = institutionType.getCategory();
+        if (category == null) {
+            JsfUtil.addErrorMessage("No Category for Logged Institution");
+            return;
         }
-        return lettersEntered;
-    }
 
-    public Long getLettersAccepted() {
-        if (lettersAccepted == null) {
-            prepareMohDashboard();
+        switch (category) {
+            case FUEL_RECEIVER:
+                prepareHospitalDashboard();
+                break;
+            default:
+                prepareNationalDashboard();
         }
-        return lettersAccepted;
     }
 
-    public void setLettersAccepted(Long lettersAccepted) {
-        this.lettersAccepted = lettersAccepted;
+    public List<InstitutionCount> getFuelOrdersByInstitution() {
+        return fuelOrdersByInstitution;
     }
 
-    /**
-     * @return the todayPcrPositiveRate
-     */
-    public String getTodayPcrPositiveRate() {
-        if (this.receivedLettersThroughSystemToday == null) {
-            this.prepareMohDashboard();
-        }
-        return todayPcrPositiveRate;
+    public List<InstitutionCount> getFuelOrdersByFuelStation() {
+        return fuelOrdersByFuelStation;
     }
-
-    /**
-     * @param todayPcrPositiveRate the todayPcrPositiveRate to set
-     */
-    public void setTodayPcrPositiveRate(String todayPcrPositiveRate) {
-        this.todayPcrPositiveRate = todayPcrPositiveRate;
-    }
-
-    /**
-     * @return the todayRatPositiveRate
-     */
-    public String getTodayRatPositiveRate() {
-        if (this.myLettersToAccept == null) {
-            this.prepareMohDashboard();
-        }
-        return todayRatPositiveRate;
-    }
-
-//    Getter and setter for patients with no moh area
-    public Long getPcrPatientsWithNoMohArea() {
-        return this.pcrPatientsWithNoMohArea;
-    }
-//  getter for rat patients with no moh area
-
-    public Long getRatPatientsWithNoMohArea() {
-        return this.ratPatientsWithNoMohArea;
-    }
-
-    public Long getFirstContactsWithNoMOHArea() {
-        return firstContactsWithNoMOHArea;
-    }
-
-    public Long getSamplesAwaitingDispatch() {
-        return samplesAwaitingDispatch;
-    }
-
-    /**
-     * @param todayRatPositiveRate the todayRatPositiveRate to set
-     */
-    public void setTodayRatPositiveRate(String todayRatPositiveRate) {
-        this.todayRatPositiveRate = todayRatPositiveRate;
-    }
-
-//	Getter for the mohInstegiationHashmap
-    public JSONObject getInvestigationHashmap() {
-        return investigationHashmap;
-    }
-
-    /**
-     * @return the yesterdayPcrPositiveRate
-     */
-    public String getYesterdayPcrPositiveRate() {
-        if (this.lettersAccepted == null) {
-            this.prepareMohDashboard();
-        }
-        return yesterdayPcrPositiveRate;
-    }
-
-    /**
-     * @param yesterdayPcrPositiveRate the yesterdayPcrPositiveRate to set
-     */
-    public void setYesterdayPcrPositiveRate(String yesterdayPcrPositiveRate) {
-        this.yesterdayPcrPositiveRate = yesterdayPcrPositiveRate;
-    }
-
-    /**
-     * @return the yesterdayRatPositiveRate
-     */
-    public String getYesterdayRatPositiveRate() {
-        if (this.yesterdayRat == null) {
-            this.prepareMohDashboard();
-        }
-        return yesterdayRatPositiveRate;
-    }
-
-    /**
-     * @param yesterdayRatPositiveRate the yesterdayRatPositiveRate to set
-     */
-    public void setYesterdayRatPositiveRate(String yesterdayRatPositiveRate) {
-        this.yesterdayRatPositiveRate = yesterdayRatPositiveRate;
-    }
-
-    public Long getYesterdayRat() {
-        if (yesterdayRat == null) {
-            prepareMohDashboard();
-        }
-        return yesterdayRat;
-    }
-
-    public void setYesterdayRat(Long yesterdayRat) {
-        this.yesterdayRat = yesterdayRat;
-    }
-
-    public Long getYesterdayPositivePcr() {
-        if (yesterdayPositivePcr == null) {
-            prepareMohDashboard();
-        }
-        return yesterdayPositivePcr;
-    }
-
-    public void setYesterdayPositivePcr(Long yesterdayPositivePcr) {
-        this.yesterdayPositivePcr = yesterdayPositivePcr;
-    }
-
-    public Long getYesterdayPositiveRat() {
-        if (yesterdayPositiveRat == null) {
-            prepareMohDashboard();
-        }
-        return yesterdayPositiveRat;
-    }
-
-    public void setYesterdayPositiveRat(Long yesterdayPositiveRat) {
-        this.yesterdayPositiveRat = yesterdayPositiveRat;
-    }
-
-    public Long getYesterdayTests() {
-        if (getLettersAccepted() != null && getYesterdayRat() != null) {
-            yesterdayTests = getLettersAccepted() + getYesterdayRat();
-        } else if (getLettersAccepted() != null) {
-            yesterdayTests = getLettersAccepted();
-        } else if (getYesterdayRat() != null) {
-            yesterdayTests = getYesterdayRat();
-        } else {
-            yesterdayTests = 0l;
-        }
-        return yesterdayTests;
-    }
-
-    public Long getTodaysTests() {
-        if (getReceivedLettersThroughSystemToday() != null && getMyLettersToAccept() != null) {
-            todaysTests = getReceivedLettersThroughSystemToday() + getMyLettersToAccept();
-        } else if (getReceivedLettersThroughSystemToday() != null) {
-            todaysTests = getReceivedLettersThroughSystemToday();
-        } else if (getMyLettersToAccept() != null) {
-            todaysTests = getMyLettersToAccept();
-        } else {
-            todaysTests = 0l;
-        }
-        return todaysTests;
-    }
-
-    public void setTodaysTests(Long todaysTests) {
-        this.todaysTests = todaysTests;
-    }
-
-    public List<InstitutionCount> getOrderingCategories() {
-        return orderingCategories;
-    }
-
-    public void setOrderingCategories(List<InstitutionCount> orderingCategories) {
-        this.orderingCategories = orderingCategories;
-    }
+    
+    
 
 }
