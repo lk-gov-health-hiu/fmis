@@ -8,13 +8,13 @@
 
     <body>
 
-        <ui:composition template="/template.xhtml">
-            <ui:define name="content">
+        <ui:composition template="/national/admin/index.xhtml">
+            <ui:define name="admin">
 
                 <h:form id="AreaEditForm">
                     <p:panelGrid columns="2" >
                         <p:outputLabel value="Total Quantity of Fuel Received in Liters" ></p:outputLabel>
-                        <p:inputText value="#{preferenceController.bulkExcelFooter}" ></p:inputText>
+                        <p:inputText value="#{preferenceController.totalFuelInLeters}" ></p:inputText>
                         <p:spacer ></p:spacer>
                         <p:commandButton value="Save" action="#{preferenceController.savePreferences()}" >
                         </p:commandButton>

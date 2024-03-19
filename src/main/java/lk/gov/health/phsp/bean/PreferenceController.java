@@ -94,18 +94,23 @@ public class PreferenceController implements Serializable {
     }
 
     public void loadPreferences() {
+        System.out.println("loadPreferences");
         totalFuelInLeters = findPreferanceValue("totalFuelInLeters");
-        if(totalFuelInLeters==null||totalFuelInLeters.isEmpty()||totalFuelInLeters.isBlank()){
+        System.out.println("totalFuelInLeters = " + totalFuelInLeters);
+        if (totalFuelInLeters == null || totalFuelInLeters.isEmpty() || totalFuelInLeters.isBlank()) {
             totalFuelInLeters = "440000";
         }
+        System.out.println("totalFuelInLeters = " + totalFuelInLeters);
         try {
             totalFuelInLitersLong = Long.valueOf(getTotalFuelInLeters());
         } catch (Exception e) {
             totalFuelInLitersLong = 440000l;
         }
-        if(totalFuelInLitersLong==null||totalFuelInLitersLong==0l){
+        System.out.println("totalFuelInLitersLong = " + totalFuelInLitersLong);
+        if (totalFuelInLitersLong == null || totalFuelInLitersLong == 0l) {
             totalFuelInLitersLong = 440000l;
         }
+        System.out.println("totalFuelInLitersLong = " + totalFuelInLitersLong);
     }
 
     public void loadPreferencesInstitution() {
@@ -116,7 +121,7 @@ public class PreferenceController implements Serializable {
     }
 
     public void savePreferences() {
-        savePreference("positiveRatSmsTemplate", totalFuelInLeters);
+        savePreference("totalFuelInLeters", totalFuelInLeters);
     }
 
     public void savePreferencesInstitution() {
@@ -214,8 +219,8 @@ public class PreferenceController implements Serializable {
     }
 
     public Long getTotalFuelInLitersLong() {
-        if(totalFuelInLitersLong==null){
-             loadPreferences();
+        if (totalFuelInLitersLong == null) {
+            loadPreferences();
         }
         return totalFuelInLitersLong;
     }
@@ -223,9 +228,6 @@ public class PreferenceController implements Serializable {
     public void setTotalFuelInLitersLong(Long totalFuelInLitersLong) {
         this.totalFuelInLitersLong = totalFuelInLitersLong;
     }
-
-    
-
 
     public UserTransactionController getUserTransactionController() {
         return userTransactionController;
@@ -245,7 +247,6 @@ public class PreferenceController implements Serializable {
     public void setLabReportHtml(String labReportHtml) {
         this.labReportHtml = labReportHtml;
     }
-
 
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Converters">
