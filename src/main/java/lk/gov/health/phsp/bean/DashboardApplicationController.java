@@ -109,7 +109,28 @@ public class DashboardApplicationController {
         List<InstitutionCount> tics = fuelTransactionFacade.findLightsByJpql(j, m, TemporalType.DATE, 10);
         return tics;
     }
-    
+
+    public Double totalIssuedQuantity() {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+       
+
+        String jpql = "select sum(c.issuedQuantity) "
+                + "from FuelTransaction c "
+                + "where (c.retired is null or c.retired = :ret) ";
+
+        try {
+            List<?> result = fuelTransactionFacade.findLightsByJpql(jpql, parameters, TemporalType.DATE);
+            if (result != null && !result.isEmpty()) {
+                return (Double) result.get(0); // Cast and return the first (and only) result
+            }
+            return 0.0; // Return 0 if the query found no matching data
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; // or handle the exception as appropriate
+        }
+    }
+
     public List<InstitutionCount> fuelSupplyByFuelStations(
             Date fromDate,
             Date toDate

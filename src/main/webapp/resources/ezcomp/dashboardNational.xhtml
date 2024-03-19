@@ -15,13 +15,21 @@
             <div class="container-fluid" >
                 <div class="row" >
                     <div class="col-md-2" >
+                        <div class="card m-1" >
+                            <p:pieChart model="#{yourBeanName.pieChartModelForRemaining}" style="width:100%;height:300px;"/>
+                        </div>
+                    </div>
+                    <div class="col-md-5" >
+                        <div class="card m-1" >
+                            <p:barChart model="#{dashboardController.stackedBarModelForHospitalFuelDetails}" style="width:100%;height:300px;"/>
+                        </div>
 
                     </div>
                     <div class="col-md-5" >
-                        <p:barChart model="#{dashboardController.stackedBarModelForHospitalFuelDetails}" style="width:100%;height:300px;"/>
-                    </div>
-                    <div class="col-md-5" >
-                        <p:barChart model="#{dashboardController.fuelOrdersByFuelStation}" style="width:100%;height:300px;"/>
+                        <div class="card m-1" >
+                            <p:barChart rendered="true" model="#{dashboardController.stackedBarModelForFuelShedDetails}" style="width:100%;height:300px;"/>
+                        </div>
+
                     </div>
 
                 </div>

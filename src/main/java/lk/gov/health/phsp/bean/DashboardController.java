@@ -56,6 +56,8 @@ import org.primefaces.model.charts.bar.BarChartDataSet;
 import org.primefaces.model.charts.bar.BarChartOptions;
 import org.primefaces.model.charts.optionconfig.title.Title;
 import org.primefaces.model.charts.optionconfig.tooltip.Tooltip;
+import org.primefaces.model.charts.pie.PieChartDataSet;
+import org.primefaces.model.charts.pie.PieChartModel;
 
 /**
  *
@@ -68,6 +70,8 @@ public class DashboardController implements Serializable {
     @EJB
     private FuelTransactionHistoryFacade encounterFacade;
 
+    @Inject
+    PreferenceController preferenceController;
     @Inject
     private ItemController itemController;
     @Inject
@@ -84,7 +88,7 @@ public class DashboardController implements Serializable {
     private List<InstitutionCount> fuelOrdersByInstitution;
     private List<InstitutionCount> fuelOrdersByFuelStation;
     private BarChartModel stackedBarModelForHospitalFuelDetails;
-     private BarChartModel stackedBarModelForFuelShedDetails;
+    private BarChartModel stackedBarModelForFuelShedDetails;
 
     Double totalOrderedButNotIssued;
     Double totalIssued;
@@ -97,6 +101,7 @@ public class DashboardController implements Serializable {
     @PostConstruct
     public void init() {
         createStackedBarModelForHospitalDetails();
+        createStackedBarModelForFuelStationDetails();
     }
 
     public void createStackedBarModelForHospitalDetails() {
@@ -174,7 +179,48 @@ public class DashboardController implements Serializable {
 
         stackedBarModelForHospitalFuelDetails.setOptions(options);
     }
-    
+
+    private PieChartModel pieChartModelForRemaining;
+
+// Getter
+    public PieChartModel getPieChartModelForRemaining() {
+        return pieChartModelForRemaining;
+    }
+    Number totalGrantQuantity;
+    Number totalIssues;
+
+    public void createPiChartForRemaining() {
+        totalGrantQuantity = preferenceController.getTotalFuelInLitersLong();
+        totalIssues = dashboardApplicationController.totalIssuedQuantity();
+
+        Number remainingQuantity = totalGrantQuantity.doubleValue() - totalIssues.doubleValue();
+
+        PieChartModel pieModel = new PieChartModel();
+        ChartData data = new ChartData();
+
+        PieChartDataSet dataSet = new PieChartDataSet();
+        List<Number> values = new ArrayList<>();
+        values.add(totalIssues); // Total issued quantity
+        values.add(remainingQuantity); // Remaining quantity
+        dataSet.setData(values);
+
+        List<String> bgColors = new ArrayList<>();
+        bgColors.add("rgba(255, 99, 132, 0.6)"); // Color for total issues, e.g., light red
+        bgColors.add("rgba(54, 162, 235, 0.6)"); // Color for remaining quantity, e.g., light blue
+        dataSet.setBackgroundColor(bgColors);
+
+        data.addChartDataSet(dataSet);
+
+        List<String> labels = new ArrayList<>();
+        labels.add("Total Issues");
+        labels.add("Remaining");
+        data.setLabels(labels);
+
+        pieModel.setData(data);
+
+        this.pieChartModelForRemaining = pieModel; // Assuming this.pieChartModelForRemaining is a class member
+    }
+
     public void createStackedBarModelForFuelStationDetails() {
         fuelOrdersByFuelStation = dashboardApplicationController.fuelSupplyByFuelStations(getFromDate(), getToDate());
         stackedBarModelForFuelShedDetails = new BarChartModel();
@@ -272,6 +318,7 @@ public class DashboardController implements Serializable {
 
         createStackedBarModelForHospitalDetails();
         createStackedBarModelForFuelStationDetails();
+        createPiChartForRemaining();
 
         Date yesterdayStart = CommonController.startOfTheDate(c.getTime());
         Date yesterdayEnd = CommonController.endOfTheDate(c.getTime());
@@ -368,7 +415,9 @@ public class DashboardController implements Serializable {
     public List<InstitutionCount> getFuelOrdersByFuelStation() {
         return fuelOrdersByFuelStation;
     }
-    
-    
+
+    public BarChartModel getStackedBarModelForFuelShedDetails() {
+        return stackedBarModelForFuelShedDetails;
+    }
 
 }
