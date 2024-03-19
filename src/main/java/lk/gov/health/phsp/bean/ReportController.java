@@ -328,10 +328,10 @@ public class ReportController implements Serializable {
     public void fillAllInstitutionFuelTransactions() {
         transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
     }
-    
+
     public void fillAllInstitutionFuelTransactionsForCpcHeadOffice() {
-        transactionLights = fillFuelTransactions(fromInstitution, 
-                toInstitution, 
+        transactionLights = fillFuelTransactions(fromInstitution,
+                toInstitution,
                 getFromDate(),
                 getToDate(), null, null, null, null);
     }
@@ -370,7 +370,8 @@ public class ReportController implements Serializable {
                 .append("ft.issueReferenceNumber, ")
                 .append("fi.name, ") // fromInstitution name
                 .append("ti.name, ") // toInstitution name
-                .append("COALESCE(d.name, 'No Driver')") // driver name or 'No Driver' if null
+                .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
+                .append("ti.code ") // toInstitution name
                 .append(") FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")

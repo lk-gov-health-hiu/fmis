@@ -115,6 +115,10 @@
                         <p:column headerText="Fuel Station" sortBy="#{transaction.toInstitutionName}" filterBy="#{transaction.toInstitutionName}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.toInstitutionName}" />
                         </p:column>
+                        
+                        <p:column headerText="Dealer Number" sortBy="#{transaction.toInstitutionCode}" filterBy="#{transaction.toInstitutionCode}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.toInstitutionCode}" />
+                        </p:column>
 
                         <p:column headerText="Requested Reference No" sortBy="#{transaction.requestReferenceNumber}" filterBy="#{transaction.requestReferenceNumber}" filterMatchMode="contains">
                             <p:commandLink 
