@@ -90,6 +90,7 @@ public class DashboardController implements Serializable {
     private BarChartModel stackedBarModelForHospitalFuelDetails;
     private BarChartModel stackedBarModelForFuelShedDetails;
 
+
     Double totalOrderedButNotIssued;
     Double totalIssued;
     Double totalRemainingToBeIssued;
@@ -195,6 +196,10 @@ public class DashboardController implements Serializable {
 
         Number remainingQuantity = totalGrantQuantity.doubleValue() - totalIssues.doubleValue();
 
+        System.out.println("totalGrantQuantity = " + totalGrantQuantity);
+        System.out.println("totalIssues = " + totalIssues);
+        System.out.println("remainingQuantity = " + remainingQuantity);
+        
         PieChartModel pieModel = new PieChartModel();
         ChartData data = new ChartData();
 
@@ -377,6 +382,8 @@ public class DashboardController implements Serializable {
     public void setToDate(Date toDate) {
         this.toDate = toDate;
     }
+    
+    
 
     void prepareDashboard() {
         WebUser loggedUser = webUserController.getLoggedUser();
@@ -419,5 +426,7 @@ public class DashboardController implements Serializable {
     public BarChartModel getStackedBarModelForFuelShedDetails() {
         return stackedBarModelForFuelShedDetails;
     }
+
+   
 
 }
