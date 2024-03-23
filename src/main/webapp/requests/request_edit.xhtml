@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="./../template.xhtml">
+
+            <ui:define name="title">
+                Request
+            </ui:define>
+
+            <ui:define name="content">
+                <div class="container p-1" >
+                    <h:form >
+                        <div class="row justify-content-md-center" >
+                            <div class="col-12 col-md-10 col-lg-8" >
+
+
+                                <p:panelGrid columns="2" styleClass="form-panelgrid" columnClasses="form-label,form-field" class="w-100">
+                                    <f:facet name="header" >
+                                        <h2>
+                                            <h:outputText value="Vehicle Fuel Request"></h:outputText>
+                                            <h:commandButton  value="Submit" 
+                                                              class="btn btn-primary"
+                                                              style="float: right;"
+                                                              action="#{fuelRequestAndIssueController.submitVehicleFuelRequest()}" >
+                                            </h:commandButton>
+                                        </h2>
+                                    </f:facet>
+
+
+                                    <p:outputLabel for="acVehicle" value="Vehicle" />
+                                    <p:inputText  readonly="true" class="w-100" value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" rendered="#{fuelRequestAndIssueController.selected.vehicle ne null}" />
+                                    <p:selectOneMenu 
+                                        class="w-100"
+                                        id="acVehicle" value="#{fuelRequestAndIssueController.selected.vehicle}" filter="true" rendered="#{fuelRequestAndIssueController.selected.vehicle eq null}" filterMatchMode="contains" required="true" requiredMessage="You must select a vehicle" styleClass="w-100">
+                                        <f:selectItem itemLabel="Select a vehicle" noSelectionOption="true" />
+                                        <f:selectItems value="#{webUserController.managableVehicles}" var="v" itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
+                                    </p:selectOneMenu>
+
+                                    <p:outputLabel for="acDriver" value="Driver" />
+                                    <p:inputText readonly="true" class="w-100" value="#{fuelRequestAndIssueController.selected.driver.name}" rendered="#{fuelRequestAndIssueController.selected.driver ne null}" />
+                                    <p:selectOneMenu id="acDriver" value="#{fuelRequestAndIssueController.selected.driver}" filter="true" rendered="#{fuelRequestAndIssueController.selected.driver eq null}" filterMatchMode="contains" required="true" requiredMessage="You must select a driver" styleClass="w-100">
+                                        <f:selectItem itemLabel="Select a driver" noSelectionOption="true" />
+                                        <f:selectItems value="#{webUserController.managableDrivers}" var="d" itemLabel="#{d.name}" itemValue="#{d}" />
+                                    </p:selectOneMenu>
+
+                                    <p:outputLabel value="Depot / Fuel Station" />
+                                    <h:panelGroup >
+                                        <p:inputText  
+                                            readonly="true" 
+                                            class="w-100" 
+                                            rendered="#{webUserController.loggedInstitution.alternativeSupplyInstitution eq null}"
+                                            value="#{fuelRequestAndIssueController.selected.toInstitution.name}" />
+                                        <p:selectOneMenu  
+                                            rendered="#{webUserController.loggedInstitution.alternativeSupplyInstitution ne null}"
+                                            class="w-100" 
+                                            required="true"
+                                            requiredMessage="Select a Fuel "
+                                            value="#{fuelRequestAndIssueController.selected.toInstitution}" >
+                                            <f:selectItem 
+                                                itemLabel="#{webUserController.loggedInstitution.supplyInstitution.name}" 
+                                                itemValue="#{webUserController.loggedInstitution.supplyInstitution}" ></f:selectItem>
+                                            <f:selectItem 
+                                                itemLabel="#{webUserController.loggedInstitution.alternativeSupplyInstitution.name}" 
+                                                itemValue="#{webUserController.loggedInstitution.alternativeSupplyInstitution}" ></f:selectItem>
+                                        </p:selectOneMenu>
+
+                                    </h:panelGroup>
+
+                                    <p:outputLabel for="txtQty" value="Requesting Diesel Quantity in Liters" />
+                                    <p:inputText id="txtQty"
+                                                 required="true" 
+                                                 class="w-100"
+                                                 requiredMessage="Quantity is required" 
+                                                 value="#{fuelRequestAndIssueController.selected.requestQuantity}" />
+
+                                    <p:outputLabel for="txtOdo" value="Vehicle ODO Meter Reading / Generator Hours" />
+                                    <p:inputText 
+                                        id="txtOdo" 
+                                        class="w-100"
+                                        required="true" 
+                                        requiredMessage="ODO Meter Reading is required" 
+                                        value="#{fuelRequestAndIssueController.selected.odoMeterReading}" />
+
+                                    <p:outputLabel for="txtRef" value="Request Reference Number" />
+                                    <p:inputText 
+                                        id="txtRef"
+                                        class="w-100"
+                                        value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}" />
+
+                                    <p:outputLabel for="txtComments" value="Comments" />
+                                    <p:inputTextarea 
+                                        rows="2"
+                                        id="txtComments" 
+                                        class="w-100"
+                                        value="#{fuelRequestAndIssueController.selected.comments}" />
+                                </p:panelGrid>
+
+
+                            </div>
+                        </div>
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </h:body>
+</html>

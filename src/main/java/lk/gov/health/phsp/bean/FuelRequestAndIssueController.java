@@ -242,6 +242,9 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         save(selected);
     }
+    
+    
+    
 
     public String submitVehicleFuelRequest() {
         if (selected == null) {
