@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.divudi</groupId>
-    <artifactId>fmisdev</artifactId>
+    <artifactId>fmis</artifactId>
     <version>0.1</version>
     <packaging>war</packaging>
 
-    <name>fmisdev</name>
+    <name>fmis</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>

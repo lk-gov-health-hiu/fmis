@@ -1202,6 +1202,18 @@ public class ReportController implements Serializable {
         fuelTransactionFacade.edit(fuelTransaction);
         JsfUtil.addSuccessMessage("Deleted");
     }
+    
+    public void saveSelected() {
+        if (fuelTransaction == null) {
+            return;
+        }
+        if (webUserController.getLoggedUser().getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
+            JsfUtil.addErrorMessage("You are NOT autherized");
+            return;
+        }
+        fuelTransactionFacade.edit(fuelTransaction);
+        JsfUtil.addSuccessMessage("Updates");
+    }
 
     public void reverseDeletionSelected() {
         if (fuelTransaction == null) {
