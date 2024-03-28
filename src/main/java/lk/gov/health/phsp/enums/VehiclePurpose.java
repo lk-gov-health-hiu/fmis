@@ -7,7 +7,7 @@ package lk.gov.health.phsp.enums;
 public enum VehiclePurpose {
     Ambulance("Ambulance"),
     Generator("Generator"),
-    Suwasariya("Suwasariya"),
+    Suwasariya("Suwaseriya"),
     PreventiveActivities("Health Services"),
     BloodTransportation("Blood Transportation"),
     DrugDistribution("Drug Distribution")

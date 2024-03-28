@@ -53,7 +53,6 @@ import lk.gov.health.phsp.bean.ItemApplicationController;
 import lk.gov.health.phsp.bean.SessionController;
 
 import lk.gov.health.phsp.bean.WebUserApplicationController;
-import lk.gov.health.phsp.bean.WebUserController;
 import lk.gov.health.phsp.entity.Area;
 
 import lk.gov.health.phsp.entity.FuelTransaction;
@@ -79,8 +78,15 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.core.Response;
 import lk.gov.health.phsp.bean.ApiKeyController;
+import lk.gov.health.phsp.bean.DriverController;
 import lk.gov.health.phsp.bean.FuelRequestAndIssueController;
+import lk.gov.health.phsp.bean.VehicleController;
 import lk.gov.health.phsp.entity.ApiKey;
+import lk.gov.health.phsp.entity.Driver;
+import lk.gov.health.phsp.entity.Vehicle;
+import lk.gov.health.phsp.enums.FuelTransactionType;
+import lk.gov.health.phsp.enums.VehiclePurpose;
+import lk.gov.health.phsp.enums.VehicleType;
 import org.json.JSONException;
 
 /**
@@ -88,7 +94,7 @@ import org.json.JSONException;
  *
  * @author buddhika
  */
-@Path("")
+@Path("api")
 @Dependent
 public class ApiResource {
 
@@ -107,9 +113,10 @@ public class ApiResource {
     ApplicationController applicationController;
     @Inject
     ApiKeyController apiKeyController;
-
     @Inject
-    WebUserController webUserController;
+    DriverController driverController;
+    @Inject
+    VehicleController vehicleController;
 
     @Inject
     WebUserApplicationController webUserApplicationController;
@@ -120,6 +127,8 @@ public class ApiResource {
     SessionController sessionController;
     @Inject
     FuelRequestAndIssueController fuelRequestAndIssueController;
+
+    WebUser webUser;
 
     /**
      * Creates a new instance of GenericResource
@@ -186,28 +195,93 @@ public class ApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createDieselReceivedRecord(@Context HttpServletRequest requestContext, String jsonRequest) {
-        String apiKey = requestContext.getHeader("SUWASARIYA");
+        System.out.println("createDieselReceivedRecord");
+        System.out.println("jsonRequest = " + jsonRequest);
+        String apiKey = requestContext.getHeader("SUWASERIYA");
+        System.out.println("apiKey = " + apiKey);
         if (!isValidKey(apiKey)) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid or missing API key.").build();
         }
         try {
             JSONObject requestObject = new JSONObject(jsonRequest);
-
-            // Extract string values from the request JSON
+            Institution fuelStation;
+            Institution suwaseriya;
+            Driver driver;
+            Vehicle vehicle;
             String fuelStationCode = requestObject.optString("fuelStationCode");
+
+            if (fuelStationCode == null || fuelStationCode.trim().equals("")) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("No Fuel Station Code.").build();
+            }
+
+            fuelStation = institutionApplicationController.findInstitutionByCode(fuelStationCode);
+
+            if (fuelStation == null) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("No Fuel Station Code.").build();
+            }
+
+            suwaseriya = institutionApplicationController.findInstitutionByType(InstitutionType.Suwa_Sariya);
+            if (suwaseriya == null) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("No Suwa Seriya Instituion Found. Contact System Administrator").build();
+            }
+
             String vehicleNumber = requestObject.optString("vehicleNumber");
+            if (vehicleNumber == null || vehicleNumber.trim().equals("")) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("No Vehicle Number Found. Ex CAM 5872").build();
+            }
+            vehicle = vehicleController.findVehicleByNumber(vehicleNumber);
+            if (vehicle == null) {
+                vehicle = new Vehicle();
+                vehicle.setInstitution(suwaseriya);
+                vehicle.setCreater(webUser);
+                vehicle.setVehicleNumber(vehicleNumber);
+                vehicle.setVehicleType(VehicleType.Ambulance);
+                vehicle.setVehiclePurpose(VehiclePurpose.Ambulance);
+                vehicleController.save(vehicle);
+            }
+
             String driverNic = requestObject.optString("driverNic");
+            if (driverNic == null || driverNic.trim().equals("")) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("No Driver Code Found.").build();
+            }
+
+            driver = driverController.findDriverByNic(driverNic);
+            if (driver == null) {
+                driver = new Driver();
+                driver.setAddress(suwaseriya.getAddress());
+                driver.setCreatedAt(new Date());
+                driver.setCreater(webUser);
+                driver.setInstitution(suwaseriya);
+                driver.setName(driverNic);
+                driver.setPhone(driverNic);
+                driverController.save(driver);
+            }
+
             String comments = requestObject.optString("comments");
-            String requestQuantity = requestObject.optString("requestQuantity");
-            String issuedQuantity = requestObject.optString("issuedQuantity");
-            String odoMeterReading = requestObject.optString("odoMeterReading");
+
+            Double requestQuantity = requestObject.optDouble("requestQuantity");
+            if (requestQuantity < 1) {
+                return Response.status(Response.Status.ACCEPTED).entity("Vehicle and Driver added. No fuel transaction found.").build();
+            }
+
+            Double issuedQuantity = requestObject.optDouble("issuedQuantity");
+            Double odoMeterReading = requestObject.optDouble("odoMeterReading");
+
             String requestReferenceNumber = requestObject.optString("requestReferenceNumber");
             String issueReferenceNumber = requestObject.optString("issueReferenceNumber");
 
-            // Call a method to handle the creation of the FuelTransaction entity
-            // Assuming createFuelTransaction is a method that returns an ID or some identifier of the created record
-            String transactionId = createFuelTransaction(fuelStationCode, vehicleNumber, driverNic, comments,
-                    requestQuantity, issuedQuantity, odoMeterReading, requestReferenceNumber, issueReferenceNumber);
+            String transactionId = createFuelTransaction(
+                    fuelStation,
+                    suwaseriya,
+                    vehicle,
+                    driver,
+                    comments,
+                    requestQuantity,
+                    issuedQuantity,
+                    odoMeterReading,
+                    requestReferenceNumber,
+                    issueReferenceNumber,
+                    webUser);
 
             // Return a success response
             JSONObject responseObject = new JSONObject();
@@ -225,22 +299,27 @@ public class ApiResource {
     }
 
     private boolean isValidKey(String key) {
+        System.out.println("isValidKey method ");
+        System.out.println("key = " + key);
         if (key == null || key.trim().equals("")) {
             return false;
         }
         ApiKey k = apiKeyController.findApiKey(key);
+        System.out.println("k = " + k);
         if (k == null) {
             return false;
         }
+        System.out.println("k.getWebUser() = " + k.getWebUser());
         if (k.getWebUser() == null) {
             return false;
+        } else {
+            webUser = k.getWebUser();
         }
+        System.out.println("k.getWebUser().isRetired() = " + k.getWebUser().isRetired());
         if (k.getWebUser().isRetired()) {
             return false;
         }
-        if (!k.getWebUser().isActivated()) {
-            return false;
-        }
+        System.out.println("k.getDateOfExpiary() = " + k.getDateOfExpiary());
         if (k.getDateOfExpiary().before(new Date())) {
             return false;
         }
@@ -749,9 +828,45 @@ public class ApiResource {
         return childInstitions;
     }
 
-    private String createFuelTransaction(String fuelStationCode, String vehicleNumber, String driverNic, String comments, String requestQuantity, String suedQuantity, String odoMeterReading, String requestReferenceNumber, String sueReferenceNumber) {
+    private String createFuelTransaction(
+            Institution fuelStation,
+            Institution hospital,
+            Vehicle vehicle,
+            Driver driver,
+            String comments,
+            Double requestQuantity,
+            Double isssuedQuantity,
+            Double odoMeterReading,
+            String requestReferenceNumber,
+            String issueReferenceNumber,
+            WebUser wu) {
+
         FuelTransaction ft = new FuelTransaction();
+
+        ft.setFromInstitution(hospital);
+        ft.setToInstitution(fuelStation);
+
+        ft.setCreatedAt(new Date());
+        ft.setCreatedBy(wu);
+        ft.setDriver(driver);
+        ft.setInstitution(hospital);
+        ft.setIssuedAt(new Date());
+        ft.setIssued(true);
+        ft.setIssuedInstitution(fuelStation);
+        ft.setVehicle(vehicle);
+
+        ft.setRequestQuantity((requestQuantity));
+        ft.setIssuedQuantity((isssuedQuantity));
+
+        ft.setOdoMeterReading((odoMeterReading));
+
+        ft.setTxTime(new Date());
+        ft.setTxDate(new Date());
+        ft.setTransactionType(FuelTransactionType.VehicleFuelRequest);
+
         ft.setInvoiceNo(comments);
+        ft.setIssueReferenceNumber(issueReferenceNumber);
+        ft.setRequestReferenceNumber(requestReferenceNumber);
         ft.setComments(comments);
         fuelRequestAndIssueController.save(ft);
         return ft.getIdString();

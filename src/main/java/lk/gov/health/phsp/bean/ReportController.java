@@ -68,8 +68,17 @@ import lk.gov.health.phsp.pojcs.FuelTransactionLight;
 import lk.gov.health.phsp.pojcs.InstitutionCount;
 import lk.gov.health.phsp.pojcs.ReportTimePeriod;
 import org.primefaces.model.StreamedContent;
-// </editor-fold>   
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.util.List;
+
+// </editor-fold>   
 /**
  *
  * @author hiu_pdhs_sp
@@ -335,6 +344,74 @@ public class ReportController implements Serializable {
         transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
     }
 
+    public void generateExcelFile(List<FuelTransactionLight> transactions) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Transactions");
+
+        Row headerRow = sheet.createRow(0);
+        String[] columnHeaders = {"Date", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No"};
+        for (int i = 0; i < columnHeaders.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columnHeaders[i]);
+        }
+
+        int rowNum = 1;
+        for (FuelTransactionLight transaction : transactions) {
+            Row row = sheet.createRow(rowNum++);
+
+            row.createCell(0).setCellValue(transaction.getDate().toString()); // Adjust this based on your date format
+            row.createCell(1).setCellValue(transaction.getFromInstitutionName());
+            row.createCell(2).setCellValue(transaction.getToInstitutionName());
+            row.createCell(3).setCellValue(transaction.getToInstitutionCode());
+            row.createCell(4).setCellValue(transaction.getRequestReferenceNumber());
+            row.createCell(5).setCellValue(transaction.getVehicleNumber());
+            row.createCell(6).setCellValue(transaction.getDriverName());
+            row.createCell(7).setCellValue(transaction.getRequestQuantity());
+            if (transaction.getIssuedQuantity() != null) {
+                row.createCell(8).setCellValue(transaction.getIssuedQuantity());
+            }
+            if (transaction.getIssueReferenceNumber() != null) {
+                row.createCell(9).setCellValue(transaction.getIssueReferenceNumber());
+            }
+        }
+
+        // Autosize columns
+        for (int i = 0; i < columnHeaders.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Write the output to a file
+        FileOutputStream fileOut = new FileOutputStream("transactions.xlsx");
+        workbook.write(fileOut);
+        fileOut.close();
+
+        // Close the workbook
+        workbook.close();
+    }
+
+    public StreamedContent getDownloadExcelFile() {
+        try {
+            File file = new File("transactions.xlsx");
+            generateExcelFile(transactionLights); // Make sure this method correctly generates the file
+
+            if (!file.exists()) {
+                System.err.println("File not found: transactions.xlsx");
+                return null;
+            }
+
+            FileInputStream stream = new FileInputStream(file); // Handle FileNotFoundException here
+
+            return DefaultStreamedContent.builder()
+                    .name("transactions.xlsx")
+                    .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    .stream(() -> stream)
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public void fillAllInstitutionDeletedFuelTransactions() {
         transactionLights = fillDeletedFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
     }
@@ -428,7 +505,7 @@ public class ReportController implements Serializable {
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
         System.out.println("jpqlBuilder.toString() = " + jpqlBuilder.toString());
         System.out.println("parameters = " + parameters);
-        
+
         return resultList;
     }
 
@@ -556,7 +633,7 @@ public class ReportController implements Serializable {
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
-        
+
         System.out.println("jpqlBuilder.toString() = " + jpqlBuilder.toString());
         System.out.println("parameters = " + parameters);
         return resultList;
@@ -1202,7 +1279,7 @@ public class ReportController implements Serializable {
         fuelTransactionFacade.edit(fuelTransaction);
         JsfUtil.addSuccessMessage("Deleted");
     }
-    
+
     public void saveSelected() {
         if (fuelTransaction == null) {
             return;

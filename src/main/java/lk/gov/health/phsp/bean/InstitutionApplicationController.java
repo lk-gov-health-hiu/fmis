@@ -347,6 +347,28 @@ public class InstitutionApplicationController {
         }
         return ins;
     }
+    
+    public Institution findInstitutionByCode(String code) {
+        Institution ins = null;
+        for (Institution i : getInstitutions()) {
+            if (Objects.equals(i.getCode(), code)) {
+                ins = i;
+                return ins;
+            }
+        }
+        return ins;
+    }
+    
+    public Institution findInstitutionByType(InstitutionType type) {
+        Institution ins = null;
+        for (Institution i : getInstitutions()) {
+            if (Objects.equals(i.getInstitutionType(), type)) {
+                ins = i;
+                return ins;
+            }
+        }
+        return ins;
+    }
 
     public List<Institution> findChildrenInstitutions(Institution ins, InstitutionType type) {
         List<Institution> cins = findChildrenInstitutions(ins);

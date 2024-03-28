@@ -44,12 +44,10 @@
                             value="Process" 
                             ajax="false" 
                             action="#{reportController.fillFuelTransactionsForCpc()}" ></p:commandButton>
-                        <p:commandButton
-                            ajax="false"
-                            value="Download"
-                            >
-                            <p:dataExporter target="tbl" fileName="Fuel Transactions" type="xlsx" ></p:dataExporter>
+                        <p:commandButton value="Download Excel" ajax="false" icon="pi pi-download">
+                            <p:fileDownload value="#{reportController.downloadExcelFile}" />
                         </p:commandButton>
+
                     </p:panelGrid>
 
 
@@ -62,7 +60,7 @@
                         paginator="true" 
                         rows="10"
                         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                        rowsPerPageTemplate="5,10,15"
+                        rowsPerPageTemplate="10,25,100,{ShowAll|'All'}"
                         currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
                         widgetVar="transactionTable">
 
