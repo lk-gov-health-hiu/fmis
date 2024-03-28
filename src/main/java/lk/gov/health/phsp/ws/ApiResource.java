@@ -846,6 +846,8 @@ public class ApiResource {
         ft.setFromInstitution(hospital);
         ft.setToInstitution(fuelStation);
 
+        ft.setRequestAt(new Date());
+        
         ft.setCreatedAt(new Date());
         ft.setCreatedBy(wu);
         ft.setDriver(driver);
@@ -855,6 +857,10 @@ public class ApiResource {
         ft.setIssuedInstitution(fuelStation);
         ft.setVehicle(vehicle);
 
+        ft.setIssuedUser(wu);
+        ft.setRequestedBy(wu);
+        ft.setRequestedInstitution(hospital);
+        
         ft.setRequestQuantity((requestQuantity));
         ft.setIssuedQuantity((isssuedQuantity));
 
@@ -864,7 +870,7 @@ public class ApiResource {
         ft.setTxDate(new Date());
         ft.setTransactionType(FuelTransactionType.VehicleFuelRequest);
 
-        ft.setInvoiceNo(comments);
+        ft.setInvoiceNo(issueReferenceNumber);
         ft.setIssueReferenceNumber(issueReferenceNumber);
         ft.setRequestReferenceNumber(requestReferenceNumber);
         ft.setComments(comments);
