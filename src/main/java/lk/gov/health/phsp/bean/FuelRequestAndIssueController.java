@@ -242,9 +242,6 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         save(selected);
     }
-    
-    
-    
 
     public String submitVehicleFuelRequest() {
         if (selected == null) {
@@ -741,7 +738,9 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         if (saving.getId() == null) {
             saving.setCreatedAt(new Date());
-            saving.setCreatedBy(webUserController.getLoggedUser());
+            if (saving.getCreatedBy() == null) {
+                saving.setCreatedBy(webUserController.getLoggedUser());
+            }
             fuelTransactionFacade.create(saving);
         } else {
             fuelTransactionFacade.edit(saving);

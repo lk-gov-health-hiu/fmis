@@ -44,12 +44,10 @@
                             value="Process" 
                             ajax="false" 
                             action="#{reportController.fillFuelTransactionsForCpc()}" ></p:commandButton>
-                        <p:commandButton
-                            ajax="false"
-                            value="Download"
-                            >
-                            <p:dataExporter target="tbl" fileName="Fuel Transactions" type="xlsx" ></p:dataExporter>
+                        <p:commandButton value="Download Excel" ajax="false" icon="pi pi-download">
+                            <p:fileDownload value="#{reportController.downloadExcelFile}" />
                         </p:commandButton>
+
                     </p:panelGrid>
 
 

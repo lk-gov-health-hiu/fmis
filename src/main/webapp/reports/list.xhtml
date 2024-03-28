@@ -88,6 +88,12 @@
                             value="Process" 
                             ajax="false" 
                             action="#{reportController.fillAllInstitutionFuelTransactions()}" ></p:commandButton>
+
+
+                        <p:commandButton value="Download Excel After Process" ajax="false" icon="pi pi-download">
+                            <p:fileDownload value="#{reportController.downloadExcelFile}" />
+                        </p:commandButton>
+
                     </p:panelGrid>
 
                     <p:dataTable var="transaction" 
@@ -96,7 +102,7 @@
                                  paginator="true" 
                                  rows="10"
                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                 rowsPerPageTemplate="5,10,15"
+                                 rowsPerPageTemplate="10,25,100,{ShowAll|'All'}"
                                  currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
                                  widgetVar="transactionTable">
 
@@ -115,7 +121,7 @@
                         <p:column headerText="Fuel Station" sortBy="#{transaction.toInstitutionName}" filterBy="#{transaction.toInstitutionName}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.toInstitutionName}" />
                         </p:column>
-                        
+
                         <p:column headerText="Dealer Number" sortBy="#{transaction.toInstitutionCode}" filterBy="#{transaction.toInstitutionCode}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.toInstitutionCode}" />
                         </p:column>

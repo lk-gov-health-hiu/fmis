@@ -38,7 +38,7 @@ public enum InstitutionType {
     Provincial_Ayurvedic_Department("Provincial Ayurvedic Department", InstitutionCategory.FUEL_RECEIVER),
     District_Ayurvedic_Department("District Ayurvedic Department", InstitutionCategory.FUEL_RECEIVER),
     Herbal_Guardian("Herbal Guardian", InstitutionCategory.FUEL_RECEIVER),
-    Suwa_Sariya("SUWA SARIYA",InstitutionCategory.FUEL_RECEIVER),
+    Suwa_Sariya("SUWA SERIYA",InstitutionCategory.FUEL_RECEIVER),
     Other("Other", InstitutionCategory.OTHER);
 
     private final String label;

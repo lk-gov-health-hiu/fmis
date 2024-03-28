@@ -9,7 +9,7 @@ package lk.gov.health.phsp.pojcs;
  * @author buddhika
  */
 public enum ApiKeyType {
-    SUWASARIYA,
+    SUWASERIYA, //SuwaSeriya
     OTHER,
     
 }
