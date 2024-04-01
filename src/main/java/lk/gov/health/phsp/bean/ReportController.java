@@ -76,6 +76,7 @@ import org.primefaces.model.StreamedContent;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.Calendar;
 import java.util.List;
 
 // </editor-fold>   
@@ -478,6 +479,22 @@ public class ReportController implements Serializable {
             parameters.put("fuelStation", fuelStation);
         }
         if (fd != null && td != null) {
+            Calendar fdCal = Calendar.getInstance();
+            fdCal.setTime(fd);
+            fdCal.set(Calendar.HOUR_OF_DAY, 0);
+            fdCal.set(Calendar.MINUTE, 0);
+            fdCal.set(Calendar.SECOND, 0);
+            fdCal.set(Calendar.MILLISECOND, 0);
+            fd = fdCal.getTime(); // Start of the fromDate
+
+            Calendar tdCal = Calendar.getInstance();
+            tdCal.setTime(td);
+            tdCal.set(Calendar.HOUR_OF_DAY, 23);
+            tdCal.set(Calendar.MINUTE, 59);
+            tdCal.set(Calendar.SECOND, 59);
+            tdCal.set(Calendar.MILLISECOND, 999);
+            td = tdCal.getTime(); // End of the toDate
+
             jpqlBuilder.append("AND ft.requestAt BETWEEN :fromDate AND :toDate ");
             parameters.put("fromDate", fd);
             parameters.put("toDate", td);

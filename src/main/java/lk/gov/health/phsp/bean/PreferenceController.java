@@ -96,17 +96,17 @@ public class PreferenceController implements Serializable {
     public void loadPreferences() {
         System.out.println("loadPreferences");
         totalFuelInLeters = findPreferanceValue("totalFuelInLeters");
-        System.out.println("totalFuelInLeters = " + totalFuelInLeters);
+        System.out.println("1 totalFuelInLeters = " + totalFuelInLeters);
         if (totalFuelInLeters == null || totalFuelInLeters.isEmpty() || totalFuelInLeters.isBlank()) {
             totalFuelInLeters = "440000";
         }
-        System.out.println("totalFuelInLeters = " + totalFuelInLeters);
+        System.out.println("2 totalFuelInLeters = " + totalFuelInLeters);
         try {
-            totalFuelInLitersLong = Long.valueOf(getTotalFuelInLeters());
+            totalFuelInLitersLong = Long.valueOf(totalFuelInLeters);
         } catch (Exception e) {
             totalFuelInLitersLong = 440000l;
         }
-        System.out.println("totalFuelInLitersLong = " + totalFuelInLitersLong);
+        System.out.println("3 totalFuelInLitersLong = " + totalFuelInLitersLong);
         if (totalFuelInLitersLong == null || totalFuelInLitersLong == 0l) {
             totalFuelInLitersLong = 440000l;
         }
