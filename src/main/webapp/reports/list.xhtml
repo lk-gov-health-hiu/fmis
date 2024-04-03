@@ -156,6 +156,36 @@
                             <h:outputText value="#{transaction.issueReferenceNumber}" />
                         </p:column>
 
+                        <p:column width="150" headerText="Actions">
+                            <p:commandButton 
+                                ajax="false" 
+                                action="#{reportController.navigateToViewRequest()}"
+                                icon="fa fa-eye" 
+                                styleClass="ui-button-info m-1">
+                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
+                                </f:setPropertyActionListener>
+                            </p:commandButton>
+
+                            <p:commandButton 
+                                ajax="false" 
+                                action="#{reportController.navigateToEditRequest()}"
+                                icon="fa fa-edit" 
+                                styleClass="ui-button-warning m-1">
+                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
+                                </f:setPropertyActionListener>
+                            </p:commandButton>
+
+                            <p:commandButton 
+                                ajax="false" 
+                                action="#{reportController.navigateToDeleteRequest()}"
+                                icon="fa fa-trash" 
+                                styleClass="ui-button-danger m-1">
+                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
+                                </f:setPropertyActionListener>
+                            </p:commandButton>
+                        </p:column>
+
+
                     </p:dataTable>
 
 

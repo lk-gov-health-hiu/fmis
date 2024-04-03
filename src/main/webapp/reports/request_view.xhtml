@@ -20,22 +20,40 @@
                             <div class="col-12" >
                                 <div class="card" >
                                     <div class="card-header" >
-                                        <div class="row" >
-                                            <div class="col-md-12" >
-                                                <h2><h:outputText value="Fuel Request Details"></h:outputText></h2>
-
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h2><h:outputText value="Fuel Request Details - View"></h:outputText></h2>
                                             </div>
+                                            <div class="col-md-4">
+                                                <p:commandButton value="To Edit" ajax="false"
+                                                                 action="#{reportController.navigateToEditRequestFromView()}" 
+                                                                 icon="fa fa-edit" 
+                                                                 styleClass="ui-button-warning ui-button-raised m-2">
+                                                </p:commandButton>
+
+                                                <p:commandButton value="To Delete" ajax="false"
+                                                                 rendered="#{not reportController.fuelTransaction.retired}"
+                                                                 action="#{reportController.navigateToDeleteRequestFromView()}" 
+                                                                 icon="fa fa-trash" 
+                                                                 styleClass="ui-button-danger ui-button-raised m-2">
+                                                </p:commandButton>
+
+                                                <p:commandButton value="To Reverse Deletion" ajax="false"
+                                                                 rendered="#{reportController.fuelTransaction.retired}"
+                                                                 action="#{reportController.reverseDeletionSelected()}" 
+                                                                 icon="fa fa-undo" 
+                                                                 styleClass="ui-button-success ui-button-raised m-2">
+                                                </p:commandButton>
+                                            </div>
+
                                         </div>
+
 
 
                                     </div>
                                     <div class="card-body" >
-
-
-
-
                                         <!-- Request Details -->
-                                        <div class="container">
+                                        <div class="container-fluid w-100">
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <table class="table">
@@ -64,11 +82,11 @@
                                                         </tr>
                                                         <tr>
                                                             <td><b>Request Quantity:</b></td>
-                                                            <td><h:inputText value="#{reportController.fuelTransaction.requestQuantity}" /></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.requestQuantity}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>ODO Reading:</b></td>
-                                                            <td><h:inputText value="#{reportController.fuelTransaction.odoMeterReading}" /></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.odoMeterReading}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Request Reference No.:</b></td>
@@ -112,7 +130,11 @@
                                                             <!-- Other table rows for request details -->
                                                             <tr>
                                                                 <td><b>Issued Quantity:</b></td>
-                                                                <td><h:inputText value="#{reportController.fuelTransaction.issuedQuantity}" /></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.issuedQuantity}" /></td>
+                                                            </tr>
+                                                             <tr>
+                                                                <td><b>Invoice No:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.issueReferenceNumber}" /></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><b>Issued From:</b></td>
@@ -225,20 +247,7 @@
                                                         </ui:fragment>
                                                     </table>
 
-                                                    <p:commandButton value="Save" ajax="false"
-                                                                     action="#{reportController.saveSelected}" 
-                                                                     class="text-center bg-success text-white w-100">
-                                                    </p:commandButton>
 
-                                                    <p:commandButton value="Delete" ajax="false"
-                                                                     rendered="#{not reportController.fuelTransaction.retired}"
-                                                                     action="#{reportController.deleteSelected()}" class="text-center bg-danger text-white w-100">
-                                                    </p:commandButton>
-
-                                                    <p:commandButton value="Reverse Deletion" ajax="false"
-                                                                     rendered="#{reportController.fuelTransaction.retired}"
-                                                                     action="#{reportController.reverseDeletionSelected()}" class="text-center bg-danger text-white w-100">
-                                                    </p:commandButton>
 
 
                                                 </div>

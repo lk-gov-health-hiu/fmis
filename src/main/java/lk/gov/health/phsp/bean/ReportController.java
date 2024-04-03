@@ -296,7 +296,65 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("Error");
             return "";
         }
-        return "/reports/request?faces-redirect=true;";
+        return "/reports/request_view?faces-redirect=true;";
+    }
+
+    public String navigateToEditRequest() {
+        if (fuelTransactionLight == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        if (fuelTransactionLight.getId() == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        fuelTransaction = fuelTransactionFacade.find(fuelTransactionLight.getId());
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        return "/reports/request_edit?faces-redirect=true;";
+    }
+
+    public String navigateToDeleteRequest() {
+        if (fuelTransactionLight == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        if (fuelTransactionLight.getId() == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        fuelTransaction = fuelTransactionFacade.find(fuelTransactionLight.getId());
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        return "/reports/request_delete?faces-redirect=true;";
+    }
+
+    public String navigateToEditRequestFromView() {
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        return "/reports/request_edit?faces-redirect=true;";
+    }
+
+    public String navigateToDeleteRequestFromView() {
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        return "/reports/request_delete?faces-redirect=true;";
+    }
+
+    public String navigateToViewRequestFromEdit() {
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        return "/reports/request_view?faces-redirect=true;";
     }
 
     public String navigateToComprehensiveSummaryFromFuelStationSummary() {
