@@ -1,0 +1,273 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/reports/index.xhtml">
+
+
+            <ui:define name="reports">
+
+                <div class="container-fluid p-2 w-100" >
+                    <h:form >
+                        <div class="row" >
+
+                            <div class="col-12" >
+                                <div class="card" >
+                                    <div class="card-header" >
+                                        <div class="row" >
+                                            <div class="col-md-12" >
+                                                <h2><h:outputText value="Fuel Request Details"></h:outputText></h2>
+
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="card-body" >
+
+
+
+
+                                        <!-- Request Details -->
+                                        <div class="container">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <table class="table">
+                                                        <tr>
+                                                            <th colspan="2" class="text-center bg-primary text-white">
+                                                                Request Details
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Requested Institution:</b></td>
+                                                            <td>
+                                                                <h:outputText value="#{reportController.fuelTransaction.fromInstitution.name}" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Requested Fuel Station:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.toInstitution.name}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Vehicle:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.vehicle.vehicleNumber}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Driver:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.driver.name}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Request Quantity:</b></td>
+                                                            <td><h:inputText value="#{reportController.fuelTransaction.requestQuantity}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>ODO Reading:</b></td>
+                                                            <td><h:inputText value="#{reportController.fuelTransaction.odoMeterReading}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Request Reference No.:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.requestReferenceNumber}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Comments:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.comments}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Requested User:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.requestedBy.person.name}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Requested Date/Time:</b></td>
+                                                            <td>
+                                                                <h:outputText value="#{reportController.fuelTransaction.requestAt}">
+                                                                    <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
+                                                                </h:outputText>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>ID:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.id}" /></td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <!-- Issue Details -->
+                                                    <ui:fragment rendered="#{reportController.fuelTransaction.issued}">
+                                                        <table class="table">
+                                                            <tr>
+                                                                <th colspan="2" class="text-center bg-primary text-white">
+                                                                    Issue Details
+                                                                </th>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Issued by:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.toInstitution.name}" /></td>
+                                                            </tr>
+                                                            <!-- Other table rows for request details -->
+                                                            <tr>
+                                                                <td><b>Issued Quantity:</b></td>
+                                                                <td><h:inputText value="#{reportController.fuelTransaction.issuedQuantity}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Issued From:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.issuedInstitution.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Issue Marked User:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.issuedUser.person.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Issue Recorded At:</b></td>
+                                                                <td>
+                                                                    <h:outputText value="#{reportController.fuelTransaction.issuedAt}" >
+                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
+                                                                    </h:outputText>
+                                                                </td>
+                                                            </tr>
+                                                            <!-- Other table rows for issued details -->
+                                                        </table>
+                                                    </ui:fragment>
+                                                    <ui:fragment rendered="#{!reportController.fuelTransaction.issued}">
+                                                        <table class="table">
+                                                            <tr>
+                                                                <th class="text-center bg-danger text-white">
+                                                                    Not issued yet
+                                                                </th>
+                                                            </tr>
+                                                        </table>
+                                                    </ui:fragment>
+
+
+
+                                                    <!-- Rejection Details -->
+                                                    <table class="table">
+                                                        <ui:fragment rendered="#{reportController.fuelTransaction.rejected}">
+                                                            <tr>
+                                                                <th colspan="2" class="text-center bg-danger text-white">
+                                                                    Request Rejected
+                                                                </th>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Rejected By:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.rejectedBy.person.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Rejection Time:</b></td>
+                                                                <td>
+                                                                    <h:outputText value="#{reportController.fuelTransaction.rejectedAt}">
+                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
+                                                                    </h:outputText>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Rejection Institution:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.rejectedInstitution.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Rejection Comments:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.rejectedComments}" /></td>
+                                                            </tr>
+                                                        </ui:fragment>
+
+
+                                                        <ui:fragment rendered="#{!reportController.fuelTransaction.rejected}">
+                                                            <tr>
+                                                                <th colspan="2" class="text-center bg-success text-white">
+                                                                    Request Not Rejected
+                                                                </th>
+                                                            </tr>
+                                                        </ui:fragment>
+                                                    </table>
+
+
+
+                                                    <!-- Cancellation Details -->
+                                                    <table class="table">
+                                                        <ui:fragment rendered="#{reportController.fuelTransaction.cancelled}">
+                                                            <tr>
+                                                                <th colspan="2" class="text-center bg-danger text-white">
+                                                                    Request Cancelled
+                                                                </th>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Cancelled By:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.cancelledBy.person.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Cancellation Time:</b></td>
+                                                                <td>
+                                                                    <h:outputText value="#{reportController.fuelTransaction.cancelledAt}">
+                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
+                                                                    </h:outputText>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Cancellation Institution:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.cancelledInstitution.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Cancellation Comments:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.cancellationComments}" /></td>
+                                                            </tr>
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{!reportController.fuelTransaction.cancelled}">
+                                                            <tr>
+                                                                <th colspan="2" class="text-center bg-success text-white">
+                                                                    Request Not Cancelled
+                                                                </th>
+                                                            </tr>
+                                                        </ui:fragment>
+                                                    </table>
+
+                                                    <p:commandButton value="Save" ajax="false"
+                                                                     action="#{reportController.saveSelected}" 
+                                                                     class="text-center bg-success text-white w-100">
+                                                    </p:commandButton>
+
+                                                    <p:commandButton value="Delete" ajax="false"
+                                                                     rendered="#{not reportController.fuelTransaction.retired}"
+                                                                     action="#{reportController.deleteSelected()}" class="text-center bg-danger text-white w-100">
+                                                    </p:commandButton>
+
+                                                    <p:commandButton value="Reverse Deletion" ajax="false"
+                                                                     rendered="#{reportController.fuelTransaction.retired}"
+                                                                     action="#{reportController.reverseDeletionSelected()}" class="text-center bg-danger text-white w-100">
+                                                    </p:commandButton>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+
+
+
+
+
+
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </h:body>
+</html>
