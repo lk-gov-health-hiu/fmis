@@ -88,12 +88,6 @@
                             value="Process" 
                             ajax="false" 
                             action="#{reportController.fillAllInstitutionFuelTransactions()}" ></p:commandButton>
-
-
-                        <p:commandButton value="Download Excel After Process" ajax="false" icon="pi pi-download">
-                            <p:fileDownload value="#{reportController.downloadExcelFile}" />
-                        </p:commandButton>
-
                     </p:panelGrid>
 
                     <p:dataTable var="transaction" 
@@ -102,7 +96,7 @@
                                  paginator="true" 
                                  rows="10"
                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                 rowsPerPageTemplate="10,25,100,{ShowAll|'All'}"
+                                 rowsPerPageTemplate="5,10,15"
                                  currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
                                  widgetVar="transactionTable">
 
@@ -155,36 +149,6 @@
                         <p:column headerText="Issue Reference No" sortBy="#{transaction.issueReferenceNumber}" filterBy="#{transaction.issueReferenceNumber}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.issueReferenceNumber}" />
                         </p:column>
-
-                        <p:column width="150" headerText="Actions">
-                            <p:commandButton 
-                                ajax="false" 
-                                action="#{reportController.navigateToViewRequest()}"
-                                icon="fa fa-eye" 
-                                styleClass="ui-button-info m-1">
-                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
-                                </f:setPropertyActionListener>
-                            </p:commandButton>
-
-                            <p:commandButton 
-                                ajax="false" 
-                                action="#{reportController.navigateToEditRequest()}"
-                                icon="fa fa-edit" 
-                                styleClass="ui-button-warning m-1">
-                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
-                                </f:setPropertyActionListener>
-                            </p:commandButton>
-
-                            <p:commandButton 
-                                ajax="false" 
-                                action="#{reportController.navigateToDeleteRequest()}"
-                                icon="fa fa-trash" 
-                                styleClass="ui-button-danger m-1">
-                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
-                                </f:setPropertyActionListener>
-                            </p:commandButton>
-                        </p:column>
-
 
                     </p:dataTable>
 

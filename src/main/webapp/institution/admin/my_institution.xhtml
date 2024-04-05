@@ -26,7 +26,7 @@
 
                         <h:outputLabel value="Type:" for="institutionType" />
                         <p:selectOneMenu 
-
+                            disabled="true"
                             id="institutionType" 
                             filter="true"
                             filterMatchMode="contains"
@@ -42,7 +42,7 @@
 
                         <h:outputLabel value="Name:" for="name" />
                         <p:inputText id="name" 
-
+                                     disabled="true"
                                      autocomplete="off"
                                      class="form-control"
                                      value="#{institutionController.selected.name}" title="Name" />
@@ -51,6 +51,7 @@
                         <h:outputLabel value="Fuel Station:" for="depo" />
                         <p:autoComplete  id="depo" 
                                          class="d-block" 
+                                         disabled="true"
                                          inputStyleClass="form-control" 
                                          value="#{institutionController.selected.supplyInstitution}" 
                                          completeMethod="#{institutionController.completeFuelStations}"
@@ -67,6 +68,7 @@
                         
                         <h:outputLabel value="Alternative Fuel Station:" for="adepo" />
                         <p:autoComplete  id="adepo" 
+                                         disabled="false"
                                          class="d-block" 
                                          inputStyleClass="form-control" 
                                          value="#{institutionController.selected.alternativeSupplyInstitution}" 
@@ -83,6 +85,7 @@
 
                         <h:outputLabel value="Parent (Governed By) :" for="parent" />
                         <p:autoComplete 
+                            disabled="true"
                             completeMethod="#{institutionController.completeInstitutions}" 
                             value="#{institutionController.selected.parent}"
                             id="parent" 

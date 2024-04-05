@@ -483,6 +483,8 @@ public class WebUser implements Serializable, Nameable {
                 case INSTITUTION_ADMINISTRATOR:
                 case INSTITUTION_SUPER_USER:
                 case INSTITUTION_USER:
+                case INSTITUTION_ACCOUNTS:
+                case INSTITUTION_TRANSPORT:
                     webUserRoleLevel = WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION;
                     break;
                 case SUWASERIYA_ADMINISTRATOR:

@@ -312,6 +312,10 @@ public abstract class AbstractFacade<T> {
     }
 
     public List<?> findLightsByJpql(String jpql, Map<String, Object> parameters, TemporalType tt) {
+        return findLightsByJpql(jpql, parameters, tt, null); // Call the overloaded method without a max result limit
+    }
+
+    public List<?> findLightsByJpql(String jpql, Map<String, Object> parameters, TemporalType tt, Integer maxResults) {
         try {
             Query qry = getEntityManager().createQuery(jpql);
             parameters.forEach((key, value) -> {
@@ -321,6 +325,10 @@ public abstract class AbstractFacade<T> {
                     qry.setParameter(key, value);
                 }
             });
+
+            if (maxResults != null) {
+                qry.setMaxResults(maxResults); // Set the maximum number of results if specified
+            }
 
             return qry.getResultList();
         } catch (Exception e) {

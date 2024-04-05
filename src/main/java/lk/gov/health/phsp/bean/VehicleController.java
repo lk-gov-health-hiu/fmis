@@ -239,6 +239,22 @@ public class VehicleController implements Serializable {
         return ni;
     }
 
+    public Vehicle findVehicleByNumber(String name) {
+        if (name == null || name.trim().equals("")) {
+            return null;
+        }
+        Vehicle ni = null;
+        for (Vehicle i : vehicleApplicationController.getVehicles()) {
+            if (i.getVehicleNumber() != null && i.getVehicleNumber().equalsIgnoreCase(name)) {
+                if (ni != null) {
+                    // // System.out.println("Duplicate Vehicle Name : " + name);
+                }
+                ni = i;
+            }
+        }
+        return ni;
+    }
+
     public void fillItems() {
         items = vehicleApplicationController.getVehicles();
     }
@@ -404,9 +420,9 @@ public class VehicleController implements Serializable {
         if (webUserController.getLoggedUser() == null) {
             items = null;
         }
-        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY ||
-                webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory()==InstitutionCategory.CPC ||
-                webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory()==InstitutionCategory.CPC_HEAD_OFFICE) {
+        if (webUserController.getLoggedUser().getWebUserRoleLevel() == WebUserRoleLevel.HEALTH_MINISTRY
+                || webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.CPC
+                || webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.CPC_HEAD_OFFICE) {
             items = vehicleApplicationController.getVehicles();
         } else {
             items = webUserController.findAutherizedVehicles();
@@ -451,13 +467,17 @@ public class VehicleController implements Serializable {
         }
         if (ins.getId() == null) {
             ins.setCreatedAt(new Date());
-            ins.setCreater(webUserController.getLoggedUser());
+            if (ins.getCreater() == null) {
+                ins.setCreater(webUserController.getLoggedUser());
+            }
             getFacade().create(ins);
             vehicleApplicationController.getVehicles().add(ins);
             items = null;
         } else {
             ins.setEditedAt(new Date());
-            ins.setEditer(webUserController.getLoggedUser());
+            if (ins.getCreater() == null) {
+                ins.setEditer(webUserController.getLoggedUser());
+            }
             getFacade().edit(ins);
             items = null;
         }

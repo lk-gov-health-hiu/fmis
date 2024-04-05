@@ -39,6 +39,7 @@ import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.enums.InstitutionType;
 import lk.gov.health.phsp.enums.Privilege;
 import lk.gov.health.phsp.enums.PrivilegeTreeNode;
+import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.PersonFacade;
 import lk.gov.health.phsp.facade.UserPrivilegeFacade;
 import org.primefaces.event.ColumnResizeEvent;
@@ -198,6 +199,81 @@ public class WebUserController implements Serializable {
     public void sessionDestroy() {
         userTransactionController.recordTransaction("Invalidating the Session", this.toString());
     }
+
+    public boolean isDieselMenuAvailable() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRoleLevel() == null) {
+            return false;
+        }
+        if(loggedUser.getWebUserRoleLevel()!=WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION){
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean isDieselFuelRequestMenuAvailable() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRoleLevel() == null) {
+            return false;
+        }
+        if(loggedUser.getWebUserRoleLevel()!=WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION){
+            return false;
+        }
+        if(loggedUser.getWebUserRole()!=WebUserRole.INSTITUTION_TRANSPORT){
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean isDieselSpecialFuelRequestMenuAvailable() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRoleLevel() == null) {
+            return false;
+        }
+        if(loggedUser.getWebUserRoleLevel()!=WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION){
+            return false;
+        }
+        if(loggedUser.getWebUserRole()!=WebUserRole.INSTITUTION_TRANSPORT){
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean isDieselFuelRequestMarkAsReceivedMenuAvailable() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRoleLevel() == null) {
+            return false;
+        }
+        if(loggedUser.getWebUserRoleLevel()!=WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION){
+            return false;
+        }
+        if(loggedUser.getWebUserRole()!=WebUserRole.INSTITUTION_ACCOUNTS){
+            return false;
+        }
+        return true;
+    }
+    
+    
 
     public void onResize(ColumnResizeEvent event) {
         String viewId = event.getFacesContext().getViewRoot().getViewId();
@@ -658,7 +734,7 @@ public class WebUserController implements Serializable {
         toDate = c.getTime();
         c.add(Calendar.DAY_OF_MONTH, -7);
         fromDate = c.getTime();
-        dashboardController.preparePersonalDashboard();
+        dashboardController.prepareDashboard();
     }
 
     public String toChangeLoggedInstitution() {
@@ -1578,6 +1654,8 @@ public class WebUserController implements Serializable {
         List<WebUserRole> urs = new ArrayList<>();
         urs.add(WebUserRole.INSTITUTION_ADMINISTRATOR);
         urs.add(WebUserRole.INSTITUTION_SUPER_USER);
+        urs.add(WebUserRole.INSTITUTION_TRANSPORT);
+        urs.add(WebUserRole.INSTITUTION_ADMINISTRATOR);
         urs.add(WebUserRole.INSTITUTION_USER);
         WebUserRole[] rs = urs.toArray(new WebUserRole[0]);
         return rs;
@@ -1596,6 +1674,8 @@ public class WebUserController implements Serializable {
             case INSTITUTION_ADMINISTRATOR:
                 urs.add(WebUserRole.INSTITUTION_ADMINISTRATOR);
                 urs.add(WebUserRole.INSTITUTION_SUPER_USER);
+                urs.add(WebUserRole.INSTITUTION_ACCOUNTS);
+                urs.add(WebUserRole.INSTITUTION_TRANSPORT);
                 urs.add(WebUserRole.INSTITUTION_USER);
                 break;
             case INSTITUTION_SUPER_USER:

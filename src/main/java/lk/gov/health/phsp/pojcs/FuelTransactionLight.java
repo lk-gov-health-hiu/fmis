@@ -41,6 +41,7 @@ public class FuelTransactionLight implements Serializable {
     private String issueReferenceNumber;
     private String fromInstitutionName;
     private String toInstitutionName;
+    String toInstitutionCode;
     private String driverName; 
 
     public FuelTransactionLight() {
@@ -90,7 +91,76 @@ public class FuelTransactionLight implements Serializable {
         this.toInstitutionName = toInstitutionName;
         this.driverName = driverName;
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    //New
+    
+    public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
+            String vehicleNumber, Double requestQuantity,
+            Double issuedQuantity, String issueReferenceNumber,
+                                String toInstitutionCode) {
+        this.id = id;
+        this.date = date;
+        this.requestReferenceNumber = requestReferenceNumber;
+        this.vehicleNumber = vehicleNumber;
+        this.requestQuantity = requestQuantity;
+        this.issuedQuantity = issuedQuantity;
+        this.issueReferenceNumber = issueReferenceNumber;
+        this.toInstitutionCode = toInstitutionCode;
+    }
 
+    
+    
+    public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
+                                String vehicleNumber, Double requestQuantity,
+                                Double issuedQuantity, String issueReferenceNumber,
+                                String fromInstitutionName, String toInstitutionName,
+                                String driverName,
+                                String toInstitutionCode) {
+        this.id = id;
+        this.date = date;
+        this.requestReferenceNumber = requestReferenceNumber;
+        this.vehicleNumber = vehicleNumber;
+        this.requestQuantity = requestQuantity;
+        this.issuedQuantity = issuedQuantity;
+        this.issueReferenceNumber = issueReferenceNumber;
+        this.fromInstitutionName = fromInstitutionName;
+        this.toInstitutionName = toInstitutionName;
+        this.driverName = driverName;
+        this.toInstitutionCode = toInstitutionCode;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    public String getToInstitutionCode() {
+        return toInstitutionCode;
+    }
+
+    public void setToInstitutionCode(String toInstitutionCode) {
+        this.toInstitutionCode = toInstitutionCode;
+    }
+
+    
+    
+    
+    
+    
     public Long getId() {
         return id;
     }

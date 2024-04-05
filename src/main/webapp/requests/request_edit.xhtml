@@ -61,14 +61,12 @@
                                             rendered="#{webUserController.loggedInstitution.alternativeSupplyInstitution ne null}"
                                             class="w-100" 
                                             required="true"
-                                            requiredMessage="Select a Fuel station"
+                                            requiredMessage="Select a Fuel "
                                             value="#{fuelRequestAndIssueController.selected.toInstitution}" >
                                             <f:selectItem 
-                                                rendered="#{webUserController.loggedInstitution.supplyInstitution.retired eq false}"
                                                 itemLabel="#{webUserController.loggedInstitution.supplyInstitution.name}" 
                                                 itemValue="#{webUserController.loggedInstitution.supplyInstitution}" ></f:selectItem>
                                             <f:selectItem 
-                                                rendered="#{webUserController.loggedInstitution.supplyInstitution.retired eq false}"
                                                 itemLabel="#{webUserController.loggedInstitution.alternativeSupplyInstitution.name}" 
                                                 itemValue="#{webUserController.loggedInstitution.alternativeSupplyInstitution}" ></f:selectItem>
                                         </p:selectOneMenu>

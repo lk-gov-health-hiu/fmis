@@ -34,13 +34,22 @@
                                         </h2>
                                     </f:facet>
                                     <p:outputLabel 
+                                        value="Date" 
+                                        for="calDate">
+                                    </p:outputLabel>
+                                    <p:calendar 
+                                        id="calDate"
+                                        pattern="dd MMMM yyyy"
+                                        value="#{fuelRequestAndIssueController.selected.txDate}" >
+                                    </p:calendar>
+                                    <p:outputLabel 
                                         value="Vehicle" 
                                         for="acVehicle">
                                     </p:outputLabel>
                                     <p:autoComplete 
                                         id="acVehicle"
                                         value="#{fuelRequestAndIssueController.selected.vehicle}"
-                                        completeMethod="#{vehicleController.completeVehicles}"
+                                        completeMethod="#{vehicleController.completeVehiclesByWords}"
                                         var="v"
                                         class="w-100"
                                         inputStyleClass="w-100"
@@ -86,24 +95,31 @@
 
 
                                     <p:outputLabel 
-                                        for="depo"
+                                       
                                         value="Fuel Station / Depot" 
                                         >
                                     </p:outputLabel>
-                                    <p:autoComplete  
-                                        id="depo" 
-                                        class="d-block" 
-                                        inputStyleClass="form-control" 
-                                        value="#{fuelRequestAndIssueController.selected.toInstitution}" 
-                                        completeMethod="#{institutionController.completeFuelStations}"
-                                        var="i" 
-                                        disabled="true"
-                                        itemLabel="#{i.name}" 
-                                        itemValue="#{i}" 
-                                        forceSelection="True"
-                                        maxResults="15" 
-                                        minQueryLength="3">
-                                    </p:autoComplete >
+                                    <h:panelGroup >
+                                        <p:inputText  
+                                            readonly="true" 
+                                            class="w-100" 
+                                            rendered="#{webUserController.loggedInstitution.alternativeSupplyInstitution eq null}"
+                                            value="#{fuelRequestAndIssueController.selected.toInstitution.name}" />
+                                        <p:selectOneMenu  
+                                            rendered="#{webUserController.loggedInstitution.alternativeSupplyInstitution ne null}"
+                                            class="w-100" 
+                                            required="true"
+                                            requiredMessage="Select a Fuel "
+                                            value="#{fuelRequestAndIssueController.selected.toInstitution}" >
+                                            <f:selectItem 
+                                                itemLabel="#{webUserController.loggedInstitution.supplyInstitution.name}" 
+                                                itemValue="#{webUserController.loggedInstitution.supplyInstitution}" ></f:selectItem>
+                                            <f:selectItem 
+                                                itemLabel="#{webUserController.loggedInstitution.alternativeSupplyInstitution.name}" 
+                                                itemValue="#{webUserController.loggedInstitution.alternativeSupplyInstitution}" ></f:selectItem>
+                                        </p:selectOneMenu>
+
+                                    </h:panelGroup>
 
 
 

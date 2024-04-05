@@ -85,12 +85,15 @@ public class ApiKeyController implements Serializable {
     }
 
     public ApiKey findApiKey(String keyValue) {
+        System.out.println("findApiKey = " );
         String j;
         j = "select a "
                 + " from ApiKey a "
                 + " where a.keyValue=:kv";
         Map m = new HashMap();
         m.put("kv", keyValue);
+        System.out.println("m = " + m);
+        System.out.println("j = " + j);
         return getFacade().findFirstByJpql(j, m);
     }
 
@@ -103,7 +106,7 @@ public class ApiKeyController implements Serializable {
         current = new ApiKey();
         current.setWebUser(sessionController.getLoggedUser());
         current.setInstitution(sessionController.getInstitution());
-        current.setKeyType(ApiKeyType.SUWASARIYA);
+        current.setKeyType(ApiKeyType.SUWASERIYA);
         current.setKeyValue(uuid.toString());
         Calendar c = Calendar.getInstance();
         c.add(Calendar.MONTH, 1);

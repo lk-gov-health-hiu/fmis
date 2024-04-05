@@ -76,6 +76,11 @@ public class FuelTransaction implements Serializable {
 
     private String requestReferenceNumber;
     private String issueReferenceNumber;
+    
+     @ManyToOne(fetch = FetchType.LAZY)
+    private WebUser createdBy;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date createdAt;
 
     private boolean issued;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -92,6 +97,14 @@ public class FuelTransaction implements Serializable {
     private Date retiredAt;
     @Lob
     private String retireComments;
+    
+    
+    private WebUser retiredReversedBy;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date retireReversedAt;
+    @Lob
+    private String retireReverseComments;
+    
 
     private boolean cancelled;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -488,6 +501,47 @@ public class FuelTransaction implements Serializable {
     public void setOdoMeterReading(Double odoMeterReading) {
         this.odoMeterReading = odoMeterReading;
     }
+
+    public WebUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(WebUser createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public WebUser getRetiredReversedBy() {
+        return retiredReversedBy;
+    }
+
+    public void setRetiredReversedBy(WebUser retiredReversedBy) {
+        this.retiredReversedBy = retiredReversedBy;
+    }
+
+    public Date getRetireReversedAt() {
+        return retireReversedAt;
+    }
+
+    public void setRetireReversedAt(Date retireReversedAt) {
+        this.retireReversedAt = retireReversedAt;
+    }
+
+    public String getRetireReverseComments() {
+        return retireReverseComments;
+    }
+
+    public void setRetireReverseComments(String retireReverseComments) {
+        this.retireReverseComments = retireReverseComments;
+    }
+    
     
     
 

@@ -16,6 +16,8 @@ public enum WebUserRole {
     // Health Institutional Level Roles
     INSTITUTION_ADMINISTRATOR("Institution Administrator", AccessLevel.INSTITUTIONAL),
     INSTITUTION_SUPER_USER("Institution Super User", AccessLevel.INSTITUTIONAL),
+    INSTITUTION_TRANSPORT("Transport Branch Users", AccessLevel.INSTITUTIONAL),
+    INSTITUTION_ACCOUNTS("Account Branch Users", AccessLevel.INSTITUTIONAL),
     INSTITUTION_USER("Institution User", AccessLevel.INSTITUTIONAL),
 
     // CTB Level

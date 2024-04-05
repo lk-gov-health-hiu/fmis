@@ -57,6 +57,7 @@ import lk.gov.health.phsp.enums.Quarter;
 import lk.gov.health.phsp.enums.TimePeriodType;
 import lk.gov.health.phsp.enums.VehiclePurpose;
 import lk.gov.health.phsp.enums.VehicleType;
+import lk.gov.health.phsp.enums.WebUserRole;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
@@ -67,8 +68,18 @@ import lk.gov.health.phsp.pojcs.FuelTransactionLight;
 import lk.gov.health.phsp.pojcs.InstitutionCount;
 import lk.gov.health.phsp.pojcs.ReportTimePeriod;
 import org.primefaces.model.StreamedContent;
-// </editor-fold>   
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.util.Calendar;
+import java.util.List;
+
+// </editor-fold>   
 /**
  *
  * @author hiu_pdhs_sp
@@ -160,6 +171,11 @@ public class ReportController implements Serializable {
     public String navigateToListFuelRequests() {
         fillAllInstitutionFuelTransactions();
         return "/reports/list?faces-redirect=true;";
+    }
+
+    public String navigateToListDeletedFuelRequests() {
+        fillAllInstitutionDeletedFuelTransactions();
+        return "/reports/list_deleted?faces-redirect=true;";
     }
 
     public String navigateToDieselDistributionFuelStationSummary() {
@@ -280,7 +296,65 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("Error");
             return "";
         }
-        return "/reports/request?faces-redirect=true;";
+        return "/reports/request_view?faces-redirect=true;";
+    }
+
+    public String navigateToEditRequest() {
+        if (fuelTransactionLight == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        if (fuelTransactionLight.getId() == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        fuelTransaction = fuelTransactionFacade.find(fuelTransactionLight.getId());
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        return "/reports/request_edit?faces-redirect=true;";
+    }
+
+    public String navigateToDeleteRequest() {
+        if (fuelTransactionLight == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        if (fuelTransactionLight.getId() == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        fuelTransaction = fuelTransactionFacade.find(fuelTransactionLight.getId());
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        return "/reports/request_delete?faces-redirect=true;";
+    }
+
+    public String navigateToEditRequestFromView() {
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        return "/reports/request_edit?faces-redirect=true;";
+    }
+
+    public String navigateToDeleteRequestFromView() {
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        return "/reports/request_delete?faces-redirect=true;";
+    }
+
+    public String navigateToViewRequestFromEdit() {
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        return "/reports/request_view?faces-redirect=true;";
     }
 
     public String navigateToComprehensiveSummaryFromFuelStationSummary() {
@@ -328,10 +402,82 @@ public class ReportController implements Serializable {
     public void fillAllInstitutionFuelTransactions() {
         transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
     }
-    
+
+    public void generateExcelFile(List<FuelTransactionLight> transactions) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Transactions");
+
+        Row headerRow = sheet.createRow(0);
+        String[] columnHeaders = {"Date", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No"};
+        for (int i = 0; i < columnHeaders.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columnHeaders[i]);
+        }
+
+        int rowNum = 1;
+        for (FuelTransactionLight transaction : transactions) {
+            Row row = sheet.createRow(rowNum++);
+
+            row.createCell(0).setCellValue(transaction.getDate().toString()); // Adjust this based on your date format
+            row.createCell(1).setCellValue(transaction.getFromInstitutionName());
+            row.createCell(2).setCellValue(transaction.getToInstitutionName());
+            row.createCell(3).setCellValue(transaction.getToInstitutionCode());
+            row.createCell(4).setCellValue(transaction.getRequestReferenceNumber());
+            row.createCell(5).setCellValue(transaction.getVehicleNumber());
+            row.createCell(6).setCellValue(transaction.getDriverName());
+            row.createCell(7).setCellValue(transaction.getRequestQuantity());
+            if (transaction.getIssuedQuantity() != null) {
+                row.createCell(8).setCellValue(transaction.getIssuedQuantity());
+            }
+            if (transaction.getIssueReferenceNumber() != null) {
+                row.createCell(9).setCellValue(transaction.getIssueReferenceNumber());
+            }
+        }
+
+        // Autosize columns
+        for (int i = 0; i < columnHeaders.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Write the output to a file
+        FileOutputStream fileOut = new FileOutputStream("transactions.xlsx");
+        workbook.write(fileOut);
+        fileOut.close();
+
+        // Close the workbook
+        workbook.close();
+    }
+
+    public StreamedContent getDownloadExcelFile() {
+        try {
+            File file = new File("transactions.xlsx");
+            generateExcelFile(transactionLights); // Make sure this method correctly generates the file
+
+            if (!file.exists()) {
+                System.err.println("File not found: transactions.xlsx");
+                return null;
+            }
+
+            FileInputStream stream = new FileInputStream(file); // Handle FileNotFoundException here
+
+            return DefaultStreamedContent.builder()
+                    .name("transactions.xlsx")
+                    .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    .stream(() -> stream)
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void fillAllInstitutionDeletedFuelTransactions() {
+        transactionLights = fillDeletedFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
+    }
+
     public void fillAllInstitutionFuelTransactionsForCpcHeadOffice() {
-        transactionLights = fillFuelTransactions(fromInstitution, 
-                toInstitution, 
+        transactionLights = fillFuelTransactions(fromInstitution,
+                toInstitution,
                 getFromDate(),
                 getToDate(), null, null, null, null);
     }
@@ -370,7 +516,8 @@ public class ReportController implements Serializable {
                 .append("ft.issueReferenceNumber, ")
                 .append("fi.name, ") // fromInstitution name
                 .append("ti.name, ") // toInstitution name
-                .append("COALESCE(d.name, 'No Driver')") // driver name or 'No Driver' if null
+                .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
+                .append("ti.code ") // toInstitution name
                 .append(") FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
@@ -380,6 +527,85 @@ public class ReportController implements Serializable {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("ret", false);
+
+        if (requestingInstitution != null) {
+            jpqlBuilder.append("AND ft.fromInstitution = :reqInstitute ");
+            parameters.put("reqInstitute", requestingInstitution);
+        }
+        if (fuelStation != null) {
+            jpqlBuilder.append("AND ft.toInstitution = :fuelStation ");
+            parameters.put("fuelStation", fuelStation);
+        }
+        if (fd != null && td != null) {
+            Calendar fdCal = Calendar.getInstance();
+            fdCal.setTime(fd);
+            fdCal.set(Calendar.HOUR_OF_DAY, 0);
+            fdCal.set(Calendar.MINUTE, 0);
+            fdCal.set(Calendar.SECOND, 0);
+            fdCal.set(Calendar.MILLISECOND, 0);
+            fd = fdCal.getTime(); // Start of the fromDate
+
+            Calendar tdCal = Calendar.getInstance();
+            tdCal.setTime(td);
+            tdCal.set(Calendar.HOUR_OF_DAY, 23);
+            tdCal.set(Calendar.MINUTE, 59);
+            tdCal.set(Calendar.SECOND, 59);
+            tdCal.set(Calendar.MILLISECOND, 999);
+            td = tdCal.getTime(); // End of the toDate
+
+            jpqlBuilder.append("AND ft.requestAt BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+        if (vehicleType != null) {
+            jpqlBuilder.append("AND v.vehicleType = :vType ");
+            parameters.put("vType", vehicleType);
+        }
+        if (vehiclePurpose != null) {
+            jpqlBuilder.append("AND v.vehiclePurpose = :vPurpose ");
+            parameters.put("vPurpose", vehiclePurpose);
+        }
+        if (driver != null) {
+            jpqlBuilder.append("AND ft.driver = :drv ");
+            parameters.put("drv", driver);
+        }
+        if (institutionType != null) {
+            jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
+            parameters.put("instType", institutionType);
+        }
+
+        jpqlBuilder.append("ORDER BY ft.requestAt");
+
+        List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+        System.out.println("jpqlBuilder.toString() = " + jpqlBuilder.toString());
+        System.out.println("parameters = " + parameters);
+
+        return resultList;
+    }
+
+    public List<FuelTransactionLight> fillDeletedFuelTransactions(
+            Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
+            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType) {
+
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
+                .append("ft.id, ft.requestAt, ft.requestReferenceNumber, ")
+                .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
+                .append("ft.issueReferenceNumber, ")
+                .append("fi.name, ") // fromInstitution name
+                .append("ti.name, ") // toInstitution name
+                .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
+                .append("ti.code ") // toInstitution name
+                .append(") FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.vehicle v ")
+                .append("LEFT JOIN ft.driver d ")
+                .append("LEFT JOIN ft.fromInstitution fi ")
+                .append("LEFT JOIN ft.toInstitution ti ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", true);
 
         if (requestingInstitution != null) {
             jpqlBuilder.append("AND ft.requestedInstitution = :reqInstitute ");
@@ -443,12 +669,12 @@ public class ReportController implements Serializable {
         parameters.put("ret", false);
 
         if (requestingInstitutions != null && !requestingInstitutions.isEmpty()) {
-            jpqlBuilder.append("AND ft.requestedInstitution IN :reqInstitutes ");
+            jpqlBuilder.append("AND ft.fromInstitution IN :reqInstitutes ");
             parameters.put("reqInstitutes", requestingInstitutions);
         }
 
         if (fuelStations != null && !fuelStations.isEmpty()) {
-            jpqlBuilder.append("AND ft.issuedInstitution IN :fuelStations ");
+            jpqlBuilder.append("AND ft.toInstitution IN :fuelStations ");
             parameters.put("fuelStations", fuelStations);
         }
 
@@ -483,6 +709,8 @@ public class ReportController implements Serializable {
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
 
+        System.out.println("jpqlBuilder.toString() = " + jpqlBuilder.toString());
+        System.out.println("parameters = " + parameters);
         return resultList;
     }
 
@@ -1110,6 +1338,48 @@ public class ReportController implements Serializable {
 
     public FuelEstimate getFuelEstimate() {
         return fuelEstimate;
+    }
+
+    public void deleteSelected() {
+        if (fuelTransaction == null) {
+            return;
+        }
+        if (webUserController.getLoggedUser().getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
+            JsfUtil.addErrorMessage("You are NOT autherized");
+            return;
+        }
+        fuelTransaction.setRetired(true);
+        fuelTransaction.setRetiredAt(new Date());
+        fuelTransaction.setRetiredBy(webUserController.getLoggedUser());
+        fuelTransactionFacade.edit(fuelTransaction);
+        JsfUtil.addSuccessMessage("Deleted");
+    }
+
+    public void saveSelected() {
+        if (fuelTransaction == null) {
+            return;
+        }
+        if (webUserController.getLoggedUser().getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
+            JsfUtil.addErrorMessage("You are NOT autherized");
+            return;
+        }
+        fuelTransactionFacade.edit(fuelTransaction);
+        JsfUtil.addSuccessMessage("Updates");
+    }
+
+    public void reverseDeletionSelected() {
+        if (fuelTransaction == null) {
+            return;
+        }
+        if (webUserController.getLoggedUser().getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
+            JsfUtil.addErrorMessage("You are NOT autherized");
+            return;
+        }
+        fuelTransaction.setRetired(false);
+        fuelTransaction.setRetireReversedAt(new Date());
+        fuelTransaction.setRetiredReversedBy(webUserController.getLoggedUser());
+        fuelTransactionFacade.edit(fuelTransaction);
+        JsfUtil.addSuccessMessage("Deletion Reversed");
     }
 
     public void setFuelEstimate(FuelEstimate fuelEstimate) {

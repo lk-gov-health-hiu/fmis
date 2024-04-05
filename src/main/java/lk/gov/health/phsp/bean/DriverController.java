@@ -306,14 +306,16 @@ public class DriverController implements Serializable {
             return;
         }
         if (ins.getId() == null) {
+            if (ins.getCreater() == null) {
+                ins.setCreater(webUserController.getLoggedUser());
+            }
             ins.setCreatedAt(new Date());
-            ins.setCreater(webUserController.getLoggedUser());
             getFacade().create(ins);
             driverApplicationController.getDrivers().add(ins);
             items = null;
         } else {
             ins.setEditedAt(new Date());
-            ins.setEditer(webUserController.getLoggedUser());
+//            ins.setEditer(webUserController.getLoggedUser());
             getFacade().edit(ins);
             items = null;
         }
