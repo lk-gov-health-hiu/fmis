@@ -35,7 +35,7 @@ import org.primefaces.event.CaptureEvent;
 @Named
 @SessionScoped
 public class FuelRequestAndIssueController implements Serializable {
-
+    
     @EJB
     private FuelTransactionHistoryFacade fuelTransactionHistoryFacade;
     @EJB
@@ -46,7 +46,7 @@ public class FuelRequestAndIssueController implements Serializable {
     VehicleFacade vehicleFacade;
     @EJB
     WebUserFacade webUserFacade;
-
+    
     @Inject
     private WebUserController webUserController;
     @Inject
@@ -63,39 +63,61 @@ public class FuelRequestAndIssueController implements Serializable {
     WebUserApplicationController webUserApplicationController;
     @Inject
     QRCodeController qrCodeController;
-
+    
     private List<FuelTransaction> transactions = null;
     private List<FuelTransaction> selectedTransactions = null;
     private FuelTransaction selected;
-
+    
     private FuelTransactionHistory selectedTransactionHistory;
     private List<FuelTransactionHistory> selectedTransactionHistories;
     private List<FuelTransactionHistory> transactionHistories;
-
+    
     private Institution institution;
     private Vehicle vehicle;
     private WebUser webUser;
     private Date fromDate;
     private Date toDate;
-
+    
     private String searchingFuelRequestVehicleNumber;
-
+    
     public FuelRequestAndIssueController() {
     }
-
+    
+    public void updateRequestedDateIfNull() {
+        String jpql = "select ft "
+                + " from FuelTransaction ft "
+                + " where ft.requestAt is null";
+        List<FuelTransaction> fts = getFacade().findByJpql(jpql);
+        if (fts == null || fts.isEmpty()) {
+            JsfUtil.addErrorMessage("All are not null");
+            return;
+        }
+        for(FuelTransaction ft:fts){
+            if(ft.getRequestAt()==null){
+                if(ft.getCreatedAt()!=null){
+                    ft.setRequestAt(ft.getCreatedAt());
+                    getFacade().edit(ft);
+                    System.out.println("ft updated to created time = " + ft);
+                }else{
+                    System.err.println("ft without a created time = " + ft);
+                }
+            }
+        }
+    }
+    
     public String searchFuelRequestByVehicleNumber() {
         if (searchingFuelRequestVehicleNumber == null || searchingFuelRequestVehicleNumber.trim().isEmpty()) {
             JsfUtil.addErrorMessage("Please provide a vehicle number");
             return "";
         }
-
+        
         Institution toInstitution = webUserController.getLoggedInstitution();
         List<Vehicle> vs = vehicleController.searchVehicles(searchingFuelRequestVehicleNumber);
         if (vs == null || vs.isEmpty()) {
             JsfUtil.addErrorMessage("No Matching Vehicle");
             return "";
         }
-
+        
         List<FuelTransaction> searchResults = findFuelTransactions(null,
                 null,
                 toInstitution,
@@ -103,7 +125,7 @@ public class FuelRequestAndIssueController implements Serializable {
                 null,
                 null,
                 null, null, null);
-
+        
         if (searchResults == null || searchResults.isEmpty()) {
             JsfUtil.addErrorMessage("No search results. Please check and retry.");
             return "";
@@ -117,20 +139,20 @@ public class FuelRequestAndIssueController implements Serializable {
             return navigateToSelectToIssueVehicleFuelRequest();
         }
     }
-
+    
     public String searchFuelRequestToIssueByVehicleNumber() {
         if (searchingFuelRequestVehicleNumber == null || searchingFuelRequestVehicleNumber.trim().isEmpty()) {
             JsfUtil.addErrorMessage("Please provide a vehicle number");
             return "";
         }
-
+        
         Institution toInstitution = webUserController.getLoggedInstitution();
         List<Vehicle> vs = vehicleController.searchVehicles(searchingFuelRequestVehicleNumber);
         if (vs == null || vs.isEmpty()) {
             JsfUtil.addErrorMessage("No Matching Vehicle");
             return "";
         }
-
+        
         List<FuelTransaction> searchResults = findFuelTransactions(null,
                 null,
                 toInstitution,
@@ -138,7 +160,7 @@ public class FuelRequestAndIssueController implements Serializable {
                 null,
                 null,
                 false, false, false);
-
+        
         if (searchResults == null || searchResults.isEmpty()) {
             JsfUtil.addErrorMessage("No search results. Please check and retry.");
             return "";
@@ -152,11 +174,11 @@ public class FuelRequestAndIssueController implements Serializable {
             return navigateToSelectToIssueVehicleFuelRequest();
         }
     }
-
+    
     public String navigateToIssueVehicleFuelRequest() {
         return "/issues/issue";
     }
-
+    
     public String navigateToMarkVehicleFuelRequest() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
@@ -177,11 +199,11 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setIssuedInstitution(selected.getToInstitution());
         return "/requests/mark?faces-redirect=true";
     }
-
+    
     public String navigateToViewIssuedVehicleFuelRequest() {
         return "/issues/issued";
     }
-
+    
     public void rejectFuelIssueAtDepot() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing Selected");
@@ -195,22 +217,22 @@ public class FuelRequestAndIssueController implements Serializable {
         transactions.remove(selected);
         JsfUtil.addSuccessMessage("Rejected");
     }
-
+    
     public void issueFuelIssueAtDepotDirectly() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing Selected");
             return;
         }
-
+        
         if (selected.getTransactionType() == null) {
             selected.setTransactionType(FuelTransactionType.VehicleFuelRequest);
         }
         if (selected.getTransactionType() != FuelTransactionType.VehicleFuelRequest && selected.getTransactionType() != FuelTransactionType.SpecialVehicleFuelRequest) {
             selected.setTransactionType(FuelTransactionType.VehicleFuelRequest);
         }
-
+        
         selected.setIssuedQuantity(selected.getRequestQuantity());
-
+        
         selected.setIssued(true);
         selected.setIssuedAt(new Date());
         selected.setIssuedInstitution(webUserController.getLoggedInstitution());
@@ -221,7 +243,7 @@ public class FuelRequestAndIssueController implements Serializable {
         transactions.remove(selected);
         JsfUtil.addSuccessMessage("Rejected");
     }
-
+    
     public String navigateToReceiveFuelAtDepot() {
         selected = new FuelTransaction();
         selected.setTransactionType(FuelTransactionType.CtbFuelReceive);
@@ -231,18 +253,18 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setInstitution(webUserController.getLoggedInstitution());
         return "/depot/receive";
     }
-
+    
     public String navigateToSelectToIssueVehicleFuelRequest() {
         return "/issues/select_issue";
     }
-
+    
     public void saveSelected() {
         if (selected == null) {
             return;
         }
         save(selected);
     }
-
+    
     public String submitVehicleFuelRequest() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
@@ -256,11 +278,16 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Wrong Transaction Type");
             return "";
         }
+        if (selected.getRequestedDate() == null) {
+            JsfUtil.addErrorMessage("Select Requested Date");
+            return "";
+        }
+        selected.setRequestAt(new Date());
         save(selected);
         JsfUtil.addSuccessMessage("Request Submitted");
         return navigateToViewInstitutionFuelRequestToSltbDepot();
     }
-
+    
     public String submitSpecialVehicleFuelRequest() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
@@ -282,6 +309,10 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("No Institution foind for the selected Vehicle");
             return "";
         }
+        if (selected.getRequestedDate() == null) {
+            JsfUtil.addErrorMessage("Enter Requested Date");
+            return "";
+        }
         selected.setInstitution(selected.getVehicle().getInstitution());
         if (selected.getTxDate() == null) {
             selected.setTxDate(new Date());
@@ -289,11 +320,12 @@ public class FuelRequestAndIssueController implements Serializable {
         if (selected.getTxTime() == null) {
             selected.setTxTime(new Date());
         }
+        selected.setRequestAt(new Date());
         save(selected);
         JsfUtil.addSuccessMessage("Special Fuel Request Submitted");
         return navigateToViewInstitutionFuelRequestToSltbDepot();
     }
-
+    
     public String submitSltbFuelRequestFromCpc() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
@@ -311,7 +343,7 @@ public class FuelRequestAndIssueController implements Serializable {
         JsfUtil.addSuccessMessage("Request Submitted");
         return navigateToViewDepotFuelRequestToCpc();
     }
-
+    
     public String submitVehicleFuelRequestIssue() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
@@ -347,7 +379,7 @@ public class FuelRequestAndIssueController implements Serializable {
         JsfUtil.addSuccessMessage("Successfully Issued");
         return navigateToSearchRequestsForVehicleFuelIssue();
     }
-
+    
     public String submitMarkVehicleFuelRequestIssue() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
@@ -373,6 +405,10 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Wrong Qty");
             return "";
         }
+        if (selected.getIssuedDate()==null) {
+            JsfUtil.addErrorMessage("Need Issued Date");
+            return "";
+        }
         selected.setIssued(true);
         selected.setIssuedAt(new Date());
         selected.setIssuedUser(webUserController.getLoggedUser());
@@ -386,7 +422,7 @@ public class FuelRequestAndIssueController implements Serializable {
         listInstitutionRequestsToMark();
         return navigateToListInstitutionRequestsToMark();
     }
-
+    
     public String submitVehicleFuelReceive() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
@@ -410,25 +446,25 @@ public class FuelRequestAndIssueController implements Serializable {
         JsfUtil.addSuccessMessage("Successfully Received");
         return navigateToListDepotReceiveList();
     }
-
+    
     public String navigateToListDepotReceiveList() {
         institution = webUserController.getLoggedInstitution();
         fillDepotReceiveList();
         return "/depot/depot_receive_list";
     }
-
+    
     public String navigateToSltbReportsFuelRequests() {
         return "/sltb/reports/requests";
     }
-
+    
     public String navigateToSltbReportsFuelIssues() {
         return "/sltb/reports/issues";
     }
-
+    
     public String navigateToSltbReportsFuelRejections() {
         return "/sltb/reports/rejections";
     }
-
+    
     public void fillDepotReceiveList() {
         if (institution == null) {
             JsfUtil.addErrorMessage("Institution ?");
@@ -436,7 +472,7 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         transactions = findFuelTransactions(null, null, institution, null, fromDate, toDate, null, null, null, null);
     }
-
+    
     public void fillDepotToIssueList() {
         if (institution == null) {
             JsfUtil.addErrorMessage("Institution ?");
@@ -445,7 +481,7 @@ public class FuelRequestAndIssueController implements Serializable {
         transactions = findFuelTransactions(null, null, institution, null, fromDate, toDate, Boolean.FALSE,
                 Boolean.FALSE, Boolean.FALSE, null);
     }
-
+    
     public void fillIssuedRequestsFromDepotList() {
         if (institution == null) {
             JsfUtil.addErrorMessage("Institution ?");
@@ -454,7 +490,7 @@ public class FuelRequestAndIssueController implements Serializable {
         transactions = findFuelTransactions(null, null, institution, null, fromDate, toDate, Boolean.TRUE,
                 null, null, null);
     }
-
+    
     public void fillRejectedIssueRequestsFromDepotList() {
         if (institution == null) {
             JsfUtil.addErrorMessage("Institution ?");
@@ -463,11 +499,11 @@ public class FuelRequestAndIssueController implements Serializable {
         transactions = findFuelTransactions(null, null, institution, null, fromDate, toDate, null,
                 null, Boolean.TRUE, null);
     }
-
+    
     public String navigateToListFuelTransactions() {
         return "/issues/list";
     }
-
+    
     public String navigateToViewVehicleFuelRequest() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
@@ -475,7 +511,7 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         return "/issues/requested";
     }
-
+    
     public String navigateToAddVehicleFuelRequest() {
         selected = new FuelTransaction();
         selected.setRequestAt(new Date());
@@ -493,7 +529,7 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         return "/requests/request";
     }
-
+    
     public String navigateToAddCpcFuelRequest() {
         selected = new FuelTransaction();
         selected.setRequestAt(new Date());
@@ -504,7 +540,7 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setFromInstitution(institutionApplicationController.findCpc());
         return "/moh/request";
     }
-
+    
     public String navigateToAddSpecialVehicleFuelRequest() {
         selected = new FuelTransaction();
         selected.setRequestAt(new Date());
@@ -516,55 +552,55 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setToInstitution(webUserController.getLoggedInstitution().getSupplyInstitution());
         return "/requests/special_request";
     }
-
+    
     public String navigateToSearchRequestsForVehicleFuelIssue() {
         return "/issues/search";
     }
-
+    
     public String navigateToSearchRequestsForVehicleFuelIssueQr() {
         return "/issues/search_qr";
     }
-
+    
     public String generateRequest() {
         return "/requests/requested";
     }
-
+    
     public String completeIssue() {
         return "/issues/issued";
     }
-
+    
     public String navigateToListInstitutionRequests() {
         listInstitutionRequests();
         return "/requests/list";
     }
-
+    
     public String navigateToListInstitutionRequestsToMark() {
         listInstitutionRequestsToMark();
         return "/requests/list_to_mark";
     }
-
+    
     public String navigateToListSltbRequestsFromCpc() {
         return "/moh/list";
     }
-
+    
     public String onCaptureOfVehicleQr(CaptureEvent captureEvent) {
         byte[] imageData = captureEvent.getData();
         searchingFuelRequestVehicleNumber = qrCodeController.scanQRCode(imageData);
         return searchFuelRequestToIssueByVehicleNumber();
     }
-
+    
     public void listInstitutionRequests() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null);
     }
-
+    
     public void listInstitutionRequestsToMark() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), false, false, false);
     }
-
+    
     public void listCtbFuelRequestsFromInstitution() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null, null, FuelTransactionType.CtbFuelRequest);
     }
-
+    
     public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution,
             List<Vehicle> vehicles, Date fromDateTime, Date toDateTime,
             Boolean issued,
@@ -572,7 +608,7 @@ public class FuelRequestAndIssueController implements Serializable {
             Boolean rejected) {
         return findFuelTransactions(institution, fromInstitution, toInstitution, vehicles, fromDateTime, toDateTime, issued, cancelled, rejected, null);
     }
-
+    
     public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution,
             List<Vehicle> vehicles, Date fromDateTime, Date toDateTime,
             Boolean issued,
@@ -583,7 +619,7 @@ public class FuelRequestAndIssueController implements Serializable {
                 + " FROM FuelTransaction ft "
                 + " WHERE ft.retired = false";
         Map<String, Object> params = new HashMap<>();
-
+        
         if (institution != null) {
             j += " AND ft.institution = :institution";
             params.put("institution", institution);
@@ -629,7 +665,7 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         return fuelTransactions;
     }
-
+    
     public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution,
             List<Vehicle> vehicles, Date fromDateTime, Date toDateTime,
             Boolean issued,
@@ -641,7 +677,7 @@ public class FuelRequestAndIssueController implements Serializable {
                 + " FROM FuelTransaction ft "
                 + " WHERE ft.retired = false";
         Map<String, Object> params = new HashMap<>();
-
+        
         if (institution != null) {
             j += " AND ft.institution = :institution";
             params.put("institution", institution);
@@ -687,51 +723,51 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         return fuelTransactions;
     }
-
+    
     public String navigateToListInstitutionIssues() {
         return "/issues/list";
     }
-
+    
     public String navigateToIssueMultipleRequests() {
         institution = webUserController.getLoggedInstitution();
         fillDepotToIssueList();
         return "/issues/issue_multiple";
     }
-
+    
     public String navigateToListToIssueRequestsForDepot() {
         institution = webUserController.getLoggedInstitution();
         fillDepotToIssueList();
         return "/sltb/reports/list_to_issue_depot";
     }
-
+    
     public String navigateToListIssuedRequestsFormDepot() {
         institution = webUserController.getLoggedInstitution();
         fillIssuedRequestsFromDepotList();
         return "/sltb/reports/list_issued_from_depot";
     }
-
+    
     public String navigateToListRejectedIssueRequestsFormDepot() {
         institution = webUserController.getLoggedInstitution();
         fillRejectedIssueRequestsFromDepotList();
         return "/sltb/reports/list_rejected_issue_requests_from_depot";
     }
-
+    
     public FuelTransaction getSelected() {
         return selected;
     }
-
+    
     public void setSelected(FuelTransaction selected) {
         this.selected = selected;
     }
-
+    
     public FuelTransaction find(Object id) {
         return fuelTransactionFacade.find(id);
     }
-
+    
     private FuelTransactionHistoryFacade getFacade() {
         return fuelTransactionHistoryFacade;
     }
-
+    
     public void save(FuelTransaction saving) {
         if (saving == null) {
             return;
@@ -746,104 +782,104 @@ public class FuelRequestAndIssueController implements Serializable {
             fuelTransactionFacade.edit(saving);
         }
     }
-
+    
     public Vehicle getVehicle() {
         return vehicle;
     }
-
+    
     public void setVehicle(Vehicle vehicle) {
         this.vehicle = vehicle;
     }
-
+    
     public List<FuelTransaction> getTransactions() {
         return transactions;
     }
-
+    
     public void setTransactions(List<FuelTransaction> transactions) {
         this.transactions = transactions;
     }
-
+    
     public List<FuelTransaction> getSelectedTransactions() {
         return selectedTransactions;
     }
-
+    
     public void setSelectedTransactions(List<FuelTransaction> selectedTransactions) {
         this.selectedTransactions = selectedTransactions;
     }
-
+    
     public FuelTransactionHistory getSelectedTransactionHistory() {
         return selectedTransactionHistory;
     }
-
+    
     public void setSelectedTransactionHistory(FuelTransactionHistory selectedTransactionHistory) {
         this.selectedTransactionHistory = selectedTransactionHistory;
     }
-
+    
     public List<FuelTransactionHistory> getSelectedTransactionHistories() {
         return selectedTransactionHistories;
     }
-
+    
     public void setSelectedTransactionHistories(List<FuelTransactionHistory> selectedTransactionHistories) {
         this.selectedTransactionHistories = selectedTransactionHistories;
     }
-
+    
     public List<FuelTransactionHistory> getTransactionHistories() {
         return transactionHistories;
     }
-
+    
     public void setTransactionHistories(List<FuelTransactionHistory> transactionHistories) {
         this.transactionHistories = transactionHistories;
     }
-
+    
     public Institution getInstitution() {
         return institution;
     }
-
+    
     public void setInstitution(Institution institution) {
         this.institution = institution;
     }
-
+    
     public Date getFromDate() {
         if (fromDate == null) {
             fromDate = CommonController.startOfTheMonth();
         }
         return fromDate;
     }
-
+    
     public void setFromDate(Date fromDate) {
         this.fromDate = fromDate;
     }
-
+    
     public Date getToDate() {
         if (toDate == null) {
             toDate = CommonController.endOfTheMonth();
         }
         return toDate;
     }
-
+    
     public void setToDate(Date toDate) {
         this.toDate = toDate;
     }
-
+    
     public String navigateToViewInstitutionFuelRequestToSltbDepot() {
         return "/requests/requested";
     }
-
+    
     public String navigateToViewDepotFuelRequestToCpc() {
         return "/moh/requested";
     }
-
+    
     public String getSearchingFuelRequestVehicleNumber() {
         return searchingFuelRequestVehicleNumber;
     }
-
+    
     public void setSearchingFuelRequestVehicleNumber(String searchingFuelRequestVehicleNumber) {
         this.searchingFuelRequestVehicleNumber = searchingFuelRequestVehicleNumber;
     }
-
+    
     @FacesConverter(forClass = FuelTransaction.class)
     public static class FuelTransactionConverter implements Converter {
-
+        
         @Override
         public Object getAsObject(FacesContext facesContext, UIComponent component, String value) {
             if (value == null || value.length() == 0) {
@@ -853,19 +889,19 @@ public class FuelRequestAndIssueController implements Serializable {
                     getValue(facesContext.getELContext(), null, "fuelRequestAndIssueController");
             return controller.find(getKey(value));
         }
-
+        
         java.lang.Long getKey(String value) {
             java.lang.Long key;
             key = Long.valueOf(value);
             return key;
         }
-
+        
         String getStringKey(java.lang.Long value) {
             StringBuilder sb = new StringBuilder();
             sb.append(value);
             return sb.toString();
         }
-
+        
         @Override
         public String getAsString(FacesContext facesContext, UIComponent component, Object object) {
             if (object == null) {
@@ -879,7 +915,7 @@ public class FuelRequestAndIssueController implements Serializable {
                 return null;
             }
         }
-
+        
     }
-
+    
 }

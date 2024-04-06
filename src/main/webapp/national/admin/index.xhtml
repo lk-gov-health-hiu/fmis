@@ -101,6 +101,14 @@
                                                      action="#{menuController.navigateToAddTotalFuel()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
                                 </div>
+                                
+                                
+                                <div class="list-group mt-3">
+                                    <h:commandButton value="Add Date to Missing Requested Date"
+                                                     action="#{fuelRequestAndIssueController.updateRequestedDateIfNull}"
+                                                     class="list-group-item list-group-item-action"></h:commandButton>
+                                </div>
+                                
                             </h:form>
                         </div>
 

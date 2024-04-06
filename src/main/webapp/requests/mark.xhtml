@@ -38,6 +38,11 @@
                                             <div class="container">
                                                 <div class="row">
                                                     <div class="col-md-6 text-center">
+
+
+                                                        <p:outputLabel for="calDate" value="Date" />
+                                                        <p:calendar id="calDate" value="#{fuelRequestAndIssueController.selected.issuedDate}" pattern="dd MM yyyy" ></p:calendar>
+
                                                         <p:outputLabel value="Issued Quentity" 
                                                                        for="qty">
                                                         </p:outputLabel>

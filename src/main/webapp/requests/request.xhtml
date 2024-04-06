@@ -33,6 +33,8 @@
                                         </h2>
                                     </f:facet>
 
+                                    <p:outputLabel for="calDate" value="Date" />
+                                    <p:calendar id="calDate" value="#{fuelRequestAndIssueController.selected.requestedDate}" pattern="dd MM yyyy" ></p:calendar>
 
                                     <p:outputLabel for="acVehicle" value="Vehicle" />
                                     <p:inputText  readonly="true" class="w-100" value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" rendered="#{fuelRequestAndIssueController.selected.vehicle ne null}" />

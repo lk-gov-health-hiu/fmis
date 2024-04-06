@@ -51,6 +51,8 @@ public class FuelTransaction implements Serializable {
 
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date requestAt;
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date requestedDate;
     @ManyToOne
     private WebUser requestedBy;
     @ManyToOne
@@ -76,8 +78,8 @@ public class FuelTransaction implements Serializable {
 
     private String requestReferenceNumber;
     private String issueReferenceNumber;
-    
-     @ManyToOne(fetch = FetchType.LAZY)
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private WebUser createdBy;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date createdAt;
@@ -89,6 +91,8 @@ public class FuelTransaction implements Serializable {
     private Institution issuedInstitution;
     @ManyToOne
     private WebUser issuedUser;
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date issuedDate;
 
     private boolean retired;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -97,14 +101,13 @@ public class FuelTransaction implements Serializable {
     private Date retiredAt;
     @Lob
     private String retireComments;
-    
-    
+
+    @ManyToOne
     private WebUser retiredReversedBy;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date retireReversedAt;
     @Lob
     private String retireReverseComments;
-    
 
     private boolean cancelled;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -129,18 +132,19 @@ public class FuelTransaction implements Serializable {
     private Double stockBeforeTheTransaction;
     private Double stockAfterTheTransaction;
 
+    @Deprecated
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date txDate;
+    @Deprecated
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date txTime;
     @ManyToOne
     private Institution institution;
     private String invoiceNo;
     private String bowserNumber;
-    
+
+    @Deprecated
     private Double receivedQty;
-    
-    
 
     public String getIdString() {
         if (id == null) {
@@ -446,18 +450,22 @@ public class FuelTransaction implements Serializable {
         this.stockAfterTheTransaction = stockAfterTheTransaction;
     }
 
+    @Deprecated
     public Date getTxDate() {
         return txDate;
     }
 
+    @Deprecated
     public void setTxDate(Date txDate) {
         this.txDate = txDate;
     }
 
+    @Deprecated
     public Date getTxTime() {
         return txTime;
     }
 
+    @Deprecated
     public void setTxTime(Date txTime) {
         this.txTime = txTime;
     }
@@ -486,10 +494,12 @@ public class FuelTransaction implements Serializable {
         this.bowserNumber = bowserNumber;
     }
 
+    @Deprecated
     public Double getReceivedQty() {
         return receivedQty;
     }
 
+    @Deprecated
     public void setReceivedQty(Double receivedQty) {
         this.receivedQty = receivedQty;
     }
@@ -541,7 +551,25 @@ public class FuelTransaction implements Serializable {
     public void setRetireReverseComments(String retireReverseComments) {
         this.retireReverseComments = retireReverseComments;
     }
-    
+
+    public Date getRequestedDate() {
+        if(requestedDate==null){
+            requestedDate = new Date();
+        }
+        return requestedDate;
+    }
+
+    public void setRequestedDate(Date requestedDate) {
+        this.requestedDate = requestedDate;
+    }
+
+    public Date getIssuedDate() {
+        return issuedDate;
+    }
+
+    public void setIssuedDate(Date issuedDate) {
+        this.issuedDate = issuedDate;
+    }
     
     
 
