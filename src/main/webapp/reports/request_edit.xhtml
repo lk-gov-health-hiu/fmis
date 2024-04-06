@@ -88,6 +88,14 @@
                                                             <td><p:inputText value="#{reportController.fuelTransaction.requestQuantity}" /></td>
                                                         </tr>
                                                         <tr>
+                                                            <td><b>Request Created Date &amp; Time :</b></td>
+                                                            <td><p:calendar value="#{reportController.fuelTransaction.createdAt}" pattern="dd MMMM yyyy HH:mm a"/></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Request Date &amp; Time :</b></td>
+                                                            <td><p:calendar value="#{reportController.fuelTransaction.rejectedAt}" pattern="dd MMMM yyyy HH:mm a"/></td>
+                                                        </tr>
+                                                        <tr>
                                                             <td><b>ODO Reading:</b></td>
                                                             <td><p:inputText value="#{reportController.fuelTransaction.odoMeterReading}" /></td>
                                                         </tr>
@@ -148,11 +156,10 @@
                                                                 <td><h:outputText value="#{reportController.fuelTransaction.issuedUser.person.name}" /></td>
                                                             </tr>
                                                             <tr>
-                                                                <td><b>Issue Recorded At:</b></td>
+                                                                <td><b>Recorded At:</b></td>
                                                                 <td>
-                                                                    <h:outputText value="#{reportController.fuelTransaction.issuedAt}" >
-                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
-                                                                    </h:outputText>
+                                                                    <p:calendar value="#{reportController.fuelTransaction.issuedAt}" pattern="dd MM yyyy HH:mm a" >
+                                                                    </p:calendar>
                                                                 </td>
                                                             </tr>
                                                             <!-- Other table rows for issued details -->
