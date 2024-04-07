@@ -83,6 +83,92 @@ public class FuelRequestAndIssueController implements Serializable {
     public FuelRequestAndIssueController() {
     }
 
+    public void fixDates() {
+        updateRequestedAtIfNull();
+        updateRequestedDateIfNull();
+        updateIssuedDateIfNull();
+    }
+
+    public void updateRequestedAtIfNull() {
+        System.out.println("updateRequestedAtIfNull");
+        String jpql = "select ft "
+                + " from FuelTransaction ft "
+                + " where ft.requestAt is null";
+        List<FuelTransaction> fts = getFacade().findByJpql(jpql);
+        if (fts == null || fts.isEmpty()) {
+            JsfUtil.addErrorMessage("All requestAt are not null");
+            return;
+        }
+        for (FuelTransaction ft : fts) {
+            if (ft.getRequestAt() == null) {
+                if (ft.getCreatedAt() != null) {
+                    ft.setRequestAt(ft.getCreatedAt());
+                    getFacade().edit(ft);
+                    System.out.println("ft updated to created time = " + ft);
+                } else {
+                    System.err.println("ft without a created time = " + ft);
+                }
+            }
+        }
+    }
+
+    public void updateRequestedDateIfNull() {
+        System.out.println("updateRequestedDateIfNull");
+        String jpql = "select ft "
+                + " from FuelTransaction ft "
+                + " where ft.requestedDate is null";
+        List<FuelTransaction> fts = getFacade().findByJpql(jpql);
+        if (fts == null || fts.isEmpty()) {
+            JsfUtil.addErrorMessage("All requestedDate are not null");
+            return;
+        }
+        System.out.println("fts = " + fts.size());
+        for (FuelTransaction ft : fts) {
+            System.out.println("ft.getRequestedDate() = " + ft.getRequestedDate());
+
+            if (ft.getRequestAt() != null) {
+                ft.setRequestedDate(ft.getRequestAt());
+                getFacade().edit(ft);
+                System.out.println("ft getRequestedDate updated to cgetRequestAt = " + ft);
+            } else if (ft.getCreatedAt() != null) {
+                ft.setRequestedDate(ft.getCreatedAt());
+                getFacade().edit(ft);
+                System.out.println("ft getRequestedDate updated to getCreatedAt = " + ft);
+            } else {
+                System.err.println("ft without a requested date = " + ft);
+            }
+
+        }
+    }
+
+    public void updateIssuedDateIfNull() {
+        System.out.println("updateIssuedDateIfNull");
+        String jpql = "select ft "
+                + " from FuelTransaction ft "
+                + " where ft.issuedDate is null";
+        List<FuelTransaction> fts = getFacade().findByJpql(jpql);
+        if (fts == null || fts.isEmpty()) {
+            JsfUtil.addErrorMessage("All issuedDate are not null");
+            return;
+        }
+        System.out.println("fts = " + fts.size());
+        for (FuelTransaction ft : fts) {
+
+            if (ft.getIssuedAt() != null) {
+                ft.setIssuedDate(ft.getIssuedAt());
+                getFacade().edit(ft);
+                System.out.println("ft getRequestedDate updated to cgetRequestAt = " + ft);
+            } else if (ft.getCreatedAt() != null) {
+                ft.setIssuedDate(ft.getCreatedAt());
+                getFacade().edit(ft);
+                System.out.println("ft getRequestedDate updated to getCreatedAt = " + ft);
+            } else {
+                System.err.println("ft without a issued date = " + ft);
+            }
+
+        }
+    }
+
     public String searchFuelRequestByVehicleNumber() {
         if (searchingFuelRequestVehicleNumber == null || searchingFuelRequestVehicleNumber.trim().isEmpty()) {
             JsfUtil.addErrorMessage("Please provide a vehicle number");
@@ -256,6 +342,11 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Wrong Transaction Type");
             return "";
         }
+        if (selected.getRequestedDate() == null) {
+            JsfUtil.addErrorMessage("Select Requested Date");
+            return "";
+        }
+        selected.setRequestAt(new Date());
         save(selected);
         JsfUtil.addSuccessMessage("Request Submitted");
         return navigateToViewInstitutionFuelRequestToSltbDepot();
@@ -282,6 +373,10 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("No Institution foind for the selected Vehicle");
             return "";
         }
+        if (selected.getRequestedDate() == null) {
+            JsfUtil.addErrorMessage("Enter Requested Date");
+            return "";
+        }
         selected.setInstitution(selected.getVehicle().getInstitution());
         if (selected.getTxDate() == null) {
             selected.setTxDate(new Date());
@@ -289,6 +384,7 @@ public class FuelRequestAndIssueController implements Serializable {
         if (selected.getTxTime() == null) {
             selected.setTxTime(new Date());
         }
+        selected.setRequestAt(new Date());
         save(selected);
         JsfUtil.addSuccessMessage("Special Fuel Request Submitted");
         return navigateToViewInstitutionFuelRequestToSltbDepot();
@@ -371,6 +467,10 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         if (selected.getIssuedQuantity() > selected.getRequestQuantity()) {
             JsfUtil.addErrorMessage("Wrong Qty");
+            return "";
+        }
+        if (selected.getIssuedDate() == null) {
+            JsfUtil.addErrorMessage("Need Issued Date");
             return "";
         }
         selected.setIssued(true);
@@ -601,11 +701,11 @@ public class FuelRequestAndIssueController implements Serializable {
             params.put("vehicles", vehicles);
         }
         if (fromDateTime != null) {
-            j += " AND ft.requestAt >= :fromDateTime";
+            j += " AND ft.requestedDate >= :fromDateTime";
             params.put("fromDateTime", fromDateTime);
         }
         if (toDateTime != null) {
-            j += " AND ft.requestAt <= :toDateTime";
+            j += " AND ft.requestedDate <= :toDateTime";
             params.put("toDateTime", toDateTime);
         }
         if (issued != null) {
@@ -659,11 +759,11 @@ public class FuelRequestAndIssueController implements Serializable {
             params.put("vehicles", vehicles);
         }
         if (fromDateTime != null) {
-            j += " AND ft.requestAt >= :fromDateTime";
+            j += " AND ft.requestedDate >= :fromDateTime";
             params.put("fromDateTime", fromDateTime);
         }
         if (toDateTime != null) {
-            j += " AND ft.requestAt <= :toDateTime";
+            j += " AND ft.requestedDate <= :toDateTime";
             params.put("toDateTime", toDateTime);
         }
         if (issued != null) {

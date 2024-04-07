@@ -847,12 +847,14 @@ public class ApiResource {
         ft.setToInstitution(fuelStation);
 
         ft.setRequestAt(new Date());
+        ft.setRequestedDate(new Date());
         
         ft.setCreatedAt(new Date());
         ft.setCreatedBy(wu);
         ft.setDriver(driver);
         ft.setInstitution(hospital);
         ft.setIssuedAt(new Date());
+        ft.setIssuedDate(new Date());
         ft.setIssued(true);
         ft.setIssuedInstitution(fuelStation);
         ft.setVehicle(vehicle);

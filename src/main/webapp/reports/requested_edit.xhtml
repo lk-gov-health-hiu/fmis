@@ -94,8 +94,8 @@
                                                         <tr>
                                                             <td><b>Requested At:</b></td>
                                                             <td>
-                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.requestAt}">
-                                                                    <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.requestedDate}">
+                                                                    <f:convertDateTime pattern="dd MM yyyy"></f:convertDateTime>
                                                                 </h:outputText>
                                                             </td>
                                                         </tr>
@@ -118,7 +118,7 @@
                                                                 <td><b>Issued by:</b></td>
                                                                 <td><h:outputText value="#{fuelRequestAndIssueController.selected.toInstitution.name}" /></td>
                                                             </tr>
-                                                            <!-- Other table rows for request details -->
+
                                                             <tr>
                                                                 <td><b>Issued Quantity:</b></td>
                                                                 <td><p:inputText value="#{fuelRequestAndIssueController.selected.issuedQuantity}" /></td>
@@ -134,8 +134,8 @@
                                                             <tr>
                                                                 <td><b>Issue Recorded At:</b></td>
                                                                 <td>
-                                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.issuedAt}" >
-                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
+                                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.issuedDate}">
+                                                                        <f:convertDateTime pattern="dd MM yyyy"></f:convertDateTime>
                                                                     </h:outputText>
                                                                 </td>
                                                             </tr>

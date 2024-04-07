@@ -105,12 +105,12 @@
                                 <h:outputText value="#{item.vehicle.vehicleNumber}"/>
                             </p:column>
 
-                            <p:column sortBy="#{item.requestAt}" >
+                            <p:column sortBy="#{item.requestedDate}" >
                                 <f:facet name="header">
                                     <h:outputText value="Requested at"/>
                                 </f:facet>
-                                <h:outputText value="#{item.requestAt}">
-                                    <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" ></f:convertDateTime>
+                                <h:outputText value="#{item.requestedDate}">
+                                    <f:convertDateTime pattern="dd MMMM yyyy" ></f:convertDateTime>
                                 </h:outputText>
                             </p:column>
 
