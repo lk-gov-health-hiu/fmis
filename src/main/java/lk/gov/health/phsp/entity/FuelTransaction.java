@@ -564,6 +564,9 @@ public class FuelTransaction implements Serializable {
     }
 
     public Date getIssuedDate() {
+        if(issuedDate==null){
+            issuedDate = new Date();
+        }
         return issuedDate;
     }
 

@@ -553,7 +553,7 @@ public class ReportController implements Serializable {
             tdCal.set(Calendar.MILLISECOND, 999);
             td = tdCal.getTime(); // End of the toDate
 
-            jpqlBuilder.append("AND ft.requestAt BETWEEN :fromDate AND :toDate ");
+            jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
             parameters.put("fromDate", fd);
             parameters.put("toDate", td);
         }
@@ -577,7 +577,7 @@ public class ReportController implements Serializable {
         jpqlBuilder.append("ORDER BY ft.requestAt");
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
-                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+                jpqlBuilder.toString(), parameters, TemporalType.DATE);
         System.out.println("jpqlBuilder.toString() = " + jpqlBuilder.toString());
         System.out.println("parameters = " + parameters);
 
@@ -616,7 +616,7 @@ public class ReportController implements Serializable {
             parameters.put("fuelStation", fuelStation);
         }
         if (fd != null && td != null) {
-            jpqlBuilder.append("AND ft.requestAt BETWEEN :fromDate AND :toDate ");
+            jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
             parameters.put("fromDate", fd);
             parameters.put("toDate", td);
         }
@@ -640,7 +640,7 @@ public class ReportController implements Serializable {
         jpqlBuilder.append("ORDER BY ft.requestAt");
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
-                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+                jpqlBuilder.toString(), parameters, TemporalType.DATE);
         return resultList;
     }
 
@@ -679,7 +679,7 @@ public class ReportController implements Serializable {
         }
 
         if (fd != null && td != null) {
-            jpqlBuilder.append("AND ft.requestAt BETWEEN :fromDate AND :toDate ");
+            jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
             parameters.put("fromDate", fd);
             parameters.put("toDate", td);
         }
@@ -707,7 +707,7 @@ public class ReportController implements Serializable {
         jpqlBuilder.append("ORDER BY ft.requestAt");
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
-                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+                jpqlBuilder.toString(), parameters, TemporalType.DATE);
 
         System.out.println("jpqlBuilder.toString() = " + jpqlBuilder.toString());
         System.out.println("parameters = " + parameters);
