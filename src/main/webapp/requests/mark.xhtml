@@ -37,11 +37,12 @@
                                             <!-- Request Details -->
                                             <div class="container">
                                                 <div class="row">
-                                                    <div class="col-md-6 text-center">
+                                                    <div class="col-md-6">
 
 
-                                                        <p:outputLabel for="calDate" value="Date" />
-                                                        <p:calendar id="calDate" 
+                                                        <p:outputLabel for="calDate" value="Date" class="form-label"/>
+                                                        <p:calendar id="calDate" class="w-100"
+                                                                    inputStyleClass="w-100"
                                                                     value="#{fuelRequestAndIssueController.selected.issuedDate}" pattern="dd MM yyyy" ></p:calendar>
 
                                                         <p:outputLabel value="Issued Quentity" 
@@ -129,8 +130,8 @@
                                                             <tr>
                                                                 <td><b>Requested At:</b></td>
                                                                 <td>
-                                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.requestAt}">
-                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
+                                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.requestedDate}">
+                                                                        <f:convertDateTime pattern="dd MMMM yyyy"></f:convertDateTime>
                                                                     </h:outputText>
                                                                 </td>
                                                             </tr>

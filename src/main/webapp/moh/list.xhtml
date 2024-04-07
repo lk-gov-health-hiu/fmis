@@ -58,9 +58,9 @@
                                                 <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
                                             </p:column>
 
-                                            <p:column headerText="Requested At" sortBy="#{transaction.requestAt}" filterBy="#{transaction.requestAt}">
-                                                <h:outputText value="#{transaction.requestAt}">
-                                                    <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" />
+                                            <p:column headerText="Requested At" sortBy="#{transaction.requestedDate}" filterBy="#{transaction.requestedDate}">
+                                                <h:outputText value="#{transaction.requestedDate}">
+                                                    <f:convertDateTime pattern="dd MMMM yyyy" />
                                                 </h:outputText>
                                             </p:column>
 

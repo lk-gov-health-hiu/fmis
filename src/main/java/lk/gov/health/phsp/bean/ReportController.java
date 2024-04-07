@@ -511,7 +511,7 @@ public class ReportController implements Serializable {
 
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestAt, ft.requestReferenceNumber, ")
+                .append("ft.id, ft.requestedDate, ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
                 .append("fi.name, ") // fromInstitution name
@@ -574,7 +574,7 @@ public class ReportController implements Serializable {
             parameters.put("instType", institutionType);
         }
 
-        jpqlBuilder.append("ORDER BY ft.requestAt");
+        jpqlBuilder.append("ORDER BY ft.requestedDate");
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);
@@ -590,7 +590,7 @@ public class ReportController implements Serializable {
 
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestAt, ft.requestReferenceNumber, ")
+                .append("ft.id, ft.requestedDate, ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
                 .append("fi.name, ") // fromInstitution name
@@ -637,7 +637,7 @@ public class ReportController implements Serializable {
             parameters.put("instType", institutionType);
         }
 
-        jpqlBuilder.append("ORDER BY ft.requestAt");
+        jpqlBuilder.append("ORDER BY ft.requestedDate");
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);
@@ -652,7 +652,7 @@ public class ReportController implements Serializable {
         StringBuilder jpqlBuilder = new StringBuilder();
 
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestAt, ft.requestReferenceNumber, ")
+                .append("ft.id, ft.requestedDate, ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
                 .append("fi.name, ") // fromInstitution name
@@ -704,7 +704,7 @@ public class ReportController implements Serializable {
             parameters.put("instType", institutionType);
         }
 
-        jpqlBuilder.append("ORDER BY ft.requestAt");
+        jpqlBuilder.append("ORDER BY ft.requestedDate");
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);

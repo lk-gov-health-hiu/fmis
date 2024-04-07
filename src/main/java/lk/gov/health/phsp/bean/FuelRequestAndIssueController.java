@@ -701,11 +701,11 @@ public class FuelRequestAndIssueController implements Serializable {
             params.put("vehicles", vehicles);
         }
         if (fromDateTime != null) {
-            j += " AND ft.requestAt >= :fromDateTime";
+            j += " AND ft.requestedDate >= :fromDateTime";
             params.put("fromDateTime", fromDateTime);
         }
         if (toDateTime != null) {
-            j += " AND ft.requestAt <= :toDateTime";
+            j += " AND ft.requestedDate <= :toDateTime";
             params.put("toDateTime", toDateTime);
         }
         if (issued != null) {
@@ -759,11 +759,11 @@ public class FuelRequestAndIssueController implements Serializable {
             params.put("vehicles", vehicles);
         }
         if (fromDateTime != null) {
-            j += " AND ft.requestAt >= :fromDateTime";
+            j += " AND ft.requestedDate >= :fromDateTime";
             params.put("fromDateTime", fromDateTime);
         }
         if (toDateTime != null) {
-            j += " AND ft.requestAt <= :toDateTime";
+            j += " AND ft.requestedDate <= :toDateTime";
             params.put("toDateTime", toDateTime);
         }
         if (issued != null) {
