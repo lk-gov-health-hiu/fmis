@@ -188,6 +188,11 @@ public abstract class AbstractFacade<T> {
         getEntityManager().merge(entity);
     }
 
+    public void editAndClearCache(T entity) {
+        getEntityManager().merge(entity);
+        getEntityManager().clear();
+    }
+
     public void batchEdit(List<T> entities) {
         batchEdit(entities, 25); // Default batch size set to 25
     }
@@ -329,7 +334,7 @@ public abstract class AbstractFacade<T> {
             if (maxResults != null) {
                 qry.setMaxResults(maxResults); // Set the maximum number of results if specified
             }
-
+            qry.setHint("org.hibernate.cacheable", Boolean.FALSE);
             return qry.getResultList();
         } catch (Exception e) {
             // Log the exception here to get more details
