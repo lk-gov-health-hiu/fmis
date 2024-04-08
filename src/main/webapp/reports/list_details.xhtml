@@ -89,14 +89,19 @@
                             ajax="false" 
                             action="#{reportController.fillAllInstitutionFuelTransactions()}" ></p:commandButton>
 
+                        <p:commandButton value="Download Excel" ajax="false" icon="pi pi-download">
+                            <p:fileDownload value="#{reportController.downloadExcelFileDetailed}" />
+                        </p:commandButton>
 
                         <p:commandButton value="Download Excel After Process" ajax="false" icon="pi pi-download">
-                            <p:fileDownload value="#{reportController.downloadExcelFileDetailed}" />
+                            <p:dataExporter target="tbl" type="xlsx" fileName="fuel_transactions" ></p:dataExporter>
                         </p:commandButton>
 
                     </p:panelGrid>
 
-                    <p:dataTable var="transaction" 
+                    <p:dataTable 
+                        id="tbl"
+                        var="transaction" 
                                  scrollable="true"
                                  scrollWidth="3800em"
                                  class="w-100"
@@ -127,10 +132,10 @@
                         <p:column headerText="Dealer Number" sortBy="#{transaction.toInstitution.code}" filterBy="#{transaction.toInstitution.code}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.toInstitution.code}" />
                         </p:column>
-                        
-                         <p:column headerText="Dealer District" sortBy="#{transaction.toInstitution.district.name}" 
-                                   filterBy="#{transaction.toInstitution.district.name}" filterMatchMode="contains">
-                             <h:outputText value="#{transaction.toInstitution.district.name}" />
+
+                        <p:column headerText="Dealer District" sortBy="#{transaction.toInstitution.district.name}" 
+                                  filterBy="#{transaction.toInstitution.district.name}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.toInstitution.district.name}" />
                         </p:column>
 
                         <p:column headerText="Requested Reference No" sortBy="#{transaction.requestReferenceNumber}" filterBy="#{transaction.requestReferenceNumber}" filterMatchMode="contains">
@@ -150,7 +155,7 @@
                         <p:column headerText="Driver Name" sortBy="#{transaction.driver.name}" filterBy="#{transaction.driver.name}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.driver.name}" />
                         </p:column>
-                        
+
                         <p:column headerText="Driver NIC" sortBy="#{transaction.driver.nic}" filterBy="#{transaction.driver.nic}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.driver.nic}" />
                         </p:column>
@@ -187,7 +192,7 @@
                                   filterBy="#{transaction.fromInstitution.institutionType.label}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.fromInstitution.institutionType.label}" />
                         </p:column>
-                        
+
                         <p:column headerText="Institution Category" sortBy="#{transaction.fromInstitution.institutionType.category}" 
                                   filterBy="#{transaction.fromInstitution.institutionType.category}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.fromInstitution.institutionType.category}" />
@@ -197,7 +202,7 @@
                             <h:outputText value="#{transaction.fromInstitution.parent.name}" />
                         </p:column>
 
-                        
+
 
 
                         <p:column width="150" headerText="Actions">
