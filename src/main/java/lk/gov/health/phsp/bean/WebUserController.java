@@ -1667,26 +1667,26 @@ public class WebUserController implements Serializable {
             case SYSTEM_ADMINISTRATOR:
                 urs.addAll(Arrays.asList(WebUserRole.values()));
                 break;
-            case SUPER_USER:
-                urs.addAll(Arrays.asList(WebUserRole.values()));
-                urs.remove(WebUserRole.SYSTEM_ADMINISTRATOR);
-                break;
+//            case SUPER_USER:
+//                urs.addAll(Arrays.asList(WebUserRole.values()));
+//                urs.remove(WebUserRole.SYSTEM_ADMINISTRATOR);
+//                break;
             case INSTITUTION_ADMINISTRATOR:
                 urs.add(WebUserRole.INSTITUTION_ADMINISTRATOR);
-                urs.add(WebUserRole.INSTITUTION_SUPER_USER);
+//                urs.add(WebUserRole.INSTITUTION_SUPER_USER);
                 urs.add(WebUserRole.INSTITUTION_ACCOUNTS);
                 urs.add(WebUserRole.INSTITUTION_TRANSPORT);
-                urs.add(WebUserRole.INSTITUTION_USER);
+//                urs.add(WebUserRole.INSTITUTION_USER);
                 break;
-            case INSTITUTION_SUPER_USER:
-                urs.add(WebUserRole.INSTITUTION_SUPER_USER);
-                urs.add(WebUserRole.INSTITUTION_USER);
-                break;
-            case INSTITUTION_USER:
-                urs.add(WebUserRole.INSTITUTION_USER);
-                break;
-            case USER:
-                urs.add(ur);
+//            case INSTITUTION_SUPER_USER:
+//                urs.add(WebUserRole.INSTITUTION_SUPER_USER);
+//                urs.add(WebUserRole.INSTITUTION_USER);
+//                break;
+//            case INSTITUTION_USER:
+//                urs.add(WebUserRole.INSTITUTION_USER);
+//                break;
+//            case USER:
+//                urs.add(ur);
         }
         return urs;
     }
