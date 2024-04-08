@@ -1,0 +1,242 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="./index.xhtml">
+
+            <ui:define name="reports">
+                <h:form >
+                    <p:panelGrid columns="3" >
+                        <p:panelGrid columns="2" >
+                            <p:outputLabel value="From" >
+                            </p:outputLabel>
+                            <p:calendar value="#{reportController.fromDate}" 
+                                        pattern="dd MMMM yyyy">
+                            </p:calendar>
+
+                            <p:outputLabel value="To" >
+                            </p:outputLabel>
+                            <p:calendar value="#{reportController.toDate}" 
+                                        pattern="dd MMMM yyyy">
+                            </p:calendar>
+                        </p:panelGrid>
+                        <p:panelGrid columns="2" >
+                            <p:outputLabel value="Requested for Institution" >
+                            </p:outputLabel>
+                            <p:autoComplete 
+                                value="#{reportController.fromInstitution}"
+                                completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
+                                var="fi"
+                                itemLabel="#{fi.name}"
+                                itemValue="#{fi}"></p:autoComplete>
+
+                            <p:outputLabel value="Requested from Fuel Station" >
+                            </p:outputLabel>
+                            <p:autoComplete 
+                                value="#{reportController.toInstitution}" 
+                                completeMethod="#{institutionController.completeFuelStations}"
+                                var="fs"
+                                itemLabel="#{fs.name}"
+                                itemValue="#{fs}"
+                                ></p:autoComplete>
+                        </p:panelGrid>
+                        <p:panelGrid columns="2" >
+                            <h:outputLabel value="Type:" for="vehicleType" />
+                            <p:selectOneMenu id="vehicleType" 
+                                             class="form-control"
+                                             value="#{reportController.vehicleType}"
+                                             title="Vehicle Type"
+                                             filter="true"
+                                             filterMatchMode="contains">
+                                <f:selectItem itemLabel="Any" ></f:selectItem>
+                                <f:selectItems value="#{applicationController.vehicleTypes}" 
+                                               var="vt"
+                                               itemValue="#{vt}"
+                                               itemLabel="#{vt.label}"/>
+                            </p:selectOneMenu>
+
+                            <h:outputLabel value="Purpose:" for="vehiclePurpose" />
+                            <p:selectOneMenu id="vehiclePurpose" 
+                                             class="form-control"
+                                             value="#{reportController.vehiclePurpose}"
+                                             title="VehiclePurpose"
+                                             filter="true"
+                                             filterMatchMode="contains">
+                                <f:selectItem itemLabel="Any" ></f:selectItem>
+                                <f:selectItems value="#{applicationController.vehiclePurposes}" 
+                                               var="vp"
+                                               itemValue="#{vp}"
+                                               itemLabel="#{vp.label}"/>
+                            </p:selectOneMenu>
+                        </p:panelGrid>
+
+
+
+
+
+
+
+
+
+                        <p:commandButton 
+                            value="Process" 
+                            ajax="false" 
+                            action="#{reportController.fillAllInstitutionFuelTransactions()}" ></p:commandButton>
+
+
+                        <p:commandButton value="Download Excel After Process" ajax="false" icon="pi pi-download">
+                            <p:fileDownload value="#{reportController.downloadExcelFileDetailed}" />
+                        </p:commandButton>
+
+                    </p:panelGrid>
+
+                    <p:dataTable var="transaction" 
+                                 scrollable="true"
+                                 scrollWidth="3800em"
+                                 class="w-100"
+                                 value="#{reportController.transactions}" 
+                                 paginator="true" 
+                                 rows="10"
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="10,25,100,{ShowAll|'All'}"
+                                 currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
+                                 widgetVar="transactionTable">
+
+
+
+                        <p:column headerText="Date" sortBy="#{transaction.requestedDate}" filterBy="#{transaction.requestedDate}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.requestedDate}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Institution" sortBy="#{transaction.fromInstitution.name}" filterBy="#{transaction.fromInstitution.name}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.fromInstitution.name}" />
+                        </p:column>
+
+                        <p:column headerText="Fuel Station" sortBy="#{transaction.toInstitution.name}" filterBy="#{transaction.toInstitution.name}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.toInstitution.name}" />
+                        </p:column>
+
+                        <p:column headerText="Dealer Number" sortBy="#{transaction.toInstitution.code}" filterBy="#{transaction.toInstitution.code}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.toInstitution.code}" />
+                        </p:column>
+                        
+                         <p:column headerText="Dealer District" sortBy="#{transaction.toInstitution.district.name}" 
+                                   filterBy="#{transaction.toInstitution.district.name}" filterMatchMode="contains">
+                             <h:outputText value="#{transaction.toInstitution.district.name}" />
+                        </p:column>
+
+                        <p:column headerText="Requested Reference No" sortBy="#{transaction.requestReferenceNumber}" filterBy="#{transaction.requestReferenceNumber}" filterMatchMode="contains">
+                            <p:commandLink 
+                                ajax="false" 
+                                value="#{transaction.requestReferenceNumber}" 
+                                action="#{reportController.navigateToViewRequest()}">
+                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
+                                </f:setPropertyActionListener>
+                            </p:commandLink>
+                        </p:column>
+
+                        <p:column headerText="Vehicle Number" sortBy="#{transaction.vehicle.vehicleNumber}" filterBy="#{transaction.vehicle.vehicleNumber}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
+                        </p:column>
+
+                        <p:column headerText="Driver Name" sortBy="#{transaction.driver.name}" filterBy="#{transaction.driver.name}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.driver.name}" />
+                        </p:column>
+                        
+                        <p:column headerText="Driver NIC" sortBy="#{transaction.driver.nic}" filterBy="#{transaction.driver.nic}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.driver.nic}" />
+                        </p:column>
+
+                        <p:column headerText="Requested Qty" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}" filterMatchMode="numeric">
+                            <h:outputText value="#{transaction.requestQuantity}" />
+                        </p:column>
+
+                        <p:column headerText="Issued Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}" filterMatchMode="numeric">
+                            <h:outputText value="#{transaction.issuedQuantity}" />
+                        </p:column>
+
+                        <p:column headerText="Issue Reference No" sortBy="#{transaction.issueReferenceNumber}" filterBy="#{transaction.issueReferenceNumber}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.issueReferenceNumber}" />
+                        </p:column>
+
+                        <!-- Existing columns omitted for brevity -->
+
+                        <p:column headerText="Vehicle Make" sortBy="#{transaction.vehicle.make}" filterBy="#{transaction.vehicle.make}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.vehicle.make}" />
+                        </p:column>
+
+                        <p:column headerText="Vehicle Type" sortBy="#{transaction.vehicle.vehicleType.label}"
+                                  filterBy="#{transaction.vehicle.vehicleType.label}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.vehicle.vehicleType.label}" />
+                        </p:column>
+
+                        <p:column headerText="Vehicle Purpose" sortBy="#{transaction.vehicle.vehiclePurpose.label}"
+                                  filterBy="#{transaction.vehicle.vehiclePurpose.label}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.vehicle.vehiclePurpose.label}" />
+                        </p:column>
+
+                        <p:column headerText="Institution Type" sortBy="#{transaction.fromInstitution.institutionType.label}" 
+                                  filterBy="#{transaction.fromInstitution.institutionType.label}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.fromInstitution.institutionType.label}" />
+                        </p:column>
+                        
+                        <p:column headerText="Institution Category" sortBy="#{transaction.fromInstitution.institutionType.category}" 
+                                  filterBy="#{transaction.fromInstitution.institutionType.category}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.fromInstitution.institutionType.category}" />
+                        </p:column>
+
+                        <p:column headerText="Governed By" sortBy="#{transaction.fromInstitution.parent.name}" filterBy="#{transaction.fromInstitution.parent.name}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.fromInstitution.parent.name}" />
+                        </p:column>
+
+                        
+
+
+                        <p:column width="150" headerText="Actions">
+                            <p:commandButton 
+                                ajax="false" 
+                                action="#{reportController.navigateToViewRequest()}"
+                                icon="fa fa-eye" 
+                                styleClass="ui-button-info m-1">
+                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
+                                </f:setPropertyActionListener>
+                            </p:commandButton>
+
+                            <p:commandButton 
+                                ajax="false" 
+                                action="#{reportController.navigateToEditRequest()}"
+                                icon="fa fa-edit" 
+                                styleClass="ui-button-warning m-1">
+                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
+                                </f:setPropertyActionListener>
+                            </p:commandButton>
+
+                            <p:commandButton 
+                                ajax="false" 
+                                action="#{reportController.navigateToDeleteRequest()}"
+                                icon="fa fa-trash" 
+                                styleClass="ui-button-danger m-1">
+                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
+                                </f:setPropertyActionListener>
+                            </p:commandButton>
+                        </p:column>
+
+
+                    </p:dataTable>
+
+
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </h:body>
+</html>
