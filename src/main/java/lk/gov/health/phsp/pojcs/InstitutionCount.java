@@ -3,9 +3,14 @@ package lk.gov.health.phsp.pojcs;
 import java.util.Date;
 import lk.gov.health.phsp.entity.Area;
 import lk.gov.health.phsp.entity.Institution;
+import lk.gov.health.phsp.enums.VehiclePurpose;
+import lk.gov.health.phsp.enums.VehicleType;
 
 public class InstitutionCount {
 
+    private String countLabel;
+    private VehiclePurpose vehiclePurpose;
+    private VehicleType vehicleType;
     private Institution institution;
     private Institution fuelStation;
     private Area area;
@@ -21,12 +26,32 @@ public class InstitutionCount {
     public InstitutionCount() {
     }
 
+    public InstitutionCount(VehicleType vehicleType, Double requestedQty) {
+        this.vehicleType = vehicleType;
+        this.requestedQty = requestedQty;
+    }
+    
+    
+
     public InstitutionCount(Institution institution, Double requestedQty, Double issuedQty) {
         this.institution = institution;
         this.requestedQty = requestedQty;
         this.issuedQty = issuedQty;
     }
 
+    public InstitutionCount(String countLabel, Double requestedQty) {
+        this.countLabel = countLabel;
+        this.requestedQty = requestedQty;
+    }
+
+    public InstitutionCount(VehiclePurpose vehiclePurpose, Double requestedQty) {
+        this.vehiclePurpose = vehiclePurpose;
+        this.requestedQty = requestedQty;
+    }
+
+    
+    
+    
     public Double getTotalGrant() {
         return totalGrant;
     }
@@ -120,6 +145,30 @@ public class InstitutionCount {
 
     public void setIssuedQty(Double issuedQty) {
         this.issuedQty = issuedQty;
+    }
+
+    public String getCountLabel() {
+        return countLabel;
+    }
+
+    public void setCountLabel(String countLabel) {
+        this.countLabel = countLabel;
+    }
+
+    public VehiclePurpose getVehiclePurpose() {
+        return vehiclePurpose;
+    }
+
+    public void setVehiclePurpose(VehiclePurpose vehiclePurpose) {
+        this.vehiclePurpose = vehiclePurpose;
+    }
+
+    public VehicleType getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(VehicleType vehicleType) {
+        this.vehicleType = vehicleType;
     }
 
 }

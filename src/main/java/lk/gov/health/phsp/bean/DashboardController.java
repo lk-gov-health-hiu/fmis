@@ -90,7 +90,6 @@ public class DashboardController implements Serializable {
     private BarChartModel stackedBarModelForHospitalFuelDetails;
     private BarChartModel stackedBarModelForFuelShedDetails;
 
-
     Double totalOrderedButNotIssued;
     Double totalIssued;
     Double totalRemainingToBeIssued;
@@ -104,6 +103,8 @@ public class DashboardController implements Serializable {
         createStackedBarModelForHospitalDetails();
         createStackedBarModelForFuelStationDetails();
         createPiChartForRemaining();
+        createPieChartForPurpose();
+        createPieChartForVehicleType();
     }
 
     public void createStackedBarModelForHospitalDetails() {
@@ -184,12 +185,81 @@ public class DashboardController implements Serializable {
 
     private PieChartModel pieChartModelForRemaining;
 
+    private PieChartModel pieChartModelForPurpose;
+    
+    private PieChartModel pieChartModelForVehicleType;
+
 // Getter
     public PieChartModel getPieChartModelForRemaining() {
         return pieChartModelForRemaining;
     }
     Number totalGrantQuantity;
     Number totalIssues;
+
+    public void createPieChartForPurpose() {
+        List<InstitutionCount> purposes = dashboardApplicationController.fuelOrdersByPurpose(null, null);
+
+        PieChartModel pieModel = new PieChartModel();
+        ChartData data = new ChartData();
+
+        PieChartDataSet dataSet = new PieChartDataSet();
+        List<Number> values = new ArrayList<>();
+        List<String> bgColors = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+
+        for (InstitutionCount ic : purposes) {
+            values.add(ic.getRequestedQty()); // Add the requested quantity as a value
+            labels.add(ic.getVehiclePurpose().getLabel()); // Use the institution name as the label
+            bgColors.add(ic.getVehiclePurpose().getColor()); // This should ideally be dynamic based on the purpose or institution
+        }
+
+        dataSet.setData(values);
+        dataSet.setBackgroundColor(bgColors);
+        data.addChartDataSet(dataSet);
+        data.setLabels(labels);
+
+        pieModel.setData(data);
+
+        this.pieChartModelForPurpose = pieModel; // Assuming pieChartModelForPurpose is a class member
+    }
+    
+    public void createPieChartForVehicleType() {
+        List<InstitutionCount> purposes = dashboardApplicationController.fuelOrdersByVehicleType(null, null);
+
+        PieChartModel pieModel = new PieChartModel();
+        ChartData data = new ChartData();
+
+        PieChartDataSet dataSet = new PieChartDataSet();
+        List<Number> values = new ArrayList<>();
+        List<String> bgColors = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+
+        for (InstitutionCount ic : purposes) {
+            values.add(ic.getRequestedQty()); // Add the requested quantity as a value
+            labels.add(ic.getVehicleType().getLabel()); // Use the institution name as the label
+            bgColors.add(ic.getVehicleType().getColor()); // This should ideally be dynamic based on the purpose or institution
+        }
+
+        dataSet.setData(values);
+        dataSet.setBackgroundColor(bgColors);
+        data.addChartDataSet(dataSet);
+        data.setLabels(labels);
+
+        pieModel.setData(data);
+
+        this.pieChartModelForVehicleType = pieModel; // Assuming pieChartModelForPurpose is a class member
+    }
+
+    public PieChartModel getPieChartModelForVehicleType() {
+        return pieChartModelForVehicleType;
+    }
+
+    public void setPieChartModelForVehicleType(PieChartModel pieChartModelForVehicleType) {
+        this.pieChartModelForVehicleType = pieChartModelForVehicleType;
+    }
+
+    
+    
 
     public void createPiChartForRemaining() {
         totalGrantQuantity = preferenceController.getTotalFuelInLitersLong();
@@ -200,7 +270,7 @@ public class DashboardController implements Serializable {
         System.out.println("totalGrantQuantity = " + totalGrantQuantity);
         System.out.println("totalIssues = " + totalIssues);
         System.out.println("remainingQuantity = " + remainingQuantity);
-        
+
         PieChartModel pieModel = new PieChartModel();
         ChartData data = new ChartData();
 
@@ -384,8 +454,6 @@ public class DashboardController implements Serializable {
     public void setToDate(Date toDate) {
         this.toDate = toDate;
     }
-    
-    
 
     void prepareDashboard() {
         WebUser loggedUser = webUserController.getLoggedUser();
@@ -429,6 +497,12 @@ public class DashboardController implements Serializable {
         return stackedBarModelForFuelShedDetails;
     }
 
-   
+    public PieChartModel getPieChartModelForPurpose() {
+        return pieChartModelForPurpose;
+    }
+
+    public void setPieChartModelForPurpose(PieChartModel pieChartModelForPurpose) {
+        this.pieChartModelForPurpose = pieChartModelForPurpose;
+    }
 
 }
