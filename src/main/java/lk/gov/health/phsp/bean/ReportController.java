@@ -492,7 +492,20 @@ public class ReportController implements Serializable {
             String districtName = transaction.getToInstitution() != null && transaction.getToInstitution().getDistrict() != null ? transaction.getToInstitution().getDistrict().getName() : "";
 
             // Set cell values, including those requiring null checks
-            row.createCell(0).setCellValue(transaction.getRequestedDate());
+            // Create a CellStyle for formatted date
+            CellStyle dateCellStyle = workbook.createCellStyle();
+            CreationHelper createHelper = workbook.getCreationHelper();
+            dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/MM/yyyy"));
+
+// ... Inside the loop where you populate cells with data:
+            if (transaction.getRequestedDate() != null) {
+                Cell dateCell = row.createCell(0);
+                dateCell.setCellValue(transaction.getRequestedDate());
+                dateCell.setCellStyle(dateCellStyle); // Apply the date style to the cell
+            } else {
+                row.createCell(0).setCellValue(""); // If the date is null, set to an empty string
+            }
+
             row.createCell(1).setCellValue(fromInstitutionName);
             row.createCell(2).setCellValue(toInstitutionName);
             row.createCell(3).setCellValue(toInstitutionCode);
