@@ -76,18 +76,10 @@
                             </p:selectOneMenu>
                         </p:panelGrid>
 
-
-
-
-
-
-
-
-
                         <p:commandButton 
                             value="Process" 
                             ajax="false" 
-                            action="#{reportController.fillAllInstitutionFuelTransactions()}" ></p:commandButton>
+                            action="#{reportController.fillAllInstitutionFuelTransactionsDetailes()}" ></p:commandButton>
 
                         <p:commandButton value="Download Excel" ajax="false" icon="pi pi-download">
                             <p:fileDownload value="#{reportController.downloadExcelFileDetailed}" />
