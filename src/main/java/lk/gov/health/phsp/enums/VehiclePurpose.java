@@ -1,7 +1,7 @@
 package lk.gov.health.phsp.enums;
 
 public enum VehiclePurpose {
-    Ambulance("Ambulance", "rgba(255, 99, 132, 0.6)"), // Example color in RGBA format
+    Ambulance("Patient Transport", "rgba(255, 99, 132, 0.6)"), // Example color in RGBA format
     Generator("Generator", "rgba(54, 162, 235, 0.6)"),
     Suwasariya("Suwaseriya", "rgba(255, 206, 86, 0.6)"),
     PreventiveActivities("Health Services", "rgba(75, 192, 192, 0.6)"),

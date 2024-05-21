@@ -17,6 +17,7 @@ public enum VehicleType {
     Generator("Generator", false, "rgba(199, 199, 199, 0.6)"), // Example of a lighter shade for non-vehicle items
     GullyBowser("Gully Bowser", true, "rgba(255, 129, 102, 0.6)"),
     Incinerator("Incinerator", false, "rgba(220, 20, 60, 0.6)"),
+    ServiceStation("Service Station", false, "rgba(200, 60, 60, 0.6)"),
     Jeep("Jeep", true, "rgba(0, 255, 255, 0.6)"),
     Lorry("Lorry", true, "rgba(0, 0, 128, 0.6)"),
     ThreeWheeler("Three Wheeler", true, "rgba(128, 0, 128, 0.6)"),
