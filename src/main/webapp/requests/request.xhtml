@@ -34,20 +34,33 @@
                                     </f:facet>
 
                                     <p:outputLabel for="calDate" value="Date" />
-                                    <p:calendar id="calDate" value="#{fuelRequestAndIssueController.selected.requestedDate}" pattern="dd MM yyyy" ></p:calendar>
+                                    <p:calendar id="calDate"
+                                                required="true"
+                                                requiredMessage="Please enter a date"
+                                                value="#{fuelRequestAndIssueController.selected.requestedDate}" pattern="dd MM yyyy" ></p:calendar>
 
                                     <p:outputLabel for="acVehicle" value="Vehicle" />
                                     <p:inputText  readonly="true" class="w-100" value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" rendered="#{fuelRequestAndIssueController.selected.vehicle ne null}" />
                                     <p:selectOneMenu 
                                         class="w-100"
-                                        id="acVehicle" value="#{fuelRequestAndIssueController.selected.vehicle}" filter="true" rendered="#{fuelRequestAndIssueController.selected.vehicle eq null}" filterMatchMode="contains" required="true" requiredMessage="You must select a vehicle" styleClass="w-100">
+                                        id="acVehicle" 
+                                        value="#{fuelRequestAndIssueController.selected.vehicle}" 
+                                        filter="true" 
+                                        rendered="#{fuelRequestAndIssueController.selected.vehicle eq null}" filterMatchMode="contains" required="true" requiredMessage="You must select a vehicle" styleClass="w-100">
                                         <f:selectItem itemLabel="Select a vehicle" noSelectionOption="true" />
                                         <f:selectItems value="#{webUserController.managableVehicles}" var="v" itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
                                     </p:selectOneMenu>
 
                                     <p:outputLabel for="acDriver" value="Driver" />
                                     <p:inputText readonly="true" class="w-100" value="#{fuelRequestAndIssueController.selected.driver.name}" rendered="#{fuelRequestAndIssueController.selected.driver ne null}" />
-                                    <p:selectOneMenu id="acDriver" value="#{fuelRequestAndIssueController.selected.driver}" filter="true" rendered="#{fuelRequestAndIssueController.selected.driver eq null}" filterMatchMode="contains" required="true" requiredMessage="You must select a driver" styleClass="w-100">
+                                    <p:selectOneMenu id="acDriver"
+                                                     value="#{fuelRequestAndIssueController.selected.driver}"
+                                                     filter="true"
+                                                     rendered="#{fuelRequestAndIssueController.selected.driver eq null}" 
+                                                     filterMatchMode="contains" 
+                                                     required="true" 
+                                                     requiredMessage="You must select a driver" 
+                                                     styleClass="w-100">
                                         <f:selectItem itemLabel="Select a driver" noSelectionOption="true" />
                                         <f:selectItems value="#{webUserController.managableDrivers}" var="d" itemLabel="#{d.name}" itemValue="#{d}" />
                                     </p:selectOneMenu>
@@ -96,6 +109,8 @@
                                     <p:inputText 
                                         id="txtRef"
                                         class="w-100"
+                                        required="true"
+                                        requiredMessage="Please enter a referance number"
                                         value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}" />
 
                                     <p:outputLabel for="txtComments" value="Comments" />

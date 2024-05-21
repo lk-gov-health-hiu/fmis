@@ -192,7 +192,6 @@ public class ApiResource {
 
     @POST
     @Path("/diesel_received")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createDieselReceivedRecord(@Context HttpServletRequest requestContext, String jsonRequest) {
         System.out.println("createDieselReceivedRecord");

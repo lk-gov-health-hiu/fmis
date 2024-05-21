@@ -110,10 +110,63 @@ public class DashboardApplicationController {
         return tics;
     }
 
+    public List<InstitutionCount> fuelOrdersByPurpose(Date fromDate, Date toDate) {
+        Map parameters = new HashMap<>();
+        String jpql = "select new lk.gov.health.phsp.pojcs.InstitutionCount(c.vehicle.vehiclePurpose, sum(c.issuedQuantity)) "
+                + "from FuelTransaction c "
+                + "where (c.retired is null or c.retired = :ret) ";
+
+        parameters.put("ret", false);
+
+        // Conditionally add date range to the query
+        if (fromDate != null && toDate != null) {
+            jpql += " and c.createdAt between :fd and :td ";
+            parameters.put("fd", fromDate);
+            parameters.put("td", toDate);
+        } else if (fromDate != null) {
+            jpql += " and c.createdAt >= :fd ";
+            parameters.put("fd", fromDate);
+        } else if (toDate != null) {
+            jpql += " and c.createdAt <= :td ";
+            parameters.put("td", toDate);
+        }
+
+        jpql += " group by c.vehicle.vehiclePurpose "
+                + "order by sum(c.requestQuantity) desc";
+       
+        return fuelTransactionFacade.findLightsByJpql(jpql, parameters, TemporalType.DATE);
+    }
+    
+    public List<InstitutionCount> fuelOrdersByVehicleType(Date fromDate, Date toDate) {
+        Map parameters = new HashMap<>();
+        String jpql = "select new lk.gov.health.phsp.pojcs.InstitutionCount(c.vehicle.vehicleType, sum(c.issuedQuantity)) "
+                + "from FuelTransaction c "
+                + "where (c.retired is null or c.retired = :ret) ";
+
+        parameters.put("ret", false);
+
+        // Conditionally add date range to the query
+        if (fromDate != null && toDate != null) {
+            jpql += " and c.createdAt between :fd and :td ";
+            parameters.put("fd", fromDate);
+            parameters.put("td", toDate);
+        } else if (fromDate != null) {
+            jpql += " and c.createdAt >= :fd ";
+            parameters.put("fd", fromDate);
+        } else if (toDate != null) {
+            jpql += " and c.createdAt <= :td ";
+            parameters.put("td", toDate);
+        }
+
+        jpql += " group by c.vehicle.vehicleType "
+                + "order by sum(c.requestQuantity) desc";
+       
+        return fuelTransactionFacade.findLightsByJpql(jpql, parameters, TemporalType.DATE);
+    }
+
     public Double totalIssuedQuantity() {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("ret", false);
-       
 
         String jpql = "select sum(c.issuedQuantity) "
                 + "from FuelTransaction c "

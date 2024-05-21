@@ -12,28 +12,56 @@
     <!-- IMPLEMENTATION -->
     <cc:implementation>
         <h:form>
-            <div class="container-fluid" >
-                <div class="row" >
-                    <div class="col-md-2" >
-                        <div class="card m-1" >
-                            <p:pieChart model="#{dashboardController.pieChartModelForRemaining}" style="width:100%;height:300px;"/>
+
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="card m-1">
+                            <div class="card-header">Remaining Fuel</div>
+                            <div class="card-body">
+                                <p:pieChart model="#{dashboardController.pieChartModelForRemaining}" style="width:100%; min-height:400px;"/>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-5" >
-                        <div class="card m-1" >
-                            <p:barChart model="#{dashboardController.stackedBarModelForHospitalFuelDetails}" style="width:100%;height:300px;"/>
+                    <div class="col-4">
+                        <div class="card m-1">
+                            <div class="card-header">Fuel Usage by Purpose</div>
+                            <div class="card-body">
+                                <p:pieChart model="#{dashboardController.pieChartModelForPurpose}" style="width:100%; min-height:400px;"/>
+                            </div>
                         </div>
-
                     </div>
-                    <div class="col-md-5" >
-                        <div class="card m-1" >
-                            <p:barChart rendered="true" model="#{dashboardController.stackedBarModelForFuelShedDetails}" style="width:100%;height:300px;"/>
+                    <div class="col-4">
+                        <div class="card m-1">
+                            <div class="card-header">Fuel Usage by Vehicle Type</div>
+                            <div class="card-body">
+                                <p:pieChart model="#{dashboardController.pieChartModelForVehicleType}" style="width:100%; min-height:400px;"/>
+                            </div>
                         </div>
-
                     </div>
-
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="card m-1">
+                            <div class="card-header">Hospital Fuel Details - Top 10</div>
+                            <div class="card-body">
+                                <p:barChart model="#{dashboardController.stackedBarModelForHospitalFuelDetails}" style="width:100%; min-height:600px;"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card m-1">
+                            <div class="card-header">Fuel Shed Details - Top 10</div>
+                            <div class="card-body">
+                                <p:barChart rendered="true" model="#{dashboardController.stackedBarModelForFuelShedDetails}" style="width:100%; min-height:600px;"/>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+
+
 
         </h:form>
 

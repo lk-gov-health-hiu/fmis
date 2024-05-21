@@ -173,6 +173,11 @@ public class ReportController implements Serializable {
         return "/reports/list?faces-redirect=true;";
     }
 
+    public String navigateToListFuelRequestsDetails() {
+        fillAllInstitutionFuelTransactionsDetailes();
+        return "/reports/list_details?faces-redirect=true;";
+    }
+
     public String navigateToListDeletedFuelRequests() {
         fillAllInstitutionDeletedFuelTransactions();
         return "/reports/list_deleted?faces-redirect=true;";
@@ -403,6 +408,10 @@ public class ReportController implements Serializable {
         transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
     }
 
+    public void fillAllInstitutionFuelTransactionsDetailes() {
+        transactions = fillFuelTransactionsDetailed(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
+    }
+
     public void generateExcelFile(List<FuelTransactionLight> transactions) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Transactions");
@@ -448,10 +457,117 @@ public class ReportController implements Serializable {
         workbook.close();
     }
 
+    public void generateExcelFileDetailed(List<FuelTransaction> transactions) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Transactions");
+
+        String[] columnHeaders = {
+            "Date", "Institution", "Fuel Station", "Dealer Number",
+            "Requested Reference No", "Vehicle Number", "Driver Name",
+            "Requested Qty", "Issued Qty", "Issue Reference No",
+            "Vehicle Make", "Vehicle Type", "Vehicle Purpose",
+            "Driver NIC",
+            "Institution Type", "Governed By",
+            "District"
+        };
+
+        Row headerRow = sheet.createRow(0);
+        for (int i = 0; i < columnHeaders.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columnHeaders[i]);
+        }
+
+        int rowNum = 1;
+        for (FuelTransaction transaction : transactions) {
+            Row row = sheet.createRow(rowNum++);
+
+            // Example of adding a null check for Driver and Institutions
+            String driverName = transaction.getDriver() != null ? transaction.getDriver().getName() : "";
+            String driverNIC = transaction.getDriver() != null ? transaction.getDriver().getNic() : "";
+            String fromInstitutionName = transaction.getFromInstitution() != null ? transaction.getFromInstitution().getName() : "";
+            String toInstitutionName = transaction.getToInstitution() != null ? transaction.getToInstitution().getName() : "";
+            String toInstitutionCode = transaction.getToInstitution() != null ? transaction.getToInstitution().getCode() : "";
+            String fromInstitutionType = transaction.getFromInstitution() != null && transaction.getFromInstitution().getInstitutionType() != null ? transaction.getFromInstitution().getInstitutionType().toString() : "";
+            String governedBy = transaction.getFromInstitution() != null && transaction.getFromInstitution().getParent() != null ? transaction.getFromInstitution().getParent().getName() : "";
+            String districtName = transaction.getToInstitution() != null && transaction.getToInstitution().getDistrict() != null ? transaction.getToInstitution().getDistrict().getName() : "";
+
+            // Set cell values, including those requiring null checks
+            // Create a CellStyle for formatted date
+            CellStyle dateCellStyle = workbook.createCellStyle();
+            CreationHelper createHelper = workbook.getCreationHelper();
+            dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/MM/yyyy"));
+
+// ... Inside the loop where you populate cells with data:
+            if (transaction.getRequestedDate() != null) {
+                Cell dateCell = row.createCell(0);
+                dateCell.setCellValue(transaction.getRequestedDate());
+                dateCell.setCellStyle(dateCellStyle); // Apply the date style to the cell
+            } else {
+                row.createCell(0).setCellValue(""); // If the date is null, set to an empty string
+            }
+
+            row.createCell(1).setCellValue(fromInstitutionName);
+            row.createCell(2).setCellValue(toInstitutionName);
+            row.createCell(3).setCellValue(toInstitutionCode);
+            row.createCell(4).setCellValue(transaction.getRequestReferenceNumber());
+            row.createCell(5).setCellValue(transaction.getVehicle() != null ? transaction.getVehicle().getVehicleNumber() : "");
+            row.createCell(6).setCellValue(driverName);
+            row.createCell(7).setCellValue(transaction.getRequestQuantity());
+            row.createCell(8).setCellValue(transaction.getIssuedQuantity() != null ? transaction.getIssuedQuantity() : 0);
+            row.createCell(9).setCellValue(transaction.getIssueReferenceNumber() != null ? transaction.getIssueReferenceNumber() : "");
+
+            String vehicleMake = transaction.getVehicle() != null && transaction.getVehicle().getVehicleMake() != null ? transaction.getVehicle().getVehicleMake() : "";
+
+            row.createCell(10).setCellValue(vehicleMake);
+            row.createCell(11).setCellValue(transaction.getVehicle() != null && transaction.getVehicle().getVehicleType() != null ? transaction.getVehicle().getVehicleType().getLabel() : "");
+            row.createCell(12).setCellValue(transaction.getVehicle() != null && transaction.getVehicle().getVehiclePurpose() != null ? transaction.getVehicle().getVehiclePurpose().getLabel() : "");
+            row.createCell(13).setCellValue(driverNIC);
+            row.createCell(14).setCellValue(fromInstitutionType);
+            row.createCell(15).setCellValue(governedBy);
+            row.createCell(16).setCellValue(districtName);
+
+            // Autosize columns after filling data
+            for (int i = 0; i < columnHeaders.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+        }
+
+        // Write the workbook to the file
+        try ( FileOutputStream fileOut = new FileOutputStream("transactions.xlsx")) {
+            workbook.write(fileOut);
+        }
+
+        // Closing the workbook
+        workbook.close();
+    }
+
     public StreamedContent getDownloadExcelFile() {
         try {
             File file = new File("transactions.xlsx");
             generateExcelFile(transactionLights); // Make sure this method correctly generates the file
+
+            if (!file.exists()) {
+                System.err.println("File not found: transactions.xlsx");
+                return null;
+            }
+
+            FileInputStream stream = new FileInputStream(file); // Handle FileNotFoundException here
+
+            return DefaultStreamedContent.builder()
+                    .name("transactions.xlsx")
+                    .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    .stream(() -> stream)
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public StreamedContent getDownloadExcelFileDetailed() {
+        try {
+            File file = new File("transactions.xlsx");
+            generateExcelFileDetailed(transactions); // Make sure this method correctly generates the file
 
             if (!file.exists()) {
                 System.err.println("File not found: transactions.xlsx");
@@ -577,6 +693,78 @@ public class ReportController implements Serializable {
         jpqlBuilder.append("ORDER BY ft.requestedDate");
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.DATE);
+        System.out.println("jpqlBuilder.toString() = " + jpqlBuilder.toString());
+        System.out.println("parameters = " + parameters);
+
+        return resultList;
+    }
+
+    public List<FuelTransaction> fillFuelTransactionsDetailed(
+            Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
+            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType) {
+
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT ft ") // toInstitution name
+                .append("FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.vehicle v ")
+                .append("LEFT JOIN ft.driver d ")
+                .append("LEFT JOIN ft.fromInstitution fi ")
+                .append("LEFT JOIN ft.toInstitution ti ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+
+        if (requestingInstitution != null) {
+            jpqlBuilder.append("AND ft.fromInstitution = :reqInstitute ");
+            parameters.put("reqInstitute", requestingInstitution);
+        }
+        if (fuelStation != null) {
+            jpqlBuilder.append("AND ft.toInstitution = :fuelStation ");
+            parameters.put("fuelStation", fuelStation);
+        }
+        if (fd != null && td != null) {
+            Calendar fdCal = Calendar.getInstance();
+            fdCal.setTime(fd);
+            fdCal.set(Calendar.HOUR_OF_DAY, 0);
+            fdCal.set(Calendar.MINUTE, 0);
+            fdCal.set(Calendar.SECOND, 0);
+            fdCal.set(Calendar.MILLISECOND, 0);
+            fd = fdCal.getTime(); // Start of the fromDate
+
+            Calendar tdCal = Calendar.getInstance();
+            tdCal.setTime(td);
+            tdCal.set(Calendar.HOUR_OF_DAY, 23);
+            tdCal.set(Calendar.MINUTE, 59);
+            tdCal.set(Calendar.SECOND, 59);
+            tdCal.set(Calendar.MILLISECOND, 999);
+            td = tdCal.getTime(); // End of the toDate
+
+            jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+        if (vehicleType != null) {
+            jpqlBuilder.append("AND v.vehicleType = :vType ");
+            parameters.put("vType", vehicleType);
+        }
+        if (vehiclePurpose != null) {
+            jpqlBuilder.append("AND v.vehiclePurpose = :vPurpose ");
+            parameters.put("vPurpose", vehiclePurpose);
+        }
+        if (driver != null) {
+            jpqlBuilder.append("AND ft.driver = :drv ");
+            parameters.put("drv", driver);
+        }
+        if (institutionType != null) {
+            jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
+            parameters.put("instType", institutionType);
+        }
+
+        jpqlBuilder.append("ORDER BY ft.requestedDate");
+
+        List<FuelTransaction> resultList = fuelTransactionFacade.findByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);
         System.out.println("jpqlBuilder.toString() = " + jpqlBuilder.toString());
         System.out.println("parameters = " + parameters);

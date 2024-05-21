@@ -346,6 +346,10 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Select Requested Date");
             return "";
         }
+        if (selected.getToInstitution() == null) {
+            JsfUtil.addErrorMessage("Select Fuel Station");
+            return "";
+        }
         selected.setRequestAt(new Date());
         save(selected);
         JsfUtil.addSuccessMessage("Request Submitted");
