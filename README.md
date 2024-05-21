@@ -1,2 +1,2 @@
-# fms
-Fuel Management System
+# fmis
+Fuel Management Infomation System
