@@ -15,6 +15,36 @@
                         <div class="col-3">
                             <h:form>
                                 <div class="list-group mt-3">
+                                    <p:commandButton value="Delete Requests to Attend" 
+                                                     action="#{fuelRequestAndIssueController.navigateToViewDeleteRequestsToAttend()}"
+                                                     icon="fa fa-trash"
+                                                     class="m-2 ui-button ui-widget ui-state-default ui-corner-all ui-button-danger"
+                                                     ajax="false">
+                                    </p:commandButton>
+
+                                    <p:commandButton value="Change Requests to Attend" 
+                                                     action="#{menuController.toListUsers()}"
+                                                     icon="fa fa-edit"
+                                                     class="m-2 ui-button ui-widget ui-state-default ui-corner-all ui-button-warning"
+                                                     ajax="false">
+                                    </p:commandButton>
+
+                                    <p:commandButton value="View Delete Requests" 
+                                                     action="#{fuelRequestAndIssueController.navigateToViewDeleteRequestsToAttend()}"
+                                                     icon="fa fa-eye"
+                                                     class="m-2 ui-button ui-widget ui-state-default ui-corner-all ui-button-primary"
+                                                     ajax="false">
+                                    </p:commandButton>
+
+                                    <p:commandButton value="View Change Requests" 
+                                                     action="#{menuController.toListUsers()}"
+                                                     icon="fa fa-eye"
+                                                     class="m-2 ui-button ui-widget ui-state-default ui-corner-all ui-button-primary"
+                                                     ajax="false">
+                                    </p:commandButton>
+
+                                </div>
+                                <div class="list-group mt-3">
 
                                     <h:commandButton value="New User" 
                                                      action="#{menuController.toAddNewUser()}"
@@ -101,14 +131,14 @@
                                                      action="#{menuController.navigateToAddTotalFuel()}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
                                 </div>
-                                
-                                
+
+
                                 <div class="list-group mt-3">
                                     <h:commandButton value="Fix Dates"
                                                      action="#{fuelRequestAndIssueController.fixDates}"
                                                      class="list-group-item list-group-item-action"></h:commandButton>
                                 </div>
-                                
+
                             </h:form>
                         </div>
 
