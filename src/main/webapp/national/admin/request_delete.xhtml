@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/national/admin/index.xhtml">
+
+
+            <ui:define name="admin">
+
+                <div class="container-fluid p-2 w-100" >
+                    <h:form >
+                        <div class="row" >
+
+                            <div class="col-12" >
+                                <div class="card" >
+                                    <div class="card-header" >
+                                        <div class="row" >
+                                            <div class="col-md-12" >
+                                                <h2><h:outputText value="Fuel Request Details - DELETE"></h:outputText></h2>
+
+                                            </div>
+
+
+                                        </div>
+
+
+                                    </div>
+                                    <div class="card-body" >
+
+
+
+
+                                        <!-- Request Details -->
+                                        <div class="container-fluid w-100">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <table class="table">
+                                                        <tr>
+                                                            <th colspan="2" class="text-center bg-primary text-white">
+                                                                Request Details
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Requested Institution:</b></td>
+                                                            <td>
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.fromInstitution.name}" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Requested Fuel Station:</b></td>
+                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.toInstitution.name}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Vehicle:</b></td>
+                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Driver:</b></td>
+                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.driver.name}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Request Quantity:</b></td>
+                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>ODO Reading:</b></td>
+                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.odoMeterReading}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Request Reference No.:</b></td>
+                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Comments:</b></td>
+                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.comments}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Requested User:</b></td>
+                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestedBy.person.name}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Requested Date/Time:</b></td>
+                                                            <td>
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.requestedDate}">
+                                                                    <f:convertDateTime pattern="dd MMMM yyyy"></f:convertDateTime>
+                                                                </h:outputText>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>ID:</b></td>
+                                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.id}" /></td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                                <div class="col-md-6">
+
+                                                    <p:panelGrid columns="3" class="w-100 m-3 p-2" >
+                                                        <f:facet name="header" >
+                                                            <h:outputLabel value="Delete" ></h:outputLabel>
+                                                        </f:facet>
+                                                        <p:outputLabel 
+                                                            for="txtComments" 
+                                                            value="Comments" ></p:outputLabel>
+                                                        <p:inputTextarea 
+                                                            id="txtComments" 
+                                                            required="true"
+                                                            requiredMessage="A comment is needed"
+                                                            value="#{fuelRequestAndIssueController.dataAlterationRequest.completeComments}" placeholder="Comments" ></p:inputTextarea>
+                                                        <p:commandButton value="Delete" ajax="false"
+                                                                         rendered="#{not fuelRequestAndIssueController.selected.retired}"
+                                                                         action="#{fuelRequestAndIssueController.deleteRequest}" 
+                                                                         onclick="return confirm('Are you sure you want to delete?');"
+                                                                         icon="fa fa-trash" 
+                                                                         styleClass="ui-button-danger ui-button-raised">
+                                                        </p:commandButton>
+
+
+
+                                                    </p:panelGrid>
+                                                    
+                                                    <p:messages ></p:messages>
+
+
+
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+
+
+
+
+
+
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </h:body>
+</html>

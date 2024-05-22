@@ -11,7 +11,7 @@
         <ui:composition template="/template.xhtml">
 
             <ui:define name="title">
-                Request Details
+                Request To Delete
             </ui:define>
 
             <ui:define name="content">
@@ -25,31 +25,7 @@
                                     <div class="card-header" >
                                         <div class="row" >
                                             <div class="col-md-12" >
-                                                <h:outputText class="h2 mx-4" value="Fuel Request Details"></h:outputText>
-
-
-
-                                                <p:commandButton value="New Order" 
-                                                                 ajax="false"
-                                                                 rendered="#{webUserController.dieselFuelRequestMenuAvailable}"
-                                                                 icon="fa fa-plus"
-                                                                 class="ui-button-success mx-2"
-                                                                 action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}" />
-
-                                                <p:commandButton value="New Special Order" 
-                                                                 ajax="false"
-                                                                 rendered="#{webUserController.dieselSpecialFuelRequestMenuAvailable}"
-                                                                 icon="fa fa-star"
-                                                                 class="ui-button-success mx-2"
-                                                                 action="#{fuelRequestAndIssueController.navigateToAddSpecialVehicleFuelRequest()}" />
-
-                                                <p:commandButton value="To Mark" 
-                                                                 title="To Mark Orders as Received"
-                                                                 ajax="false"
-                                                                 rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}"
-                                                                 icon="fa fa-check"
-                                                                 class="ui-button-success mx-2"
-                                                                 action="#{fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark()}" />
+                                                <h:outputText class="h2 mx-4" value="Delete Request Details"></h:outputText>
 
                                                 <p:commandButton value="Requests" 
                                                                  title="To View List of Requests" 
@@ -58,19 +34,14 @@
                                                                  class="ui-button-warning mx-2"
                                                                  action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
 
-                                                <p:commandButton value="To Delete" 
-                                                                 title="To Send Delete Request" 
+                                                <p:commandButton value="Submit" 
+                                                                 title="Submit the Delete Request" 
                                                                  ajax="false"
                                                                  icon="fa fa-trash"
                                                                  class="ui-button-danger mx-2"
-                                                                 action="#{fuelRequestAndIssueController.navigateToCreateNewDeleteRequest()}" />
+                                                                 action="#{fuelRequestAndIssueController.submitNewDeleteRequest()}" />
 
-                                                <p:commandButton value="To Change" 
-                                                                 title="To Send Change Request" 
-                                                                 ajax="false"
-                                                                 icon="fa fa-edit"
-                                                                 class="ui-button-danger mx-2"
-                                                                 action="#{fuelRequestAndIssueController.navigateToCreateNewDataChangeRequest()}" />
+
 
                                             </div>
 
@@ -90,8 +61,22 @@
                                                     <table class="table">
                                                         <tr>
                                                             <th colspan="2" class="text-center bg-primary text-white">
-                                                                Request Details
+                                                                Request to Delete Details
                                                             </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <b>
+                                                                    <p:outputLabel for="txtComments" value="Reason to Delete in Detail:" ></p:outputLabel>
+                                                                </b>
+                                                            </td>
+                                                            <td><p:inputTextarea
+                                                                    id="txtComments"
+                                                                    class="w-100"
+                                                                    rows="5"
+                                                                    required="true"
+                                                                    requiredMessage="Need Details"
+                                                                    value="#{fuelRequestAndIssueController.dataAlterationRequest.requestComments}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Requested by:</b></td>
