@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../template.xhtml">
+
+            <ui:define name="title">
+                Request List
+            </ui:define>
+
+            <ui:define name="content">
+                <div class="container-fluid p-2" >
+                    <h:form >
+
+                        <div class="card" >
+                            <div class="card-header" >
+                                <h2><h:outputText value="Search Fuel Requests to Make Payment"></h:outputText></h2>
+                            </div>
+                            <div class="card-body" >
+
+                                <div class="row" >
+                                    <div class="col-3 p-2" >
+                                        <p:panelGrid columns="2" >
+                                            <label for="fromDate">From Date</label>
+                                            <p:calendar 
+                                                id="fromDate" 
+                                                value="#{fuelRequestAndIssueController.fromDate}"
+                                                showButtonPanel="true"
+                                                class="w-100 m-1" 
+                                                pattern="dd MMMM yyyy"/>
+
+                                            <label for="toDate">To Date</label>
+                                            <p:calendar 
+                                                id="toDate" 
+                                                value="#{fuelRequestAndIssueController.toDate}" 
+                                                showButtonPanel="true"
+                                                pattern="dd MMMM yyyy"
+                                                class="w-100 m-1" />
+
+                                            <p:commandButton value="List Requests"
+                                                             action="#{fuelRequestAndIssueController.listInstitutionRequestsToPay()}"
+                                                             icon="pi pi-list" 
+                                                             ajax="false"
+                                                             class="btn btn-primary w-100 my-2" />
+
+                                            <p:commandButton value="Make Payment Request"
+                                                             action="#{fuelRequestAndIssueController.makePaymentRequest()}"
+                                                             icon="pi pi-list" 
+                                                             ajax="false"
+                                                             class="btn btn-primary w-100 my-2" />
+
+                                        </p:panelGrid>
+                                        
+                                        <p:messages ></p:messages>
+
+
+
+                                    </div>
+
+                                    <div class="col-9 p-2" >
+                                        <p:dataTable 
+                                            id="tbl" 
+                                            value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}" 
+                                            rows="5"
+                                            selection="#{fuelRequestAndIssueController.selectedTransactions}"
+                                            paginator="true"
+                                            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                            currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                            rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
+                                            sortMode="multiple">
+
+                                            <p:column selectionMode="multiple" width="10" ></p:column>
+
+                                            <p:column headerText="Vehicle"
+                                                      exportHeaderValue="true"
+                                                      sortBy="#{transaction.vehicle.vehicleNumber}" filterBy="#{transaction.vehicle.vehicleNumber}">
+                                                <f:facet name="header" >
+                                                    <h:outputText value="Vehicle" ></h:outputText>
+                                                </f:facet>
+                                                <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
+                                            </p:column>
+
+                                            <p:column headerText="Ref" 
+                                                      sortBy="#{transaction.requestReferenceNumber}"
+                                                      filterBy="#{transaction.requestReferenceNumber}">
+                                                <h:outputText value="#{transaction.requestReferenceNumber}" />
+                                            </p:column>
+
+                                            <p:column headerText="Req. At" sortBy="#{transaction.requestedDate}" filterBy="#{transaction.requestedDate}">
+                                                <h:outputText value="#{transaction.requestedDate}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy" />
+                                                </h:outputText>
+                                            </p:column>
+
+                                            <p:column headerText="Req. Qty" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}">
+                                                <h:outputText value="#{transaction.requestQuantity}" />
+                                            </p:column>
+
+                                            <p:column headerText="Iss. At" sortBy="#{transaction.issuedAt}" filterBy="#{transaction.issuedAt}">
+                                                <h:outputText value="#{transaction.issuedAt}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy" />
+                                                </h:outputText>
+                                                <h:outputText value="Not Issued" style="color: red;" rendered="#{not transaction.issued}" />
+                                            </p:column>
+
+                                            <p:column headerText="Iss. Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}">
+                                                <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
+                                            </p:column>
+
+                                            <p:column headerText="Iss. from" sortBy="#{transaction.issuedInstitution.name}" filterBy="#{transaction.issuedInstitution.name}">
+                                                <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
+                                            </p:column>
+
+                                            <p:column headerText="Actions" exportable="false" >
+                                                <p:commandButton value="View"
+                                                                 ajax="false"
+                                                                 action="#{fuelRequestAndIssueController.navigateToViewInstitutionFuelRequestToSltbDepot()}" >
+                                                    <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
+                                                </p:commandButton>
+                                            </p:column>
+
+                                        </p:dataTable>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </body>
+</html>

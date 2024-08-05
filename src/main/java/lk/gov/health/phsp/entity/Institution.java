@@ -26,6 +26,7 @@ package lk.gov.health.phsp.entity;
 import lk.gov.health.phsp.enums.InstitutionType;
 import java.io.Serializable;
 import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -53,22 +54,46 @@ public class Institution implements Serializable, Nameable {
 
     @Enumerated(EnumType.STRING)
     private InstitutionType institutionType;
-    
+
     @Enumerated(EnumType.ORDINAL)
     private OwnershipType ownershipType;
 
+    @Column(name = "NAME", nullable = false, length = 100)
     private String name;
+
+    @Column(name = "TNAME", length = 100)
     private String tname;
+
+    @Column(name = "SNAME", length = 100)
     private String sname;
+
+    @Column(name = "CODE", nullable = false, length = 50)
     private String code;
+
+    @Column(name = "ADDRESS", length = 255)
     private String address;
+
+    @Column(name = "FAX", length = 20)
     private String fax;
+
+    @Column(name = "EMAIL", length = 100)
     private String email;
+
+    @Column(name = "PHONE", length = 20)
     private String phone;
+
+    @Column(name = "MOBILE", length = 20)
     private String mobile;
+
+    @Column(name = "WEB", length = 100)
     private String web;
+
+    @Column(name = "CITYNAME", nullable = false, length = 100)
     private String cityName;
+
+    @Column(name = "POINUMBER", length = 50)
     private String poiNumber;
+
     @ManyToOne
     private Institution supplyInstitution;
     @ManyToOne
@@ -149,7 +174,7 @@ public class Institution implements Serializable, Nameable {
             case District_Ayurvedic_Department:
             case Ayurvedic_Hospital:
             case Herbal_Guardian:
-                
+
                 institutionTypeRootTrans = InstitutionType.Hospital;
             default:
                 institutionTypeRootTrans = getInstitutionType();
@@ -160,8 +185,6 @@ public class Institution implements Serializable, Nameable {
     public void setId(Long id) {
         this.id = id;
     }
-    
-    
 
     @Override
     public int hashCode() {
@@ -514,8 +537,8 @@ public class Institution implements Serializable, Nameable {
     }
 
     public OwnershipType getOwnershipType() {
-        if(ownershipType==null){
-            ownershipType=OwnershipType.CPC_OWNED;
+        if (ownershipType == null) {
+            ownershipType = OwnershipType.CPC_OWNED;
         }
         return ownershipType;
     }

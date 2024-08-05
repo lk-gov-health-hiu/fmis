@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../template.xhtml">
+
+            <ui:define name="title">
+                Payment Request
+            </ui:define>
+
+            <ui:define name="content">
+                <h:form id="billForm">
+                    <!-- Bill Header -->
+                    <p:panelGrid columns="2" styleClass="table table-bordered" columnClasses="font-weight-bold,">
+                        <f:facet name="header">
+                            <p:outputLabel value="Bill Title" styleClass="h4" />
+                        </f:facet>
+                        <h:outputText value="Bill Date:" />
+                        <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billDate}">
+                            <f:convertDateTime pattern="dd MMM yyyy" />
+                        </h:outputText>
+                        <h:outputText value="Bill Time:" />
+                        <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billTime}">
+                            <f:convertDateTime pattern="HH:mm:ss" />
+                        </h:outputText>
+                        <h:outputText value="Bill Number:" />
+                        <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billNo}" />
+                        <h:outputText value="Fuel Request Institution:" />
+                        <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.name}" />
+                        <h:outputText value="Fuel Station:" />
+                        <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.toInstitution.name}" />
+                        <h:outputText value="Total Value:" />
+                        <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalValue}" />
+                        <h:outputText value="Total Quantity:" />
+                        <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}" />
+                    </p:panelGrid>
+
+                    <!-- Data Table for Transactions -->
+                    <p:dataTable var="transaction" value="#{fuelRequestAndIssueController.selectedTransactions}" styleClass="table">
+                        <p:column headerText="Vehicle">
+                            <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
+                        </p:column>
+                        <p:column headerText="Ref">
+                            <h:outputText value="#{transaction.requestReferenceNumber}" />
+                        </p:column>
+                        <p:column headerText="Req. At">
+                            <h:outputText value="#{transaction.requestedDate}" >
+                                <f:convertDateTime pattern="dd MMM yyyy" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Req. Qty">
+                            <h:outputText value="#{transaction.requestQuantity}" />
+                        </p:column>
+                        <p:column headerText="Iss. At">
+                            <h:outputText value="#{transaction.issuedAt}">
+                                <f:convertDateTime pattern="dd MMM yyyy" />
+                            </h:outputText>
+                            <h:outputText value="Not Issued" style="color: red;" rendered="#{not transaction.issued}" />
+                        </p:column>
+                        <p:column headerText="Iss. Qty">
+                            <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </body>
+</html>
