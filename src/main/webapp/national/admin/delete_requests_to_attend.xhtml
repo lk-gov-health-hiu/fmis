@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/national/admin/index.xhtml">
+
+            <ui:define name="admin">
+                <h:form >
+                    <p:panelGrid columns="3" >
+                        <p:panelGrid columns="2" >
+                            <p:outputLabel value="From" >
+                            </p:outputLabel>
+                            <p:calendar value="#{fuelRequestAndIssueController.fromDate}" 
+                                        pattern="dd MMMM yyyy">
+                            </p:calendar>
+
+                            <p:outputLabel value="To" >
+                            </p:outputLabel>
+                            <p:calendar value="#{fuelRequestAndIssueController.toDate}" 
+                                        pattern="dd MMMM yyyy">
+                            </p:calendar>
+                        </p:panelGrid>
+                        <p:panelGrid columns="2" >
+                            <p:outputLabel value="Requested for Institution" >
+                            </p:outputLabel>
+                            <p:autoComplete 
+                                value="#{fuelRequestAndIssueController.institution}"
+                                completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
+                                var="fi"
+                                itemLabel="#{fi.name}"
+                                itemValue="#{fi}"></p:autoComplete>
+                        </p:panelGrid>
+
+                        <p:commandButton 
+                            value="Process" 
+                            ajax="false" 
+                            action="#{fuelRequestAndIssueController.fillDeleteRequests()}" ></p:commandButton>
+
+
+                        <p:commandButton value="Download Excel After Process" ajax="false" icon="pi pi-download">
+                            <p:fileDownload value="#{reportController.downloadExcelFile}" />
+                        </p:commandButton>
+
+                    </p:panelGrid>
+
+                    <p:dataTable var="transaction" 
+                                 class="w-100"
+                                 value="#{fuelRequestAndIssueController.dataAlterationRequests}" 
+                                 paginator="true" 
+                                 rows="10"
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="10,25,100,{ShowAll|'All'}"
+                                 currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
+                                 widgetVar="transactionTable">
+
+
+
+                        <p:column headerText="Requested Date" sortBy="#{transaction.requestedDate}" filterBy="#{transaction.requestedDate}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.requestedDate}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Requested Institution" sortBy="#{transaction.requestedInstitution.name}" filterBy="#{transaction.requestedInstitution.name}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.requestedInstitution.name}" />
+                        </p:column>
+                        
+                        <p:column headerText="Requested Comments" sortBy="#{transaction.requestComments}" filterBy="#{transaction.requestComments}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.requestComments}" />
+                        </p:column>
+
+
+                        <!-- Request details column -->
+                        <p:column headerText="Request details" sortBy="#{transaction.requestedBy.person.name}" 
+                                  filterBy="#{transaction.requestedBy.person.name}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.requestedBy.person.name}" />
+                            <br />
+                            <h:outputText value="#{transaction.requestAt}">
+                                <f:convertDateTime pattern="yyyy-MM-dd HH:mm" />
+                            </h:outputText>
+                        </p:column>
+
+                        <!-- Completed column -->
+                        <p:column headerText="Completed" sortBy="#{transaction.completed}" 
+                                  filterBy="#{transaction.completed}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.completed ? 'Yes' : 'No'}" />
+                            <br />
+                            <h:outputText value="Completed by: #{transaction.completedBy.person.name}" rendered="#{transaction.completed}" />
+                            <br />
+                            <h:outputText value="Completed at: #{transaction.completedAt}" rendered="#{transaction.completed}">
+                                <f:convertDateTime pattern="yyyy-MM-dd HH:mm" />
+                            </h:outputText>
+                        </p:column>
+
+                        <!-- Rejected column -->
+                        <p:column headerText="Rejected" sortBy="#{transaction.rejected}" 
+                                  filterBy="#{transaction.rejected}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.rejected ? 'Yes' : 'No'}" />
+                            <br />
+                            <h:outputText value="Rejected by: #{transaction.rejectedBy.person.name}" rendered="#{transaction.rejected}" />
+                            <br />
+                            <h:outputText value="Rejected at: #{transaction.rejectedAt}" rendered="#{transaction.rejected}">
+                                <f:convertDateTime pattern="yyyy-MM-dd HH:mm" />
+                            </h:outputText>
+                        </p:column>
+
+
+                        <p:column headerText="Requested Reference No" sortBy="#{transaction.fuelTransaction.requestReferenceNumber}" filterBy="#{transaction.fuelTransaction.requestReferenceNumber}" filterMatchMode="contains">
+                            <p:commandLink 
+                                ajax="false" 
+                                value="#{transaction.fuelTransaction.requestReferenceNumber}" 
+                                action="#{reportController.navigateToViewRequest()}">
+                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
+                                </f:setPropertyActionListener>
+                            </p:commandLink>
+                        </p:column>
+
+                        <p:column headerText="Vehicle Number" sortBy="#{transaction.fuelTransaction.vehicle.vehicleNumber}" filterBy="#{transaction.fuelTransaction.vehicle.vehicleNumber}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.fuelTransaction.vehicle.vehicleNumber}" />
+                        </p:column>
+
+                        <p:column headerText="Driver Name" sortBy="#{transaction.fuelTransaction.driver.name}" filterBy="#{transaction.fuelTransaction.driver.name}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.fuelTransaction.driver.name}" />
+                        </p:column>
+
+                        <p:column headerText="Requested Qty" sortBy="#{transaction.fuelTransaction.requestQuantity}" filterBy="#{transaction.fuelTransaction.requestQuantity}" filterMatchMode="numeric">
+                            <h:outputText value="#{transaction.fuelTransaction.requestQuantity}" />
+                        </p:column>
+
+                        <p:column headerText="Issued Qty" sortBy="#{transaction.fuelTransaction.issuedQuantity}" filterBy="#{transaction.fuelTransaction.issuedQuantity}" filterMatchMode="numeric">
+                            <h:outputText value="#{transaction.fuelTransaction.issuedQuantity}" />
+                        </p:column>
+
+                        <p:column headerText="Issue Reference No" sortBy="#{transaction.fuelTransaction.issueReferenceNumber}" filterBy="#{transaction.fuelTransaction.issueReferenceNumber}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.fuelTransaction.issueReferenceNumber}" />
+                        </p:column>
+
+                        <p:column width="150" headerText="Actions">
+
+                            <p:commandButton 
+                                ajax="false" 
+                                value="To Delete"
+                                action="#{fuelRequestAndIssueController.navigateToDeleteRequest(transaction)}"
+                                icon="fa fa-trash" 
+                                styleClass="ui-button-danger m-1">
+                            </p:commandButton>
+                        </p:column>
+
+
+                    </p:dataTable>
+
+
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </h:body>
+</html>

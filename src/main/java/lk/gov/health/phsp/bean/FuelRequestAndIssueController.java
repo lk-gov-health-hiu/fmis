@@ -21,11 +21,14 @@ import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
 import javax.persistence.TemporalType;
 import lk.gov.health.phsp.bean.util.JsfUtil;
+import lk.gov.health.phsp.entity.DataAlterationRequest;
 import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.entity.WebUser;
+import lk.gov.health.phsp.enums.DataAlterationRequestType;
 import lk.gov.health.phsp.enums.FuelTransactionType;
+import lk.gov.health.phsp.facade.DataAlterationRequestFacade;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
 import lk.gov.health.phsp.facade.InstitutionFacade;
 import lk.gov.health.phsp.facade.VehicleFacade;
@@ -46,6 +49,8 @@ public class FuelRequestAndIssueController implements Serializable {
     VehicleFacade vehicleFacade;
     @EJB
     WebUserFacade webUserFacade;
+    @EJB
+    DataAlterationRequestFacade dataAlterationRequestFacade;
 
     @Inject
     private WebUserController webUserController;
@@ -63,6 +68,9 @@ public class FuelRequestAndIssueController implements Serializable {
     WebUserApplicationController webUserApplicationController;
     @Inject
     QRCodeController qrCodeController;
+
+    private DataAlterationRequest dataAlterationRequest;
+    private List<DataAlterationRequest> dataAlterationRequests;
 
     private List<FuelTransaction> transactions = null;
     private List<FuelTransaction> selectedTransactions = null;
@@ -609,6 +617,113 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/moh/request";
     }
 
+    public String navigateToViewDeleteRequestsToAttend() {
+        dataAlterationRequests = findDataAlterationRequests(null, null, null, false, false, DataAlterationRequestType.DELETE_REQUEST);
+        return "/national/admin/delete_requests_to_attend";
+    }
+
+    public void fillDeleteRequests() {
+        dataAlterationRequests = findDataAlterationRequests(fromDate, toDate, institution, null, null, DataAlterationRequestType.DELETE_REQUEST);
+    }
+
+    public List<DataAlterationRequest> findDataAlterationRequests(Date fromDate, Date toDate, Institution ins, Boolean completed, Boolean rejected, DataAlterationRequestType type) {
+        List<DataAlterationRequest> lst;
+        StringBuilder jpql = new StringBuilder("select t from DataAlterationRequest t where 1=1");
+        Map<String, Object> parameters = new HashMap<>();
+
+        if (fromDate != null) {
+            jpql.append(" and t.requestedDate >= :fromDate");
+            parameters.put("fromDate", fromDate);
+        }
+
+        if (toDate != null) {
+            jpql.append(" and t.requestedDate <= :toDate");
+            parameters.put("toDate", toDate);
+        }
+
+        if (ins != null) {
+            jpql.append(" and t.requestedInstitution = :ins");
+            parameters.put("ins", ins);
+        }
+
+        if (completed != null) {
+            jpql.append(" and t.completed = :completed");
+            parameters.put("completed", completed);
+        }
+
+        if (rejected != null) {
+            jpql.append(" and t.rejected = :rejected");
+            parameters.put("rejected", rejected);
+        }
+
+        if (type != null) {
+            jpql.append(" and t.dataAlterationRequestType = :type");
+            parameters.put("type", type);
+        }
+
+        lst = dataAlterationRequestFacade.findByJpql(jpql.toString(), parameters);
+        return lst;
+    }
+
+    public String navigateToDeleteRequest(DataAlterationRequest daq) {
+        if (daq == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        if (daq.getDataAlterationRequestType() != DataAlterationRequestType.DELETE_REQUEST) {
+            JsfUtil.addErrorMessage("Error. Not a Delete Request");
+            return "";
+        }
+        if (daq.getFuelTransaction() == null) {
+            JsfUtil.addErrorMessage("Error. No Trnasaction to delete");
+            return "";
+        }
+        dataAlterationRequest = daq;
+        selected = daq.getFuelTransaction();
+        return "/national/admin/request_delete?faces-redirect=true";
+    }
+
+    public String deleteRequest() {
+        if (dataAlterationRequest == null) {
+            JsfUtil.addErrorMessage("Error");
+            return "";
+        }
+        if (dataAlterationRequest.getDataAlterationRequestType() != DataAlterationRequestType.DELETE_REQUEST) {
+            JsfUtil.addErrorMessage("Error. Not a Delete Request");
+            return "";
+        }
+        if (getSelected() == null) {
+            JsfUtil.addErrorMessage("Error. No Trnasaction to delete");
+            return "";
+        }
+        FuelTransaction ft = getSelected();
+        ft.setRetired(true);
+        ft.setRetiredAt(new Date());
+        ft.setRetiredBy(webUserController.getLoggedUser());
+        if (ft.getId() == null) {
+            fuelTransactionFacade.create(ft);
+        } else {
+            fuelTransactionFacade.edit(ft);
+        }
+        dataAlterationRequest.setCompleted(true);
+        dataAlterationRequest.setCompletedAt(new Date());
+        dataAlterationRequest.setCompletedBy(webUserController.getLoggedUser());
+        dataAlterationRequest.setCompletedDate(new Date());
+        if (dataAlterationRequest.getId() == null) {
+            dataAlterationRequestFacade.create(dataAlterationRequest);
+        } else {
+            dataAlterationRequestFacade.edit(dataAlterationRequest);
+        }
+        setSelected(null);
+        setDataAlterationRequest(null);
+        JsfUtil.addErrorMessage("Deleted");
+        return navigateToViewDeleteRequestsToAttend();
+    }
+
+    public String navigateToViewChangeRequestsToAttend() {
+        return "/national/admin/delete_requests_to_attend";
+    }
+
     public String navigateToAddSpecialVehicleFuelRequest() {
         selected = new FuelTransaction();
         selected.setRequestAt(new Date());
@@ -640,6 +755,55 @@ public class FuelRequestAndIssueController implements Serializable {
     public String navigateToListInstitutionRequests() {
         listInstitutionRequests();
         return "/requests/list";
+    }
+
+    public String navigateToCreateNewDeleteRequest() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Select a transaction");
+            return null;
+        }
+        dataAlterationRequest = new DataAlterationRequest();
+        dataAlterationRequest.setFuelTransaction(selected);
+        dataAlterationRequest.setDataAlterationRequestType(DataAlterationRequestType.DELETE_REQUEST);
+        return "/requests/requested_to_delete";
+    }
+
+    public String submitNewDeleteRequest() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Select a transaction");
+            return null;
+        }
+        if (dataAlterationRequest == null) {
+            JsfUtil.addErrorMessage("Select a transaction");
+            return null;
+        }
+        dataAlterationRequest.setFuelTransaction(selected);
+        dataAlterationRequest.setDataAlterationRequestType(DataAlterationRequestType.DELETE_REQUEST);
+        dataAlterationRequest.setRequestAt(new Date());
+        dataAlterationRequest.setRequestedBy(webUserController.getLoggedUser());
+        dataAlterationRequest.setRequestedDate(new Date());
+        dataAlterationRequest.setRequestedInstitution(webUserController.getLoggedInstitution());
+        dataAlterationRequest.setCompleted(Boolean.FALSE);
+        dataAlterationRequest.setRejected(Boolean.FALSE);
+        dataAlterationRequest.setCreatedAt(new Date());
+        dataAlterationRequest.setCreatedBy(webUserController.getLoggedUser());
+        if (dataAlterationRequest.getId() == null) {
+            dataAlterationRequestFacade.create(dataAlterationRequest);
+        } else {
+            dataAlterationRequestFacade.edit(dataAlterationRequest);
+        }
+        JsfUtil.addSuccessMessage("Successfully Submitted. Referenace Number is " + dataAlterationRequest.getId());
+        dataAlterationRequest = null;
+        selected = null;
+        return navigateToListInstitutionRequests();
+    }
+
+    public String navigateToCreateNewDataChangeRequest() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Select a transaction");
+            return null;
+        }
+        return "/requests/requested_to_delete";
     }
 
     public String navigateToListInstitutionRequestsToMark() {
@@ -841,7 +1005,9 @@ public class FuelRequestAndIssueController implements Serializable {
             return;
         }
         if (saving.getId() == null) {
-            saving.setCreatedAt(new Date());
+            if (saving.getCreatedBy() == null) {
+                saving.setCreatedAt(new Date());
+            }
             if (saving.getCreatedBy() == null) {
                 saving.setCreatedBy(webUserController.getLoggedUser());
             }
@@ -943,6 +1109,22 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setSearchingFuelRequestVehicleNumber(String searchingFuelRequestVehicleNumber) {
         this.searchingFuelRequestVehicleNumber = searchingFuelRequestVehicleNumber;
+    }
+
+    public DataAlterationRequest getDataAlterationRequest() {
+        return dataAlterationRequest;
+    }
+
+    public void setDataAlterationRequest(DataAlterationRequest dataAlterationRequest) {
+        this.dataAlterationRequest = dataAlterationRequest;
+    }
+
+    public List<DataAlterationRequest> getDataAlterationRequests() {
+        return dataAlterationRequests;
+    }
+
+    public void setDataAlterationRequests(List<DataAlterationRequest> dataAlterationRequests) {
+        this.dataAlterationRequests = dataAlterationRequests;
     }
 
     @FacesConverter(forClass = FuelTransaction.class)
