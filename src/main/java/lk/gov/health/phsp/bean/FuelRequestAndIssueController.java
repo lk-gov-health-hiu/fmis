@@ -1005,7 +1005,9 @@ public class FuelRequestAndIssueController implements Serializable {
             return;
         }
         if (saving.getId() == null) {
-            saving.setCreatedAt(new Date());
+            if (saving.getCreatedBy() == null) {
+                saving.setCreatedAt(new Date());
+            }
             if (saving.getCreatedBy() == null) {
                 saving.setCreatedBy(webUserController.getLoggedUser());
             }

@@ -71,6 +71,9 @@ import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.hmac.HMACSigner;
 import io.fusionauth.jwt.hmac.HMACVerifier;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -268,6 +271,7 @@ public class ApiResource {
 
             String requestReferenceNumber = requestObject.optString("requestReferenceNumber");
             String issueReferenceNumber = requestObject.optString("issueReferenceNumber");
+            String refilDate = requestObject.optString("refilDate");
 
             String transactionId = createFuelTransaction(
                     fuelStation,
@@ -280,7 +284,8 @@ public class ApiResource {
                     odoMeterReading,
                     requestReferenceNumber,
                     issueReferenceNumber,
-                    webUser);
+                    webUser,
+                    refilDate);
 
             // Return a success response
             JSONObject responseObject = new JSONObject();
@@ -838,22 +843,25 @@ public class ApiResource {
             Double odoMeterReading,
             String requestReferenceNumber,
             String issueReferenceNumber,
-            WebUser wu) {
+            WebUser wu,
+            String refilDateString) {
 
         FuelTransaction ft = new FuelTransaction();
+
+        Date refilDate=convertStringToDate(refilDateString);
 
         ft.setFromInstitution(hospital);
         ft.setToInstitution(fuelStation);
 
-        ft.setRequestAt(new Date());
-        ft.setRequestedDate(new Date());
-        
-        ft.setCreatedAt(new Date());
+        ft.setRequestAt(refilDate);
+        ft.setRequestedDate(refilDate);
+
+        ft.setCreatedAt(refilDate);
         ft.setCreatedBy(wu);
         ft.setDriver(driver);
         ft.setInstitution(hospital);
-        ft.setIssuedAt(new Date());
-        ft.setIssuedDate(new Date());
+        ft.setIssuedAt(refilDate);
+        ft.setIssuedDate(refilDate);
         ft.setIssued(true);
         ft.setIssuedInstitution(fuelStation);
         ft.setVehicle(vehicle);
@@ -861,14 +869,14 @@ public class ApiResource {
         ft.setIssuedUser(wu);
         ft.setRequestedBy(wu);
         ft.setRequestedInstitution(hospital);
-        
+
         ft.setRequestQuantity((requestQuantity));
         ft.setIssuedQuantity((isssuedQuantity));
 
         ft.setOdoMeterReading((odoMeterReading));
 
-        ft.setTxTime(new Date());
-        ft.setTxDate(new Date());
+        ft.setTxTime(refilDate);
+        ft.setTxDate(refilDate);
         ft.setTransactionType(FuelTransactionType.VehicleFuelRequest);
 
         ft.setInvoiceNo(issueReferenceNumber);
@@ -878,4 +886,18 @@ public class ApiResource {
         fuelRequestAndIssueController.save(ft);
         return ft.getIdString();
     }
+
+    public Date convertStringToDate(String dateString) {
+        if (dateString == null) {
+            return new Date();
+        }
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
+            return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        } catch (Exception e) {
+            return new Date();
+        }
+    }
+
 }
