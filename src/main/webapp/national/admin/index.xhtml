@@ -16,6 +16,7 @@
                             <h:form>
                                 <div class="list-group mt-3">
                                     <p:commandButton value="Delete Requests to Attend" 
+                                                     rendered="false"
                                                      action="#{fuelRequestAndIssueController.navigateToViewDeleteRequestsToAttend()}"
                                                      icon="fa fa-trash"
                                                      class="m-2 ui-button ui-widget ui-state-default ui-corner-all ui-button-danger"
@@ -25,11 +26,13 @@
                                     <p:commandButton value="Change Requests to Attend" 
                                                      action="#{menuController.toListUsers()}"
                                                      icon="fa fa-edit"
+                                                     rendered="false"
                                                      class="m-2 ui-button ui-widget ui-state-default ui-corner-all ui-button-warning"
                                                      ajax="false">
                                     </p:commandButton>
 
                                     <p:commandButton value="View Delete Requests" 
+                                                     rendered="false"
                                                      action="#{fuelRequestAndIssueController.navigateToViewDeleteRequestsToAttend()}"
                                                      icon="fa fa-eye"
                                                      class="m-2 ui-button ui-widget ui-state-default ui-corner-all ui-button-primary"
@@ -39,6 +42,7 @@
                                     <p:commandButton value="View Change Requests" 
                                                      action="#{menuController.toListUsers()}"
                                                      icon="fa fa-eye"
+                                                     rendered="false"
                                                      class="m-2 ui-button ui-widget ui-state-default ui-corner-all ui-button-primary"
                                                      ajax="false">
                                     </p:commandButton>
