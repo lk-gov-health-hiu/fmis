@@ -90,6 +90,10 @@ public class Bill implements Serializable {
     private Double totalQty;
     private Double totalValue;
     
+    @ManyToOne
+    private WebUser billUser;
+    
+    
     
 
     @PrePersist
@@ -222,6 +226,14 @@ public class Bill implements Serializable {
 
     public void setTotalValue(Double totalValue) {
         this.totalValue = totalValue;
+    }
+
+    public WebUser getBillUser() {
+        return billUser;
+    }
+
+    public void setBillUser(WebUser billUser) {
+        this.billUser = billUser;
     }
     
 }

@@ -91,7 +91,7 @@ public class FuelRequestAndIssueController implements Serializable {
     private Date toDate;
 
     private Bill fuelPaymentRequestBill;
-    
+
     private String searchingFuelRequestVehicleNumber;
 
     public FuelRequestAndIssueController() {
@@ -871,21 +871,30 @@ public class FuelRequestAndIssueController implements Serializable {
         }
 
         // Proceed to create a bill with the selected transactions if only one combination is found
-        Bill bill = new Bill();
-        bill.setBillDate(new Date());
-        bill.setBillType("Payment Request From Hospital");
-        bill.setFromInstitution(hospital);
-        bill.setToInstitution(fuelStation);
-        billFacade.create(bill);
+        fuelPaymentRequestBill = new Bill();
+        fuelPaymentRequestBill.setBillDate(new Date());
+        fuelPaymentRequestBill.setBillTime(new Date());
+        fuelPaymentRequestBill.setBillUser(webUserController.getLoggedUser());
+        fuelPaymentRequestBill.setBillType("Payment Request From Hospital");
+        fuelPaymentRequestBill.setFromInstitution(hospital);
+        fuelPaymentRequestBill.setToInstitution(fuelStation);
+        billFacade.create(fuelPaymentRequestBill);
+
+        double qty = 0.0;
 
         for (FuelTransaction sft : selectedTransactions) {
             sft.setSubmittedToPayment(true);
             sft.setSubmittedToPaymentAt(new Date());
             sft.setSubmittedToPaymentBy(webUserController.getLoggedUser());
-            sft.setPaymentBill(bill);
+            sft.setPaymentBill(fuelPaymentRequestBill);
+            if (sft.getIssuedQuantity() != null) {
+                qty += sft.getIssuedQuantity();
+            }
             fuelTransactionFacade.edit(sft);
         }
-        
+
+        fuelPaymentRequestBill.setTotalQty(qty);
+
         return "/requests/list_payment";
 
     }
@@ -1254,8 +1263,6 @@ public class FuelRequestAndIssueController implements Serializable {
     public void setFuelPaymentRequestBill(Bill fuelPaymentRequestBill) {
         this.fuelPaymentRequestBill = fuelPaymentRequestBill;
     }
-    
-    
 
     @FacesConverter(forClass = FuelTransaction.class)
     public static class FuelTransactionConverter implements Converter {
