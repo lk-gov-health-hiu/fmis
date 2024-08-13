@@ -65,7 +65,9 @@ public class WebUser implements Serializable, Nameable {
     WebUser activator;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     Date activatedAt;
-    String activateComments;
+    @Column(name = "ACTIVATECOMMENTS")
+    private String activateComments;
+
     @Enumerated(EnumType.STRING)
     WebUserRole webUserRole;
     @Transient

@@ -34,6 +34,10 @@
                         value="Mark Received Orders" 
                         rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}"
                         action="#{fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Make Payment Orders" 
+                                action="#{fuelRequestAndIssueController.navigateToMakePayment()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Previously Completed Payment Orders" 
+                                action="#{fuelRequestAndIssueController.navigateToMakePayment()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="View Orders" 
                                 action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
                 </p:submenu>

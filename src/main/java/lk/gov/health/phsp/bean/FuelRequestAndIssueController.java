@@ -21,6 +21,7 @@ import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
 import javax.persistence.TemporalType;
 import lk.gov.health.phsp.bean.util.JsfUtil;
+import lk.gov.health.phsp.entity.Bill;
 import lk.gov.health.phsp.entity.DataAlterationRequest;
 import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
@@ -28,6 +29,7 @@ import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.entity.WebUser;
 import lk.gov.health.phsp.enums.DataAlterationRequestType;
 import lk.gov.health.phsp.enums.FuelTransactionType;
+import lk.gov.health.phsp.facade.BillFacade;
 import lk.gov.health.phsp.facade.DataAlterationRequestFacade;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
 import lk.gov.health.phsp.facade.InstitutionFacade;
@@ -51,6 +53,8 @@ public class FuelRequestAndIssueController implements Serializable {
     WebUserFacade webUserFacade;
     @EJB
     DataAlterationRequestFacade dataAlterationRequestFacade;
+    @EJB
+    BillFacade billFacade;
 
     @Inject
     private WebUserController webUserController;
@@ -85,6 +89,8 @@ public class FuelRequestAndIssueController implements Serializable {
     private WebUser webUser;
     private Date fromDate;
     private Date toDate;
+
+    private Bill fuelPaymentRequestBill;
 
     private String searchingFuelRequestVehicleNumber;
 
@@ -757,6 +763,16 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/requests/list";
     }
 
+    public String navigateToMakePayment() {
+        listInstitutionRequestsToPay();
+        return "/requests/list_to_pay";
+    }
+
+    public String navigateToPaymentsMade() {
+        listInstitutionRequestsPaid();
+        return "/requests/list_to_paid";
+    }
+
     public String navigateToCreateNewDeleteRequest() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Select a transaction");
@@ -822,6 +838,104 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listInstitutionRequests() {
+        transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null);
+    }
+
+    public String makePaymentRequest() {
+        if (selectedTransactions == null || selectedTransactions.isEmpty()) {
+            JsfUtil.addErrorMessage("Nothing Selected");
+            return null;
+        }
+
+        Institution hospital = null;
+        Institution fuelStation = null;
+        boolean firstTransaction = true;
+        boolean moreThanOneCombinationOfHospitalAndFuelStation = false;
+
+        for (FuelTransaction sft : selectedTransactions) {
+            if (firstTransaction) {
+                hospital = sft.getFromInstitution();
+                fuelStation = sft.getToInstitution();
+                firstTransaction = false;
+            } else {
+                if (!sft.getFromInstitution().equals(hospital) || !sft.getToInstitution().equals(fuelStation)) {
+                    moreThanOneCombinationOfHospitalAndFuelStation = true;
+                    break;
+                }
+            }
+        }
+
+        if (moreThanOneCombinationOfHospitalAndFuelStation) {
+            JsfUtil.addErrorMessage("You cannot add more than one fuel station and one hospital at a time for a bill");
+            return null;
+        }
+
+        // Proceed to create a bill with the selected transactions if only one combination is found
+        fuelPaymentRequestBill = new Bill();
+        fuelPaymentRequestBill.setBillDate(new Date());
+        fuelPaymentRequestBill.setBillTime(new Date());
+        fuelPaymentRequestBill.setBillUser(webUserController.getLoggedUser());
+        fuelPaymentRequestBill.setBillType("Payment Request From Hospital");
+        fuelPaymentRequestBill.setFromInstitution(hospital);
+        fuelPaymentRequestBill.setToInstitution(fuelStation);
+        billFacade.create(fuelPaymentRequestBill);
+
+        double qty = 0.0;
+
+        for (FuelTransaction sft : selectedTransactions) {
+            sft.setSubmittedToPayment(true);
+            sft.setSubmittedToPaymentAt(new Date());
+            sft.setSubmittedToPaymentBy(webUserController.getLoggedUser());
+            sft.setPaymentBill(fuelPaymentRequestBill);
+            if (sft.getIssuedQuantity() != null) {
+                qty += sft.getIssuedQuantity();
+            }
+            fuelTransactionFacade.edit(sft);
+        }
+
+        fuelPaymentRequestBill.setTotalQty(qty);
+
+        return "/requests/list_payment";
+
+    }
+
+    public void listInstitutionRequestsToPay() {
+        transactions
+                = findFuelTransactions(
+                        null, // institution
+                        webUserController.getLoggedInstitution(), // fromInstitution
+                        null, // toInstitution
+                        null, // vehicles
+                        getFromDate(), // fromDateTime
+                        getToDate(), // toDateTime
+                        null, // issued
+                        null, // cancelled
+                        null, // rejected
+                        false, // submittedToPayment, specifically asking for those not submitted
+                        null, // txTypes
+                        null // type
+                );
+    }
+
+    public void listInstitutionRequestsPaid() {
+        transactions
+                = findFuelTransactions(
+                        null, // institution
+                        webUserController.getLoggedInstitution(), // fromInstitution
+                        null, // toInstitution
+                        null, // vehicles
+                        getFromDate(), // fromDateTime
+                        getToDate(), // toDateTime
+                        null, // issued
+                        null, // cancelled
+                        null, // rejected
+                        true, // submittedToPayment, specifically asking for those not submitted
+                        null, // txTypes
+                        null // type
+                );
+    }
+
+    public void listPendingPaymentRequests() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null);
     }
 
@@ -905,6 +1019,19 @@ public class FuelRequestAndIssueController implements Serializable {
             Boolean rejected,
             List<FuelTransactionType> txTypes,
             FuelTransactionType type) {
+        // Call the new method with an additional 'null' parameter for submittedToPayment
+        return findFuelTransactions(institution, fromInstitution, toInstitution, vehicles, fromDateTime, toDateTime,
+                issued, cancelled, rejected, null, txTypes, type);
+    }
+
+    public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution,
+            List<Vehicle> vehicles, Date fromDateTime, Date toDateTime,
+            Boolean issued,
+            Boolean cancelled,
+            Boolean rejected,
+            Boolean submittedToPayment, // New boolean parameter
+            List<FuelTransactionType> txTypes,
+            FuelTransactionType type) {
         String j = "SELECT ft "
                 + " FROM FuelTransaction ft "
                 + " WHERE ft.retired = false";
@@ -935,24 +1062,26 @@ public class FuelRequestAndIssueController implements Serializable {
             params.put("toDateTime", toDateTime);
         }
         if (issued != null) {
-            j += " AND ft.issued = :issued ";
+            j += " AND ft.issued = :issued";
             params.put("issued", issued);
         }
         if (cancelled != null) {
-            j += " AND ft.cancelled = :cancelled ";
+            j += " AND ft.cancelled = :cancelled";
             params.put("cancelled", cancelled);
         }
         if (rejected != null) {
-            j += " AND ft.rejected = :rejected ";
+            j += " AND ft.rejected = :rejected";
             params.put("rejected", rejected);
         }
+        if (submittedToPayment != null) {  // New condition for submittedToPayment
+            j += " AND ft.submittedToPayment = :submittedToPayment";
+            params.put("submittedToPayment", submittedToPayment);
+        }
         if (type != null) {
-            j += " AND ft.transactionType = :ftxs ";
+            j += " AND ft.transactionType = :ftxs";
             params.put("ftxs", type);
         }
         List<FuelTransaction> fuelTransactions = getFacade().findByJpql(j, params);
-        if (fuelTransactions != null) {
-        }
         return fuelTransactions;
     }
 
@@ -1125,6 +1254,14 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setDataAlterationRequests(List<DataAlterationRequest> dataAlterationRequests) {
         this.dataAlterationRequests = dataAlterationRequests;
+    }
+
+    public Bill getFuelPaymentRequestBill() {
+        return fuelPaymentRequestBill;
+    }
+
+    public void setFuelPaymentRequestBill(Bill fuelPaymentRequestBill) {
+        this.fuelPaymentRequestBill = fuelPaymentRequestBill;
     }
 
     @FacesConverter(forClass = FuelTransaction.class)
