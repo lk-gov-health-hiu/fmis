@@ -1229,6 +1229,12 @@ public class ReportController implements Serializable {
         jpqlBuilder.append("AND b.billDate BETWEEN :fromDate AND :toDate ");
         parameters.put("fromDate", getFromDate());
         parameters.put("toDate", getToDate());
+        
+        
+        jpqlBuilder.append("AND b.toInstitution in :fuelStations ");
+        parameters.put("fuelStations", webUserController.findAutherizedInstitutions());
+        
+        
         System.out.println("JPQL Query after adding date filter: " + jpqlBuilder.toString());
         System.out.println("Parameter 'fromDate' added with value: " + parameters.get("fromDate"));
         System.out.println("Parameter 'toDate' added with value: " + parameters.get("toDate"));
