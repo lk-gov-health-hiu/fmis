@@ -1213,78 +1213,36 @@ public class ReportController implements Serializable {
     }
 
     public void fillPaymentRequestsForCpcHeadOffice() {
-        System.out.println("Entering fillPaymentRequestsForCpcHeadOffice()");
-
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(b) ")
                 .append("FROM Bill b ")
                 .append("WHERE b.retired = :ret ");
-
-        System.out.println("JPQL Query after initialization: " + jpqlBuilder.toString());
-
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("ret", false);
-        System.out.println("Parameter 'ret' added with value: " + parameters.get("ret"));
-
         jpqlBuilder.append("AND b.billDate BETWEEN :fromDate AND :toDate ");
         parameters.put("fromDate", getFromDate());
         parameters.put("toDate", getToDate());
-        
-        
-        jpqlBuilder.append("AND b.toInstitution in :fuelStations ");
-        parameters.put("fuelStations", webUserController.findAutherizedInstitutions());
-        
-        
-        System.out.println("JPQL Query after adding date filter: " + jpqlBuilder.toString());
-        System.out.println("Parameter 'fromDate' added with value: " + parameters.get("fromDate"));
-        System.out.println("Parameter 'toDate' added with value: " + parameters.get("toDate"));
-
-        System.out.println("Executing JPQL Query with parameters...");
         List<FuelIssuedSummary> results = (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
-
-        System.out.println("Query executed. Number of results: " + (results != null ? results.size() : "null"));
-
-        System.out.println("Exiting fillPaymentRequestsForCpcHeadOffice()");
         issuedSummaries = results;
-                
     }
     
     
     public void fillPaymentRequestsForCpcRegionalOffice() {
-        System.out.println("Entering fillPaymentRequestsForCpcHeadOffice()");
-
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(b) ")
                 .append("FROM Bill b ")
                 .append("WHERE b.retired = :ret ");
-
-        System.out.println("JPQL Query after initialization: " + jpqlBuilder.toString());
-
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("ret", false);
-        System.out.println("Parameter 'ret' added with value: " + parameters.get("ret"));
-
         jpqlBuilder.append("AND b.billDate BETWEEN :fromDate AND :toDate ");
         parameters.put("fromDate", getFromDate());
         parameters.put("toDate", getToDate());
-        
         jpqlBuilder.append("AND b.toInstitution in :fuelStations ");
         parameters.put("fuelStations", webUserController.findAutherizedInstitutions());
-        
-        System.out.println("JPQL Query after adding date filter: " + jpqlBuilder.toString());
-        System.out.println("Parameter 'fromDate' added with value: " + parameters.get("fromDate"));
-        System.out.println("Parameter 'toDate' added with value: " + parameters.get("toDate"));
-
-        System.out.println("Executing JPQL Query with parameters...");
         List<FuelIssuedSummary> results = (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
-
-        System.out.println("Query executed. Number of results: " + (results != null ? results.size() : "null"));
-
-        System.out.println("Exiting fillPaymentRequestsForCpcHeadOffice()");
         issuedSummaries = results;
-                
     }
 
     public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummaryForCpcRegionalOffice(Date fd, Date td) {
