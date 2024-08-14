@@ -205,6 +205,14 @@ public class ReportController implements Serializable {
     public String navigateToListFuelRequestsForCpcHeadOffice() {
         return "/reports/cpc_head_office/list?faces-redirect=true;";
     }
+    
+    public String navigateToFuelStationSummaryForCpcHeadOffice() {
+        return "/reports/cpc_head_office/fuel_station_summary?faces-redirect=true;";
+    }
+    
+    public String navigateToFuelStationSummaryByDayForCpcHeadOffice() {
+        return "/reports/cpc_head_office/fuel_station_summary_by_day?faces-redirect=true;";
+    }
 
     public String navigateToListHospitalEstimatessForCpcToPrint() {
         return "/reports/cpc/national_estimate_print?faces-redirect=true;";
@@ -905,6 +913,10 @@ public class ReportController implements Serializable {
     public void fillDieselDistributionFuelStationSummary() {
         issuedSummaries = fillFuelIssuedFromFuelStationSummary(getFromDate(), getToDate());
     }
+    
+    public void fillDieselDistributionFuelStationSummaryByDay() {
+        issuedSummaries = fillFuelIssuedFromFuelStationSummaryByDay(getFromDate(), getToDate());
+    }
 
     public void fillDieselDistributionFuelStationSummaryForInstitution() {
 //        issuedSummaries = fillFuelIssuedFromFuelStationSummaryForInstitution(getFromDate(), getToDate());
@@ -912,6 +924,11 @@ public class ReportController implements Serializable {
 
     public void fillDieselDistributionHealthInstitutionSummary() {
         issuedSummaries = fillFuelIssuedToHealthInstitutionSummary(getFromDate(), getToDate());
+    }
+    
+    
+    public void fillDieselDistributionHealthInstitutionSummaryByDay() {
+        issuedSummaries = fillFuelIssuedToHealthInstitutionSummaryByDay(getFromDate(), getToDate());
     }
 
     public void fillComprehensiveDieselIssuanceSummary() {
@@ -1062,8 +1079,64 @@ public class ReportController implements Serializable {
         return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
     }
+    
+    public List<FuelIssuedSummary> fillFuelIssuedToHealthInstitutionSummaryByDay(Date fd, Date td) {
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
+                .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
+                .append("fi.name, ") // fromInstitution name
+                .append("fi.id, ") // fromInstitution ID
+                .append("SUM(ft.issuedQuantity)") // sum of issued qty
+                .append(") FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.fromInstitution fi ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+
+        if (fd != null && td != null) {
+            jpqlBuilder.append("AND ft.issuedAt BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+
+        // Include all non-aggregated fields in the GROUP BY clause
+        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), fi.name, fi.id ");
+        jpqlBuilder.append("ORDER BY FUNCTION('date', ft.issuedAt), fi.name");
+
+        return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+    }
 
     public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummary(Date fd, Date td) {
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
+                .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
+                .append("ti.name, ") // toInstitution name
+                .append("ti.id, ") // toInstitution ID
+                .append("SUM(ft.issuedQuantity)") // sum of issued qty
+                .append(") FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.toInstitution ti ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+
+        if (fd != null && td != null) {
+            jpqlBuilder.append("AND ft.issuedAt BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+
+        // Include all non-aggregated fields in the GROUP BY clause
+        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), ti.name, ti.id ");
+        jpqlBuilder.append("ORDER BY FUNCTION('date', ft.issuedAt), ti.name");
+
+        return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+    }
+    
+    public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummaryByDay(Date fd, Date td) {
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
                 .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
