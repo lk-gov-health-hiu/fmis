@@ -23,7 +23,7 @@
                         <!-- Process Button -->
                         <p:commandButton value="Process"
                                          ajax="false"
-                                         action="#{reportController.fillDieselDistributionFuelStationSummary()}" />
+                                         action="#{reportController.fillDieselDistributionFuelStationSummaryForCPCRegionalOffice()}" />
 
                     </p:panelGrid>
 
@@ -47,12 +47,14 @@
                         </p:column>
 
                         <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" >
-                            <h:outputText value="#{summary.sumOfIssuedQty}" />
+                            <h:outputText value="#{summary.sumOfIssuedQty}" >
+                                <f:convertNumber pattern="#,##0.0" ></f:convertNumber>
+                            </h:outputText>
                         </p:column>
 
                         <p:column headerText="Action">
-                            <p:commandButton value="View Details" action="#{reportController.navigateToComprehensiveSummaryFromFuelStationSummaryForCpcHeadOffice()}" ajax="false">
-                                <f:setPropertyActionListener value="#{summary.institutionId}" target="#{reportController.fuelStationId}" />
+                            <p:commandButton value="View Details" action="#{reportController.navigateToComprehensiveSummaryFromFuelStationSummaryForCpcRegionalOffice()}" ajax="false">
+                                <f:setPropertyActionListener value="#{summary.fuelStation}" target="#{reportController.toInstitution}" />
                             </p:commandButton>
                         </p:column>
 

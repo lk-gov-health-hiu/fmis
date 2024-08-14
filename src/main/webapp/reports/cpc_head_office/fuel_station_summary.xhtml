@@ -23,7 +23,7 @@
                         <!-- Process Button -->
                         <p:commandButton value="Process"
                                          ajax="false"
-                                         action="#{reportController.fillDieselDistributionFuelStationSummary()}" />
+                                         action="#{reportController.fillDieselDistributionFuelStationSummaryForCPCHedOffice()}" />
 
                     </p:panelGrid>
 
@@ -48,7 +48,9 @@
                         </p:column>
 
                         <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" >
-                            <h:outputText value="#{summary.sumOfIssuedQty}" />
+                            <h:outputText value="#{summary.sumOfIssuedQty}" >
+                                <f:convertNumber pattern="#,##0.0" ></f:convertNumber>
+                            </h:outputText>
                         </p:column>
 
                         <p:column headerText="Action">

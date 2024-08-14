@@ -64,7 +64,7 @@
                                  widgetVar="summaryTable">
 
                         <p:column headerText="Issued Date" sortBy="#{summary.issuedDate}" >
-                            <p:commandLink action="#{reportController.navigateToIndividualTransactionsFromDate()}" >
+                            <p:commandLink disabled="true" action="#{reportController.navigateToIndividualTransactionsFromDate()}" >
                                 <h:outputText value="#{summary.issuedDate}">
                                     <f:convertDateTime pattern="dd/MM/yyyy" />
                                 </h:outputText>
@@ -73,13 +73,13 @@
                         </p:column>
 
                         <p:column headerText="Health Institution" sortBy="#{summary.fromInstitutionName}" filterBy="#{summary.fromInstitutionName}" filterMatchMode="contains">
-                            <p:commandLink action="#{reportController.navigateToIndividualTransactionsFromHealthInstitution()}" value="#{summary.fromInstitutionName}">
+                            <p:commandLink disabled="true" action="#{reportController.navigateToIndividualTransactionsFromHealthInstitution()}" value="#{summary.fromInstitutionName}">
                                 <f:setPropertyActionListener value="#{summary.fromInstitutionId}" target="#{reportController.healthInstitutionId}" />
                             </p:commandLink>
                         </p:column>
 
                         <p:column headerText="Fuel Station" sortBy="#{summary.toInstitutionName}" filterBy="#{summary.toInstitutionName}" filterMatchMode="contains">
-                            <p:commandLink action="#{reportController.navigateToIndividualTransactionsFromFuelStation()}" value="#{summary.toInstitutionName}">
+                            <p:commandLink disabled="true" action="#{reportController.navigateToIndividualTransactionsFromFuelStation()}" value="#{summary.toInstitutionName}">
                                 <f:setPropertyActionListener value="#{summary.toInstitutionId}" target="#{reportController.fuelStationId}" />
                             </p:commandLink>
                         </p:column>

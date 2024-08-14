@@ -64,9 +64,11 @@
                                         <p:commandButton 
                                             value="Make Payment Request"
                                             action="#{fuelRequestAndIssueController.makePaymentRequest()}"
-                                            icon="pi pi-list" 
+                                            icon="pi pi-dollar" 
                                             ajax="false"
-                                            class="btn btn-danger w-100 my-2" />
+                                            class="ui-button-danger my-2"
+                                            onstart="if (!confirm('Are you sure you want to make a payment request?')) return false;" />
+
 
                                         <p:dataTable 
                                             id="tbl" 

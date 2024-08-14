@@ -35,8 +35,10 @@
                         rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}"
                         action="#{fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="Make Payment Orders" 
+                                rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}"
                                 action="#{fuelRequestAndIssueController.navigateToMakePayment()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="Previously Completed Payment Orders" 
+                                rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}"
                                 action="#{fuelRequestAndIssueController.navigateToMakePayment()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="View Orders" 
                                 action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
