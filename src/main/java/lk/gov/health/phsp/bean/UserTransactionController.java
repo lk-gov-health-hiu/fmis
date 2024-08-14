@@ -171,10 +171,14 @@ public class UserTransactionController implements Serializable {
         t.setWebUser(webUserController.getLoggedUser());
         t.setIpAddress(webUserController.getIpAddress());
         t.setTransactionData(sessionId);
-        if (t.getId() == null) {
-            getFacede().create(t);
-        }else{
-            getFacede().edit(t);
+        try {
+            if (t.getId() == null) {
+                getFacede().create(t);
+            } else {
+                getFacede().edit(t);
+            }
+        } catch (Exception e) {
+            System.out.println("e = " + e);
         }
     }
 

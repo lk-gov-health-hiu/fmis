@@ -19,35 +19,7 @@
                             <p:calendar value="#{reportController.toDate}" pattern="dd MMMM yyyy" />
                         </p:panelGrid>
 
-                        <p:panelGrid columns="2">
-                            <p:outputLabel value="Health Institution" />
-                            <p:autoComplete value="#{reportController.fromInstitution}"
-                                            completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
-                                            var="fi"
-                                            itemLabel="#{fi.name}"
-                                            itemValue="#{fi}" />
-
-                            <p:outputLabel value="Fuel Station" />
-                            <h:panelGroup >
-                                <p:autoComplete 
-                                    rendered="#{webUserController.loggedUser.webUserRole.accessLevel eq 'NATIONAL'}"
-                                    value="#{reportController.toInstitution}"
-                                    completeMethod="#{institutionController.completeFuelStations}"
-                                    var="fs"
-                                    itemLabel="#{fs.name}"
-                                    itemValue="#{fs}" />
-                                <p:selectOneMenu 
-                                    filter="true"
-                                    filterMatchMode="contains"
-                                    value="#{reportController.toInstitution}"
-                                    rendered="#{webUserController.loggedUser.webUserRole.accessLevel eq 'NATIONAL'}" >
-                                    <f:selectItem itemLabel="Select" ></f:selectItem>
-                                    <f:selectItems value="#{webUserController.findAutherizedInstitutions}" var="i" itemLabel="#{i.name}" itemValue="#{i}" ></f:selectItems>
-                                </p:selectOneMenu>
-
-                            </h:panelGroup>
-
-                        </p:panelGrid>
+                  
 
                         <p:commandButton value="Process"
                                          ajax="false"

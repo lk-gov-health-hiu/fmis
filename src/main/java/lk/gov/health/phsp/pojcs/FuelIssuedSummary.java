@@ -2,6 +2,7 @@ package lk.gov.health.phsp.pojcs;
 
 import java.io.Serializable;
 import java.util.Date;
+import lk.gov.health.phsp.entity.Institution;
 
 public class FuelIssuedSummary implements Serializable {
 
@@ -13,6 +14,8 @@ public class FuelIssuedSummary implements Serializable {
     private Long institutionId;
     private Long fromInstitutionId;
     private Long toInstitutionId;
+    private Institution fuelStation;
+    private Institution healthInstitution;
 
     // Constructor
     public FuelIssuedSummary(Date issuedDate, String fromInstitutionName, Long fromInstitutionId,
@@ -113,5 +116,28 @@ public class FuelIssuedSummary implements Serializable {
         this.toInstitutionId = toInstitutionId;
         this.sumOfIssuedQty = sumOfIssuedQty;
     }
+    
+    public FuelIssuedSummary(Institution fuelStation,  Double sumOfIssuedQty) {
+        this.fuelStation = fuelStation;
+        this.sumOfIssuedQty = sumOfIssuedQty;
+    }
 
+    public Institution getFuelStation() {
+        return fuelStation;
+    }
+
+    public void setFuelStation(Institution fuelStation) {
+        this.fuelStation = fuelStation;
+    }
+
+    public Institution getHealthInstitution() {
+        return healthInstitution;
+    }
+
+    public void setHealthInstitution(Institution healthInstitution) {
+        this.healthInstitution = healthInstitution;
+    }
+
+    
+    
 }

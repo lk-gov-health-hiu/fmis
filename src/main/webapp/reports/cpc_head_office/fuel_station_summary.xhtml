@@ -37,10 +37,14 @@
                                  currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
                                  widgetVar="summaryTable">
 
-                       
 
-                        <p:column headerText="Fuel Station" sortBy="#{summary.toInstitutionName}" filterBy="#{summary.institutionName}" filterMatchMode="contains">
-                            <h:outputText value="#{summary.toInstitutionName}" />
+
+                        <p:column headerText="Fuel Station" sortBy="#{summary.fuelStation.name}" filterBy="#{summary.fuelStation.name}" filterMatchMode="contains">
+                            <h:outputText value="#{summary.fuelStation.name}" />
+                        </p:column>
+
+                        <p:column headerText="Fuel Station Code" sortBy="#{summary.institutionName}" filterBy="#{summary.institutionName}" filterMatchMode="contains">
+                            <h:outputText value="#{summary.fuelStation.code}" />
                         </p:column>
 
                         <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" >
@@ -48,8 +52,8 @@
                         </p:column>
 
                         <p:column headerText="Action">
-                            <p:commandButton value="View Details" action="#{reportController.navigateToComprehensiveSummaryFromFuelStationSummary()}" ajax="false">
-                                <f:setPropertyActionListener value="#{summary.toInstitutionId}" target="#{reportController.fuelStationId}" />
+                            <p:commandButton value="View Details" action="#{reportController.navigateToComprehensiveSummaryFromFuelStationSummaryForCpcHeadOffice()}" ajax="false">
+                                <f:setPropertyActionListener value="#{summary.fuelStation}" target="#{reportController.toInstitution}" />
                             </p:commandButton>
                         </p:column>
 

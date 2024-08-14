@@ -197,7 +197,7 @@ public class ReportController implements Serializable {
         fillComprehensiveDieselIssuanceSummary();
         return "/reports/comprehensive_diesel_issuance_summary?faces-redirect=true;";
     }
-    
+
     public String navigateToComprehensiveDieselIssuanceSummaryForCpcHeadOffice() {
         fillComprehensiveDieselIssuanceSummary();
         return "/reports/cpc_head_office/comprehensive_diesel_issuance_summary?faces-redirect=true;";
@@ -384,17 +384,15 @@ public class ReportController implements Serializable {
         fromInstitution = null;
         return navigateToComprehensiveDieselIssuanceSummary();
     }
-    
+
     public String navigateToComprehensiveSummaryFromFuelStationSummaryForCpcHeadOffice() {
-        toInstitution = institutionController.getInstitutionById(fuelStationId);
         if (toInstitution == null) {
             JsfUtil.addErrorMessage("Error");
             return null;
         }
         fromInstitution = null;
-        return navigateToComprehensiveDieselIssuanceSummary();
+        return navigateToComprehensiveDieselIssuanceSummaryForCpcHeadOffice();
     }
-
 
     public String navigateToComprehensiveSummaryFromHealthInstitutionSummary() {
         fromInstitution = institutionController.getInstitutionById(healthInstitutionId);
@@ -1126,8 +1124,7 @@ public class ReportController implements Serializable {
     public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummary(Date fd, Date td) {
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
-                .append("ti.name, ") // toInstitution name
-                .append("ti.id, ") // toInstitution ID
+                .append("ti, ") // toInstitution (Institution object)
                 .append("SUM(ft.issuedQuantity)") // sum of issued qty
                 .append(") FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.toInstitution ti ")
@@ -1142,8 +1139,8 @@ public class ReportController implements Serializable {
             parameters.put("toDate", td);
         }
 
-        // Group by the non-aggregated fields
-        jpqlBuilder.append("GROUP BY ti.name, ti.id ");
+        // Group by the non-aggregated fields in the Institution object
+        jpqlBuilder.append("GROUP BY ti ");
         jpqlBuilder.append("ORDER BY ti.name");
 
         return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
