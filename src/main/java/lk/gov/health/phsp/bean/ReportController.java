@@ -197,6 +197,11 @@ public class ReportController implements Serializable {
         fillComprehensiveDieselIssuanceSummary();
         return "/reports/comprehensive_diesel_issuance_summary?faces-redirect=true;";
     }
+    
+    public String navigateToComprehensiveDieselIssuanceSummaryForCpcHeadOffice() {
+        fillComprehensiveDieselIssuanceSummary();
+        return "/reports/cpc_head_office/comprehensive_diesel_issuance_summary?faces-redirect=true;";
+    }
 
     public String navigateToListFuelRequestsForCpc() {
         return "/reports/cpc/list?faces-redirect=true;";
@@ -205,11 +210,11 @@ public class ReportController implements Serializable {
     public String navigateToListFuelRequestsForCpcHeadOffice() {
         return "/reports/cpc_head_office/list?faces-redirect=true;";
     }
-    
+
     public String navigateToFuelStationSummaryForCpcHeadOffice() {
         return "/reports/cpc_head_office/fuel_station_summary?faces-redirect=true;";
     }
-    
+
     public String navigateToFuelStationSummaryByDayForCpcHeadOffice() {
         return "/reports/cpc_head_office/fuel_station_summary_by_day?faces-redirect=true;";
     }
@@ -379,6 +384,17 @@ public class ReportController implements Serializable {
         fromInstitution = null;
         return navigateToComprehensiveDieselIssuanceSummary();
     }
+    
+    public String navigateToComprehensiveSummaryFromFuelStationSummaryForCpcHeadOffice() {
+        toInstitution = institutionController.getInstitutionById(fuelStationId);
+        if (toInstitution == null) {
+            JsfUtil.addErrorMessage("Error");
+            return null;
+        }
+        fromInstitution = null;
+        return navigateToComprehensiveDieselIssuanceSummary();
+    }
+
 
     public String navigateToComprehensiveSummaryFromHealthInstitutionSummary() {
         fromInstitution = institutionController.getInstitutionById(healthInstitutionId);
@@ -541,7 +557,7 @@ public class ReportController implements Serializable {
         }
 
         // Write the workbook to the file
-        try ( FileOutputStream fileOut = new FileOutputStream("transactions.xlsx")) {
+        try (FileOutputStream fileOut = new FileOutputStream("transactions.xlsx")) {
             workbook.write(fileOut);
         }
 
@@ -913,7 +929,7 @@ public class ReportController implements Serializable {
     public void fillDieselDistributionFuelStationSummary() {
         issuedSummaries = fillFuelIssuedFromFuelStationSummary(getFromDate(), getToDate());
     }
-    
+
     public void fillDieselDistributionFuelStationSummaryByDay() {
         issuedSummaries = fillFuelIssuedFromFuelStationSummaryByDay(getFromDate(), getToDate());
     }
@@ -925,8 +941,7 @@ public class ReportController implements Serializable {
     public void fillDieselDistributionHealthInstitutionSummary() {
         issuedSummaries = fillFuelIssuedToHealthInstitutionSummary(getFromDate(), getToDate());
     }
-    
-    
+
     public void fillDieselDistributionHealthInstitutionSummaryByDay() {
         issuedSummaries = fillFuelIssuedToHealthInstitutionSummaryByDay(getFromDate(), getToDate());
     }
@@ -1079,7 +1094,7 @@ public class ReportController implements Serializable {
         return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
     }
-    
+
     public List<FuelIssuedSummary> fillFuelIssuedToHealthInstitutionSummaryByDay(Date fd, Date td) {
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
@@ -1111,7 +1126,6 @@ public class ReportController implements Serializable {
     public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummary(Date fd, Date td) {
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
-                .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
                 .append("ti.name, ") // toInstitution name
                 .append("ti.id, ") // toInstitution ID
                 .append("SUM(ft.issuedQuantity)") // sum of issued qty
@@ -1128,14 +1142,14 @@ public class ReportController implements Serializable {
             parameters.put("toDate", td);
         }
 
-        // Include all non-aggregated fields in the GROUP BY clause
-        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), ti.name, ti.id ");
-        jpqlBuilder.append("ORDER BY FUNCTION('date', ft.issuedAt), ti.name");
+        // Group by the non-aggregated fields
+        jpqlBuilder.append("GROUP BY ti.name, ti.id ");
+        jpqlBuilder.append("ORDER BY ti.name");
 
         return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
     }
-    
+
     public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummaryByDay(Date fd, Date td) {
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")

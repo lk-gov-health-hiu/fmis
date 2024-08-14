@@ -37,14 +37,10 @@
                                  currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
                                  widgetVar="summaryTable">
 
-                        <p:column headerText="Issued Date" sortBy="#{summary.issuedDate}" >
-                            <h:outputText value="#{summary.issuedDate}">
-                                <f:convertDateTime pattern="dd/MM/yyyy" />
-                            </h:outputText>
-                        </p:column>
+                       
 
-                        <p:column headerText="Fuel Station" sortBy="#{summary.institutionName}" filterBy="#{summary.institutionName}" filterMatchMode="contains">
-                            <h:outputText value="#{summary.institutionName}" />
+                        <p:column headerText="Fuel Station" sortBy="#{summary.toInstitutionName}" filterBy="#{summary.institutionName}" filterMatchMode="contains">
+                            <h:outputText value="#{summary.toInstitutionName}" />
                         </p:column>
 
                         <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" >
@@ -53,7 +49,7 @@
 
                         <p:column headerText="Action">
                             <p:commandButton value="View Details" action="#{reportController.navigateToComprehensiveSummaryFromFuelStationSummary()}" ajax="false">
-                                <f:setPropertyActionListener value="#{summary.institutionId}" target="#{reportController.fuelStationId}" />
+                                <f:setPropertyActionListener value="#{summary.toInstitutionId}" target="#{reportController.fuelStationId}" />
                             </p:commandButton>
                         </p:column>
 

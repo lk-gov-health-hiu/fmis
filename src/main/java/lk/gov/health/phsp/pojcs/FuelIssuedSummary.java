@@ -107,4 +107,11 @@ public class FuelIssuedSummary implements Serializable {
     public void setInstitutionId(Long institutionId) {
         this.institutionId = institutionId;
     }
+
+    public FuelIssuedSummary(String toInstitutionName, Long toInstitutionId, Double sumOfIssuedQty) {
+        this.toInstitutionName = toInstitutionName;
+        this.toInstitutionId = toInstitutionId;
+        this.sumOfIssuedQty = sumOfIssuedQty;
+    }
+
 }
