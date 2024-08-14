@@ -226,6 +226,10 @@ public class ReportController implements Serializable {
     public String navigateToPaymentRequestsForCpcHeadOffice() {
         return "/reports/cpc_head_office/payment_requests?faces-redirect=true;";
     }
+    
+    public String navigateToPaymentRequestsForCpcRegionalOffice() {
+        return "/reports/cpc/payment_requests?faces-redirect=true;";
+    }
 
     public String navigateToFuelStationSummaryForCpcRegional() {
         return "/reports/cpc/fuel_station_summary?faces-redirect=true;";
@@ -422,6 +426,20 @@ public class ReportController implements Serializable {
         params.put("b", bill);
         billTransactions = fuelTransactionFacade.findByJpql(jpql, params);
         return "/reports/cpc_head_office/bill?faces-redirect=true";
+    }
+    
+    public String navigateToViewPaymentRequestForCpcRegionalOffice() {
+        if (bill == null) {
+            JsfUtil.addErrorMessage("Error");
+            return null;
+        }
+        String jpql = "select t "
+                + " from FuelTransaction t "
+                + " where t.paymentBill=:b ";
+        Map params = new HashMap();
+        params.put("b", bill);
+        billTransactions = fuelTransactionFacade.findByJpql(jpql, params);
+        return "/reports/cpc/bill?faces-redirect=true";
     }
 
     public String navigateToComprehensiveSummaryFromFuelStationSummaryForCpcRegionalOffice() {
@@ -1211,6 +1229,43 @@ public class ReportController implements Serializable {
         jpqlBuilder.append("AND b.billDate BETWEEN :fromDate AND :toDate ");
         parameters.put("fromDate", getFromDate());
         parameters.put("toDate", getToDate());
+        System.out.println("JPQL Query after adding date filter: " + jpqlBuilder.toString());
+        System.out.println("Parameter 'fromDate' added with value: " + parameters.get("fromDate"));
+        System.out.println("Parameter 'toDate' added with value: " + parameters.get("toDate"));
+
+        System.out.println("Executing JPQL Query with parameters...");
+        List<FuelIssuedSummary> results = (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+
+        System.out.println("Query executed. Number of results: " + (results != null ? results.size() : "null"));
+
+        System.out.println("Exiting fillPaymentRequestsForCpcHeadOffice()");
+        issuedSummaries = results;
+                
+    }
+    
+    
+    public void fillPaymentRequestsForCpcRegionalOffice() {
+        System.out.println("Entering fillPaymentRequestsForCpcHeadOffice()");
+
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(b) ")
+                .append("FROM Bill b ")
+                .append("WHERE b.retired = :ret ");
+
+        System.out.println("JPQL Query after initialization: " + jpqlBuilder.toString());
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+        System.out.println("Parameter 'ret' added with value: " + parameters.get("ret"));
+
+        jpqlBuilder.append("AND b.billDate BETWEEN :fromDate AND :toDate ");
+        parameters.put("fromDate", getFromDate());
+        parameters.put("toDate", getToDate());
+        
+        jpqlBuilder.append("AND b.toInstitution in :fuelStations ");
+        parameters.put("fuelStations", webUserController.findAutherizedInstitutions());
+        
         System.out.println("JPQL Query after adding date filter: " + jpqlBuilder.toString());
         System.out.println("Parameter 'fromDate' added with value: " + parameters.get("fromDate"));
         System.out.println("Parameter 'toDate' added with value: " + parameters.get("toDate"));

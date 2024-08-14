@@ -902,6 +902,7 @@ public class FuelRequestAndIssueController implements Serializable {
         }
 
         fuelPaymentRequestBill.setTotalQty(qty);
+        billFacade.edit(fuelPaymentRequestBill);
         paymentRequestStarted = false;
         return "/requests/list_payment?faces-redirect=true";
 

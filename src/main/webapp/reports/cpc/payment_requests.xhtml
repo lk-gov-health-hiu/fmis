@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+        <ui:composition template="./index.xhtml">
+            <ui:define name="reports">
+                <h:form>
+                    <p:panelGrid columns="3">
+                        <!-- Date Filters -->
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="From" />
+                            <p:calendar value="#{reportController.fromDate}" pattern="dd MMMM yyyy" />
+
+                            <p:outputLabel value="To" />
+                            <p:calendar value="#{reportController.toDate}" pattern="dd MMMM yyyy" />
+                        </p:panelGrid>
+
+                        <!-- Process Button -->
+                        <p:commandButton value="Process"
+                                         ajax="false"
+                                         action="#{reportController.fillPaymentRequestsForCpcHeadOffice}" />
+
+                    </p:panelGrid>
+
+                    <!-- Data Table -->
+                    <p:dataTable var="summary"
+                                 value="#{reportController.issuedSummaries}"
+                                 paginator="true"
+                                 rows="10"
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15"
+                                 currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
+                                 widgetVar="summaryTable">
+                        
+                        <p:column headerText="Bill No" sortBy="#{summary.bill.billNo}" filterBy="#{summary.bill.billNo}" filterMatchMode="contains">
+                            <h:outputText value="#{summary.bill.billNo}" />
+                        </p:column>
+
+                        <p:column headerText="Hospital" sortBy="#{summary.bill.fromInstitution.name}" filterBy="#{summary.bill.fromInstitution.name}" filterMatchMode="contains">
+                            <h:outputText value="#{summary.bill.fromInstitution.name}" />
+                        </p:column>
+
+                        <p:column headerText="Fuel Station" sortBy="#{summary.bill.toInstitution.name}" filterBy="#{summary.bill.toInstitution.name}" filterMatchMode="contains">
+                            <h:outputText value="#{summary.bill.toInstitution.name}" />
+                        </p:column>
+
+                        <p:column headerText="Fuel Station Code" sortBy="#{summary.bill.toInstitution.code}" filterBy="#{summary.bill.toInstitution.code}" filterMatchMode="contains">
+                            <h:outputText value="#{summary.bill.toInstitution.code}" />
+                        </p:column>
+
+                        <p:column headerText="Bill Date" sortBy="#{summary.bill.billDate}" filterBy="#{summary.bill.billDate}">
+                            <h:outputText value="#{summary.bill.billDate}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}">
+                            <h:outputText value="#{summary.bill.totalQty}">
+                                <f:convertNumber pattern="#,##0.0" />
+                            </h:outputText>
+                        </p:column>
+
+                        
+
+                        <p:column headerText="Action">
+                            <p:commandButton value="View Details" action="#{reportController.navigateToViewPaymentRequestForCpcRegionalOffice()}" ajax="false">
+                                <f:setPropertyActionListener value="#{summary.bill}" target="#{reportController.bill}" />
+                            </p:commandButton>
+                        </p:column>
+
+                    </p:dataTable>
+
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
