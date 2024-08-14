@@ -47,7 +47,7 @@ public class UserTransactionController implements Serializable {
 
     @EJB
     private UserTransactionFacade facede;
- // </editor-fold>
+    // </editor-fold>
 
 // <editor-fold defaultstate="collapsed" desc="CDIs">
     @Inject
@@ -119,7 +119,7 @@ public class UserTransactionController implements Serializable {
 
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        
+
         if (ip != null && !ip.trim().equals("")) {
             j += " and c.ipAddress=:ip ";
             m.put("ip", ip.trim());
@@ -128,7 +128,6 @@ public class UserTransactionController implements Serializable {
         j = j + " group by c.ipAddress having count(c)>5";
         j = j + " order by c.webUser.name ";
 
-     
     }
 
     public void search() {
@@ -172,7 +171,11 @@ public class UserTransactionController implements Serializable {
         t.setWebUser(webUserController.getLoggedUser());
         t.setIpAddress(webUserController.getIpAddress());
         t.setTransactionData(sessionId);
-        getFacede().create(t);
+        if (t.getId() == null) {
+            getFacede().create(t);
+        }else{
+            getFacede().edit(t);
+        }
     }
 
     public void save(UserTransaction us) {
@@ -281,8 +284,6 @@ public class UserTransactionController implements Serializable {
     public void setUserTransactionTypes(List<String> userTransactionTypes) {
         this.userTransactionTypes = userTransactionTypes;
     }
-
- 
 
     public Long getLoginCount() {
         return loginCount;

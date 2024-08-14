@@ -841,9 +841,17 @@ public class FuelRequestAndIssueController implements Serializable {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null);
     }
 
+    boolean paymentRequestStarted = false;
+
     public String makePaymentRequest() {
+        if (paymentRequestStarted) {
+            JsfUtil.addErrorMessage("Already started");
+            return null;
+        }
+        paymentRequestStarted = true;
         if (selectedTransactions == null || selectedTransactions.isEmpty()) {
             JsfUtil.addErrorMessage("Nothing Selected");
+            paymentRequestStarted = false;
             return null;
         }
 
@@ -894,8 +902,8 @@ public class FuelRequestAndIssueController implements Serializable {
         }
 
         fuelPaymentRequestBill.setTotalQty(qty);
-
-        return "/requests/list_payment";
+        paymentRequestStarted = false;
+        return "/requests/list_payment?faces-redirect=true";
 
     }
 

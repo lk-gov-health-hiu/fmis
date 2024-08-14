@@ -43,7 +43,7 @@
                         <!-- Data Table for Transactions -->
                         <p:dataTable var="transaction" value="#{fuelRequestAndIssueController.selectedTransactions}" styleClass="table">
                             <p:column headerText="Vehicle">
-                                <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
+                                <h:outputText value="#{transaction.vehicle}" />
                             </p:column>
                             <p:column headerText="Ref">
                                 <h:outputText value="#{transaction.requestReferenceNumber}" />

@@ -49,14 +49,10 @@
                                                              ajax="false"
                                                              class="btn btn-primary w-100 my-2" />
 
-                                            <p:commandButton value="Make Payment Request"
-                                                             action="#{fuelRequestAndIssueController.makePaymentRequest()}"
-                                                             icon="pi pi-list" 
-                                                             ajax="false"
-                                                             class="btn btn-primary w-100 my-2" />
+
 
                                         </p:panelGrid>
-                                        
+
                                         <p:messages ></p:messages>
 
 
@@ -64,6 +60,14 @@
                                     </div>
 
                                     <div class="col-9 p-2" >
+
+                                        <p:commandButton 
+                                            value="Make Payment Request"
+                                            action="#{fuelRequestAndIssueController.makePaymentRequest()}"
+                                            icon="pi pi-list" 
+                                            ajax="false"
+                                            class="btn btn-danger w-100 my-2" />
+
                                         <p:dataTable 
                                             id="tbl" 
                                             value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}" 
