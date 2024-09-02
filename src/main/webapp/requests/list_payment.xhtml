@@ -6,6 +6,33 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
+    <head>
+        <style>
+            /* Styling for A4 Page */
+            @page {
+                size: A4;
+                margin: 10mm;
+            }
+
+            .a4-page {
+                width: 210mm;
+                height: 297mm;
+                margin: 0 auto;
+                padding: 10mm;
+                background: white;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            @media print {
+                .a4-page {
+                    box-shadow: none;
+                    margin: 0;
+                    page-break-after: always;
+                }
+            }
+        </style>
+    </head>
+
     <body>
 
         <ui:composition template="./../template.xhtml">
@@ -16,86 +43,124 @@
 
             <ui:define name="content">
                 <h:form id="billForm">
-                    <!-- Bill Header -->
-
-                    <p:commandButton value="Print" ajax="false" >
-                        <p:printer target="bill" ></p:printer>
+                    <!-- Buttons for Print and PDF -->
+                    <p:commandButton value="Print" ajax="false" icon="pi pi-print" styleClass="mr-2">
+                        <p:printer target="panelBill"/>
                     </p:commandButton>
 
-                    <h:panelGroup id="bill" style="size: A4; margin: auto;" >
+                   
 
+                    <h:panelGroup id="panelBill" >
+                        <div class="a4-page" id="billPanel">
+                            <div class="container-fluid p-5">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="card m-1 p-1">
+                                            <h:panelGroup layout="block" id="bill">
+                                                <!-- Bill Header Images -->
+                                                <div class="my-2 d-flex justify-content-center">
+                                                    <div class="shadow p-3">
+                                                        <h:graphicImage style="height: 6em; margin-right: 1em;" library="image"
+                                                                        name="jf.png"></h:graphicImage>
+                                                    </div>
+                                                    <div class="shadow p-3">
+                                                        <h:graphicImage style="height: 6em;" library="image"
+                                                                        name="slf.png"></h:graphicImage>
+                                                    </div>
+                                                </div>
 
-                        <p:panelGrid columns="2" styleClass="table table-bordered" columnClasses="font-weight-bold,">
-                            <f:facet name="header">
-                                <p:outputLabel value="Fuel Payment Request" styleClass="h4" />
-                            </f:facet>
-                            <h:outputText value="Request Number:" />
-                            <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billNo}" />
-                            <h:outputText value="Institution:" />
-                            <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.name}" />
-                            <h:outputText value="Fuel Station:" />
-                            <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.toInstitution.name}" />
-                            <h:outputText value="Total Quantity:" />
-                            <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}" />
+                                                <div class="my-2 d-flex justify-content-around">
+                                                    <h:graphicImage style="height: 5em;" library="image"
+                                                                    name="cpc.png"></h:graphicImage>
+                                                    <h:graphicImage style="height: 5em; width:130px;" library="image"
+                                                                    name="jics.svg"></h:graphicImage>
+                                                    <h:graphicImage style="height: 5em;" class="bg-light" library="image"
+                                                                    name="sl.png"></h:graphicImage>
+                                                </div>
 
-                        </p:panelGrid>
+                                                <!-- Bill Information Table -->
+                                                <p:panelGrid columns="2" styleClass="table table-bordered"
+                                                             columnClasses="font-weight-bold,">
+                                                    <f:facet name="header">
+                                                        <p:outputLabel value="Fuel Payment Request" styleClass="h4"/>
+                                                    </f:facet>
+                                                    <h:outputText value="Request Number:"/>
+                                                    <h:outputText
+                                                        value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billNo}"/>
+                                                    <h:outputText value="Institution:"/>
+                                                    <h:outputText
+                                                        value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.name}"/>
+                                                    <h:outputText value="Fuel Station:"/>
+                                                    <h:outputText
+                                                        value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.toInstitution.name}"/>
+                                                    <h:outputText value="Total Quantity:"/>
+                                                    <h:outputText
+                                                        value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}"/>
+                                                </p:panelGrid>
 
-                        <!-- Data Table for Transactions -->
-                        <p:dataTable var="transaction" value="#{fuelRequestAndIssueController.selectedTransactions}" styleClass="table">
-                            <p:column headerText="Vehicle">
-                                <h:outputText value="#{transaction.vehicle}" />
-                            </p:column>
-                            <p:column headerText="Ref">
-                                <h:outputText value="#{transaction.requestReferenceNumber}" />
-                            </p:column>
-                            <p:column headerText="Req. At">
-                                <h:outputText value="#{transaction.requestedDate}" >
-                                    <f:convertDateTime pattern="dd MMM yyyy" />
-                                </h:outputText>
-                            </p:column>
-                            <p:column headerText="Req. Qty">
-                                <h:outputText value="#{transaction.requestQuantity}" />
-                            </p:column>
-                            <p:column headerText="Iss. At">
-                                <h:outputText value="#{transaction.issuedAt}">
-                                    <f:convertDateTime pattern="dd MMM yyyy" />
-                                </h:outputText>
-                                <h:outputText value="Not Issued" style="color: red;" rendered="#{not transaction.issued}" />
-                            </p:column>
-                            <p:column headerText="Iss. Qty">
-                                <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
-                            </p:column>
-                            <p:column headerText="Issue Referance No" >
-                                <h:outputText value="#{transaction.issueReferenceNumber}" />
-                            </p:column>
-                        </p:dataTable>
+                                                <!-- Transactions Table -->
+                                                <p:dataTable var="transaction"
+                                                             value="#{fuelRequestAndIssueController.selectedTransactions}"
+                                                             styleClass="table">
+                                                    <p:column headerText="Vehicle">
+                                                        <h:outputText value="#{transaction.vehicle.vehicleNumber}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Ref">
+                                                        <h:outputText value="#{transaction.requestReferenceNumber}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Req. At">
+                                                        <h:outputText value="#{transaction.requestedDate}">
+                                                            <f:convertDateTime pattern="dd MMM yyyy"/>
+                                                        </h:outputText>
+                                                    </p:column>
+                                                    <p:column headerText="Req. Qty">
+                                                        <h:outputText value="#{transaction.requestQuantity}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Iss. At">
+                                                        <h:outputText value="#{transaction.issuedAt}">
+                                                            <f:convertDateTime pattern="dd MMM yyyy"/>
+                                                        </h:outputText>
+                                                        <h:outputText value="Not Issued" style="color: red;"
+                                                                      rendered="#{not transaction.issued}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Iss. Qty">
+                                                        <h:outputText
+                                                            value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}"/>
+                                                    </p:column>
+                                                </p:dataTable>
 
+                                                <!-- Footer Information Table -->
+                                                <p:panelGrid columns="2" styleClass="table table-bordered"
+                                                             columnClasses="font-weight-bold,">
+                                                    <h:outputText value="Request Date:"/>
+                                                    <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billDate}">
+                                                        <f:convertDateTime pattern="dd MMM yyyy"/>
+                                                    </h:outputText>
+                                                    <h:outputText value="Request Time:"/>
+                                                    <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billTime}">
+                                                        <f:convertDateTime pattern="HH:mm:ss"/>
+                                                    </h:outputText>
+                                                    <h:outputText value="User:"/>
+                                                    <h:outputText
+                                                        value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.nameWithTitle}"/>
+                                                </p:panelGrid>
 
-
-                        <p:panelGrid columns="2" styleClass="table table-bordered" columnClasses="font-weight-bold,">
-                            <h:outputText value="Request Date:" />
-                            <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billDate}">
-                                <f:convertDateTime pattern="dd MMM yyyy" />
-                            </h:outputText>
-                            <h:outputText value="Request Time:" />
-                            <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billTime}">
-                                <f:convertDateTime pattern="HH:mm:ss" />
-                            </h:outputText>
-                            <h:outputText value="User:" />
-                            <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.nameWithTitle}" />
-
-                        </p:panelGrid>
-
+                                            </h:panelGroup>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </h:panelGroup>
 
 
+
+
                 </h:form>
-
             </ui:define>
-
-
-
         </ui:composition>
-
     </body>
 </html>
+
+
+
