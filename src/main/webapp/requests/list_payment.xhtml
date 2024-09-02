@@ -127,6 +127,11 @@
                                                         <h:outputText
                                                             value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}"/>
                                                     </p:column>
+                            <p:column headerText="Issue Referance No" 
+                                      sortBy="#{transaction.issueReferenceNumber}"
+                                      filterBy="#{transaction.issueReferenceNumber}">
+                                <h:outputText value="#{transaction.issueReferenceNumber}" />
+                            </p:column>
                                                 </p:dataTable>
 
                                                 <!-- Footer Information Table -->

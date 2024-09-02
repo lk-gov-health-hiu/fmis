@@ -1,5 +1,9 @@
 package lk.gov.health.phsp.enums;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * @author Dr M H B Ariyaratne
  */
@@ -55,5 +59,29 @@ public enum InstitutionType {
 
     public InstitutionCategory getCategory() {
         return category;
+    }
+    
+    public static List<InstitutionType> getHealthcareInstitutionTypes() {
+        return Arrays.stream(InstitutionType.values())
+                .filter(instType -> instType == InstitutionType.Ministry_of_Health
+                        || instType == InstitutionType.Hospital
+                        || instType == InstitutionType.National_Hospital
+                        || instType == InstitutionType.Teaching_Hospital
+                        || instType == InstitutionType.District_General_Hospital
+                        || instType == InstitutionType.Base_Hospital
+                        || instType == InstitutionType.Divisional_Hospital
+                        || instType == InstitutionType.Primary_Medical_Care_Unit
+                        || instType == InstitutionType.MOH_Office
+                        || instType == InstitutionType.Provincial_General_Hospital
+                        || instType == InstitutionType.Provincial_Department_of_Health_Services
+                        || instType == InstitutionType.Regional_Department_of_Health_Department
+                        || instType == InstitutionType.Ayurvedic_Hospital
+                        || instType == InstitutionType.Indigenous_Medicine_Department
+                        || instType == InstitutionType.Ayurvedic_Department
+                        || instType == InstitutionType.Provincial_Ayurvedic_Department
+                        || instType == InstitutionType.District_Ayurvedic_Department
+                        || instType == InstitutionType.Herbal_Guardian
+                        || instType == InstitutionType.Suwa_Sariya)
+                .collect(Collectors.toList());
     }
 }
