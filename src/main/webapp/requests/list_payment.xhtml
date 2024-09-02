@@ -37,7 +37,7 @@
                             <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.toInstitution.name}" />
                             <h:outputText value="Total Quantity:" />
                             <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}" />
-                          
+
                         </p:panelGrid>
 
                         <!-- Data Table for Transactions -->
@@ -64,6 +64,9 @@
                             </p:column>
                             <p:column headerText="Iss. Qty">
                                 <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
+                            </p:column>
+                            <p:column headerText="Issue Referance No" >
+                                <h:outputText value="#{transaction.issueReferenceNumber}" />
                             </p:column>
                         </p:dataTable>
 

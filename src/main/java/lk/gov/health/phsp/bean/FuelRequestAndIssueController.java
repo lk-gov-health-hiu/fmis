@@ -859,6 +859,7 @@ public class FuelRequestAndIssueController implements Serializable {
         Institution fuelStation = null;
         boolean firstTransaction = true;
         boolean moreThanOneCombinationOfHospitalAndFuelStation = false;
+        boolean hasTrasnsactionNotYetMarkedAsIssued=false;
 
         for (FuelTransaction sft : selectedTransactions) {
             if (firstTransaction) {
@@ -871,10 +872,18 @@ public class FuelRequestAndIssueController implements Serializable {
                     break;
                 }
             }
+            if(!sft.isIssued()){
+                hasTrasnsactionNotYetMarkedAsIssued=true;
+            }
         }
 
         if (moreThanOneCombinationOfHospitalAndFuelStation) {
             JsfUtil.addErrorMessage("You cannot add more than one fuel station and one hospital at a time for a bill");
+            return null;
+        }
+        
+         if (hasTrasnsactionNotYetMarkedAsIssued) {
+            JsfUtil.addErrorMessage("You have transactions which are not yet marked as issued, Please remove them and retry");
             return null;
         }
 
