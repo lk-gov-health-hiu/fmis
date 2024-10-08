@@ -24,7 +24,11 @@
 package lk.gov.health.phsp.pojcs;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import javax.persistence.Transient;
 
 /**
  *
@@ -171,6 +175,23 @@ public class FuelTransactionLight implements Serializable {
 
     public Date getDate() {
         return date;
+    }
+    
+    
+    @Transient
+    public int getWeekOfTheYear(){
+        if(date==null) return 0;
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        return c.get(Calendar.WEEK_OF_YEAR);
+    }
+    
+    @Transient
+    public String getFormattedDate(){
+        if(date==null) return "";
+        String pattern = "dd MMMM yyyy";
+        DateFormat sfd = new SimpleDateFormat(pattern);
+        return sfd.format(date);
     }
 
     public void setDate(Date date) {
