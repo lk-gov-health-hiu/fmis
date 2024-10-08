@@ -38,6 +38,7 @@ public class FuelTransactionLight implements Serializable {
 
     private Long id;
     private Date date;
+    private Date issuedDate;
     private String requestReferenceNumber;
     private String vehicleNumber;
     private Double requestQuantity;
@@ -62,6 +63,9 @@ public class FuelTransactionLight implements Serializable {
         this.issuedQuantity = issuedQuantity;
         this.issueReferenceNumber = issueReferenceNumber;
     }
+    
+    
+    
 
     public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
             String vehicleNumber, Double requestQuantity,
@@ -117,6 +121,21 @@ public class FuelTransactionLight implements Serializable {
         this.issuedQuantity = issuedQuantity;
         this.issueReferenceNumber = issueReferenceNumber;
         this.toInstitutionCode = toInstitutionCode;
+    }
+    
+    public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
+            String vehicleNumber, Double requestQuantity,
+            Double issuedQuantity, String issueReferenceNumber,
+                                String toInstitutionCode, Date issuedDate) {
+        this.id = id;
+        this.date = date;
+        this.requestReferenceNumber = requestReferenceNumber;
+        this.vehicleNumber = vehicleNumber;
+        this.requestQuantity = requestQuantity;
+        this.issuedQuantity = issuedQuantity;
+        this.issueReferenceNumber = issueReferenceNumber;
+        this.toInstitutionCode = toInstitutionCode;
+        this.issuedDate = issuedDate;
     }
 
     
@@ -260,6 +279,14 @@ public class FuelTransactionLight implements Serializable {
 
     public void setDriverName(String driverName) {
         this.driverName = driverName;
+    }
+
+    public Date getIssuedDate() {
+        return issuedDate;
+    }
+
+    public void setIssuedDate(Date issuedDate) {
+        this.issuedDate = issuedDate;
     }
     
     
