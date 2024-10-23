@@ -94,7 +94,7 @@
                                                 <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
                                             </p:column>
 
-                                            <p:column headerText="Ref" 
+                                            <p:column headerText="Ref.No" 
                                                       sortBy="#{transaction.requestReferenceNumber}"
                                                       filterBy="#{transaction.requestReferenceNumber}">
                                                 <h:outputText value="#{transaction.requestReferenceNumber}" />
@@ -122,14 +122,18 @@
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
                                             </p:column>
                                             
-                                            <p:column headerText="Issue Referance No" >
+                                            <p:column headerText="Issue Ref.No" >
                                                 <h:outputText value="#{transaction.issueReferenceNumber}" />
                                             </p:column>
 
                                             <p:column headerText="Iss. from" sortBy="#{transaction.issuedInstitution.name}" filterBy="#{transaction.issuedInstitution.name}">
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
                                             </p:column>
-
+                                            
+                                            <p:column headerText="Dealer Number" sortBy="#{transaction.issuedInstitution.code}" filterBy="#{transaction.issuedInstitution.code}" filterMatchMode="contains">
+                                                <h:outputText value="#{transaction.issuedInstitution.code}" />
+                                            </p:column>
+                                            
                                             <p:column headerText="Actions" exportable="false" >
                                                 <p:commandButton value="View"
                                                                  ajax="false"

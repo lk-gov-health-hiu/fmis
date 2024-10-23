@@ -2217,6 +2217,9 @@ public class WebUserController implements Serializable {
     }
 
     public List<Vehicle> getManagableVehicles() {
+        if(managableVehicles==null){
+            managableVehicles = new ArrayList<>();
+        }
         return managableVehicles;
     }
 

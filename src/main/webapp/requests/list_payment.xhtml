@@ -105,31 +105,29 @@
                                                     <p:column headerText="Vehicle">
                                                         <h:outputText value="#{transaction.vehicle.vehicleNumber}"/>
                                                     </p:column>
-                                                    <p:column headerText="Ref">
+                                                    <p:column headerText="Reference No">
                                                         <h:outputText value="#{transaction.requestReferenceNumber}"/>
                                                     </p:column>
-                                                    <p:column headerText="Req. At">
+                                                    <p:column headerText="Requested Date">
                                                         <h:outputText value="#{transaction.requestedDate}">
                                                             <f:convertDateTime pattern="dd MMM yyyy"/>
                                                         </h:outputText>
                                                     </p:column>
-                                                    <p:column headerText="Req. Qty">
+                                                    <p:column headerText="Requested Qty.">
                                                         <h:outputText value="#{transaction.requestQuantity}"/>
                                                     </p:column>
-                                                    <p:column headerText="Iss. At">
-                                                        <h:outputText value="#{transaction.issuedAt}">
+                                                    <p:column headerText="Issued Date">
+                                                        <h:outputText value="#{transaction.issuedDate}">
                                                             <f:convertDateTime pattern="dd MMM yyyy"/>
                                                         </h:outputText>
                                                         <h:outputText value="Not Issued" style="color: red;"
                                                                       rendered="#{not transaction.issued}"/>
                                                     </p:column>
-                                                    <p:column headerText="Iss. Qty">
+                                                    <p:column headerText="Issued Qty">
                                                         <h:outputText
                                                             value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}"/>
                                                     </p:column>
-                            <p:column headerText="Issue Referance No" 
-                                      sortBy="#{transaction.issueReferenceNumber}"
-                                      filterBy="#{transaction.issueReferenceNumber}">
+                            <p:column headerText="Issue Referance No">
                                 <h:outputText value="#{transaction.issueReferenceNumber}" />
                             </p:column>
                                                 </p:dataTable>
