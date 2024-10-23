@@ -86,6 +86,7 @@ public class FuelRequestAndIssueController implements Serializable {
     private List<FuelTransactionHistory> transactionHistories;
 
     private Institution institution;
+    private Institution fuelStation;
     private Vehicle vehicle;
     private WebUser webUser;
     private Date fromDate;
@@ -858,6 +859,34 @@ public class FuelRequestAndIssueController implements Serializable {
         bills = tmpBills;
     }
 
+    public void listPaymentBillsForNationalLevel() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        if (institution != null) {
+            j += " AND b.fromInstitution=:institution ";
+            params.put("institution", institution);
+        } else {
+            j += " AND b.fromInstitution IN :institutions ";
+            params.put("institutions", webUserController.findAutherizedInstitutions());
+        }
+        if (fuelStation != null) {
+            j += " AND b.toInstitution=:fs ";
+            params.put("fs", fuelStation);
+        } 
+        params.put("fromDate", fromDate); // fromDate should be set beforehand
+        params.put("toDate", toDate);     // toDate should be set beforehand
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
     public void listInstitutionRequests() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null);
     }
@@ -1328,6 +1357,16 @@ public class FuelRequestAndIssueController implements Serializable {
     public void setBills(List<Bill> bills) {
         this.bills = bills;
     }
+
+    public Institution getFuelStation() {
+        return fuelStation;
+    }
+
+    public void setFuelStation(Institution fuelStation) {
+        this.fuelStation = fuelStation;
+    }
+    
+    
 
     @FacesConverter(forClass = FuelTransaction.class)
     public static class FuelTransactionConverter implements Converter {
