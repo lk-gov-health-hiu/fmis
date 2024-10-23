@@ -48,7 +48,7 @@
                         <p:printer target="panelBill"/>
                     </p:commandButton>
 
-                   
+
 
                     <h:panelGroup id="panelBill" >
                         <div class="a4-page" id="billPanel">
@@ -100,8 +100,13 @@
 
                                                 <!-- Transactions Table -->
                                                 <p:dataTable var="transaction"
+                                                             rowKey="#{transaction.id}"
+                                                             rowIndexVar="n"
                                                              value="#{fuelRequestAndIssueController.selectedTransactions}"
                                                              styleClass="table">
+                                                    <p:column headerText="No" >
+                                                        <h:outputText value="#{n+1}"/>
+                                                    </p:column>
                                                     <p:column headerText="Vehicle">
                                                         <h:outputText value="#{transaction.vehicle.vehicleNumber}"/>
                                                     </p:column>
@@ -127,11 +132,9 @@
                                                         <h:outputText
                                                             value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}"/>
                                                     </p:column>
-                            <p:column headerText="Issue Referance No" 
-                                      sortBy="#{transaction.issueReferenceNumber}"
-                                      filterBy="#{transaction.issueReferenceNumber}">
-                                <h:outputText value="#{transaction.issueReferenceNumber}" />
-                            </p:column>
+                                                    <p:column headerText="Issue Referance No" >
+                                                        <h:outputText value="#{transaction.issueReferenceNumber}" />
+                                                    </p:column>
                                                 </p:dataTable>
 
                                                 <!-- Footer Information Table -->
