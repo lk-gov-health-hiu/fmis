@@ -77,6 +77,7 @@ public class FuelRequestAndIssueController implements Serializable {
     private List<DataAlterationRequest> dataAlterationRequests;
 
     private List<FuelTransaction> transactions = null;
+    private List<Bill> bills;
     private List<FuelTransaction> selectedTransactions = null;
     private FuelTransaction selected;
 
@@ -85,6 +86,7 @@ public class FuelRequestAndIssueController implements Serializable {
     private List<FuelTransactionHistory> transactionHistories;
 
     private Institution institution;
+    private Institution fuelStation;
     private Vehicle vehicle;
     private WebUser webUser;
     private Date fromDate;
@@ -743,34 +745,35 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToSearchRequestsForVehicleFuelIssue() {
-        return "/issues/search";
+        return "/issues/search?faces-redirect=true";
     }
 
     public String navigateToSearchRequestsForVehicleFuelIssueQr() {
-        return "/issues/search_qr";
+        return "/issues/search_qr?faces-redirect=true";
     }
 
     public String generateRequest() {
-        return "/requests/requested";
+        return "/requests/requested?faces-redirect=true";
     }
 
     public String completeIssue() {
-        return "/issues/issued";
+        return "/issues/issued?faces-redirect=true";
     }
 
     public String navigateToListInstitutionRequests() {
         listInstitutionRequests();
-        return "/requests/list";
+        return "/requests/list?faces-redirect=true";
     }
 
     public String navigateToMakePayment() {
         listInstitutionRequestsToPay();
-        return "/requests/list_to_pay";
+        paymentRequestStarted = false;
+        return "/requests/list_to_pay?faces-redirect=true";
     }
 
     public String navigateToPaymentsMade() {
         listInstitutionRequestsPaid();
-        return "/requests/list_to_paid";
+        return "/requests/list_to_paid?faces-redirect=true";
     }
 
     public String navigateToCreateNewDeleteRequest() {
@@ -837,6 +840,106 @@ public class FuelRequestAndIssueController implements Serializable {
         return searchFuelRequestToIssueByVehicleNumber();
     }
 
+    public void listPaymentBills() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.fromInstitution IN :institutions "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("institutions", webUserController.findAutherizedInstitutions());
+        params.put("fromDate", fromDate); // fromDate should be set beforehand
+        params.put("toDate", toDate);     // toDate should be set beforehand
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listPaymentBillsForNationalLevel() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        if (institution != null) {
+            j += " AND b.fromInstitution=:institution ";
+            params.put("institution", institution);
+        } else {
+            j += " AND b.fromInstitution IN :institutions ";
+            params.put("institutions", webUserController.findAutherizedInstitutions());
+        }
+        if (fuelStation != null) {
+            j += " AND b.toInstitution=:fs ";
+            params.put("fs", fuelStation);
+        }
+        params.put("fromDate", fromDate); // fromDate should be set beforehand
+        params.put("toDate", toDate);     // toDate should be set beforehand
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listPaymentBillsForCpcHeadOffice() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        if (institution != null) {
+            j += " AND b.fromInstitution=:institution ";
+            params.put("institution", institution);
+        }
+        if (fuelStation != null) {
+            j += " AND b.toInstitution=:fs ";
+            params.put("fs", fuelStation);
+        }
+        params.put("fromDate", fromDate); // fromDate should be set beforehand
+        params.put("toDate", toDate);     // toDate should be set beforehand
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listPaymentBillsForCpcRegionalOffice() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        if (institution != null) {
+            j += " AND b.fromInstitution=:institution ";
+            params.put("institution", institution);
+        }
+        if (fuelStation != null) {
+            j += " AND b.toInstitution=:fs ";
+            params.put("fs", fuelStation);
+        } else {
+            j += " AND b.toInstitution IN :institutions ";
+            params.put("institutions", webUserController.findAutherizedInstitutions());
+        }
+        params.put("fromDate", fromDate); // fromDate should be set beforehand
+        params.put("toDate", toDate);     // toDate should be set beforehand
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
     public void listInstitutionRequests() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null);
     }
@@ -859,7 +962,7 @@ public class FuelRequestAndIssueController implements Serializable {
         Institution fuelStation = null;
         boolean firstTransaction = true;
         boolean moreThanOneCombinationOfHospitalAndFuelStation = false;
-        boolean hasTrasnsactionNotYetMarkedAsIssued=false;
+        boolean hasTrasnsactionNotYetMarkedAsIssued = false;
 
         for (FuelTransaction sft : selectedTransactions) {
             if (firstTransaction) {
@@ -872,8 +975,8 @@ public class FuelRequestAndIssueController implements Serializable {
                     break;
                 }
             }
-            if(!sft.isIssued()){
-                hasTrasnsactionNotYetMarkedAsIssued=true;
+            if (!sft.isIssued()) {
+                hasTrasnsactionNotYetMarkedAsIssued = true;
             }
         }
 
@@ -882,8 +985,8 @@ public class FuelRequestAndIssueController implements Serializable {
             paymentRequestStarted=false;
             return null;
         }
-        
-         if (hasTrasnsactionNotYetMarkedAsIssued) {
+
+        if (hasTrasnsactionNotYetMarkedAsIssued) {
             JsfUtil.addErrorMessage("You have transactions which are not yet marked as issued, Please remove them and retry");
             paymentRequestStarted=false;
             return null;
@@ -915,6 +1018,24 @@ public class FuelRequestAndIssueController implements Serializable {
         fuelPaymentRequestBill.setTotalQty(qty);
         billFacade.edit(fuelPaymentRequestBill);
         paymentRequestStarted = false;
+        return "/requests/list_payment?faces-redirect=true";
+
+    }
+
+    public String viewPaymentRequest() {
+        if (fuelPaymentRequestBill == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return null;
+        }
+
+        String jpql = "select ft "
+                + " from FuelTransaction ft"
+                + " where ft.paymentBill=:pb";
+
+        Map m = new HashMap();
+        m.put("pb", fuelPaymentRequestBill);
+
+        selectedTransactions = getFacade().findByJpql(jpql, m);
         return "/requests/list_payment?faces-redirect=true";
 
     }
@@ -1282,6 +1403,22 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setFuelPaymentRequestBill(Bill fuelPaymentRequestBill) {
         this.fuelPaymentRequestBill = fuelPaymentRequestBill;
+    }
+
+    public List<Bill> getBills() {
+        return bills;
+    }
+
+    public void setBills(List<Bill> bills) {
+        this.bills = bills;
+    }
+
+    public Institution getFuelStation() {
+        return fuelStation;
+    }
+
+    public void setFuelStation(Institution fuelStation) {
+        this.fuelStation = fuelStation;
     }
 
     @FacesConverter(forClass = FuelTransaction.class)

@@ -1,0 +1,164 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../template.xhtml">
+
+            <ui:define name="title">
+                Payment List
+            </ui:define>
+
+            <ui:define name="content">
+                <div class="container-fluid p-2" >
+                    <h:form >
+
+                        <div class="card" >
+                            <div class="card-header" >
+                                <h2><h:outputText value="Search Payment Requests"></h:outputText></h2>
+                            </div>
+                            <div class="card-body" >
+
+                                <div class="row" >
+                                    <div class="col-2" >
+                                        <div class="form-group">
+                                            <label for="fromDate">From Date</label>
+                                            <p:calendar 
+                                                id="fromDate" 
+                                                value="#{fuelRequestAndIssueController.fromDate}"
+                                                showButtonPanel="true"
+                                                class="w-100 m-1" 
+                                                pattern="dd MMMM yyyy"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="toDate">To Date</label>
+                                            <p:calendar 
+                                                id="toDate" 
+                                                value="#{fuelRequestAndIssueController.toDate}" 
+                                                showButtonPanel="true"
+                                                pattern="dd MMMM yyyy"
+                                                class="w-100 m-1" />
+                                        </div>
+                                        <p:outputLabel value="Requested for Institution" >
+                                        </p:outputLabel>
+                                        <p:autoComplete 
+                                            value="#{fuelRequestAndIssueController.institution}"
+                                            completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
+                                            var="fi"
+                                            itemLabel="#{fi.name}"
+                                            itemValue="#{fi}"></p:autoComplete>
+
+                                        <p:outputLabel value="Requested from Fuel Station" >
+                                        </p:outputLabel>
+                                        <p:autoComplete 
+                                            value="#{fuelRequestAndIssueController.fuelStation}" 
+                                            completeMethod="#{institutionController.completeFuelStations}"
+                                            var="fs"
+                                            itemLabel="#{fs.name}"
+                                            itemValue="#{fs}"
+                                            ></p:autoComplete>
+                                        <div class="form-group d-flex justify-content-center">
+                                            <p:commandButton value="List Requests"
+                                                             action="#{fuelRequestAndIssueController.listPaymentBillsForNationalLevel()}"
+                                                             icon="pi pi-list" 
+                                                             ajax="false"
+                                                             class="btn btn-primary w-100 my-2" />
+
+                                        </div>
+                                        <div class="form-group d-flex justify-content-center">
+                                            <p:commandButton
+                                                value="Export to Excel" 
+                                                class="btn btn-primary w-100 my-2"
+                                                ajax="false" icon="pi pi-file-excel">
+                                                <p:dataExporter type="xlsx" target="tbl" fileName="Transactions" />
+                                            </p:commandButton>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-10" >
+                                        <p:dataTable 
+                                            id="tbl" 
+                                            value="#{fuelRequestAndIssueController.bills}" var="bill" rowKey="#{bill.id}" 
+                                            rows="5"
+                                            paginator="true"
+                                            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                            currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                            rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
+                                            sortMode="multiple">
+
+                                            <p:column headerText="Bill Date"
+                                                      exportHeaderValue="true"
+                                                      sortBy="#{bill.billDate}" filterBy="#{bill.billDate}">
+                                                <f:facet name="header">
+                                                    <h:outputText value="Bill Date" />
+                                                </f:facet>
+                                                <h:outputText value="#{bill.billDate}">
+                                                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                                                </h:outputText>
+                                            </p:column>
+
+                                            <p:column headerText="From Institution"
+                                                      exportHeaderValue="true"
+                                                      sortBy="#{bill.fromInstitution.name}" filterBy="#{bill.fromInstitution.name}">
+                                                <f:facet name="header">
+                                                    <h:outputText value="From Institution" />
+                                                </f:facet>
+                                                <h:outputText value="#{bill.fromInstitution.name}" />
+                                            </p:column>
+
+                                            <p:column headerText="To Institution"
+                                                      exportHeaderValue="true"
+                                                      sortBy="#{bill.toInstitution.name}" filterBy="#{bill.toInstitution.name}">
+                                                <f:facet name="header">
+                                                    <h:outputText value="To Institution" />
+                                                </f:facet>
+                                                <h:outputText value="#{bill.toInstitution.name}" />
+                                            </p:column>
+
+                                            <p:column headerText="Bill Type"
+                                                      exportHeaderValue="true"
+                                                      sortBy="#{bill.billType}" filterBy="#{bill.billType}">
+                                                <f:facet name="header">
+                                                    <h:outputText value="Bill Type" />
+                                                </f:facet>
+                                                <h:outputText value="#{bill.billType}" />
+                                            </p:column>
+
+                                            <p:column headerText="Actions"
+                                                      exportHeaderValue="true">
+                                                <f:facet name="header">
+                                                    <h:outputText value="Fuel Transactions" />
+                                                </f:facet>
+
+                                                <p:commandButton
+                                                    ajax="false"
+                                                    value="View" 
+                                                    action="#{fuelRequestAndIssueController.viewPaymentRequest}" >
+                                                    <f:setPropertyActionListener value="#{bill}" target="#{fuelRequestAndIssueController.fuelPaymentRequestBill}" ></f:setPropertyActionListener>
+
+                                                </p:commandButton>
+
+                                            </p:column>
+
+                                        </p:dataTable>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </body>
+</html>

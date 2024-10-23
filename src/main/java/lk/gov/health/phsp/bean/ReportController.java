@@ -175,6 +175,10 @@ public class ReportController implements Serializable {
         fillAllInstitutionFuelTransactions();
         return "/reports/list?faces-redirect=true;";
     }
+    
+    public String navigateToListPayments() {
+        return "/reports/list_to_paid?faces-redirect=true;";
+    }
 
     public String navigateToListFuelRequestsDetails() {
         fillAllInstitutionFuelTransactionsDetailes();
