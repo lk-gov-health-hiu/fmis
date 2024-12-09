@@ -86,7 +86,7 @@
 
                                             <p:column selectionMode="multiple" width="10" ></p:column>
                                             
-                                            <p:column headerText="No." width="10" >
+                                            <p:column headerText="No" width="10" >
                                                 <h:outputText value="#{no+1}" />
                                             </p:column>
 
@@ -127,7 +127,7 @@
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
                                             </p:column>
                                             
-                                            <p:column headerText="Issue Ref.No" >
+                                            <p:column headerText="Issue Ref.No" filterBy="#{transaction.issueReferenceNumber}">
                                                 <h:outputText value="#{transaction.issueReferenceNumber}" />
                                             </p:column>
 

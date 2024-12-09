@@ -86,6 +86,24 @@
 
                                                             </td>
                                                         </tr>
+
+
+                                                        <tr>
+                                                            <td><b>Issued Fuel Station:</b></td>
+                                                            <td>
+                                                                <p:autoComplete 
+                                                                    value="#{reportController.fuelTransaction.issuedInstitution}" 
+                                                                    completeMethod="#{institutionController.completeFuelStations}"
+                                                                    var="fs1"
+                                                                    itemLabel="#{fs1.name}"
+                                                                    itemValue="#{fs1}"
+                                                                    ></p:autoComplete>
+
+
+
+                                                            </td>
+                                                        </tr>
+
                                                         <tr>
                                                             <td><b>Vehicle:</b></td>
                                                             <td><h:outputText value="#{reportController.fuelTransaction.vehicle.vehicleNumber}" /></td>

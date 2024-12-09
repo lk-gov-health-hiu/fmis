@@ -108,7 +108,7 @@
                                                     <p:column headerText="Reference No">
                                                         <h:outputText value="#{transaction.requestReferenceNumber}"/>
                                                     </p:column>
-                                                    <p:column headerText="Requested Date">
+                                                    <p:column headerText="Requested Date" sortBy="#{transaction.requestedDate}">
                                                         <h:outputText value="#{transaction.requestedDate}">
                                                             <f:convertDateTime pattern="dd MMM yyyy"/>
                                                         </h:outputText>
