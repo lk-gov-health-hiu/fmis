@@ -93,10 +93,15 @@
                         <p:commandButton value="Download Excel After Process" ajax="false" icon="pi pi-download">
                             <p:fileDownload value="#{reportController.downloadExcelFile}" />
                         </p:commandButton>
+                        
+                        <p:commandButton rendered="false" value="Download Excel" ajax="false" icon="pi pi-download">
+                             <p:dataExporter target="tbl" fileName="trnasacionts" type="xlsx" ></p:dataExporter>
+                        </p:commandButton>
 
                     </p:panelGrid>
 
                     <p:dataTable var="transaction" 
+                                 id="tbl"
                                  class="w-100"
                                  value="#{reportController.transactionLights}" 
                                  paginator="true" 
@@ -109,8 +114,18 @@
 
 
                         <p:column headerText="Date" sortBy="#{transaction.date}" filterBy="#{transaction.date}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.formattedDate}">
+                            </h:outputText>
+                        </p:column>
+                        
+                        <p:column rendered="false"  headerText="Month" sortBy="#{transaction.date}" filterBy="#{transaction.date}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.date}">
-                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                                <f:convertDateTime pattern="MMMM" ></f:convertDateTime>
+                            </h:outputText>
+                        </p:column>
+                        
+                        <p:column headerText="WEEK" rendered="false" sortBy="#{transaction.date}" filterBy="#{transaction.date}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.weekOfTheYear}">
                             </h:outputText>
                         </p:column>
 
@@ -150,6 +165,12 @@
 
                         <p:column headerText="Issued Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}" filterMatchMode="numeric">
                             <h:outputText value="#{transaction.issuedQuantity}" />
+                        </p:column>
+                        
+                        <p:column headerText="Issued Date *" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}" filterMatchMode="numeric">
+                            <h:outputText value="#{transaction.issuedDate}" >
+                                <f:convertDateTime pattern="yyyy MMMM dd" ></f:convertDateTime>
+                            </h:outputText>
                         </p:column>
 
                         <p:column headerText="Issue Reference No" sortBy="#{transaction.issueReferenceNumber}" filterBy="#{transaction.issueReferenceNumber}" filterMatchMode="contains">

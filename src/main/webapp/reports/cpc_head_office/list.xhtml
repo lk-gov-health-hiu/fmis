@@ -125,6 +125,12 @@
                         <p:column headerText="Issued Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}" filterMatchMode="numeric">
                             <h:outputText value="#{transaction.issuedQuantity}" />
                         </p:column>
+                        
+                        <p:column headerText="Issued Date *" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}" filterMatchMode="numeric">
+                            <h:outputText value="#{transaction.issuedDate}" >
+                                <f:convertDateTime pattern="yyyy MMMM dd" ></f:convertDateTime>
+                            </h:outputText>
+                        </p:column>
 
                         <p:column headerText="Issue Reference No" sortBy="#{transaction.issueReferenceNumber}" filterBy="#{transaction.issueReferenceNumber}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.issueReferenceNumber}" />

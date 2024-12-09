@@ -86,7 +86,7 @@
 
                                             <p:column selectionMode="multiple" width="10" ></p:column>
                                             
-                                            <p:column headerText="No." width="10" >
+                                            <p:column headerText="No" width="10" >
                                                 <h:outputText value="#{no+1}" />
                                             </p:column>
 
@@ -99,7 +99,7 @@
                                                 <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
                                             </p:column>
 
-                                            <p:column headerText="Ref" 
+                                            <p:column headerText="Ref.No" 
                                                       sortBy="#{transaction.requestReferenceNumber}"
                                                       filterBy="#{transaction.requestReferenceNumber}">
                                                 <h:outputText value="#{transaction.requestReferenceNumber}" />
@@ -117,27 +117,28 @@
                                                 <h:outputText value="#{transaction.requestQuantity}" />
                                             </p:column>
 
-                                            <p:column headerText="Iss. At" sortBy="#{transaction.issuedAt}" filterBy="#{transaction.issuedAt}">
-                                                <h:outputText value="#{transaction.issuedAt}">
+                                            <p:column headerText="Iss. At" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}">
+                                                <h:outputText value="#{transaction.issuedDate}">
                                                     <f:convertDateTime pattern="dd MMM yyyy" />
                                                 </h:outputText>
-                                                <h:outputText value="Not Issued" style="color: red;" rendered="#{not transaction.issued}" />
                                             </p:column>
 
                                             <p:column headerText="Iss. Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}">
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
                                             </p:column>
-
-                                            <p:column headerText="Issue Referance No" 
-                                                      sortBy="#{transaction.issueReferenceNumber}"
-                                                      filterBy="#{transaction.issueReferenceNumber}">
+                                            
+                                            <p:column headerText="Issue Ref.No" filterBy="#{transaction.issueReferenceNumber}">
                                                 <h:outputText value="#{transaction.issueReferenceNumber}" />
                                             </p:column>
 
                                             <p:column headerText="Iss. from" sortBy="#{transaction.issuedInstitution.name}" filterBy="#{transaction.issuedInstitution.name}">
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
                                             </p:column>
-
+                                            
+                                            <p:column headerText="Dealer Number" sortBy="#{transaction.issuedInstitution.code}" filterBy="#{transaction.issuedInstitution.code}" filterMatchMode="contains">
+                                                <h:outputText value="#{transaction.issuedInstitution.code}" />
+                                            </p:column>
+                                            
                                             <p:column headerText="Actions" exportable="false" >
                                                 <p:commandButton value="View"
                                                                  ajax="false"

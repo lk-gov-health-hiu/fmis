@@ -100,8 +100,8 @@
                                                 <h:outputText value="#{transaction.requestQuantity}" />
                                             </p:column>
 
-                                            <p:column headerText="Iss. At" sortBy="#{transaction.issuedAt}" filterBy="#{transaction.issuedAt}">
-                                                <h:outputText value="#{transaction.issuedAt}">
+                                            <p:column headerText="Iss. At" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}">
+                                                <h:outputText value="#{transaction.issuedDate}">
                                                     <f:convertDateTime pattern="dd MMM yyyy" />
                                                 </h:outputText>
                                                 <h:outputText value="Not Issued" style="color: red;" rendered="#{not transaction.issued}" />

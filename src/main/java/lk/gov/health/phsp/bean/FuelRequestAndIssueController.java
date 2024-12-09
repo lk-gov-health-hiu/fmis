@@ -982,11 +982,13 @@ public class FuelRequestAndIssueController implements Serializable {
 
         if (moreThanOneCombinationOfHospitalAndFuelStation) {
             JsfUtil.addErrorMessage("You cannot add more than one fuel station and one hospital at a time for a bill");
+            paymentRequestStarted=false;
             return null;
         }
 
         if (hasTrasnsactionNotYetMarkedAsIssued) {
             JsfUtil.addErrorMessage("You have transactions which are not yet marked as issued, Please remove them and retry");
+            paymentRequestStarted=false;
             return null;
         }
 

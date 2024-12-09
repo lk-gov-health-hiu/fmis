@@ -145,7 +145,7 @@ public class FuelTransaction implements Serializable {
 
     @Deprecated
     private Double receivedQty;
-    
+
     private boolean submittedToPayment;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date submittedToPaymentAt;
@@ -153,7 +153,6 @@ public class FuelTransaction implements Serializable {
     private WebUser submittedToPaymentBy;
     @ManyToOne
     private Bill paymentBill;
-    
 
     public String getIdString() {
         if (id == null) {
@@ -562,7 +561,7 @@ public class FuelTransaction implements Serializable {
     }
 
     public Date getRequestedDate() {
-        if(requestedDate==null){
+        if (requestedDate == null) {
             requestedDate = new Date();
         }
         return requestedDate;
@@ -573,8 +572,8 @@ public class FuelTransaction implements Serializable {
     }
 
     public Date getIssuedDate() {
-        if(issuedDate==null){
-            issuedDate = new Date();
+        if (issuedDate == null) {
+            issuedDate = issuedAt;
         }
         return issuedDate;
     }
@@ -614,7 +613,5 @@ public class FuelTransaction implements Serializable {
     public void setPaymentBill(Bill paymentBill) {
         this.paymentBill = paymentBill;
     }
-    
-    
 
 }

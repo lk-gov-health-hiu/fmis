@@ -80,6 +80,9 @@ public enum InstitutionType {
                         || instType == InstitutionType.Ayurvedic_Department
                         || instType == InstitutionType.Provincial_Ayurvedic_Department
                         || instType == InstitutionType.District_Ayurvedic_Department
+                         || instType == InstitutionType.OtherSpecializedUnit
+                         || instType == InstitutionType.Other_Ministry
+ || instType == InstitutionType.Other
                         || instType == InstitutionType.Herbal_Guardian
                         || instType == InstitutionType.Suwa_Sariya)
                 .collect(Collectors.toList());

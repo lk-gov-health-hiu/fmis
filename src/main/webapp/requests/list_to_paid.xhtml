@@ -20,7 +20,7 @@
 
                         <div class="card" >
                             <div class="card-header" >
-                                <h2><h:outputText value="Search Payment Requests"></h:outputText></h2>
+                                <h2><h:outputText value="Search Fuel Requests"></h:outputText></h2>
                             </div>
                             <div class="card-body" >
 
@@ -46,7 +46,7 @@
                                         </div>
                                         <div class="form-group d-flex justify-content-center">
                                             <p:commandButton value="List Requests"
-                                                             action="#{fuelRequestAndIssueController.listPaymentBills}"
+                                                             action="#{fuelRequestAndIssueController.listInstitutionRequests}"
                                                              icon="pi pi-list" 
                                                              ajax="false"
                                                              class="btn btn-primary w-100 my-2" />
@@ -65,66 +65,58 @@
                                     <div class="col-10" >
                                         <p:dataTable 
                                             id="tbl" 
-                                            value="#{fuelRequestAndIssueController.bills}" var="bill" rowKey="#{bill.id}" 
-                                            rows="5"
-                                            paginator="true"
-                                            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                            currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
-                                            rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
-                                            sortMode="multiple">
+                                            value="#{fuelRequestAndIssueController.transactions}" 
+                                            var="transaction" 
+                                            rowKey="#{transaction.id}" 
+                                            >
 
-                                            <p:column headerText="Bill Date"
+
+
+                                            <p:column headerText="Vehicle"
                                                       exportHeaderValue="true"
-                                                      sortBy="#{bill.billDate}" filterBy="#{bill.billDate}">
-                                                <f:facet name="header">
-                                                    <h:outputText value="Bill Date" />
+                                                      >
+                                                <f:facet name="header" >
+                                                    <h:outputText value="Vehicle" ></h:outputText>
                                                 </f:facet>
-                                                <h:outputText value="#{bill.billDate}">
-                                                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                                                <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
+                                            </p:column>
+
+                                            <p:column headerText="Ref" 
+                                                      >
+                                                <h:outputText value="#{transaction.requestReferenceNumber}" />
+                                            </p:column>
+
+                                            <p:column headerText="Req. At" >
+                                                <h:outputText value="#{transaction.requestedDate}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy" />
                                                 </h:outputText>
                                             </p:column>
 
-                                            <p:column headerText="From Institution"
-                                                      exportHeaderValue="true"
-                                                      sortBy="#{bill.fromInstitution.name}" filterBy="#{bill.fromInstitution.name}">
-                                                <f:facet name="header">
-                                                    <h:outputText value="From Institution" />
-                                                </f:facet>
-                                                <h:outputText value="#{bill.fromInstitution.name}" />
+                                            <p:column headerText="Req. Qty" >
+                                                <h:outputText value="#{transaction.requestQuantity}" />
                                             </p:column>
 
-                                            <p:column headerText="To Institution"
-                                                      exportHeaderValue="true"
-                                                      sortBy="#{bill.toInstitution.name}" filterBy="#{bill.toInstitution.name}">
-                                                <f:facet name="header">
-                                                    <h:outputText value="To Institution" />
-                                                </f:facet>
-                                                <h:outputText value="#{bill.toInstitution.name}" />
+                                            <p:column headerText="Iss. At" >
+                                                <h:outputText value="#{transaction.issuedDate}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy" />
+                                                </h:outputText>
+                                                <h:outputText value="Not Issued" style="color: red;" rendered="#{not transaction.issued}" />
                                             </p:column>
 
-                                            <p:column headerText="Bill Type"
-                                                      exportHeaderValue="true"
-                                                      sortBy="#{bill.billType}" filterBy="#{bill.billType}">
-                                                <f:facet name="header">
-                                                    <h:outputText value="Bill Type" />
-                                                </f:facet>
-                                                <h:outputText value="#{bill.billType}" />
+                                            <p:column headerText="Iss. Qty" >
+                                                <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
                                             </p:column>
 
-                                            <p:column headerText="Actions"
-                                                      exportHeaderValue="true">
-                                                <f:facet name="header">
-                                                    <h:outputText value="Fuel Transactions" />
-                                                </f:facet>
-                                                
-                                                <p:commandButton
-                                                    ajax="false"
-                                                    value="View" 
-                                                    action="#{fuelRequestAndIssueController.viewPaymentRequest}" >
-                                                    <f:setPropertyActionListener value="#{bill}" target="#{fuelRequestAndIssueController.fuelPaymentRequestBill}" ></f:setPropertyActionListener>
-                                                
+                                            <p:column headerText="Iss. from" >
+                                                <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
+                                            </p:column>
+
+                                            <p:column headerText="Actions" exportable="false" rendered="false" >
+                                                <p:commandButton value="View"
+                                                                 ajax="false"
+                                                                 action="#{fuelRequestAndIssueController.navigateToViewInstitutionFuelRequestToSltbDepot()}" >
+                                                    <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
                                                 </p:commandButton>
-                                                
                                             </p:column>
 
                                         </p:dataTable>
