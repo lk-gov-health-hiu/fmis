@@ -5,6 +5,8 @@ import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -982,13 +984,13 @@ public class FuelRequestAndIssueController implements Serializable {
 
         if (moreThanOneCombinationOfHospitalAndFuelStation) {
             JsfUtil.addErrorMessage("You cannot add more than one fuel station and one hospital at a time for a bill");
-            paymentRequestStarted=false;
+            paymentRequestStarted = false;
             return null;
         }
 
         if (hasTrasnsactionNotYetMarkedAsIssued) {
             JsfUtil.addErrorMessage("You have transactions which are not yet marked as issued, Please remove them and retry");
-            paymentRequestStarted=false;
+            paymentRequestStarted = false;
             return null;
         }
 
@@ -1018,6 +1020,9 @@ public class FuelRequestAndIssueController implements Serializable {
         fuelPaymentRequestBill.setTotalQty(qty);
         billFacade.edit(fuelPaymentRequestBill);
         paymentRequestStarted = false;
+
+        Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
+
         return "/requests/list_payment?faces-redirect=true";
 
     }
@@ -1036,6 +1041,10 @@ public class FuelRequestAndIssueController implements Serializable {
         m.put("pb", fuelPaymentRequestBill);
 
         selectedTransactions = getFacade().findByJpql(jpql, m);
+        
+        Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
+
+        
         return "/requests/list_payment?faces-redirect=true";
 
     }
