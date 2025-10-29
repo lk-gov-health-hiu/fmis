@@ -12,24 +12,32 @@
 
             <ui:define name="reports">
                 <h:form >
-                    <p:panelGrid columns="3" >
-                        <p:panelGrid columns="2" >
+                    <p:panelGrid columns="3" class="w-100" >
+                        <p:panelGrid columns="2" class="w-100">
                             <p:outputLabel value="From" >
                             </p:outputLabel>
-                            <p:calendar value="#{reportController.fromDate}" 
-                                        pattern="dd MMMM yyyy">
+                            <p:calendar
+                                class="w-100"
+                                inputStyleClass="w-100"
+                                value="#{reportController.fromDate}" 
+                                pattern="dd MMMM yyyy">
                             </p:calendar>
 
                             <p:outputLabel value="To" >
                             </p:outputLabel>
-                            <p:calendar value="#{reportController.toDate}" 
-                                        pattern="dd MMMM yyyy">
+                            <p:calendar 
+                                class="w-100"
+                                inputStyleClass="w-100"
+                                value="#{reportController.toDate}" 
+                                pattern="dd MMMM yyyy">
                             </p:calendar>
                         </p:panelGrid>
-                        <p:panelGrid columns="2" >
+                        <p:panelGrid columns="2"  class="w-100">
                             <p:outputLabel value="Requested for Institution" >
                             </p:outputLabel>
                             <p:autoComplete 
+                                class="w-100"
+                                inputStyleClass="w-100"
                                 value="#{reportController.fromInstitution}"
                                 completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
                                 var="fi"
@@ -39,6 +47,8 @@
                             <p:outputLabel value="Requested from Fuel Station" >
                             </p:outputLabel>
                             <p:autoComplete 
+                                class="w-100"
+                                inputStyleClass="w-100"
                                 value="#{reportController.toInstitution}" 
                                 completeMethod="#{institutionController.completeFuelStations}"
                                 var="fs"
@@ -46,14 +56,15 @@
                                 itemValue="#{fs}"
                                 ></p:autoComplete>
                         </p:panelGrid>
-                        <p:panelGrid columns="2" >
+                        <p:panelGrid columns="2"  class="w-100">
                             <h:outputLabel value="Transaction Type:" for="transactionType" />
-                            <p:selectOneMenu id="transactionType"
-                                             class="form-control"
-                                             value="#{reportController.fuelTransactionType}"
-                                             title="Transaction Type"
-                                             filter="true"
-                                             filterMatchMode="contains">
+                            <p:selectOneMenu 
+                                id="transactionType"
+                                class="form-control w-100"
+                                value="#{reportController.fuelTransactionType}"
+                                title="Transaction Type"
+                                filter="true"
+                                filterMatchMode="contains">
                                 <f:selectItem itemLabel="Any" ></f:selectItem>
                                 <f:selectItems value="#{applicationController.fuelTransactionTypes}"
                                                var="tt"
@@ -63,7 +74,7 @@
 
                             <h:outputLabel value="Vehicle Type:" for="vehicleType" />
                             <p:selectOneMenu id="vehicleType"
-                                             class="form-control"
+                                             class="form-control w-100"
                                              value="#{reportController.vehicleType}"
                                              title="Vehicle Type"
                                              filter="true"
@@ -77,7 +88,7 @@
 
                             <h:outputLabel value="Vehicle Purpose:" for="vehiclePurpose" />
                             <p:selectOneMenu id="vehiclePurpose"
-                                             class="form-control"
+                                             class="form-control w-100"
                                              value="#{reportController.vehiclePurpose}"
                                              title="VehiclePurpose"
                                              filter="true"
@@ -99,6 +110,7 @@
 
 
                         <p:commandButton 
+                            id="btnProcess"
                             value="Process" 
                             ajax="false" 
                             action="#{reportController.fillAllInstitutionFuelTransactions()}" ></p:commandButton>
@@ -107,9 +119,9 @@
                         <p:commandButton value="Download Excel After Process" ajax="false" icon="pi pi-download">
                             <p:fileDownload value="#{reportController.downloadExcelFile}" />
                         </p:commandButton>
-                        
+
                         <p:commandButton rendered="false" value="Download Excel" ajax="false" icon="pi pi-download">
-                             <p:dataExporter target="tbl" fileName="trnasacionts" type="xlsx" ></p:dataExporter>
+                            <p:dataExporter target="tbl" fileName="trnasacionts" type="xlsx" ></p:dataExporter>
                         </p:commandButton>
 
                     </p:panelGrid>
@@ -131,13 +143,13 @@
                             <h:outputText value="#{transaction.formattedDate}">
                             </h:outputText>
                         </p:column>
-                        
+
                         <p:column rendered="false"  headerText="Month" sortBy="#{transaction.date}" filterBy="#{transaction.date}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.date}">
                                 <f:convertDateTime pattern="MMMM" ></f:convertDateTime>
                             </h:outputText>
                         </p:column>
-                        
+
                         <p:column headerText="WEEK" rendered="false" sortBy="#{transaction.date}" filterBy="#{transaction.date}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.weekOfTheYear}">
                             </h:outputText>
@@ -184,7 +196,7 @@
                         <p:column headerText="Issued Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}" filterMatchMode="numeric">
                             <h:outputText value="#{transaction.issuedQuantity}" />
                         </p:column>
-                        
+
                         <p:column headerText="Issued Date *" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}" filterMatchMode="numeric">
                             <h:outputText value="#{transaction.issuedDate}" >
                                 <f:convertDateTime pattern="yyyy MMMM dd" ></f:convertDateTime>
