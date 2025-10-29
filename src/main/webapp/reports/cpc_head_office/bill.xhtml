@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/reports/index.xhtml">
+
+
+            <ui:define name="reports">
+
+                <div class="container-fluid p-2 w-100" >
+                    <h:form >
+                        <h:form id="billForm">
+                            <!-- Bill Header -->
+
+                            <p:commandButton value="Print" ajax="false" >
+                                <p:printer target="bill" ></p:printer>
+                            </p:commandButton>
+
+                            <h:panelGroup id="bill" style="size: A4; margin: auto;" >
+
+
+                                <p:panelGrid columns="2" styleClass="table table-bordered" columnClasses="font-weight-bold,">
+                                    <f:facet name="header">
+                                        <p:outputLabel value="Fuel Payment Request" styleClass="h4" />
+                                    </f:facet>
+                                    <h:outputText value="Request Number:" />
+                                    <h:outputText value="#{reportController.bill.billNo}" />
+                                    <h:outputText value="Institution:" />
+                                    <h:outputText value="#{reportController.bill.fromInstitution.name}" />
+                                    <h:outputText value="Fuel Station:" />
+                                    <h:outputText value="#{reportController.bill.toInstitution.name}" />
+                                    <h:outputText value="Total Quantity:" />
+                                    <h:outputText value="#{reportController.bill.totalQty}" />
+
+                                </p:panelGrid>
+
+                                <!-- Data Table for Transactions -->
+                                <p:dataTable var="transaction" value="#{reportController.billTransactions}" styleClass="table">
+                                    <p:column headerText="Vehicle">
+                                        <h:outputText value="#{transaction.vehicle}" />
+                                    </p:column>
+                                    <p:column headerText="Ref">
+                                        <h:outputText value="#{transaction.requestReferenceNumber}" />
+                                    </p:column>
+                                    <p:column headerText="Req. At">
+                                        <h:outputText value="#{transaction.requestedDate}" >
+                                            <f:convertDateTime pattern="dd MMM yyyy" />
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="Req. Qty">
+                                        <h:outputText value="#{transaction.requestQuantity}" />
+                                    </p:column>
+                                    <p:column headerText="Iss. At">
+                                        <h:outputText value="#{transaction.issuedAt}">
+                                            <f:convertDateTime pattern="dd MMM yyyy" />
+                                        </h:outputText>
+                                        <h:outputText value="Not Issued" style="color: red;" rendered="#{not transaction.issued}" />
+                                    </p:column>
+                                    <p:column headerText="Iss. Qty">
+                                        <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
+                                    </p:column>
+                                </p:dataTable>
+
+
+
+                                <p:panelGrid columns="2" styleClass="table table-bordered" columnClasses="font-weight-bold,">
+                                    <h:outputText value="Request Date:" />
+                                    <h:outputText value="#{reportController.bill.billDate}">
+                                        <f:convertDateTime pattern="dd MMM yyyy" />
+                                    </h:outputText>
+                                    <h:outputText value="Request Time:" />
+                                    <h:outputText value="#{reportController.bill.billTime}">
+                                        <f:convertDateTime pattern="HH:mm:ss" />
+                                    </h:outputText>
+                                    <h:outputText value="User:" />
+                                    <h:outputText value="#{reportController.bill.billUser.person.nameWithTitle}" />
+
+                                </p:panelGrid>
+
+                            </h:panelGroup>
+
+
+                        </h:form>
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </h:body>
+</html>

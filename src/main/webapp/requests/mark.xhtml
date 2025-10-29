@@ -145,12 +145,20 @@
                                                             <table class="table">
                                                                 <tr>
                                                                     <th colspan="2" class="text-center bg-primary text-white">
-                                                                        Request Details
+                                                                        Issued Details
                                                                     </th>
                                                                 </tr>
                                                                 <tr>
-                                                                    <td><b>Requested by:</b></td>
+                                                                    <td><b>Issued by:</b></td>
                                                                     <td><h:outputText value="#{fuelRequestAndIssueController.selected.fromInstitution.name}" /></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><b>Issued At:</b></td>
+                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedDate}" /></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><b>Issue Recorded At:</b></td>
+                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedAt}" /></td>
                                                                 </tr>
                                                                 <!-- Other table rows for request details -->
                                                                 <tr>

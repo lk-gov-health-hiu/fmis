@@ -2,6 +2,8 @@ package lk.gov.health.phsp.pojcs;
 
 import java.io.Serializable;
 import java.util.Date;
+import lk.gov.health.phsp.entity.Bill;
+import lk.gov.health.phsp.entity.Institution;
 
 public class FuelIssuedSummary implements Serializable {
 
@@ -13,6 +15,9 @@ public class FuelIssuedSummary implements Serializable {
     private Long institutionId;
     private Long fromInstitutionId;
     private Long toInstitutionId;
+    private Institution fuelStation;
+    private Institution healthInstitution;
+    private Bill bill;
 
     // Constructor
     public FuelIssuedSummary(Date issuedDate, String fromInstitutionName, Long fromInstitutionId,
@@ -36,6 +41,8 @@ public class FuelIssuedSummary implements Serializable {
     public Date getIssuedDate() {
         return issuedDate;
     }
+    
+    
 
     public void setIssuedDate(Date issuedDate) {
         this.issuedDate = issuedDate;
@@ -107,4 +114,48 @@ public class FuelIssuedSummary implements Serializable {
     public void setInstitutionId(Long institutionId) {
         this.institutionId = institutionId;
     }
+
+    public FuelIssuedSummary(String toInstitutionName, Long toInstitutionId, Double sumOfIssuedQty) {
+        this.toInstitutionName = toInstitutionName;
+        this.toInstitutionId = toInstitutionId;
+        this.sumOfIssuedQty = sumOfIssuedQty;
+    }
+    
+    public FuelIssuedSummary(Institution fuelStation,  Double sumOfIssuedQty) {
+        this.fuelStation = fuelStation;
+        this.sumOfIssuedQty = sumOfIssuedQty;
+    }
+
+    public Institution getFuelStation() {
+        return fuelStation;
+    }
+
+    public void setFuelStation(Institution fuelStation) {
+        this.fuelStation = fuelStation;
+    }
+
+    public FuelIssuedSummary(Bill bill) {
+        this.bill = bill;
+    }
+    
+    
+
+    public Institution getHealthInstitution() {
+        return healthInstitution;
+    }
+
+    public void setHealthInstitution(Institution healthInstitution) {
+        this.healthInstitution = healthInstitution;
+    }
+
+    public Bill getBill() {
+        return bill;
+    }
+
+    public void setBill(Bill bill) {
+        this.bill = bill;
+    }
+
+    
+    
 }

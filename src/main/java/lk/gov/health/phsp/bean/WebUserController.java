@@ -248,10 +248,10 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRoleLevel() != WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION) {
             return false;
         }
-        if (loggedUser.getWebUserRole() != WebUserRole.INSTITUTION_TRANSPORT) {
-            return false;
+        if(loggedUser.getWebUserRole()==WebUserRole.INSTITUTION_TRANSPORT || loggedUser.getWebUserRole() == WebUserRole.INSTITUTION_ADMINISTRATOR){
+            return true;
         }
-        return true;
+        return false;
     }
 
     public boolean isDieselFuelRequestMarkAsReceivedMenuAvailable() {
@@ -267,10 +267,10 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRoleLevel() != WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION) {
             return false;
         }
-        if (loggedUser.getWebUserRole() != WebUserRole.INSTITUTION_ACCOUNTS) {
-            return false;
+        if(loggedUser.getWebUserRole()==WebUserRole.INSTITUTION_ACCOUNTS || loggedUser.getWebUserRole() == WebUserRole.INSTITUTION_ADMINISTRATOR){
+            return true;
         }
-        return true;
+        return false;
     }
 
     public void onResize(ColumnResizeEvent event) {
@@ -2215,6 +2215,9 @@ public class WebUserController implements Serializable {
     }
 
     public List<Vehicle> getManagableVehicles() {
+        if(managableVehicles==null){
+            managableVehicles = new ArrayList<>();
+        }
         return managableVehicles;
     }
 
