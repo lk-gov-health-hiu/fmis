@@ -47,29 +47,43 @@
                                 ></p:autoComplete>
                         </p:panelGrid>
                         <p:panelGrid columns="2" >
-                            <h:outputLabel value="Type:" for="vehicleType" />
-                            <p:selectOneMenu id="vehicleType" 
+                            <h:outputLabel value="Transaction Type:" for="transactionType" />
+                            <p:selectOneMenu id="transactionType"
+                                             class="form-control"
+                                             value="#{reportController.fuelTransactionType}"
+                                             title="Transaction Type"
+                                             filter="true"
+                                             filterMatchMode="contains">
+                                <f:selectItem itemLabel="Any" ></f:selectItem>
+                                <f:selectItems value="#{applicationController.fuelTransactionTypes}"
+                                               var="tt"
+                                               itemValue="#{tt}"
+                                               itemLabel="#{tt.label}"/>
+                            </p:selectOneMenu>
+
+                            <h:outputLabel value="Vehicle Type:" for="vehicleType" />
+                            <p:selectOneMenu id="vehicleType"
                                              class="form-control"
                                              value="#{reportController.vehicleType}"
                                              title="Vehicle Type"
                                              filter="true"
                                              filterMatchMode="contains">
                                 <f:selectItem itemLabel="Any" ></f:selectItem>
-                                <f:selectItems value="#{applicationController.vehicleTypes}" 
+                                <f:selectItems value="#{applicationController.vehicleTypes}"
                                                var="vt"
                                                itemValue="#{vt}"
                                                itemLabel="#{vt.label}"/>
                             </p:selectOneMenu>
 
-                            <h:outputLabel value="Purpose:" for="vehiclePurpose" />
-                            <p:selectOneMenu id="vehiclePurpose" 
+                            <h:outputLabel value="Vehicle Purpose:" for="vehiclePurpose" />
+                            <p:selectOneMenu id="vehiclePurpose"
                                              class="form-control"
                                              value="#{reportController.vehiclePurpose}"
                                              title="VehiclePurpose"
                                              filter="true"
                                              filterMatchMode="contains">
                                 <f:selectItem itemLabel="Any" ></f:selectItem>
-                                <f:selectItems value="#{applicationController.vehiclePurposes}" 
+                                <f:selectItems value="#{applicationController.vehiclePurposes}"
                                                var="vp"
                                                itemValue="#{vp}"
                                                itemLabel="#{vp.label}"/>
@@ -106,6 +120,10 @@
                             <h:outputText value="#{transaction.date}">
                                 <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
                             </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Transaction Type" sortBy="#{transaction.transactionTypeLabel}" filterBy="#{transaction.transactionTypeLabel}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.transactionTypeLabel}" />
                         </p:column>
 
                         <p:column headerText="Institution" sortBy="#{transaction.fromInstitutionName}" filterBy="#{transaction.fromInstitutionName}" filterMatchMode="contains">

@@ -213,10 +213,6 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRoleLevel() != WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION) {
             return false;
         }
-        if (loggedUser.getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
-            return false;
-        }
-
         return true;
     }
 
@@ -234,9 +230,6 @@ public class WebUserController implements Serializable {
             return false;
         }
         if (loggedUser.getWebUserRole() != WebUserRole.INSTITUTION_TRANSPORT) {
-            return false;
-        }
-        if (loggedUser.getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
             return false;
         }
         return true;
@@ -258,10 +251,6 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRole() != WebUserRole.INSTITUTION_TRANSPORT) {
             return false;
         }
-        if (loggedUser.getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
-            return false;
-        }
-
         return true;
     }
 
@@ -281,10 +270,6 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRole() != WebUserRole.INSTITUTION_ACCOUNTS) {
             return false;
         }
-        if (loggedUser.getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
-            return false;
-        }
-
         return true;
     }
 

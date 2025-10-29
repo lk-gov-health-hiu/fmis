@@ -226,6 +226,10 @@ public class ApplicationController {
         return VehiclePurpose.values();
     }
 
+    public FuelTransactionType[] getFuelTransactionTypes() {
+        return FuelTransactionType.values();
+    }
+
     public WebUserRole[] getWebUserRoles() {
         return WebUserRole.values();
     }

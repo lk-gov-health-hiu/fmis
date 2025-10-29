@@ -25,6 +25,7 @@ package lk.gov.health.phsp.pojcs;
 
 import java.io.Serializable;
 import java.util.Date;
+import lk.gov.health.phsp.enums.FuelTransactionType;
 
 /**
  *
@@ -34,6 +35,7 @@ public class FuelTransactionLight implements Serializable {
 
     private Long id;
     private Date date;
+    private FuelTransactionType transactionType;
     private String requestReferenceNumber;
     private String vehicleNumber;
     private Double requestQuantity;
@@ -125,6 +127,28 @@ public class FuelTransactionLight implements Serializable {
                                 String toInstitutionCode) {
         this.id = id;
         this.date = date;
+        this.requestReferenceNumber = requestReferenceNumber;
+        this.vehicleNumber = vehicleNumber;
+        this.requestQuantity = requestQuantity;
+        this.issuedQuantity = issuedQuantity;
+        this.issueReferenceNumber = issueReferenceNumber;
+        this.fromInstitutionName = fromInstitutionName;
+        this.toInstitutionName = toInstitutionName;
+        this.driverName = driverName;
+        this.toInstitutionCode = toInstitutionCode;
+    }
+
+    // New constructor with transactionType
+    public FuelTransactionLight(Long id, Date date, FuelTransactionType transactionType,
+                                String requestReferenceNumber,
+                                String vehicleNumber, Double requestQuantity,
+                                Double issuedQuantity, String issueReferenceNumber,
+                                String fromInstitutionName, String toInstitutionName,
+                                String driverName,
+                                String toInstitutionCode) {
+        this.id = id;
+        this.date = date;
+        this.transactionType = transactionType;
         this.requestReferenceNumber = requestReferenceNumber;
         this.vehicleNumber = vehicleNumber;
         this.requestQuantity = requestQuantity;
@@ -240,7 +264,20 @@ public class FuelTransactionLight implements Serializable {
     public void setDriverName(String driverName) {
         this.driverName = driverName;
     }
-    
-    
+
+    public FuelTransactionType getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(FuelTransactionType transactionType) {
+        this.transactionType = transactionType;
+    }
+
+    public String getTransactionTypeLabel() {
+        if (transactionType != null) {
+            return transactionType.getLabel();
+        }
+        return "";
+    }
 
 }
