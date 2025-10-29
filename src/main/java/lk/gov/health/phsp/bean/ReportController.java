@@ -161,6 +161,7 @@ public class ReportController implements Serializable {
     Long fuelStationId;
     Long healthInstitutionId;
     private Date selectedDate; // This represents the date clicked in the comprehensive report
+    private boolean filterByIssuedDate; // true = filter by issued date, false = filter by requested date
 
     // </editor-fold> 
     // <editor-fold defaultstate="collapsed" desc="Constructors">
@@ -501,7 +502,7 @@ public class ReportController implements Serializable {
         Sheet sheet = workbook.createSheet("Transactions");
 
         Row headerRow = sheet.createRow(0);
-        String[] columnHeaders = {"Date", "Transaction Type", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No"};
+        String[] columnHeaders = {"Ordered Date", "Transaction Type", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No"};
         for (int i = 0; i < columnHeaders.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(columnHeaders[i]);
@@ -757,7 +758,11 @@ public class ReportController implements Serializable {
             tdCal.set(Calendar.MILLISECOND, 999);
             td = tdCal.getTime(); // End of the toDate
 
-            jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            if (filterByIssuedDate) {
+                jpqlBuilder.append("AND ft.issuedDate BETWEEN :fromDate AND :toDate ");
+            } else {
+                jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            }
             parameters.put("fromDate", fd);
             parameters.put("toDate", td);
         }
@@ -782,7 +787,11 @@ public class ReportController implements Serializable {
             parameters.put("txType", transactionType);
         }
 
-        jpqlBuilder.append("ORDER BY ft.requestedDate");
+        if (filterByIssuedDate) {
+            jpqlBuilder.append("ORDER BY ft.issuedDate");
+        } else {
+            jpqlBuilder.append("ORDER BY ft.requestedDate");
+        }
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);
@@ -833,7 +842,11 @@ public class ReportController implements Serializable {
             tdCal.set(Calendar.MILLISECOND, 999);
             td = tdCal.getTime(); // End of the toDate
 
-            jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            if (filterByIssuedDate) {
+                jpqlBuilder.append("AND ft.issuedDate BETWEEN :fromDate AND :toDate ");
+            } else {
+                jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            }
             parameters.put("fromDate", fd);
             parameters.put("toDate", td);
         }
@@ -858,7 +871,11 @@ public class ReportController implements Serializable {
             parameters.put("txType", transactionType);
         }
 
-        jpqlBuilder.append("ORDER BY ft.requestedDate");
+        if (filterByIssuedDate) {
+            jpqlBuilder.append("ORDER BY ft.issuedDate");
+        } else {
+            jpqlBuilder.append("ORDER BY ft.requestedDate");
+        }
 
         List<FuelTransaction> resultList = fuelTransactionFacade.findByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);
@@ -881,8 +898,8 @@ public class ReportController implements Serializable {
                 .append("fi.name, ") // fromInstitution name
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
-                .append("ti.code ") // toInstitution code
-                .append(") FROM FuelTransaction ft ")
+                .append("ti.code, ") // toInstitution code
+                .append("ft.issuedDate) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -948,8 +965,8 @@ public class ReportController implements Serializable {
                 .append("fi.name, ") // fromInstitution name
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
-                .append("ti.code ") // toInstitution code
-                .append(") FROM FuelTransaction ft ")
+                .append("ti.code, ") // toInstitution code
+                .append("ft.issuedDate) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -1884,6 +1901,14 @@ public class ReportController implements Serializable {
 
     public void setBillTransactions(List<FuelTransaction> billTransactions) {
         this.billTransactions = billTransactions;
+    }
+
+    public boolean isFilterByIssuedDate() {
+        return filterByIssuedDate;
+    }
+
+    public void setFilterByIssuedDate(boolean filterByIssuedDate) {
+        this.filterByIssuedDate = filterByIssuedDate;
     }
 
     public class FuelEstimate {

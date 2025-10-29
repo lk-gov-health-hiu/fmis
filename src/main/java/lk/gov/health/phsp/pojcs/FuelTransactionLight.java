@@ -189,7 +189,31 @@ public class FuelTransactionLight implements Serializable {
         this.driverName = driverName;
         this.toInstitutionCode = toInstitutionCode;
     }
-    
+
+    // Constructor with both transactionType and issuedDate (13 parameters)
+    public FuelTransactionLight(Long id, Date date, FuelTransactionType transactionType,
+                                String requestReferenceNumber,
+                                String vehicleNumber, Double requestQuantity,
+                                Double issuedQuantity, String issueReferenceNumber,
+                                String fromInstitutionName, String toInstitutionName,
+                                String driverName,
+                                String toInstitutionCode,
+                                Date issedDate) {
+        this.id = id;
+        this.date = date;
+        this.transactionType = transactionType;
+        this.requestReferenceNumber = requestReferenceNumber;
+        this.vehicleNumber = vehicleNumber;
+        this.requestQuantity = requestQuantity;
+        this.issuedQuantity = issuedQuantity;
+        this.issueReferenceNumber = issueReferenceNumber;
+        this.fromInstitutionName = fromInstitutionName;
+        this.toInstitutionName = toInstitutionName;
+        this.driverName = driverName;
+        this.toInstitutionCode = toInstitutionCode;
+        this.issuedDate = issedDate;
+    }
+
     public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
             String vehicleNumber, Double requestQuantity,
             Double issuedQuantity, String issueReferenceNumber,
