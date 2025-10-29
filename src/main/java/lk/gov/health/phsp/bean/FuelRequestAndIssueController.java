@@ -952,7 +952,7 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listInstitutionRequests() {
-        transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null, null, fuelTransactionType);
+        transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null, null, null, fuelTransactionType);
     }
 
     boolean paymentRequestStarted = false;
@@ -1120,55 +1120,9 @@ public class FuelRequestAndIssueController implements Serializable {
             Boolean cancelled,
             Boolean rejected,
             List<FuelTransactionType> txTypes) {
-        String j = "SELECT ft "
-                + " FROM FuelTransaction ft "
-                + " WHERE ft.retired = false";
-        Map<String, Object> params = new HashMap<>();
-
-        if (institution != null) {
-            j += " AND ft.institution = :institution";
-            params.put("institution", institution);
-        }
-        if (fromInstitution != null) {
-            j += " AND ft.fromInstitution = :fromInstitution";
-            params.put("fromInstitution", fromInstitution);
-        }
-        if (toInstitution != null) {
-            j += " AND ft.toInstitution = :toInstitution";
-            params.put("toInstitution", toInstitution);
-        }
-        if (vehicles != null && !vehicles.isEmpty()) {
-            j += " AND ft.vehicle IN :vehicles";
-            params.put("vehicles", vehicles);
-        }
-        if (fromDateTime != null) {
-            j += " AND ft.requestedDate >= :fromDateTime";
-            params.put("fromDateTime", fromDateTime);
-        }
-        if (toDateTime != null) {
-            j += " AND ft.requestedDate <= :toDateTime";
-            params.put("toDateTime", toDateTime);
-        }
-        if (issued != null) {
-            j += " AND ft.issued = :issued ";
-            params.put("issued", issued);
-        }
-        if (cancelled != null) {
-            j += " AND ft.cancelled = :cancelled ";
-            params.put("cancelled", cancelled);
-        }
-        if (rejected != null) {
-            j += " AND ft.rejected = :rejected ";
-            params.put("rejected", rejected);
-        }
-        if (txTypes != null) {
-            j += " AND ft.transactionType in :ftxs ";
-            params.put("ftxs", txTypes);
-        }
-        List<FuelTransaction> fuelTransactions = getFacade().findByJpql(j, params);
-        if (fuelTransactions != null) {
-        }
-        return fuelTransactions;
+        // Call the new method with null for submittedToPayment and type
+        return findFuelTransactions(institution, fromInstitution, toInstitution, vehicles, fromDateTime, toDateTime,
+                issued, cancelled, rejected, null, txTypes, null);
     }
 
     public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution,
@@ -1235,6 +1189,10 @@ public class FuelRequestAndIssueController implements Serializable {
         if (submittedToPayment != null) {  // New condition for submittedToPayment
             j += " AND ft.submittedToPayment = :submittedToPayment";
             params.put("submittedToPayment", submittedToPayment);
+        }
+        if (txTypes != null && !txTypes.isEmpty()) {
+            j += " AND ft.transactionType IN :txTypes";
+            params.put("txTypes", txTypes);
         }
         if (type != null) {
             j += " AND ft.transactionType = :ftxs";
