@@ -368,6 +368,14 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Select Fuel Station");
             return "";
         }
+        if(selected.getRequestReferenceNumber()==null){
+            JsfUtil.addErrorMessage("Enter a referance number");
+            return "";
+        }
+        if(selected.getRequestReferenceNumber().trim().equals("")){
+            JsfUtil.addErrorMessage("Enter a referance number");
+            return "";
+        }
         selected.setRequestAt(new Date());
         save(selected);
         JsfUtil.addSuccessMessage("Request Submitted");
