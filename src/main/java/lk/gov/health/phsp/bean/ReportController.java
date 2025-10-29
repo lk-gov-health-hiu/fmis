@@ -152,6 +152,7 @@ public class ReportController implements Serializable {
     private VehiclePurpose vehiclePurpose;
     private Driver driver;
     private InstitutionType institutionType;
+    private FuelTransactionType fuelTransactionType;
     private List<FuelIssuedSummary> issuedSummaries;
     private FuelEstimate fuelEstimate;
     Long fuelStationId;
@@ -405,11 +406,11 @@ public class ReportController implements Serializable {
     // </editor-fold> 
     // <editor-fold defaultstate="collapsed" desc="Functional Methods">
     public void fillAllInstitutionFuelTransactions() {
-        transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
+        transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType, fuelTransactionType);
     }
 
     public void fillAllInstitutionFuelTransactionsDetailes() {
-        transactions = fillFuelTransactionsDetailed(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
+        transactions = fillFuelTransactionsDetailed(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType, fuelTransactionType);
     }
 
     public void generateExcelFile(List<FuelTransactionLight> transactions) throws IOException {
@@ -417,7 +418,7 @@ public class ReportController implements Serializable {
         Sheet sheet = workbook.createSheet("Transactions");
 
         Row headerRow = sheet.createRow(0);
-        String[] columnHeaders = {"Date", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No"};
+        String[] columnHeaders = {"Date", "Transaction Type", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No"};
         for (int i = 0; i < columnHeaders.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(columnHeaders[i]);
@@ -428,18 +429,19 @@ public class ReportController implements Serializable {
             Row row = sheet.createRow(rowNum++);
 
             row.createCell(0).setCellValue(transaction.getDate().toString()); // Adjust this based on your date format
-            row.createCell(1).setCellValue(transaction.getFromInstitutionName());
-            row.createCell(2).setCellValue(transaction.getToInstitutionName());
-            row.createCell(3).setCellValue(transaction.getToInstitutionCode());
-            row.createCell(4).setCellValue(transaction.getRequestReferenceNumber());
-            row.createCell(5).setCellValue(transaction.getVehicleNumber());
-            row.createCell(6).setCellValue(transaction.getDriverName());
-            row.createCell(7).setCellValue(transaction.getRequestQuantity());
+            row.createCell(1).setCellValue(transaction.getTransactionTypeLabel());
+            row.createCell(2).setCellValue(transaction.getFromInstitutionName());
+            row.createCell(3).setCellValue(transaction.getToInstitutionName());
+            row.createCell(4).setCellValue(transaction.getToInstitutionCode());
+            row.createCell(5).setCellValue(transaction.getRequestReferenceNumber());
+            row.createCell(6).setCellValue(transaction.getVehicleNumber());
+            row.createCell(7).setCellValue(transaction.getDriverName());
+            row.createCell(8).setCellValue(transaction.getRequestQuantity());
             if (transaction.getIssuedQuantity() != null) {
-                row.createCell(8).setCellValue(transaction.getIssuedQuantity());
+                row.createCell(9).setCellValue(transaction.getIssuedQuantity());
             }
             if (transaction.getIssueReferenceNumber() != null) {
-                row.createCell(9).setCellValue(transaction.getIssueReferenceNumber());
+                row.createCell(10).setCellValue(transaction.getIssueReferenceNumber());
             }
         }
 
@@ -588,14 +590,14 @@ public class ReportController implements Serializable {
     }
 
     public void fillAllInstitutionDeletedFuelTransactions() {
-        transactionLights = fillDeletedFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
+        transactionLights = fillDeletedFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType, fuelTransactionType);
     }
 
     public void fillAllInstitutionFuelTransactionsForCpcHeadOffice() {
         transactionLights = fillFuelTransactions(fromInstitution,
                 toInstitution,
                 getFromDate(),
-                getToDate(), null, null, null, null);
+                getToDate(), null, null, null, null, fuelTransactionType);
     }
 
     public void fillFuelTransactionsForCpc() {
@@ -607,7 +609,8 @@ public class ReportController implements Serializable {
                     null,
                     null,
                     null,
-                    null);
+                    null,
+                    fuelTransactionType);
         } else {
             transactionLights = fillFuelTransactions(null,
                     toInstitution,
@@ -616,24 +619,26 @@ public class ReportController implements Serializable {
                     null,
                     null,
                     null,
-                    null);
+                    null,
+                    fuelTransactionType);
         }
 
     }
 
     public List<FuelTransactionLight> fillFuelTransactions(
             Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
-            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType) {
+            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType, FuelTransactionType transactionType) {
 
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestedDate, ft.requestReferenceNumber, ")
+                .append("ft.id, ft.requestedDate, ft.transactionType, ")
+                .append("ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
                 .append("fi.name, ") // fromInstitution name
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
-                .append("ti.code ") // toInstitution name
+                .append("ti.code ") // toInstitution code
                 .append(") FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
@@ -689,6 +694,10 @@ public class ReportController implements Serializable {
             jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
             parameters.put("instType", institutionType);
         }
+        if (transactionType != null) {
+            jpqlBuilder.append("AND ft.transactionType = :txType ");
+            parameters.put("txType", transactionType);
+        }
 
         jpqlBuilder.append("ORDER BY ft.requestedDate");
 
@@ -702,7 +711,7 @@ public class ReportController implements Serializable {
 
     public List<FuelTransaction> fillFuelTransactionsDetailed(
             Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
-            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType) {
+            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType, FuelTransactionType transactionType) {
 
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT ft ") // toInstitution name
@@ -761,6 +770,10 @@ public class ReportController implements Serializable {
             jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
             parameters.put("instType", institutionType);
         }
+        if (transactionType != null) {
+            jpqlBuilder.append("AND ft.transactionType = :txType ");
+            parameters.put("txType", transactionType);
+        }
 
         jpqlBuilder.append("ORDER BY ft.requestedDate");
 
@@ -774,17 +787,18 @@ public class ReportController implements Serializable {
 
     public List<FuelTransactionLight> fillDeletedFuelTransactions(
             Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
-            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType) {
+            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType, FuelTransactionType transactionType) {
 
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestedDate, ft.requestReferenceNumber, ")
+                .append("ft.id, ft.requestedDate, ft.transactionType, ")
+                .append("ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
                 .append("fi.name, ") // fromInstitution name
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
-                .append("ti.code ") // toInstitution name
+                .append("ti.code ") // toInstitution code
                 .append(") FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
@@ -823,6 +837,10 @@ public class ReportController implements Serializable {
         if (institutionType != null) {
             jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
             parameters.put("instType", institutionType);
+        }
+        if (transactionType != null) {
+            jpqlBuilder.append("AND ft.transactionType = :txType ");
+            parameters.put("txType", transactionType);
         }
 
         jpqlBuilder.append("ORDER BY ft.requestedDate");
@@ -890,6 +908,10 @@ public class ReportController implements Serializable {
         if (institutionType != null) {
             jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
             parameters.put("instType", institutionType);
+        }
+        if (transactionType != null) {
+            jpqlBuilder.append("AND ft.transactionType = :txType ");
+            parameters.put("txType", transactionType);
         }
 
         jpqlBuilder.append("ORDER BY ft.requestedDate");
@@ -1245,6 +1267,14 @@ public class ReportController implements Serializable {
 
     public void setVehiclePurpose(VehiclePurpose vehiclePurpose) {
         this.vehiclePurpose = vehiclePurpose;
+    }
+
+    public FuelTransactionType getFuelTransactionType() {
+        return fuelTransactionType;
+    }
+
+    public void setFuelTransactionType(FuelTransactionType fuelTransactionType) {
+        this.fuelTransactionType = fuelTransactionType;
     }
 
     public List<FuelTransaction> getTransactions() {
