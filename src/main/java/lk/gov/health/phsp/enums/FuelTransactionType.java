@@ -29,12 +29,17 @@ package lk.gov.health.phsp.enums;
  * @author User
  */
 public enum FuelTransactionType {
-    VehicleFuelRequest("Vehicle Fuel Request"),
-    SpecialVehicleFuelRequest("Vehicle Special Fuel Request"),
+    VehicleFuelRequest("Normal Fuel Order"),
+    SpecialVehicleFuelRequest("Special Fuel Order"),
+    @Deprecated
     DepotFuelRequest("Fuel Request from CPC to SLTB Depot"),
+    @Deprecated
     CtbFuelRequest("SLTB Fuel Request"),
+    @Deprecated
     CtbFuelReceive("SLTB Fuel Receive"),
+    @Deprecated
     MinistryFuelRequest("Ministry of Health Fuel Request"),
+    @Deprecated
     Other("Other");
     
     private final String label;    
