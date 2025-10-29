@@ -853,17 +853,19 @@ public class ReportController implements Serializable {
     public List<FuelTransactionLight> fillFuelTransactions(
             List<Institution> requestingInstitutions, List<Institution> fuelStations,
             Date fd, Date td, VehicleType vehicleType, VehiclePurpose vehiclePurpose,
-            Driver driver, InstitutionType institutionType) {
+            Driver driver, InstitutionType institutionType, FuelTransactionType transactionType) {
 
         StringBuilder jpqlBuilder = new StringBuilder();
 
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestedDate, ft.requestReferenceNumber, ")
+                .append("ft.id, ft.requestedDate, ft.transactionType, ")
+                .append("ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
                 .append("fi.name, ") // fromInstitution name
                 .append("ti.name, ") // toInstitution name
-                .append("COALESCE(d.name, 'No Driver')") // driver name or 'No Driver' if null
+                .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
+                .append("ti.code ") // toInstitution code
                 .append(") FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
