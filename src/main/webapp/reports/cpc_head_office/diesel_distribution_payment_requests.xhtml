@@ -11,6 +11,7 @@
             <ui:define name="reports">
                 <h:form>
                     <p:panelGrid columns="3">
+                        <!-- Date Filters -->
                         <p:panelGrid columns="2">
                             <p:outputLabel value="From" />
                             <p:calendar value="#{reportController.fromDate}" pattern="dd MMMM yyyy" />
@@ -19,14 +20,14 @@
                             <p:calendar value="#{reportController.toDate}" pattern="dd MMMM yyyy" />
                         </p:panelGrid>
 
-                  
-
+                        <!-- Process Button -->
                         <p:commandButton value="Process"
                                          ajax="false"
-                                         action="#{reportController.fillComprehensiveDieselIssuanceSummary()}" />
+                                         action="#{reportController.fillDieselDistributionHealthInstitutionSummary}" />
                     </p:panelGrid>
 
-                    <p:dataTable var="summary"
+                    <!-- Data Table -->
+                    <p:dataTable var="payment requests"
                                  value="#{reportController.issuedSummaries}"
                                  paginator="true"
                                  rows="10"
@@ -35,33 +36,35 @@
                                  currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
                                  widgetVar="summaryTable">
 
-                        <p:column headerText="Issued Date" sortBy="#{summary.issuedDate}" >
-                            <p:commandLink action="#{reportController.navigateToIndividualTransactionsFromDate()}" >
-                                <h:outputText value="#{summary.issuedDate}">
-                                    <f:convertDateTime pattern="dd/MM/yyyy" />
-                                </h:outputText>
-                                <f:setPropertyActionListener value="#{summary.issuedDate}" target="#{reportController.selectedDate}" />
-                            </p:commandLink>
+                        <p:column headerText="Date" sortBy="#{summary.issuedDate}">
+                            <h:outputText value="#{summary.issuedDate}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                            </h:outputText>
                         </p:column>
 
-                        <p:column headerText="Health Institution" sortBy="#{summary.fromInstitutionName}" filterBy="#{summary.fromInstitutionName}" filterMatchMode="contains">
-                            <p:commandLink action="#{reportController.navigateToIndividualTransactionsFromHealthInstitution()}" value="#{summary.fromInstitutionName}">
-                                <f:setPropertyActionListener value="#{summary.fromInstitutionId}" target="#{reportController.healthInstitutionId}" />
-                            </p:commandLink>
+                        <p:column headerText="Fuel Station" sortBy="#{summary.institutionName}" filterBy="#{summary.institutionName}" filterMatchMode="contains">
+                            <h:outputText value="#{summary}" />
                         </p:column>
 
-                        <p:column headerText="Fuel Station" sortBy="#{summary.toInstitutionName}" filterBy="#{summary.toInstitutionName}" filterMatchMode="contains">
-                            <p:commandLink action="#{reportController.navigateToIndividualTransactionsFromFuelStation()}" value="#{summary.toInstitutionName}">
-                                <f:setPropertyActionListener value="#{summary.toInstitutionId}" target="#{reportController.fuelStationId}" />
-                            </p:commandLink>
+                        <p:column headerText="Fuel Station Code" sortBy="#{summary.institutionName}" filterBy="#{summary.institutionName}" filterMatchMode="contains">
+                            <h:outputText value="#{summary.institutionName}" />
+                        </p:column>
+
+                        <p:column headerText="Health Institution" sortBy="#{summary.institutionName}" filterBy="#{summary.institutionName}" filterMatchMode="contains">
+                            <h:outputText value="#{summary.institutionName}" />
                         </p:column>
 
                         <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" >
                             <h:outputText value="#{summary.sumOfIssuedQty}" />
                         </p:column>
 
-                    </p:dataTable>
+                        <p:column headerText="Action">
+                            <p:commandButton value="View Details" action="#{reportController.navigateToComprehensiveSummaryFromHealthInstitutionSummary()}" ajax="false">
+                                <f:setPropertyActionListener value="#{summary.institutionId}" target="#{reportController.healthInstitutionId}" />
+                            </p:commandButton>
+                        </p:column>
 
+                    </p:dataTable>
                 </h:form>
             </ui:define>
         </ui:composition>

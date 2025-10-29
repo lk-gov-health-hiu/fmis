@@ -24,8 +24,12 @@
 package lk.gov.health.phsp.pojcs;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import lk.gov.health.phsp.enums.FuelTransactionType;
+import javax.persistence.Transient;
 
 /**
  *
@@ -36,6 +40,7 @@ public class FuelTransactionLight implements Serializable {
     private Long id;
     private Date date;
     private FuelTransactionType transactionType;
+    private Date issuedDate;
     private String requestReferenceNumber;
     private String vehicleNumber;
     private Double requestQuantity;
@@ -44,7 +49,7 @@ public class FuelTransactionLight implements Serializable {
     private String fromInstitutionName;
     private String toInstitutionName;
     String toInstitutionCode;
-    private String driverName; 
+    private String driverName;
 
     public FuelTransactionLight() {
     }
@@ -75,13 +80,12 @@ public class FuelTransactionLight implements Serializable {
         this.fromInstitutionName = fromInstitutionName;
         this.toInstitutionName = toInstitutionName;
     }
-    
-    
+
     public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
-                                String vehicleNumber, Double requestQuantity,
-                                Double issuedQuantity, String issueReferenceNumber,
-                                String fromInstitutionName, String toInstitutionName,
-                                String driverName) {
+            String vehicleNumber, Double requestQuantity,
+            Double issuedQuantity, String issueReferenceNumber,
+            String fromInstitutionName, String toInstitutionName,
+            String driverName) {
         this.id = id;
         this.date = date;
         this.requestReferenceNumber = requestReferenceNumber;
@@ -93,20 +97,31 @@ public class FuelTransactionLight implements Serializable {
         this.toInstitutionName = toInstitutionName;
         this.driverName = driverName;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    //New
-    
+
     public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
             String vehicleNumber, Double requestQuantity,
             Double issuedQuantity, String issueReferenceNumber,
-                                String toInstitutionCode) {
+            String fromInstitutionName, String toInstitutionName,
+            String driverName,
+            Date issedDate) {
+        this.id = id;
+        this.date = date;
+        this.requestReferenceNumber = requestReferenceNumber;
+        this.vehicleNumber = vehicleNumber;
+        this.requestQuantity = requestQuantity;
+        this.issuedQuantity = issuedQuantity;
+        this.issueReferenceNumber = issueReferenceNumber;
+        this.fromInstitutionName = fromInstitutionName;
+        this.toInstitutionName = toInstitutionName;
+        this.driverName = driverName;
+        this.issuedDate = issedDate;
+    }
+
+    //New
+    public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
+            String vehicleNumber, Double requestQuantity,
+            Double issuedQuantity, String issueReferenceNumber,
+            String toInstitutionCode) {
         this.id = id;
         this.date = date;
         this.requestReferenceNumber = requestReferenceNumber;
@@ -117,14 +132,29 @@ public class FuelTransactionLight implements Serializable {
         this.toInstitutionCode = toInstitutionCode;
     }
 
-    
-    
     public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
-                                String vehicleNumber, Double requestQuantity,
-                                Double issuedQuantity, String issueReferenceNumber,
-                                String fromInstitutionName, String toInstitutionName,
-                                String driverName,
-                                String toInstitutionCode) {
+            String vehicleNumber, Double requestQuantity,
+            Double issuedQuantity, String issueReferenceNumber,
+            String toInstitutionCode,
+            Date issedDate) {
+        this.id = id;
+        this.date = date;
+        this.requestReferenceNumber = requestReferenceNumber;
+        this.vehicleNumber = vehicleNumber;
+        this.requestQuantity = requestQuantity;
+        this.issuedQuantity = issuedQuantity;
+        this.issueReferenceNumber = issueReferenceNumber;
+        this.toInstitutionCode = toInstitutionCode;
+        this.issuedDate = issedDate;
+    }
+
+
+    public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
+            String vehicleNumber, Double requestQuantity,
+            Double issuedQuantity, String issueReferenceNumber,
+            String fromInstitutionName, String toInstitutionName,
+            String driverName,
+            String toInstitutionCode) {
         this.id = id;
         this.date = date;
         this.requestReferenceNumber = requestReferenceNumber;
@@ -160,17 +190,26 @@ public class FuelTransactionLight implements Serializable {
         this.toInstitutionCode = toInstitutionCode;
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
+            String vehicleNumber, Double requestQuantity,
+            Double issuedQuantity, String issueReferenceNumber,
+            String fromInstitutionName, String toInstitutionName,
+            String driverName,
+            String toInstitutionCode,
+            Date issedDate) {
+        this.id = id;
+        this.date = date;
+        this.requestReferenceNumber = requestReferenceNumber;
+        this.vehicleNumber = vehicleNumber;
+        this.requestQuantity = requestQuantity;
+        this.issuedQuantity = issuedQuantity;
+        this.issueReferenceNumber = issueReferenceNumber;
+        this.fromInstitutionName = fromInstitutionName;
+        this.toInstitutionName = toInstitutionName;
+        this.driverName = driverName;
+        this.toInstitutionCode = toInstitutionCode;
+        this.issuedDate = issedDate;
+    }
 
     public String getToInstitutionCode() {
         return toInstitutionCode;
@@ -180,11 +219,6 @@ public class FuelTransactionLight implements Serializable {
         this.toInstitutionCode = toInstitutionCode;
     }
 
-    
-    
-    
-    
-    
     public Long getId() {
         return id;
     }
@@ -195,6 +229,26 @@ public class FuelTransactionLight implements Serializable {
 
     public Date getDate() {
         return date;
+    }
+
+    @Transient
+    public int getWeekOfTheYear() {
+        if (date == null) {
+            return 0;
+        }
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        return c.get(Calendar.WEEK_OF_YEAR);
+    }
+
+    @Transient
+    public String getFormattedDate() {
+        if (date == null) {
+            return "";
+        }
+        String pattern = "dd MMMM yyyy";
+        DateFormat sfd = new SimpleDateFormat(pattern);
+        return sfd.format(date);
     }
 
     public void setDate(Date date) {
@@ -278,6 +332,14 @@ public class FuelTransactionLight implements Serializable {
             return transactionType.getLabel();
         }
         return "";
+    }
+
+    public Date getIssuedDate() {
+        return issuedDate;
+    }
+
+    public void setIssuedDate(Date issuedDate) {
+        this.issuedDate = issuedDate;
     }
 
 }
