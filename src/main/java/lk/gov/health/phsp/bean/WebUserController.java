@@ -210,12 +210,16 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRoleLevel() == null) {
             return false;
         }
-        if(loggedUser.getWebUserRoleLevel()!=WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION){
+        if (loggedUser.getWebUserRoleLevel() != WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION) {
             return false;
         }
+        if (loggedUser.getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
+            return false;
+        }
+
         return true;
     }
-    
+
     public boolean isDieselFuelRequestMenuAvailable() {
         if (loggedUser == null) {
             return false;
@@ -226,15 +230,18 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRoleLevel() == null) {
             return false;
         }
-        if(loggedUser.getWebUserRoleLevel()!=WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION){
+        if (loggedUser.getWebUserRoleLevel() != WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION) {
             return false;
         }
-        if(loggedUser.getWebUserRole()!=WebUserRole.INSTITUTION_TRANSPORT){
+        if (loggedUser.getWebUserRole() != WebUserRole.INSTITUTION_TRANSPORT) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
             return false;
         }
         return true;
     }
-    
+
     public boolean isDieselSpecialFuelRequestMenuAvailable() {
         if (loggedUser == null) {
             return false;
@@ -245,15 +252,19 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRoleLevel() == null) {
             return false;
         }
-        if(loggedUser.getWebUserRoleLevel()!=WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION){
+        if (loggedUser.getWebUserRoleLevel() != WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION) {
             return false;
         }
-        if(loggedUser.getWebUserRole()!=WebUserRole.INSTITUTION_TRANSPORT){
+        if (loggedUser.getWebUserRole() != WebUserRole.INSTITUTION_TRANSPORT) {
             return false;
         }
+        if (loggedUser.getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
+            return false;
+        }
+
         return true;
     }
-    
+
     public boolean isDieselFuelRequestMarkAsReceivedMenuAvailable() {
         if (loggedUser == null) {
             return false;
@@ -264,16 +275,18 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRoleLevel() == null) {
             return false;
         }
-        if(loggedUser.getWebUserRoleLevel()!=WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION){
+        if (loggedUser.getWebUserRoleLevel() != WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION) {
             return false;
         }
-        if(loggedUser.getWebUserRole()!=WebUserRole.INSTITUTION_ACCOUNTS){
+        if (loggedUser.getWebUserRole() != WebUserRole.INSTITUTION_ACCOUNTS) {
             return false;
         }
+        if (loggedUser.getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
+            return false;
+        }
+
         return true;
     }
-    
-    
 
     public void onResize(ColumnResizeEvent event) {
         String viewId = event.getFacesContext().getViewRoot().getViewId();
