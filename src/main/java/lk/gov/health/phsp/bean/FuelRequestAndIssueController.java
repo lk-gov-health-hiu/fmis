@@ -85,6 +85,7 @@ public class FuelRequestAndIssueController implements Serializable {
     private WebUser webUser;
     private Date fromDate;
     private Date toDate;
+    private FuelTransactionType fuelTransactionType;
 
     private String searchingFuelRequestVehicleNumber;
 
@@ -822,7 +823,7 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listInstitutionRequests() {
-        transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null);
+        transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null, null, fuelTransactionType);
     }
 
     public void listInstitutionRequestsToMark() {
@@ -1093,6 +1094,14 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setToDate(Date toDate) {
         this.toDate = toDate;
+    }
+
+    public FuelTransactionType getFuelTransactionType() {
+        return fuelTransactionType;
+    }
+
+    public void setFuelTransactionType(FuelTransactionType fuelTransactionType) {
+        this.fuelTransactionType = fuelTransactionType;
     }
 
     public String navigateToViewInstitutionFuelRequestToSltbDepot() {

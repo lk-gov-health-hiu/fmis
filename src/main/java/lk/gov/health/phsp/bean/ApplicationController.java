@@ -227,7 +227,8 @@ public class ApplicationController {
     }
 
     public FuelTransactionType[] getFuelTransactionTypes() {
-        return FuelTransactionType.values();
+        FuelTransactionType[] ftts = {FuelTransactionType.VehicleFuelRequest, FuelTransactionType.SpecialVehicleFuelRequest};
+        return ftts;
     }
 
     public WebUserRole[] getWebUserRoles() {

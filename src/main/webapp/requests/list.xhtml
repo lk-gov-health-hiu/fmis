@@ -37,17 +37,31 @@
                                         </div>
                                         <div class="form-group">
                                             <label for="toDate">To Date</label>
-                                            <p:calendar 
-                                                id="toDate" 
-                                                value="#{fuelRequestAndIssueController.toDate}" 
+                                            <p:calendar
+                                                id="toDate"
+                                                value="#{fuelRequestAndIssueController.toDate}"
                                                 showButtonPanel="true"
                                                 pattern="dd MMMM yyyy"
                                                 class="w-100 m-1" />
                                         </div>
+                                        <div class="form-group">
+                                            <label for="transactionType">Transaction Type</label>
+                                            <p:selectOneMenu id="transactionType"
+                                                             value="#{fuelRequestAndIssueController.fuelTransactionType}"
+                                                             class="w-100 m-1"
+                                                             filter="true"
+                                                             filterMatchMode="contains">
+                                                <f:selectItem itemLabel="Any" itemValue="#{null}" />
+                                                <f:selectItems value="#{applicationController.fuelTransactionTypes}"
+                                                               var="tt"
+                                                               itemValue="#{tt}"
+                                                               itemLabel="#{tt.label}"/>
+                                            </p:selectOneMenu>
+                                        </div>
                                         <div class="form-group d-flex justify-content-center">
                                             <p:commandButton value="List Requests"
                                                              action="#{fuelRequestAndIssueController.listInstitutionRequests}"
-                                                             icon="pi pi-list" 
+                                                             icon="pi pi-list"
                                                              ajax="false"
                                                              class="btn btn-primary w-100 my-2" />
 
@@ -94,6 +108,10 @@
                                                 <h:outputText value="#{transaction.requestedDate}">
                                                     <f:convertDateTime pattern="dd MMM yyyy" />
                                                 </h:outputText>
+                                            </p:column>
+
+                                            <p:column headerText="Transaction Type" sortBy="#{transaction.transactionType.label}" filterBy="#{transaction.transactionType.label}" filterMatchMode="contains">
+                                                <h:outputText value="#{transaction.transactionType.label}" />
                                             </p:column>
 
                                             <p:column headerText="Req. Qty" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}">
