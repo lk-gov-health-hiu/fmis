@@ -145,10 +145,10 @@
                                                                 <td><h:outputText value="#{reportController.fuelTransaction.issuedUser.person.name}" /></td>
                                                             </tr>
                                                             <tr>
-                                                                <td><b>Issue Recorded At:</b></td>
+                                                                <td><b>Issue Date:</b></td>
                                                                 <td>
-                                                                    <h:outputText value="#{reportController.fuelTransaction.issuedAt}" >
-                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
+                                                                    <h:outputText value="#{reportController.fuelTransaction.issuedDate}" >
+                                                                        <f:convertDateTime pattern="dd MMMM yyyy"></f:convertDateTime>
                                                                     </h:outputText>
                                                                 </td>
                                                             </tr>

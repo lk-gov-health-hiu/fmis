@@ -21,35 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package lk.gov.health.phsp.facade;
 
-package lk.gov.health.phsp.enums;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import lk.gov.health.phsp.entity.Bill;
+import lk.gov.health.phsp.entity.DemoAccount;
 
 /**
  *
- * @author User
+ * @author Dr M H B Ariyaratne<buddhika.ari@gmail.com>
  */
-public enum FuelTransactionType {
-    VehicleFuelRequest("Normal Fuel Order"),
-    SpecialVehicleFuelRequest("Special Fuel Order"),
-    @Deprecated
-    DepotFuelRequest("Fuel Request from CPC to SLTB Depot"),
-    @Deprecated
-    CtbFuelRequest("SLTB Fuel Request"),
-    @Deprecated
-    CtbFuelReceive("SLTB Fuel Receive"),
-    @Deprecated
-    MinistryFuelRequest("Ministry of Health Fuel Request"),
-    @Deprecated
-    Other("Other");
-    
-    private final String label;    
-    private FuelTransactionType(String label){
-        this.label = label;
+@Stateless
+public class BillFacade extends AbstractFacade<Bill> {
+
+    @PersistenceContext(unitName = "hmisPU")
+    private EntityManager em;
+
+    @Override
+    protected EntityManager getEntityManager() {
+        return em;
+    }
+
+    public BillFacade() {
+        super(Bill.class);
     }
     
-    public String getLabel(){
-        return label;
-    }
-    
-  
 }

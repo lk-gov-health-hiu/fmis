@@ -21,56 +21,70 @@
                     <div class="row">
                         <div class="col-md-2">
                             <h:form class="form">
-                                
-                                
-                                <p:commandButton 
-                                    value="National Estimates to Print"   
-                                    class="w-100 m-1"
-                                    action="#{reportController.navigateToListHospitalEstimatessToPrint()}"
-                                    ajax="false"></p:commandButton>
-                                <p:commandButton 
-                                    value="National Estimates to Download"   
-                                    class="w-100 m-1"
-                                    action="#{reportController.navigateToListHospitalEstimatessToDownload()}"
-                                    ajax="false"></p:commandButton>
-                                <hr/>
-                                <p:commandButton 
-                                    value="List of Transactions"   
+
+                                <p:commandButton
+                                    value="List of Transactions"
+                                    icon="fa fa-list"
                                     class="w-100 m-1"
                                     action="#{reportController.navigateToListFuelRequests()}"
                                     ajax="false"></p:commandButton>
-                                
-                                <p:commandButton 
-                                    value="List of Transactions with Details"   
+
+                                <p:commandButton
+                                    value="List of Payments"
+                                    class="w-100 m-1"
+                                    action="#{reportController.navigateToListPayments()}"
+                                    ajax="false"></p:commandButton>
+
+                                <p:commandButton
+                                    value="List of Transactions with Details"
+                                    icon="fa fa-list-alt"
                                     class="w-100 m-1"
                                     action="#{reportController.navigateToListFuelRequestsDetails()}"
                                     ajax="false"></p:commandButton>
-                                
-                                <p:commandButton 
-                                    value="Diesel Distribution to Fuel Stations Summary"   
+
+                                <p:commandButton
+                                    value="Diesel Distribution to Fuel Stations Summary"
+                                    icon="fa fa-gas-pump"
                                     class="w-100 m-1"
                                     action="#{reportController.navigateToDieselDistributionFuelStationSummary()}"
                                     ajax="false"></p:commandButton>
 
-                                <p:commandButton 
-                                    value="Diesel Distribution from Health Institutions Summary"   
+                                <p:commandButton
+                                    value="Diesel Distribution from Health Institutions Summary"
+                                    icon="fa fa-hospital"
                                     class="w-100 m-1"
                                     action="#{reportController.navigateToDieselDistributionHealthInstitutionSummary()}"
                                     ajax="false"></p:commandButton>
 
-                                <p:commandButton 
-                                    value="Comprehensive Diesel Issuance Summary"   
+                                <p:commandButton
+                                    value="Comprehensive Diesel Issuance Summary"
+                                    icon="fa fa-chart-bar"
                                     class="w-100 m-1"
                                     action="#{reportController.navigateToComprehensiveDieselIssuanceSummary()}"
                                     ajax="false"></p:commandButton>
-                                
-                                
-                                <p:commandButton 
-                                    value="List of Deleted Transactions"   
+
+
+                                <p:commandButton
+                                    value="List of Deleted Transactions"
+                                    icon="fa fa-trash"
                                     class="w-100 m-1"
                                     action="#{reportController.navigateToListDeletedFuelRequests()}"
                                     ajax="false"></p:commandButton>
 
+
+                                <p:commandButton
+                                    value="National Estimates to Print"
+                                    icon="fa fa-print"
+                                    class="w-100 m-1"
+                                    action="#{reportController.navigateToListHospitalEstimatessToPrint()}"
+                                    ajax="false"></p:commandButton>
+                                <p:commandButton
+                                    value="National Estimates to Download"
+                                    icon="fa fa-download"
+                                    class="w-100 m-1"
+                                    action="#{reportController.navigateToListHospitalEstimatessToDownload()}"
+                                    ajax="false"></p:commandButton>
+                                <hr/>
 
                             </h:form>
                         </div>

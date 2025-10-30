@@ -226,6 +226,11 @@ public class ApplicationController {
         return VehiclePurpose.values();
     }
 
+    public FuelTransactionType[] getFuelTransactionTypes() {
+        FuelTransactionType[] ftts = {FuelTransactionType.VehicleFuelRequest, FuelTransactionType.SpecialVehicleFuelRequest};
+        return ftts;
+    }
+
     public WebUserRole[] getWebUserRoles() {
         return WebUserRole.values();
     }

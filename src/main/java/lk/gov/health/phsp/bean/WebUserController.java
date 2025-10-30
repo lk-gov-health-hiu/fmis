@@ -210,12 +210,12 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRoleLevel() == null) {
             return false;
         }
-        if(loggedUser.getWebUserRoleLevel()!=WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION){
+        if (loggedUser.getWebUserRoleLevel() != WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION) {
             return false;
         }
         return true;
     }
-    
+
     public boolean isDieselFuelRequestMenuAvailable() {
         if (loggedUser == null) {
             return false;
@@ -226,15 +226,15 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRoleLevel() == null) {
             return false;
         }
-        if(loggedUser.getWebUserRoleLevel()!=WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION){
+        if (loggedUser.getWebUserRoleLevel() != WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION) {
             return false;
         }
-        if(loggedUser.getWebUserRole()!=WebUserRole.INSTITUTION_TRANSPORT){
+        if (loggedUser.getWebUserRole() != WebUserRole.INSTITUTION_TRANSPORT) {
             return false;
         }
         return true;
     }
-    
+
     public boolean isDieselSpecialFuelRequestMenuAvailable() {
         if (loggedUser == null) {
             return false;
@@ -245,15 +245,15 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRoleLevel() == null) {
             return false;
         }
-        if(loggedUser.getWebUserRoleLevel()!=WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION){
+        if (loggedUser.getWebUserRoleLevel() != WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION) {
             return false;
         }
-        if(loggedUser.getWebUserRole()!=WebUserRole.INSTITUTION_TRANSPORT){
-            return false;
+        if(loggedUser.getWebUserRole()==WebUserRole.INSTITUTION_TRANSPORT || loggedUser.getWebUserRole() == WebUserRole.INSTITUTION_ADMINISTRATOR){
+            return true;
         }
-        return true;
+        return false;
     }
-    
+
     public boolean isDieselFuelRequestMarkAsReceivedMenuAvailable() {
         if (loggedUser == null) {
             return false;
@@ -264,16 +264,14 @@ public class WebUserController implements Serializable {
         if (loggedUser.getWebUserRoleLevel() == null) {
             return false;
         }
-        if(loggedUser.getWebUserRoleLevel()!=WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION){
+        if (loggedUser.getWebUserRoleLevel() != WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION) {
             return false;
         }
-        if(loggedUser.getWebUserRole()!=WebUserRole.INSTITUTION_ACCOUNTS){
-            return false;
+        if(loggedUser.getWebUserRole()==WebUserRole.INSTITUTION_ACCOUNTS || loggedUser.getWebUserRole() == WebUserRole.INSTITUTION_ADMINISTRATOR){
+            return true;
         }
-        return true;
+        return false;
     }
-    
-    
 
     public void onResize(ColumnResizeEvent event) {
         String viewId = event.getFacesContext().getViewRoot().getViewId();
@@ -2217,6 +2215,9 @@ public class WebUserController implements Serializable {
     }
 
     public List<Vehicle> getManagableVehicles() {
+        if(managableVehicles==null){
+            managableVehicles = new ArrayList<>();
+        }
         return managableVehicles;
     }
 
