@@ -78,6 +78,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Calendar;
 import java.util.List;
+import lk.gov.health.phsp.entity.Bill;
 
 // </editor-fold>   
 /**
@@ -124,6 +125,8 @@ public class ReportController implements Serializable {
     private Institution institution;
     private Institution fromInstitution;
     private Institution toInstitution;
+    private Bill bill;
+    private List<FuelTransaction> billTransactions;
     private Area area;
     private StreamedContent file;
     private String mergingMessage;
@@ -152,11 +155,13 @@ public class ReportController implements Serializable {
     private VehiclePurpose vehiclePurpose;
     private Driver driver;
     private InstitutionType institutionType;
+    private FuelTransactionType fuelTransactionType;
     private List<FuelIssuedSummary> issuedSummaries;
     private FuelEstimate fuelEstimate;
     Long fuelStationId;
     Long healthInstitutionId;
     private Date selectedDate; // This represents the date clicked in the comprehensive report
+    private boolean filterByIssuedDate; // true = filter by issued date, false = filter by requested date
 
     // </editor-fold> 
     // <editor-fold defaultstate="collapsed" desc="Constructors">
@@ -172,6 +177,10 @@ public class ReportController implements Serializable {
         fillAllInstitutionFuelTransactions();
         return "/reports/list?faces-redirect=true;";
     }
+    
+    public String navigateToListPayments() {
+        return "/reports/list_to_paid?faces-redirect=true;";
+    }
 
     public String navigateToListFuelRequestsDetails() {
         fillAllInstitutionFuelTransactionsDetailes();
@@ -184,7 +193,7 @@ public class ReportController implements Serializable {
     }
 
     public String navigateToDieselDistributionFuelStationSummary() {
-        fillDieselDistributionFuelStationSummary();
+        fillDieselDistributionFuelStationSummaryForCPCHedOffice();
         return "/reports/diesel_distribution_fuel_station_summary?faces-redirect=true;";
     }
 
@@ -198,12 +207,42 @@ public class ReportController implements Serializable {
         return "/reports/comprehensive_diesel_issuance_summary?faces-redirect=true;";
     }
 
+    public String navigateToComprehensiveDieselIssuanceSummaryForCpcHeadOffice() {
+        fillComprehensiveDieselIssuanceSummary();
+        return "/reports/cpc_head_office/comprehensive_diesel_issuance_summary?faces-redirect=true;";
+    }
+
+    public String navigateToComprehensiveDieselIssuanceSummaryForCpcRegional() {
+        fillComprehensiveDieselIssuanceSummary();
+        return "/reports/cpc/comprehensive_diesel_issuance_summary?faces-redirect=true;";
+    }
+
     public String navigateToListFuelRequestsForCpc() {
         return "/reports/cpc/list?faces-redirect=true;";
     }
 
     public String navigateToListFuelRequestsForCpcHeadOffice() {
         return "/reports/cpc_head_office/list?faces-redirect=true;";
+    }
+
+    public String navigateToFuelStationSummaryForCpcHeadOffice() {
+        return "/reports/cpc_head_office/fuel_station_summary?faces-redirect=true;";
+    }
+
+    public String navigateToPaymentRequestsForCpcHeadOffice() {
+        return "/reports/cpc_head_office/payment_requests?faces-redirect=true;";
+    }
+    
+    public String navigateToPaymentRequestsForCpcRegionalOffice() {
+        return "/reports/cpc/payment_requests?faces-redirect=true;";
+    }
+
+    public String navigateToFuelStationSummaryForCpcRegional() {
+        return "/reports/cpc/fuel_station_summary?faces-redirect=true;";
+    }
+
+    public String navigateToFuelStationSummaryByDayForCpcHeadOffice() {
+        return "/reports/cpc_head_office/fuel_station_summary_by_day?faces-redirect=true;";
     }
 
     public String navigateToListHospitalEstimatessForCpcToPrint() {
@@ -233,7 +272,7 @@ public class ReportController implements Serializable {
     }
 
     public String navigateToDieselDistributionFuelStationSummaryForFuelDispensor() {
-        fillDieselDistributionFuelStationSummary();
+        fillDieselDistributionFuelStationSummaryForCPCHedOffice();
         return "/reports/fuel_dispensor/diesel_distribution_fuel_station_summary?faces-redirect=true;";
     }
 
@@ -372,6 +411,52 @@ public class ReportController implements Serializable {
         return navigateToComprehensiveDieselIssuanceSummary();
     }
 
+    public String navigateToComprehensiveSummaryFromFuelStationSummaryForCpcHeadOffice() {
+        if (toInstitution == null) {
+            JsfUtil.addErrorMessage("Error");
+            return null;
+        }
+        fromInstitution = null;
+        return navigateToComprehensiveDieselIssuanceSummaryForCpcHeadOffice();
+    }
+
+    public String navigateToViewPaymentRequestForCpcHeadOffice() {
+        if (bill == null) {
+            JsfUtil.addErrorMessage("Error");
+            return null;
+        }
+        String jpql = "select t "
+                + " from FuelTransaction t "
+                + " where t.paymentBill=:b ";
+        Map params = new HashMap();
+        params.put("b", bill);
+        billTransactions = fuelTransactionFacade.findByJpql(jpql, params);
+        return "/reports/cpc_head_office/bill?faces-redirect=true";
+    }
+    
+    public String navigateToViewPaymentRequestForCpcRegionalOffice() {
+        if (bill == null) {
+            JsfUtil.addErrorMessage("Error");
+            return null;
+        }
+        String jpql = "select t "
+                + " from FuelTransaction t "
+                + " where t.paymentBill=:b ";
+        Map params = new HashMap();
+        params.put("b", bill);
+        billTransactions = fuelTransactionFacade.findByJpql(jpql, params);
+        return "/reports/cpc/bill?faces-redirect=true";
+    }
+
+    public String navigateToComprehensiveSummaryFromFuelStationSummaryForCpcRegionalOffice() {
+        if (toInstitution == null) {
+            JsfUtil.addErrorMessage("Error");
+            return null;
+        }
+        fromInstitution = null;
+        return navigateToComprehensiveDieselIssuanceSummaryForCpcRegional();
+    }
+
     public String navigateToComprehensiveSummaryFromHealthInstitutionSummary() {
         fromInstitution = institutionController.getInstitutionById(healthInstitutionId);
         if (fromInstitution == null) {
@@ -405,11 +490,11 @@ public class ReportController implements Serializable {
     // </editor-fold> 
     // <editor-fold defaultstate="collapsed" desc="Functional Methods">
     public void fillAllInstitutionFuelTransactions() {
-        transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
+        transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType, fuelTransactionType);
     }
 
     public void fillAllInstitutionFuelTransactionsDetailes() {
-        transactions = fillFuelTransactionsDetailed(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
+        transactions = fillFuelTransactionsDetailed(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType, fuelTransactionType);
     }
 
     public void generateExcelFile(List<FuelTransactionLight> transactions) throws IOException {
@@ -417,7 +502,7 @@ public class ReportController implements Serializable {
         Sheet sheet = workbook.createSheet("Transactions");
 
         Row headerRow = sheet.createRow(0);
-        String[] columnHeaders = {"Date", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No"};
+        String[] columnHeaders = {"Ordered Date", "Transaction Type", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No"};
         for (int i = 0; i < columnHeaders.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(columnHeaders[i]);
@@ -428,18 +513,19 @@ public class ReportController implements Serializable {
             Row row = sheet.createRow(rowNum++);
 
             row.createCell(0).setCellValue(transaction.getDate().toString()); // Adjust this based on your date format
-            row.createCell(1).setCellValue(transaction.getFromInstitutionName());
-            row.createCell(2).setCellValue(transaction.getToInstitutionName());
-            row.createCell(3).setCellValue(transaction.getToInstitutionCode());
-            row.createCell(4).setCellValue(transaction.getRequestReferenceNumber());
-            row.createCell(5).setCellValue(transaction.getVehicleNumber());
-            row.createCell(6).setCellValue(transaction.getDriverName());
-            row.createCell(7).setCellValue(transaction.getRequestQuantity());
+            row.createCell(1).setCellValue(transaction.getTransactionTypeLabel());
+            row.createCell(2).setCellValue(transaction.getFromInstitutionName());
+            row.createCell(3).setCellValue(transaction.getToInstitutionName());
+            row.createCell(4).setCellValue(transaction.getToInstitutionCode());
+            row.createCell(5).setCellValue(transaction.getRequestReferenceNumber());
+            row.createCell(6).setCellValue(transaction.getVehicleNumber());
+            row.createCell(7).setCellValue(transaction.getDriverName());
+            row.createCell(8).setCellValue(transaction.getRequestQuantity());
             if (transaction.getIssuedQuantity() != null) {
-                row.createCell(8).setCellValue(transaction.getIssuedQuantity());
+                row.createCell(9).setCellValue(transaction.getIssuedQuantity());
             }
             if (transaction.getIssueReferenceNumber() != null) {
-                row.createCell(9).setCellValue(transaction.getIssueReferenceNumber());
+                row.createCell(10).setCellValue(transaction.getIssueReferenceNumber());
             }
         }
 
@@ -533,7 +619,7 @@ public class ReportController implements Serializable {
         }
 
         // Write the workbook to the file
-        try ( FileOutputStream fileOut = new FileOutputStream("transactions.xlsx")) {
+        try (FileOutputStream fileOut = new FileOutputStream("transactions.xlsx")) {
             workbook.write(fileOut);
         }
 
@@ -588,14 +674,14 @@ public class ReportController implements Serializable {
     }
 
     public void fillAllInstitutionDeletedFuelTransactions() {
-        transactionLights = fillDeletedFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
+        transactionLights = fillDeletedFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType, fuelTransactionType);
     }
 
     public void fillAllInstitutionFuelTransactionsForCpcHeadOffice() {
         transactionLights = fillFuelTransactions(fromInstitution,
                 toInstitution,
                 getFromDate(),
-                getToDate(), null, null, null, null);
+                getToDate(), null, null, null, null, fuelTransactionType);
     }
 
     public void fillFuelTransactionsForCpc() {
@@ -607,7 +693,8 @@ public class ReportController implements Serializable {
                     null,
                     null,
                     null,
-                    null);
+                    null,
+                    fuelTransactionType);
         } else {
             transactionLights = fillFuelTransactions(null,
                     toInstitution,
@@ -616,25 +703,27 @@ public class ReportController implements Serializable {
                     null,
                     null,
                     null,
-                    null);
+                    null,
+                    fuelTransactionType);
         }
 
     }
 
     public List<FuelTransactionLight> fillFuelTransactions(
             Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
-            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType) {
+            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType, FuelTransactionType transactionType) {
 
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestedDate, ft.requestReferenceNumber, ")
+                .append("ft.id, ft.requestedDate, ft.transactionType, ")
+                .append("ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
                 .append("fi.name, ") // fromInstitution name
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
-                .append("ti.code ") // toInstitution name
-                .append(") FROM FuelTransaction ft ")
+                .append("ti.code, ") // toInstitution code
+                .append("ft.issuedDate) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -669,7 +758,11 @@ public class ReportController implements Serializable {
             tdCal.set(Calendar.MILLISECOND, 999);
             td = tdCal.getTime(); // End of the toDate
 
-            jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            if (filterByIssuedDate) {
+                jpqlBuilder.append("AND ft.issuedDate BETWEEN :fromDate AND :toDate ");
+            } else {
+                jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            }
             parameters.put("fromDate", fd);
             parameters.put("toDate", td);
         }
@@ -689,8 +782,16 @@ public class ReportController implements Serializable {
             jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
             parameters.put("instType", institutionType);
         }
+        if (transactionType != null) {
+            jpqlBuilder.append("AND ft.transactionType = :txType ");
+            parameters.put("txType", transactionType);
+        }
 
-        jpqlBuilder.append("ORDER BY ft.requestedDate");
+        if (filterByIssuedDate) {
+            jpqlBuilder.append("ORDER BY ft.issuedDate");
+        } else {
+            jpqlBuilder.append("ORDER BY ft.requestedDate");
+        }
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);
@@ -702,7 +803,7 @@ public class ReportController implements Serializable {
 
     public List<FuelTransaction> fillFuelTransactionsDetailed(
             Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
-            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType) {
+            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType, FuelTransactionType transactionType) {
 
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT ft ") // toInstitution name
@@ -741,7 +842,11 @@ public class ReportController implements Serializable {
             tdCal.set(Calendar.MILLISECOND, 999);
             td = tdCal.getTime(); // End of the toDate
 
-            jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            if (filterByIssuedDate) {
+                jpqlBuilder.append("AND ft.issuedDate BETWEEN :fromDate AND :toDate ");
+            } else {
+                jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            }
             parameters.put("fromDate", fd);
             parameters.put("toDate", td);
         }
@@ -761,8 +866,16 @@ public class ReportController implements Serializable {
             jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
             parameters.put("instType", institutionType);
         }
+        if (transactionType != null) {
+            jpqlBuilder.append("AND ft.transactionType = :txType ");
+            parameters.put("txType", transactionType);
+        }
 
-        jpqlBuilder.append("ORDER BY ft.requestedDate");
+        if (filterByIssuedDate) {
+            jpqlBuilder.append("ORDER BY ft.issuedDate");
+        } else {
+            jpqlBuilder.append("ORDER BY ft.requestedDate");
+        }
 
         List<FuelTransaction> resultList = fuelTransactionFacade.findByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);
@@ -774,18 +887,19 @@ public class ReportController implements Serializable {
 
     public List<FuelTransactionLight> fillDeletedFuelTransactions(
             Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
-            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType) {
+            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType, FuelTransactionType transactionType) {
 
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestedDate, ft.requestReferenceNumber, ")
+                .append("ft.id, ft.requestedDate, ft.transactionType, ")
+                .append("ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
                 .append("fi.name, ") // fromInstitution name
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
-                .append("ti.code ") // toInstitution name
-                .append(") FROM FuelTransaction ft ")
+                .append("ti.code, ") // toInstitution code
+                .append("ft.issuedDate) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -824,6 +938,10 @@ public class ReportController implements Serializable {
             jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
             parameters.put("instType", institutionType);
         }
+        if (transactionType != null) {
+            jpqlBuilder.append("AND ft.transactionType = :txType ");
+            parameters.put("txType", transactionType);
+        }
 
         jpqlBuilder.append("ORDER BY ft.requestedDate");
 
@@ -835,18 +953,20 @@ public class ReportController implements Serializable {
     public List<FuelTransactionLight> fillFuelTransactions(
             List<Institution> requestingInstitutions, List<Institution> fuelStations,
             Date fd, Date td, VehicleType vehicleType, VehiclePurpose vehiclePurpose,
-            Driver driver, InstitutionType institutionType) {
+            Driver driver, InstitutionType institutionType, FuelTransactionType transactionType) {
 
         StringBuilder jpqlBuilder = new StringBuilder();
 
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestedDate, ft.requestReferenceNumber, ")
+                .append("ft.id, ft.requestedDate, ft.transactionType, ")
+                .append("ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
                 .append("fi.name, ") // fromInstitution name
                 .append("ti.name, ") // toInstitution name
-                .append("COALESCE(d.name, 'No Driver')") // driver name or 'No Driver' if null
-                .append(") FROM FuelTransaction ft ")
+                .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
+                .append("ti.code, ") // toInstitution code
+                .append("ft.issuedDate) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -891,6 +1011,10 @@ public class ReportController implements Serializable {
             jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
             parameters.put("instType", institutionType);
         }
+        if (transactionType != null) {
+            jpqlBuilder.append("AND ft.transactionType = :txType ");
+            parameters.put("txType", transactionType);
+        }
 
         jpqlBuilder.append("ORDER BY ft.requestedDate");
 
@@ -902,8 +1026,20 @@ public class ReportController implements Serializable {
         return resultList;
     }
 
-    public void fillDieselDistributionFuelStationSummary() {
-        issuedSummaries = fillFuelIssuedFromFuelStationSummary(getFromDate(), getToDate());
+    public void fillDieselDistributionFuelStationSummaryForCPCHedOffice() {
+        issuedSummaries = fillFuelIssuedFromFuelStationSummaryForCpcHeadOffice(getFromDate(), getToDate());
+    }
+
+    public void fillPaymentRequestsForCPCHedOffice() {
+        issuedSummaries = fillFuelIssuedFromFuelStationSummaryForCpcHeadOffice(getFromDate(), getToDate());
+    }
+
+    public void fillDieselDistributionFuelStationSummaryForCPCRegionalOffice() {
+        issuedSummaries = fillFuelIssuedFromFuelStationSummaryForCpcRegionalOffice(getFromDate(), getToDate());
+    }
+
+    public void fillDieselDistributionFuelStationSummaryByDay() {
+        issuedSummaries = fillFuelIssuedFromFuelStationSummaryByDay(getFromDate(), getToDate());
     }
 
     public void fillDieselDistributionFuelStationSummaryForInstitution() {
@@ -912,6 +1048,10 @@ public class ReportController implements Serializable {
 
     public void fillDieselDistributionHealthInstitutionSummary() {
         issuedSummaries = fillFuelIssuedToHealthInstitutionSummary(getFromDate(), getToDate());
+    }
+
+    public void fillDieselDistributionHealthInstitutionSummaryByDay() {
+        issuedSummaries = fillFuelIssuedToHealthInstitutionSummaryByDay(getFromDate(), getToDate());
     }
 
     public void fillComprehensiveDieselIssuanceSummary() {
@@ -1063,7 +1203,123 @@ public class ReportController implements Serializable {
                 jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
     }
 
-    public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummary(Date fd, Date td) {
+    public List<FuelIssuedSummary> fillFuelIssuedToHealthInstitutionSummaryByDay(Date fd, Date td) {
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
+                .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
+                .append("fi.name, ") // fromInstitution name
+                .append("fi.id, ") // fromInstitution ID
+                .append("SUM(ft.issuedQuantity)") // sum of issued qty
+                .append(") FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.fromInstitution fi ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+
+        if (fd != null && td != null) {
+            jpqlBuilder.append("AND ft.issuedAt BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+
+        // Include all non-aggregated fields in the GROUP BY clause
+        jpqlBuilder.append("GROUP BY FUNCTION('date', ft.issuedAt), fi.name, fi.id ");
+        jpqlBuilder.append("ORDER BY FUNCTION('date', ft.issuedAt), fi.name");
+
+        return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+    }
+
+    public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummaryForCpcHeadOffice(Date fd, Date td) {
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
+                .append("ti, ") // toInstitution (Institution object)
+                .append("SUM(ft.issuedQuantity)") // sum of issued qty
+                .append(") FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.toInstitution ti ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+
+        if (fd != null && td != null) {
+            jpqlBuilder.append("AND ft.issuedAt BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+
+        // Group by the non-aggregated fields in the Institution object
+        jpqlBuilder.append("GROUP BY ti ");
+        jpqlBuilder.append("ORDER BY ti.name");
+
+        return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+    }
+
+    public void fillPaymentRequestsForCpcHeadOffice() {
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(b) ")
+                .append("FROM Bill b ")
+                .append("WHERE b.retired = :ret ");
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+        jpqlBuilder.append("AND b.billDate BETWEEN :fromDate AND :toDate ");
+        parameters.put("fromDate", getFromDate());
+        parameters.put("toDate", getToDate());
+        List<FuelIssuedSummary> results = (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+        issuedSummaries = results;
+    }
+    
+    
+    public void fillPaymentRequestsForCpcRegionalOffice() {
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(b) ")
+                .append("FROM Bill b ")
+                .append("WHERE b.retired = :ret ");
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+        jpqlBuilder.append("AND b.billDate BETWEEN :fromDate AND :toDate ");
+        parameters.put("fromDate", getFromDate());
+        parameters.put("toDate", getToDate());
+        jpqlBuilder.append("AND b.toInstitution in :fuelStations ");
+        parameters.put("fuelStations", webUserController.findAutherizedInstitutions());
+        List<FuelIssuedSummary> results = (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+        issuedSummaries = results;
+    }
+
+    public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummaryForCpcRegionalOffice(Date fd, Date td) {
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
+                .append("ti, ") // toInstitution (Institution object)
+                .append("SUM(ft.issuedQuantity)") // sum of issued qty
+                .append(") FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.toInstitution ti ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+
+        if (fd != null && td != null) {
+            jpqlBuilder.append("AND ft.issuedAt BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+
+        jpqlBuilder.append("AND ft.toInstitution in :fuelStations ");
+        parameters.put("fuelStations", webUserController.findAutherizedInstitutions());
+
+        // Group by the non-aggregated fields in the Institution object
+        jpqlBuilder.append("GROUP BY ti ");
+        jpqlBuilder.append("ORDER BY ti.name");
+
+        return (List<FuelIssuedSummary>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.TIMESTAMP);
+    }
+
+    public List<FuelIssuedSummary> fillFuelIssuedFromFuelStationSummaryByDay(Date fd, Date td) {
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
                 .append("FUNCTION('date', ft.issuedAt), ") // Group by issued date
@@ -1245,6 +1501,14 @@ public class ReportController implements Serializable {
 
     public void setVehiclePurpose(VehiclePurpose vehiclePurpose) {
         this.vehiclePurpose = vehiclePurpose;
+    }
+
+    public FuelTransactionType getFuelTransactionType() {
+        return fuelTransactionType;
+    }
+
+    public void setFuelTransactionType(FuelTransactionType fuelTransactionType) {
+        this.fuelTransactionType = fuelTransactionType;
     }
 
     public List<FuelTransaction> getTransactions() {
@@ -1621,6 +1885,30 @@ public class ReportController implements Serializable {
 
     public void setDownloadingFile(StreamedContent downloadingFile) {
         this.downloadingFile = downloadingFile;
+    }
+
+    public Bill getBill() {
+        return bill;
+    }
+
+    public void setBill(Bill bill) {
+        this.bill = bill;
+    }
+
+    public List<FuelTransaction> getBillTransactions() {
+        return billTransactions;
+    }
+
+    public void setBillTransactions(List<FuelTransaction> billTransactions) {
+        this.billTransactions = billTransactions;
+    }
+
+    public boolean isFilterByIssuedDate() {
+        return filterByIssuedDate;
+    }
+
+    public void setFilterByIssuedDate(boolean filterByIssuedDate) {
+        this.filterByIssuedDate = filterByIssuedDate;
     }
 
     public class FuelEstimate {

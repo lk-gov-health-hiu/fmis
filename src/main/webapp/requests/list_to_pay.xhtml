@@ -20,22 +20,30 @@
 
                         <div class="card" >
                             <div class="card-header" >
-                                <h2><h:outputText value="Search Fuel Requests"></h:outputText></h2>
+                                <h2><h:outputText value="Search Fuel Requests to Make Payment"></h:outputText></h2>
                             </div>
                             <div class="card-body" >
 
                                 <div class="row" >
-                                    <div class="col-2" >
-                                        <div class="form-group">
+                                    <div class="col-3 p-2" >
+                                        <h:panelGrid columns="2" >
+                                            <label for="dateFilterType">Date Filter Type</label>
+                                            <p:selectOneMenu
+                                                id="dateFilterType"
+                                                class="w-100 m-1"
+                                                value="#{fuelRequestAndIssueController.filterByIssuedDate}">
+                                                <f:selectItem itemLabel="Requested Date" itemValue="false" />
+                                                <f:selectItem itemLabel="Issued Date" itemValue="true" />
+                                            </p:selectOneMenu>
+
                                             <label for="fromDate">From Date</label>
-                                            <p:calendar 
-                                                id="fromDate" 
+                                            <p:calendar
+                                                id="fromDate"
                                                 value="#{fuelRequestAndIssueController.fromDate}"
                                                 showButtonPanel="true"
-                                                class="w-100 m-1" 
+                                                class="w-100 m-1"
                                                 pattern="dd MMMM yyyy"/>
-                                        </div>
-                                        <div class="form-group">
+
                                             <label for="toDate">To Date</label>
                                             <p:calendar
                                                 id="toDate"
@@ -43,51 +51,53 @@
                                                 showButtonPanel="true"
                                                 pattern="dd MMMM yyyy"
                                                 class="w-100 m-1" />
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="transactionType">Transaction Type</label>
-                                            <p:selectOneMenu id="transactionType"
-                                                             value="#{fuelRequestAndIssueController.fuelTransactionType}"
-                                                             class="w-100 m-1"
-                                                             filter="true"
-                                                             filterMatchMode="contains">
-                                                <f:selectItem itemLabel="Any" itemValue="#{null}" />
-                                                <f:selectItems value="#{applicationController.fuelTransactionTypes}"
-                                                               var="tt"
-                                                               itemValue="#{tt}"
-                                                               itemLabel="#{tt.label}"/>
-                                            </p:selectOneMenu>
-                                        </div>
-                                        <div class="form-group d-flex justify-content-center">
+                                        </h:panelGrid>
+                                        <h:panelGrid columns="1" >
                                             <p:commandButton value="List Requests"
-                                                             action="#{fuelRequestAndIssueController.listInstitutionRequests}"
-                                                             icon="pi pi-list"
+                                                             action="#{fuelRequestAndIssueController.listInstitutionRequestsToPay()}"
+                                                             icon="pi pi-list" 
                                                              ajax="false"
                                                              class="btn btn-primary w-100 my-2" />
 
-                                        </div>
-                                        <div class="form-group d-flex justify-content-center">
-                                            <p:commandButton
-                                                value="Export to Excel" 
-                                                class="btn btn-primary w-100 my-2"
-                                                ajax="false" icon="pi pi-file-excel">
-                                                <p:dataExporter type="xlsx" target="tbl" fileName="Transactions" />
-                                            </p:commandButton>
-                                        </div>
+
+
+                                        </h:panelGrid>
+
+                                        <p:messages ></p:messages>
+
+
 
                                     </div>
-                                    <div class="col-10" >
+
+                                    <div class="col-9 p-2" >
+
+                                        <p:commandButton 
+                                            value="Make Payment Request"
+                                            action="#{fuelRequestAndIssueController.makePaymentRequest()}"
+                                            icon="pi pi-dollar" 
+                                            ajax="false"
+                                            class="ui-button-danger my-2"
+                                            onclick="if (!confirm('Are you sure you want to make a payment request?'))
+                                                        return false;" />
+
+
                                         <p:dataTable 
                                             id="tbl" 
                                             value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}" 
                                             rows="5"
+                                            rowIndexVar="no"
+                                            selection="#{fuelRequestAndIssueController.selectedTransactions}"
                                             paginator="true"
                                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                             currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
                                             rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
                                             sortMode="multiple">
 
-
+                                            <p:column selectionMode="multiple" width="10" ></p:column>
+                                            
+                                            <p:column headerText="No" width="10" >
+                                                <h:outputText value="#{no+1}" />
+                                            </p:column>
 
                                             <p:column headerText="Vehicle"
                                                       exportHeaderValue="true"
@@ -98,20 +108,18 @@
                                                 <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
                                             </p:column>
 
-                                            <p:column headerText="Ref" 
+                                            <p:column headerText="Ref.No" 
                                                       sortBy="#{transaction.requestReferenceNumber}"
                                                       filterBy="#{transaction.requestReferenceNumber}">
                                                 <h:outputText value="#{transaction.requestReferenceNumber}" />
                                             </p:column>
 
+
+
                                             <p:column headerText="Req. At" sortBy="#{transaction.requestedDate}" filterBy="#{transaction.requestedDate}">
                                                 <h:outputText value="#{transaction.requestedDate}">
                                                     <f:convertDateTime pattern="dd MMM yyyy" />
                                                 </h:outputText>
-                                            </p:column>
-
-                                            <p:column headerText="Transaction Type" sortBy="#{transaction.transactionType.label}" filterBy="#{transaction.transactionType.label}" filterMatchMode="contains">
-                                                <h:outputText value="#{transaction.transactionType.label}" />
                                             </p:column>
 
                                             <p:column headerText="Req. Qty" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}">
@@ -122,17 +130,24 @@
                                                 <h:outputText value="#{transaction.issuedDate}">
                                                     <f:convertDateTime pattern="dd MMM yyyy" />
                                                 </h:outputText>
-                                                <h:outputText value="Not Issued" style="color: red;" rendered="#{not transaction.issued}" />
                                             </p:column>
 
                                             <p:column headerText="Iss. Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}">
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
                                             </p:column>
+                                            
+                                            <p:column headerText="Issue Ref.No" filterBy="#{transaction.issueReferenceNumber}">
+                                                <h:outputText value="#{transaction.issueReferenceNumber}" />
+                                            </p:column>
 
                                             <p:column headerText="Iss. from" sortBy="#{transaction.issuedInstitution.name}" filterBy="#{transaction.issuedInstitution.name}">
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
                                             </p:column>
-
+                                            
+                                            <p:column headerText="Dealer Number" sortBy="#{transaction.issuedInstitution.code}" filterBy="#{transaction.issuedInstitution.code}" filterMatchMode="contains">
+                                                <h:outputText value="#{transaction.issuedInstitution.code}" />
+                                            </p:column>
+                                            
                                             <p:column headerText="Actions" exportable="false" >
                                                 <p:commandButton value="View"
                                                                  ajax="false"
@@ -145,8 +160,10 @@
 
                                     </div>
                                 </div>
+
                             </div>
                         </div>
+
                     </h:form>
                 </div>
 

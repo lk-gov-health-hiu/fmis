@@ -87,6 +87,24 @@ public class InstitutionController implements Serializable {
 
     private UploadedFile file;
 
+    //SHould Run Only Once
+    public void addCodesToInstitutions() {
+        System.out.println("addCodesToInstitutions");
+        int currentCode = 1;
+        List<InstitutionType> healthcareTypes = InstitutionType.getHealthcareInstitutionTypes();
+
+        for (Institution ins : getItems()) {
+            System.out.println("ins all= " + ins);
+            if (healthcareTypes.contains(ins.getInstitutionType())) {
+                System.out.println("ins selected= " + ins);
+                String code = String.format("%06d", currentCode++);
+                code="H" + code;
+                ins.setCode(code);
+                getFacade().edit(ins);
+            }
+        }
+    }
+
     public Institution getInstitutionById(Long id) {
         return getFacade().find(id);
     }
