@@ -94,6 +94,7 @@ public class FuelRequestAndIssueController implements Serializable {
     private Date fromDate;
     private Date toDate;
     private FuelTransactionType fuelTransactionType;
+    private boolean filterByIssuedDate = true; // true = filter by issued date, false = filter by requested date; default is issued date
 
     private Bill fuelPaymentRequestBill;
 
@@ -871,30 +872,40 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listPaymentBillsForNationalLevel() {
-        String j = "SELECT b "
-                + " FROM Bill b "
-                + " WHERE b.retired = false "
-                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+        StringBuilder j = new StringBuilder();
+        j.append("SELECT DISTINCT b ")
+                .append(" FROM Bill b ")
+                .append(" LEFT JOIN FuelTransaction ft ON ft.paymentBill = b ")
+                .append(" WHERE b.retired = false ");
 
         Map<String, Object> params = new HashMap<>();
+
+        if (fromDate != null && toDate != null) {
+            if (filterByIssuedDate) {
+                j.append(" AND ft.issuedDate BETWEEN :fromDate AND :toDate");
+            } else {
+                j.append(" AND ft.requestedDate BETWEEN :fromDate AND :toDate");
+            }
+            params.put("fromDate", fromDate);
+            params.put("toDate", toDate);
+        }
+
         if (institution != null) {
-            j += " AND b.fromInstitution=:institution ";
+            j.append(" AND b.fromInstitution=:institution ");
             params.put("institution", institution);
         } else {
-            j += " AND b.fromInstitution IN :institutions ";
+            j.append(" AND b.fromInstitution IN :institutions ");
             params.put("institutions", webUserController.findAutherizedInstitutions());
         }
         if (fuelStation != null) {
-            j += " AND b.toInstitution=:fs ";
+            j.append(" AND b.toInstitution=:fs ");
             params.put("fs", fuelStation);
         }
-        params.put("fromDate", fromDate); // fromDate should be set beforehand
-        params.put("toDate", toDate);     // toDate should be set beforehand
 
         System.out.println("params = " + params);
-        System.out.println("j = " + j);
+        System.out.println("j = " + j.toString());
 
-        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        List<Bill> tmpBills = billFacade.findByJpql(j.toString(), params);
         bills = tmpBills;
     }
 
@@ -1167,11 +1178,19 @@ public class FuelRequestAndIssueController implements Serializable {
             params.put("vehicles", vehicles);
         }
         if (fromDateTime != null) {
-            j += " AND ft.requestedDate >= :fromDateTime";
+            if (filterByIssuedDate) {
+                j += " AND ft.issuedDate >= :fromDateTime";
+            } else {
+                j += " AND ft.requestedDate >= :fromDateTime";
+            }
             params.put("fromDateTime", fromDateTime);
         }
         if (toDateTime != null) {
-            j += " AND ft.requestedDate <= :toDateTime";
+            if (filterByIssuedDate) {
+                j += " AND ft.issuedDate <= :toDateTime";
+            } else {
+                j += " AND ft.requestedDate <= :toDateTime";
+            }
             params.put("toDateTime", toDateTime);
         }
         if (issued != null) {
@@ -1347,6 +1366,14 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setFuelTransactionType(FuelTransactionType fuelTransactionType) {
         this.fuelTransactionType = fuelTransactionType;
+    }
+
+    public boolean isFilterByIssuedDate() {
+        return filterByIssuedDate;
+    }
+
+    public void setFilterByIssuedDate(boolean filterByIssuedDate) {
+        this.filterByIssuedDate = filterByIssuedDate;
     }
 
     public String navigateToViewInstitutionFuelRequestToSltbDepot() {
