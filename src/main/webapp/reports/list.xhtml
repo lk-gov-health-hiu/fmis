@@ -41,30 +41,7 @@
                                 pattern="dd MMMM yyyy">
                             </p:calendar>
                         </p:panelGrid>
-                        <p:panelGrid columns="2"  class="w-100">
-                            <p:outputLabel value="Requested for Institution" >
-                            </p:outputLabel>
-                            <p:autoComplete 
-                                class="w-100"
-                                inputStyleClass="w-100"
-                                value="#{reportController.fromInstitution}"
-                                completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
-                                var="fi"
-                                itemLabel="#{fi.name}"
-                                itemValue="#{fi}"></p:autoComplete>
 
-                            <p:outputLabel value="Requested from Fuel Station" >
-                            </p:outputLabel>
-                            <p:autoComplete 
-                                class="w-100"
-                                inputStyleClass="w-100"
-                                value="#{reportController.toInstitution}" 
-                                completeMethod="#{institutionController.completeFuelStations}"
-                                var="fs"
-                                itemLabel="#{fs.name}"
-                                itemValue="#{fs}"
-                                ></p:autoComplete>
-                        </p:panelGrid>
                         <p:panelGrid columns="2"  class="w-100">
                             <h:outputLabel value="Transaction Type:" for="transactionType" />
                             <p:selectOneMenu 
@@ -111,27 +88,49 @@
                         </p:panelGrid>
 
 
+                        <p:panelGrid columns="2"  class="w-100">
+                            <p:outputLabel value="Requested for Institution" >
+                            </p:outputLabel>
+                            <p:autoComplete 
+                                class="w-100"
+                                inputStyleClass="w-100"
+                                value="#{reportController.fromInstitution}"
+                                completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
+                                var="fi"
+                                itemLabel="#{fi.name}"
+                                itemValue="#{fi}"></p:autoComplete>
+
+                            <p:outputLabel value="Requested from Fuel Station" >
+                            </p:outputLabel>
+                            <p:autoComplete 
+                                class="w-100"
+                                inputStyleClass="w-100"
+                                value="#{reportController.toInstitution}" 
+                                completeMethod="#{institutionController.completeFuelStations}"
+                                var="fs"
+                                itemLabel="#{fs.name}"
+                                itemValue="#{fs}"
+                                ></p:autoComplete>
+
+
+                            <p:commandButton 
+                                id="btnProcess"
+                                value="Process" 
+                                ajax="false" 
+                                class="w-100"
+                                action="#{reportController.fillAllInstitutionFuelTransactions()}" ></p:commandButton>
+
+                            <p:commandButton value="Download Excel After Process" ajax="false" icon="pi pi-download">
+                                <p:fileDownload value="#{reportController.downloadExcelFile}" />
+                            </p:commandButton>
+
+
+                        </p:panelGrid>
 
 
 
 
 
-
-
-                        <p:commandButton 
-                            id="btnProcess"
-                            value="Process" 
-                            ajax="false" 
-                            action="#{reportController.fillAllInstitutionFuelTransactions()}" ></p:commandButton>
-
-
-                        <p:commandButton value="Download Excel After Process" ajax="false" icon="pi pi-download">
-                            <p:fileDownload value="#{reportController.downloadExcelFile}" />
-                        </p:commandButton>
-
-                        <p:commandButton rendered="false" value="Download Excel" ajax="false" icon="pi pi-download">
-                            <p:dataExporter target="tbl" fileName="trnasacionts" type="xlsx" ></p:dataExporter>
-                        </p:commandButton>
 
                     </p:panelGrid>
 
