@@ -260,7 +260,7 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToIssueVehicleFuelRequest() {
-        return "/issues/issue";
+        return "/issues/issue?faces-redirect=true";
     }
 
     public String navigateToMarkVehicleFuelRequest() {
@@ -285,7 +285,7 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToViewIssuedVehicleFuelRequest() {
-        return "/issues/issued";
+        return "/issues/issued?faces-redirect=true";
     }
 
     public void rejectFuelIssueAtDepot() {
@@ -335,11 +335,11 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setTxDate(new Date());
         selected.setTxTime(new Date());
         selected.setInstitution(webUserController.getLoggedInstitution());
-        return "/depot/receive";
+        return "/depot/receive?faces-redirect=true";
     }
 
     public String navigateToSelectToIssueVehicleFuelRequest() {
-        return "/issues/select_issue";
+        return "/issues/select_issue?faces-redirect=true";
     }
 
     public void saveSelected() {
@@ -628,19 +628,19 @@ public class FuelRequestAndIssueController implements Serializable {
     public String navigateToListDepotReceiveList() {
         institution = webUserController.getLoggedInstitution();
         fillDepotReceiveList();
-        return "/depot/depot_receive_list";
+        return "/depot/depot_receive_list?faces-redirect=true";
     }
 
     public String navigateToSltbReportsFuelRequests() {
-        return "/sltb/reports/requests";
+        return "/sltb/reports/requests?faces-redirect=true";
     }
 
     public String navigateToSltbReportsFuelIssues() {
-        return "/sltb/reports/issues";
+        return "/sltb/reports/issues?faces-redirect=true";
     }
 
     public String navigateToSltbReportsFuelRejections() {
-        return "/sltb/reports/rejections";
+        return "/sltb/reports/rejections?faces-redirect=true";
     }
 
     public void fillDepotReceiveList() {
@@ -679,7 +679,7 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToListFuelTransactions() {
-        return "/issues/list";
+        return "/issues/list?faces-redirect=true";
     }
 
     public String navigateToViewVehicleFuelRequest() {
@@ -687,7 +687,7 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Nothing selected");
             return "";
         }
-        return "/issues/requested";
+        return "/issues/requested?faces-redirect=true";
     }
 
     public String navigateToAddVehicleFuelRequest() {
@@ -705,7 +705,7 @@ public class FuelRequestAndIssueController implements Serializable {
         if (webUserController.getManagableDrivers().size() == 1) {
             selected.setDriver(webUserController.getManagableDrivers().get(0));
         }
-        return "/requests/request";
+        return "/requests/request?faces-redirect=true";
     }
 
     public String navigateToAddCpcFuelRequest() {
@@ -716,12 +716,12 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setRequestedInstitution(webUserController.getLoggedInstitution());
         selected.setInstitution(webUserController.getLoggedInstitution());
         selected.setFromInstitution(institutionApplicationController.findCpc());
-        return "/moh/request";
+        return "/moh/request?faces-redirect=true";
     }
 
     public String navigateToViewDeleteRequestsToAttend() {
         dataAlterationRequests = findDataAlterationRequests(null, null, null, false, false, DataAlterationRequestType.DELETE_REQUEST);
-        return "/national/admin/delete_requests_to_attend";
+        return "/national/admin/delete_requests_to_attend?faces-redirect=true";
     }
 
     public void fillDeleteRequests() {
@@ -823,7 +823,7 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToViewChangeRequestsToAttend() {
-        return "/national/admin/delete_requests_to_attend";
+        return "/national/admin/delete_requests_to_attend?faces-redirect=true";
     }
 
     public String navigateToAddSpecialVehicleFuelRequest() {
@@ -835,7 +835,7 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setFromInstitution(webUserController.getLoggedInstitution());
         selected.setInstitution(webUserController.getLoggedInstitution());
         selected.setToInstitution(webUserController.getLoggedInstitution().getSupplyInstitution());
-        return "/requests/special_request";
+        return "/requests/special_request?faces-redirect=true";
     }
 
     public String navigateToSearchRequestsForVehicleFuelIssue() {
@@ -878,7 +878,7 @@ public class FuelRequestAndIssueController implements Serializable {
         dataAlterationRequest = new DataAlterationRequest();
         dataAlterationRequest.setFuelTransaction(selected);
         dataAlterationRequest.setDataAlterationRequestType(DataAlterationRequestType.DELETE_REQUEST);
-        return "/requests/requested_to_delete";
+        return "/requests/requested_to_delete?faces-redirect=true";
     }
 
     public String submitNewDeleteRequest() {
@@ -916,16 +916,16 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Select a transaction");
             return null;
         }
-        return "/requests/requested_to_delete";
+        return "/requests/requested_to_delete?faces-redirect=true";
     }
 
     public String navigateToListInstitutionRequestsToMark() {
         listInstitutionRequestsToMark();
-        return "/requests/list_to_mark";
+        return "/requests/list_to_mark?faces-redirect=true";
     }
 
     public String navigateToListSltbRequestsFromCpc() {
-        return "/moh/list";
+        return "/moh/list?faces-redirect=true";
     }
 
     public String onCaptureOfVehicleQr(CaptureEvent captureEvent) {
@@ -1304,31 +1304,31 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToListInstitutionIssues() {
-        return "/issues/list";
+        return "/issues/list?faces-redirect=true";
     }
 
     public String navigateToIssueMultipleRequests() {
         institution = webUserController.getLoggedInstitution();
         fillDepotToIssueList();
-        return "/issues/issue_multiple";
+        return "/issues/issue_multiple?faces-redirect=true";
     }
 
     public String navigateToListToIssueRequestsForDepot() {
         institution = webUserController.getLoggedInstitution();
         fillDepotToIssueList();
-        return "/sltb/reports/list_to_issue_depot";
+        return "/sltb/reports/list_to_issue_depot?faces-redirect=true";
     }
 
     public String navigateToListIssuedRequestsFormDepot() {
         institution = webUserController.getLoggedInstitution();
         fillIssuedRequestsFromDepotList();
-        return "/sltb/reports/list_issued_from_depot";
+        return "/sltb/reports/list_issued_from_depot?faces-redirect=true";
     }
 
     public String navigateToListRejectedIssueRequestsFormDepot() {
         institution = webUserController.getLoggedInstitution();
         fillRejectedIssueRequestsFromDepotList();
-        return "/sltb/reports/list_rejected_issue_requests_from_depot";
+        return "/sltb/reports/list_rejected_issue_requests_from_depot?faces-redirect=true";
     }
 
     public FuelTransaction getSelected() {
@@ -1580,11 +1580,11 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToViewInstitutionFuelRequestToSltbDepot() {
-        return "/requests/requested";
+        return "/requests/requested?faces-redirect=true";
     }
 
     public String navigateToViewDepotFuelRequestToCpc() {
-        return "/moh/requested";
+        return "/moh/requested?faces-redirect=true";
     }
 
     public String getSearchingFuelRequestVehicleNumber() {

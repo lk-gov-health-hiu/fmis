@@ -26,12 +26,15 @@ package lk.gov.health.phsp.entity;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
+import lk.gov.health.phsp.enums.DriverAllocationType;
 import lk.gov.health.phsp.pojcs.Nameable;
 
 /**
@@ -53,7 +56,9 @@ public class Driver implements Serializable, Nameable {
     private String address;
     @ManyToOne
     private Institution institution;
-    
+    @Enumerated(EnumType.STRING)
+    private DriverAllocationType allocationType;
+
     @ManyToOne
     private WebUser creater;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -217,9 +222,12 @@ public class Driver implements Serializable, Nameable {
         this.retireComments = retireComments;
     }
 
-   
-    
-    
-    
+    public DriverAllocationType getAllocationType() {
+        return allocationType;
+    }
+
+    public void setAllocationType(DriverAllocationType allocationType) {
+        this.allocationType = allocationType;
+    }
 
 }
