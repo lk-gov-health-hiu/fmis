@@ -35,29 +35,29 @@
                                                 value="#{fuelRequestAndIssueController.selected.requestedDate}" pattern="dd MM yyyy" ></p:calendar>
 
                                     <p:outputLabel for="acVehicle" value="Vehicle" />
-                                    <p:inputText  readonly="true" class="w-100" value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" rendered="#{fuelRequestAndIssueController.selected.vehicle ne null}" />
-                                    <p:selectOneMenu 
+                                    <p:inputText  readonly="true" class="w-100" value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}#{fuelRequestAndIssueController.selected.vehicle.allocationType ne null ? ' ('.concat(fuelRequestAndIssueController.selected.vehicle.allocationType.label).concat(')') : ''}" rendered="#{fuelRequestAndIssueController.selected.vehicle ne null}" />
+                                    <p:selectOneMenu
                                         class="w-100"
-                                        id="acVehicle" 
-                                        value="#{fuelRequestAndIssueController.selected.vehicle}" 
-                                        filter="true" 
+                                        id="acVehicle"
+                                        value="#{fuelRequestAndIssueController.selected.vehicle}"
+                                        filter="true"
                                         rendered="#{fuelRequestAndIssueController.selected.vehicle eq null}" filterMatchMode="contains" required="true" requiredMessage="You must select a vehicle" styleClass="w-100">
                                         <f:selectItem itemLabel="Select a vehicle" noSelectionOption="true" />
-                                        <f:selectItems value="#{webUserController.managableVehicles}" var="v" itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
+                                        <f:selectItems value="#{webUserController.managableVehicles}" var="v" itemLabel="#{v.vehicleNumber}#{v.allocationType ne null ? ' ('.concat(v.allocationType.label).concat(')') : ''}" itemValue="#{v}" />
                                     </p:selectOneMenu>
 
                                     <p:outputLabel for="acDriver" value="Driver" />
-                                    <p:inputText readonly="true" class="w-100" value="#{fuelRequestAndIssueController.selected.driver.name}" rendered="#{fuelRequestAndIssueController.selected.driver ne null}" />
+                                    <p:inputText readonly="true" class="w-100" value="#{fuelRequestAndIssueController.selected.driver.name}#{fuelRequestAndIssueController.selected.driver.allocationType ne null ? ' ('.concat(fuelRequestAndIssueController.selected.driver.allocationType.label).concat(')') : ''}" rendered="#{fuelRequestAndIssueController.selected.driver ne null}" />
                                     <p:selectOneMenu id="acDriver"
                                                      value="#{fuelRequestAndIssueController.selected.driver}"
                                                      filter="true"
-                                                     rendered="#{fuelRequestAndIssueController.selected.driver eq null}" 
-                                                     filterMatchMode="contains" 
-                                                     required="true" 
-                                                     requiredMessage="You must select a driver" 
+                                                     rendered="#{fuelRequestAndIssueController.selected.driver eq null}"
+                                                     filterMatchMode="contains"
+                                                     required="true"
+                                                     requiredMessage="You must select a driver"
                                                      styleClass="w-100">
                                         <f:selectItem itemLabel="Select a driver" noSelectionOption="true" />
-                                        <f:selectItems value="#{webUserController.managableDrivers}" var="d" itemLabel="#{d.name}" itemValue="#{d}" />
+                                        <f:selectItems value="#{webUserController.managableDrivers}" var="d" itemLabel="#{d.name}#{d.allocationType ne null ? ' ('.concat(d.allocationType.label).concat(')') : ''}" itemValue="#{d}" />
                                     </p:selectOneMenu>
 
                                     <p:outputLabel value="Depot / Fuel Station" />
@@ -143,10 +143,10 @@
                                                 </h:outputText>
 
                                                 <h:outputLabel value="Vehicle:" />
-                                                <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}#{fuelRequestAndIssueController.selected.vehicle.allocationType ne null ? ' ('.concat(fuelRequestAndIssueController.selected.vehicle.allocationType.label).concat(')') : ''}" />
 
                                                 <h:outputLabel value="Driver:" />
-                                                <h:outputText value="#{fuelRequestAndIssueController.selected.driver.name}" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.driver.name}#{fuelRequestAndIssueController.selected.driver.allocationType ne null ? ' ('.concat(fuelRequestAndIssueController.selected.driver.allocationType.label).concat(')') : ''}" />
 
                                                 <h:outputLabel value="Depot / Fuel Station:" />
                                                 <h:outputText value="#{fuelRequestAndIssueController.selected.toInstitution.name}" />
