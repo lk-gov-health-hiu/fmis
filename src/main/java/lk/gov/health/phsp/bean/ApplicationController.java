@@ -42,6 +42,7 @@ import lk.gov.health.phsp.facade.AreaFacade;
 import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.InstitutionType;
 import lk.gov.health.phsp.enums.OwnershipType;
+import lk.gov.health.phsp.enums.VehicleAllocationType;
 import lk.gov.health.phsp.enums.VehiclePurpose;
 import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.enums.WebUserRole;
@@ -224,6 +225,10 @@ public class ApplicationController {
 
     public VehiclePurpose[] getVehiclePurposes() {
         return VehiclePurpose.values();
+    }
+
+    public VehicleAllocationType[] getVehicleAllocationTypes() {
+        return VehicleAllocationType.values();
     }
 
     public FuelTransactionType[] getFuelTransactionTypes() {

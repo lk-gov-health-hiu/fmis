@@ -109,11 +109,44 @@
                         </h:panelGroup>
 
                         <h:outputLabel value="Estimated Monthly Fuel Consumption" for="model" />
-                        <h:inputText id="model" 
+                        <h:inputText id="model"
                                      autocomplete="off"
                                      class="form-control"
-                                     value="#{vehicleController.selected.estiamtedMonthlyFuelConsumption}" 
+                                     value="#{vehicleController.selected.estiamtedMonthlyFuelConsumption}"
                                      title="Estimated Monthly Fuel Consumption" />
+
+                        <h:outputLabel value="Fuel Capacity:" for="fuelCapacity" />
+                        <h:inputText id="fuelCapacity"
+                                     autocomplete="off"
+                                     class="form-control"
+                                     value="#{vehicleController.selected.fuelCapacity}"
+                                     title="Fuel Capacity" />
+
+                        <h:outputLabel value="Chassis Number:" for="chassisNumber" />
+                        <h:inputText id="chassisNumber"
+                                     autocomplete="off"
+                                     class="form-control"
+                                     value="#{vehicleController.selected.chassisNumber}"
+                                     title="Chassis Number" />
+
+                        <h:outputLabel value="Allocation Type:" for="allocationType" />
+                        <h:selectOneMenu id="allocationType"
+                                         class="form-control"
+                                         value="#{vehicleController.selected.allocationType}"
+                                         title="Allocation Type">
+                            <f:selectItem itemLabel="Select Allocation Type" />
+                            <f:selectItems value="#{applicationController.vehicleAllocationTypes}"
+                                           var="at"
+                                           itemValue="#{at}"
+                                           itemLabel="#{at.label}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel value="Vehicle Average Fuel Consumption:" for="avgFuelConsumption" />
+                        <h:inputText id="avgFuelConsumption"
+                                     autocomplete="off"
+                                     class="form-control"
+                                     value="#{vehicleController.selected.vehicleAverageFuelConsumption}"
+                                     title="Vehicle Average Fuel Consumption" />
 
                     </p:panelGrid>
 
