@@ -2031,6 +2031,31 @@ public class ReportController implements Serializable {
     }
 
     /**
+     * Check if the current user can delete the transaction
+     * Institution level users can delete unless the transaction is confirmed or dispensed
+     */
+    public boolean isCanDeleteTransaction() {
+        if (fuelTransaction == null) {
+            return false;
+        }
+
+        WebUserRole userRole = webUserController.getLoggedUser().getWebUserRole();
+
+        // System administrators can always delete
+        if (userRole == WebUserRole.SYSTEM_ADMINISTRATOR) {
+            return true;
+        }
+
+        // Institution users can delete if transaction is NOT dispensed AND NOT confirmed
+        if (isInstitutionalUser()) {
+            return !fuelTransaction.isDispensed() && !fuelTransaction.isIssued();
+        }
+
+        // All other users cannot delete
+        return false;
+    }
+
+    /**
      * Check if the logged-in user is an institutional user
      */
     public boolean isInstitutionalUser() {
