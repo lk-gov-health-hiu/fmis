@@ -131,6 +131,10 @@
                             <h:outputText value="#{transaction.transactionType.label}" />
                         </p:column>
 
+                        <p:column headerText="Status" sortBy="#{transaction.status}" filterBy="#{transaction.status}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.status}" />
+                        </p:column>
+
                         <p:column headerText="Institution" sortBy="#{transaction.fromInstitution.name}" filterBy="#{transaction.fromInstitution.name}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.fromInstitution.name}" />
                         </p:column>
@@ -174,11 +178,11 @@
                             <h:outputText value="#{transaction.requestQuantity}" />
                         </p:column>
 
-                        <p:column headerText="Issued Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}" filterMatchMode="numeric">
+                        <p:column headerText="Confirmed Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}" filterMatchMode="numeric">
                             <h:outputText value="#{transaction.issuedQuantity}" />
                         </p:column>
 
-                        <p:column headerText="Issue Reference No" sortBy="#{transaction.issueReferenceNumber}" filterBy="#{transaction.issueReferenceNumber}" filterMatchMode="contains">
+                        <p:column headerText="Confirmation Ref No" sortBy="#{transaction.issueReferenceNumber}" filterBy="#{transaction.issueReferenceNumber}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.issueReferenceNumber}" />
                         </p:column>
 

@@ -114,23 +114,27 @@
                                                 <h:outputText value="#{transaction.transactionType.label}" />
                                             </p:column>
 
+                                            <p:column headerText="Status" sortBy="#{transaction.status}" filterBy="#{transaction.status}" filterMatchMode="contains">
+                                                <h:outputText value="#{transaction.status}" />
+                                            </p:column>
+
                                             <p:column headerText="Req. Qty" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}">
                                                 <h:outputText value="#{transaction.requestQuantity}" />
                                             </p:column>
 
-                                            <p:column headerText="Iss. At" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}">
+                                            <p:column headerText="Confirmed At" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}">
                                                 <h:outputText value="#{transaction.issuedDate}">
                                                     <f:convertDateTime pattern="dd MMM yyyy" />
                                                 </h:outputText>
-                                                <h:outputText value="Not Issued" style="color: red;" rendered="#{not transaction.issued}" />
+                                                <h:outputText value="Not Confirmed" style="color: red;" rendered="#{not transaction.issued}" />
                                             </p:column>
 
-                                            <p:column headerText="Iss. Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}">
-                                                <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
+                                            <p:column headerText="Confirmed Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}">
+                                                <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Confirmed'}" />
                                             </p:column>
 
-                                            <p:column headerText="Iss. from" sortBy="#{transaction.issuedInstitution.name}" filterBy="#{transaction.issuedInstitution.name}">
-                                                <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
+                                            <p:column headerText="Confirmed From" sortBy="#{transaction.issuedInstitution.name}" filterBy="#{transaction.issuedInstitution.name}">
+                                                <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Confirmed'}" />
                                             </p:column>
 
                                             <p:column headerText="Actions" exportable="false" >

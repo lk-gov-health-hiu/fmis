@@ -715,7 +715,9 @@ public class ReportController implements Serializable {
 
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestedDate, ft.transactionType, ")
+                .append("ft.id, ")
+                .append("COALESCE(ft.requestedDate, CURRENT_DATE), ")
+                .append("ft.transactionType, ")
                 .append("ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
@@ -723,7 +725,8 @@ public class ReportController implements Serializable {
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
-                .append("ft.issuedDate) FROM FuelTransaction ft ")
+                .append("COALESCE(ft.issuedDate, CURRENT_DATE), ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -899,7 +902,8 @@ public class ReportController implements Serializable {
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
-                .append("ft.issuedDate) FROM FuelTransaction ft ")
+                .append("ft.issuedDate, ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -958,7 +962,9 @@ public class ReportController implements Serializable {
         StringBuilder jpqlBuilder = new StringBuilder();
 
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestedDate, ft.transactionType, ")
+                .append("ft.id, ")
+                .append("COALESCE(ft.requestedDate, CURRENT_DATE), ")
+                .append("ft.transactionType, ")
                 .append("ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
@@ -966,7 +972,8 @@ public class ReportController implements Serializable {
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
-                .append("ft.issuedDate) FROM FuelTransaction ft ")
+                .append("COALESCE(ft.issuedDate, CURRENT_DATE), ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -1811,12 +1818,58 @@ public class ReportController implements Serializable {
         if (fuelTransaction == null) {
             return;
         }
-        if (webUserController.getLoggedUser().getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
+
+        WebUserRole userRole = webUserController.getLoggedUser().getWebUserRole();
+
+        // System administrators can always edit
+        if (userRole == WebUserRole.SYSTEM_ADMINISTRATOR) {
+            fuelTransactionFacade.edit(fuelTransaction);
+            JsfUtil.addSuccessMessage("Updates");
             return;
         }
-        fuelTransactionFacade.edit(fuelTransaction);
-        JsfUtil.addSuccessMessage("Updates");
+
+        // CPC users (fuel station users) can edit if transaction is NOT dispensed AND NOT confirmed
+        if (userRole == WebUserRole.CPC_ADMINISTRATOR ||
+            userRole == WebUserRole.CPC_SUPER_USER ||
+            userRole == WebUserRole.CPC_USER) {
+
+            if (!fuelTransaction.isDispensed() && !fuelTransaction.isIssued()) {
+                fuelTransactionFacade.edit(fuelTransaction);
+                JsfUtil.addSuccessMessage("Updates");
+                return;
+            } else {
+                JsfUtil.addErrorMessage("Cannot edit: Transaction is already " +
+                    (fuelTransaction.isDispensed() ? "dispensed" : "confirmed"));
+                return;
+            }
+        }
+
+        // All other users are not authorized
+        JsfUtil.addErrorMessage("You are NOT autherized");
+    }
+
+    public boolean isCanEditTransaction() {
+        if (fuelTransaction == null) {
+            return false;
+        }
+
+        WebUserRole userRole = webUserController.getLoggedUser().getWebUserRole();
+
+        // System administrators can always edit
+        if (userRole == WebUserRole.SYSTEM_ADMINISTRATOR) {
+            return true;
+        }
+
+        // CPC users (fuel station users) can edit if transaction is NOT dispensed AND NOT confirmed
+        if (userRole == WebUserRole.CPC_ADMINISTRATOR ||
+            userRole == WebUserRole.CPC_SUPER_USER ||
+            userRole == WebUserRole.CPC_USER) {
+
+            return !fuelTransaction.isDispensed() && !fuelTransaction.isIssued();
+        }
+
+        // All other users cannot edit
+        return false;
     }
 
     public void reverseDeletionSelected() {
