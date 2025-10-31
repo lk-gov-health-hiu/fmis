@@ -31,9 +31,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import lk.gov.health.phsp.entity.Area;
@@ -1922,16 +1924,45 @@ public class ReportController implements Serializable {
 
     /**
      * Recursively find all subordinate institutions
+     * Uses a visited set to prevent infinite loops from circular references
      */
     private List<Institution> findAllSubordinateInstitutions(Institution parent) {
+        Set<Long> visitedIds = new HashSet<>();
+        return findAllSubordinateInstitutions(parent, visitedIds);
+    }
+
+    /**
+     * Internal method to recursively find subordinate institutions with cycle detection
+     */
+    private List<Institution> findAllSubordinateInstitutions(Institution parent, Set<Long> visitedIds) {
         List<Institution> subordinates = new ArrayList<>();
+
+        // Prevent infinite loops - if we've already visited this institution, return empty list
+        if (parent == null || parent.getId() == null || visitedIds.contains(parent.getId())) {
+            return subordinates;
+        }
+
+        // Mark this institution as visited
+        visitedIds.add(parent.getId());
+
         List<Institution> allInstitutions = institutionApplicationController.getInstitutions();
 
         for (Institution inst : allInstitutions) {
-            if (inst.getParent() != null && inst.getParent().equals(parent)) {
+            // Skip if institution or its parent is null
+            if (inst == null || inst.getId() == null || inst.getParent() == null) {
+                continue;
+            }
+
+            // Skip if we've already visited this institution (circular reference protection)
+            if (visitedIds.contains(inst.getId())) {
+                continue;
+            }
+
+            // Check if this institution is a child of the parent
+            if (inst.getParent().equals(parent)) {
                 subordinates.add(inst);
                 // Recursively add children of this institution
-                subordinates.addAll(findAllSubordinateInstitutions(inst));
+                subordinates.addAll(findAllSubordinateInstitutions(inst, visitedIds));
             }
         }
 
