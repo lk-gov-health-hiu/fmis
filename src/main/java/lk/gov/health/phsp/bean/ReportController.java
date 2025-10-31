@@ -1814,8 +1814,8 @@ public class ReportController implements Serializable {
         if (fuelTransaction == null) {
             return;
         }
-        if (webUserController.getLoggedUser().getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
+        if (!isCanDeleteTransaction()) {
+            JsfUtil.addErrorMessage("You are NOT authorized to delete this transaction");
             return;
         }
         fuelTransaction.setRetired(true);
@@ -1891,6 +1891,12 @@ public class ReportController implements Serializable {
                 JsfUtil.addErrorMessage("ODO Meter Reading (" + fuelTransaction.getOdoMeterReading() + ") must be greater than the previous reading (" + previousOdoReading + ")");
                 return;
             }
+        }
+
+        // Validation 4: Check if request quantity exceeds vehicle fuel capacity
+        if (!isRequestQuantityWithinCapacity(fuelTransaction.getVehicle(), fuelTransaction.getRequestQuantity())) {
+            JsfUtil.addErrorMessage("Requested quantity (" + fuelTransaction.getRequestQuantity() + " liters) exceeds the vehicle's fuel tank capacity (" + fuelTransaction.getVehicle().getFuelCapacity() + " liters)");
+            return;
         }
 
         WebUserRole userRole = webUserController.getLoggedUser().getWebUserRole();
@@ -1970,6 +1976,21 @@ public class ReportController implements Serializable {
         return true;
     }
 
+    private boolean isRequestQuantityWithinCapacity(Vehicle vehicle, Double requestQuantity) {
+        // Skip validation if vehicle or request quantity is null
+        if (vehicle == null || requestQuantity == null) {
+            return true;
+        }
+
+        // Skip validation if fuel capacity is not set for the vehicle
+        if (vehicle.getFuelCapacity() == null) {
+            return true;
+        }
+
+        // Check if request quantity exceeds fuel capacity
+        return requestQuantity <= vehicle.getFuelCapacity();
+    }
+
     private Double getPreviousOdoReading(Vehicle vehicle, Long currentTransactionId) {
         if (vehicle == null) {
             return null;
@@ -2032,7 +2053,8 @@ public class ReportController implements Serializable {
 
     /**
      * Check if the current user can delete the transaction
-     * Institution level users can delete unless the transaction is confirmed or dispensed
+     * 1. System admins can delete at any stage
+     * 2. Institution users can delete if NOT dispensed or confirmed
      */
     public boolean isCanDeleteTransaction() {
         if (fuelTransaction == null) {
@@ -2041,7 +2063,7 @@ public class ReportController implements Serializable {
 
         WebUserRole userRole = webUserController.getLoggedUser().getWebUserRole();
 
-        // System administrators can always delete
+        // System administrators can always delete at any stage
         if (userRole == WebUserRole.SYSTEM_ADMINISTRATOR) {
             return true;
         }
