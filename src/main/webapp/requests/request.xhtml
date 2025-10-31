@@ -25,11 +25,6 @@
                                     <f:facet name="header" >
                                         <h2>
                                             <h:outputText value="Vehicle Fuel Request"></h:outputText>
-                                            <h:commandButton  value="Submit" 
-                                                              class="btn btn-primary"
-                                                              style="float: right;"
-                                                              action="#{fuelRequestAndIssueController.submitVehicleFuelRequest()}" >
-                                            </h:commandButton>
                                         </h2>
                                     </f:facet>
 
@@ -91,11 +86,14 @@
                                     </h:panelGroup>
 
                                     <p:outputLabel for="txtQty" value="Requesting Diesel Quantity in Liters" />
-                                    <p:inputText id="txtQty"
-                                                 required="true" 
-                                                 class="w-100"
-                                                 requiredMessage="Quantity is required" 
-                                                 value="#{fuelRequestAndIssueController.selected.requestQuantity}" />
+                                    <p:inputNumber id="txtQty"
+                                                   minValue="0"
+                                                   decimalPlaces="2"
+                                                   inputStyleClass="form-control"
+                                                   required="true"
+                                                   class="w-100"
+                                                   requiredMessage="Quantity is required"
+                                                   value="#{fuelRequestAndIssueController.selected.requestQuantity}" />
 
                                     <p:outputLabel for="txtOdo" value="Vehicle ODO Meter Reading / Generator Hours" />
                                     <p:inputText 
@@ -114,13 +112,72 @@
                                         value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}" />
 
                                     <p:outputLabel for="txtComments" value="Comments" />
-                                    <p:inputTextarea 
+                                    <p:inputTextarea
                                         rows="2"
-                                        id="txtComments" 
+                                        id="txtComments"
                                         class="w-100"
                                         value="#{fuelRequestAndIssueController.selected.comments}" />
                                 </p:panelGrid>
 
+                                <div class="text-center mt-3">
+                                    <p:commandButton value="Submit"
+                                                     styleClass="btn btn-primary"
+                                                     update="confirmDialogPanel"
+                                                     oncomplete="PF('confirmDialog').show();"
+                                                     process="@form" />
+                                </div>
+
+                                <!-- Confirmation Dialog -->
+                                <p:dialog header="Confirm Fuel Request"
+                                          widgetVar="confirmDialog"
+                                          modal="true"
+                                          closable="true"
+                                          width="600">
+                                    <h:panelGroup id="confirmDialogPanel">
+                                        <div class="p-3">
+                                            <h5>Please confirm the following details:</h5>
+                                            <p:panelGrid columns="2" styleClass="form-panelgrid" columnClasses="form-label,form-field">
+                                                <h:outputLabel value="Date:" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.requestedDate}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy" />
+                                                </h:outputText>
+
+                                                <h:outputLabel value="Vehicle:" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" />
+
+                                                <h:outputLabel value="Driver:" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.driver.name}" />
+
+                                                <h:outputLabel value="Depot / Fuel Station:" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.toInstitution.name}" />
+
+                                                <h:outputLabel value="Requesting Diesel Quantity (Liters):" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}">
+                                                    <f:convertNumber pattern="#,##0.00" />
+                                                </h:outputText>
+
+                                                <h:outputLabel value="ODO Meter Reading / Generator Hours:" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.odoMeterReading}" />
+
+                                                <h:outputLabel value="Request Reference Number:" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}" />
+
+                                                <h:outputLabel value="Comments:" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.comments}" />
+                                            </p:panelGrid>
+                                        </div>
+                                        <div class="text-center mt-3 mb-3">
+                                            <p:commandButton value="Confirm and Submit"
+                                                             action="#{fuelRequestAndIssueController.submitVehicleFuelRequest()}"
+                                                             styleClass="btn btn-success mx-1"
+                                                             ajax="false" />
+                                            <p:commandButton value="Cancel"
+                                                             styleClass="btn btn-secondary mx-1"
+                                                             onclick="PF('confirmDialog').hide();"
+                                                             type="button" />
+                                        </div>
+                                    </h:panelGroup>
+                                </p:dialog>
 
                             </div>
                         </div>

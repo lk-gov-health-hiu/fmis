@@ -1829,9 +1829,7 @@ public class ReportController implements Serializable {
         }
 
         // CPC users (fuel station users) can edit if transaction is NOT dispensed AND NOT confirmed
-        if (userRole == WebUserRole.CPC_ADMINISTRATOR ||
-            userRole == WebUserRole.CPC_SUPER_USER ||
-            userRole == WebUserRole.CPC_USER) {
+        if (userRole == WebUserRole.INSTITUTION_TRANSPORT) {
 
             if (!fuelTransaction.isDispensed() && !fuelTransaction.isIssued()) {
                 fuelTransactionFacade.edit(fuelTransaction);
@@ -1865,6 +1863,11 @@ public class ReportController implements Serializable {
             userRole == WebUserRole.CPC_SUPER_USER ||
             userRole == WebUserRole.CPC_USER) {
 
+            return !fuelTransaction.isDispensed() && !fuelTransaction.isIssued();
+        }
+
+        // Institution transport users can edit if transaction is NOT dispensed AND NOT confirmed
+        if (userRole == WebUserRole.INSTITUTION_TRANSPORT) {
             return !fuelTransaction.isDispensed() && !fuelTransaction.isIssued();
         }
 

@@ -1580,7 +1580,7 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToViewInstitutionFuelRequestToSltbDepot() {
-        return "/requests/requested";
+        return "/requests/requested?faces-redirect=true";
     }
 
     public String navigateToViewDepotFuelRequestToCpc() {
