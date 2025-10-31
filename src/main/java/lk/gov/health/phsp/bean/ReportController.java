@@ -313,16 +313,16 @@ public class ReportController implements Serializable {
 
         switch (category) {
             case CPC:
-                return "/reports/cpc/index";
+                return "/reports/cpc/index?faces-redirect=true";
             case CPC_HEAD_OFFICE:
-                return "/reports/cpc_head_office/index";
+                return "/reports/cpc_head_office/index?faces-redirect=true";
             case FUEL_RECEIVER:
                 return "/reports/index?faces-redirect=true;";
             case MONITORING_AND_EVALUATION:
             case OTHER:
-                return "/institution/reports/index";
+                return "/institution/reports/index?faces-redirect=true";
             default:
-                return "/default"; // Redirect to a default page
+                return "/default?faces-redirect=true"; // Redirect to a default page
         }
     }
 
