@@ -406,6 +406,12 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
 
+        // Validation 5: Check if request quantity exceeds vehicle fuel capacity
+        if (!isRequestQuantityWithinCapacity(selected.getVehicle(), selected.getRequestQuantity())) {
+            JsfUtil.addErrorMessage("Requested quantity (" + selected.getRequestQuantity() + " liters) exceeds the vehicle's fuel tank capacity (" + selected.getVehicle().getFuelCapacity() + " liters)");
+            return "";
+        }
+
         selected.setRequestAt(new Date());
         save(selected);
         JsfUtil.addSuccessMessage("Request Submitted");
@@ -476,6 +482,12 @@ public class FuelRequestAndIssueController implements Serializable {
         // Validation 4: Check if there's already a pending request for this vehicle
         if (hasPendingRequest(selected.getVehicle())) {
             JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been issued yet. Please wait for that request to be processed first.");
+            return "";
+        }
+
+        // Validation 5: Check if request quantity exceeds vehicle fuel capacity
+        if (!isRequestQuantityWithinCapacity(selected.getVehicle(), selected.getRequestQuantity())) {
+            JsfUtil.addErrorMessage("Requested quantity (" + selected.getRequestQuantity() + " liters) exceeds the vehicle's fuel tank capacity (" + selected.getVehicle().getFuelCapacity() + " liters)");
             return "";
         }
 
@@ -1389,18 +1401,26 @@ public class FuelRequestAndIssueController implements Serializable {
             return null;
         }
 
-        String jpql = "SELECT ft FROM FuelTransaction ft "
-                + "WHERE ft.vehicle = :vehicle "
-                + "AND ft.retired = false "
-                + "AND ft.odoMeterReading IS NOT NULL "
-                + "ORDER BY ft.requestedDate DESC";
+        if (vehicle.getId() == null) {
+            return null;
+        }
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("vehicle", vehicle);
+        try {
+            String jpql = "SELECT ft FROM FuelTransaction ft "
+                    + "WHERE ft.vehicle.id = :vehicleId "
+                    + "AND ft.retired = false "
+                    + "AND ft.odoMeterReading IS NOT NULL "
+                    + "ORDER BY ft.requestedDate DESC";
 
-        List<FuelTransaction> results = fuelTransactionFacade.findByJpql(jpql, params, 1);
-        if (results != null && !results.isEmpty()) {
-            return results.get(0).getOdoMeterReading();
+            Map<String, Object> params = new HashMap<>();
+            params.put("vehicleId", vehicle.getId());
+
+            List<FuelTransaction> results = fuelTransactionFacade.findByJpql(jpql, params, 1);
+            if (results != null && !results.isEmpty()) {
+                return results.get(0).getOdoMeterReading();
+            }
+        } catch (Exception e) {
+            Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, "Error getting previous ODO reading for vehicle: " + vehicle.getId(), e);
         }
         return null;
     }
@@ -1410,18 +1430,42 @@ public class FuelRequestAndIssueController implements Serializable {
             return false;
         }
 
-        String jpql = "SELECT COUNT(ft) FROM FuelTransaction ft "
-                + "WHERE ft.vehicle = :vehicle "
-                + "AND ft.issued = false "
-                + "AND ft.rejected = false "
-                + "AND ft.cancelled = false "
-                + "AND ft.retired = false";
+        if (vehicle.getId() == null) {
+            return false;
+        }
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("vehicle", vehicle);
+        try {
+            String jpql = "SELECT COUNT(ft) FROM FuelTransaction ft "
+                    + "WHERE ft.vehicle.id = :vehicleId "
+                    + "AND ft.issued = false "
+                    + "AND ft.rejected = false "
+                    + "AND ft.cancelled = false "
+                    + "AND ft.retired = false";
 
-        Long count = fuelTransactionFacade.countByJpql(jpql, params);
-        return count > 0;
+            Map<String, Object> params = new HashMap<>();
+            params.put("vehicleId", vehicle.getId());
+
+            Long count = fuelTransactionFacade.countByJpql(jpql, params);
+            return count != null && count > 0;
+        } catch (Exception e) {
+            Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, "Error checking pending request for vehicle: " + vehicle.getId(), e);
+            return false;
+        }
+    }
+
+    private boolean isRequestQuantityWithinCapacity(Vehicle vehicle, Double requestQuantity) {
+        // Skip validation if vehicle or request quantity is null
+        if (vehicle == null || requestQuantity == null) {
+            return true;
+        }
+
+        // Skip validation if fuel capacity is not set for the vehicle
+        if (vehicle.getFuelCapacity() == null) {
+            return true;
+        }
+
+        // Check if request quantity exceeds fuel capacity
+        return requestQuantity <= vehicle.getFuelCapacity();
     }
 
     public void save(FuelTransaction saving) {
