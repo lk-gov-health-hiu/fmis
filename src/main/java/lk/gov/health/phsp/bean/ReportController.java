@@ -313,16 +313,16 @@ public class ReportController implements Serializable {
 
         switch (category) {
             case CPC:
-                return "/reports/cpc/index";
+                return "/reports/cpc/index?faces-redirect=true";
             case CPC_HEAD_OFFICE:
-                return "/reports/cpc_head_office/index";
+                return "/reports/cpc_head_office/index?faces-redirect=true";
             case FUEL_RECEIVER:
                 return "/reports/index?faces-redirect=true;";
             case MONITORING_AND_EVALUATION:
             case OTHER:
-                return "/institution/reports/index";
+                return "/institution/reports/index?faces-redirect=true";
             default:
-                return "/default"; // Redirect to a default page
+                return "/default?faces-redirect=true"; // Redirect to a default page
         }
     }
 
@@ -791,9 +791,9 @@ public class ReportController implements Serializable {
         }
 
         if (filterByIssuedDate) {
-            jpqlBuilder.append("ORDER BY ft.issuedDate");
+            jpqlBuilder.append("ORDER BY ft.issuedDate DESC");
         } else {
-            jpqlBuilder.append("ORDER BY ft.requestedDate");
+            jpqlBuilder.append("ORDER BY ft.requestedDate DESC");
         }
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
@@ -875,9 +875,9 @@ public class ReportController implements Serializable {
         }
 
         if (filterByIssuedDate) {
-            jpqlBuilder.append("ORDER BY ft.issuedDate");
+            jpqlBuilder.append("ORDER BY ft.issuedDate DESC");
         } else {
-            jpqlBuilder.append("ORDER BY ft.requestedDate");
+            jpqlBuilder.append("ORDER BY ft.requestedDate DESC");
         }
 
         List<FuelTransaction> resultList = fuelTransactionFacade.findByJpql(
@@ -947,7 +947,7 @@ public class ReportController implements Serializable {
             parameters.put("txType", transactionType);
         }
 
-        jpqlBuilder.append("ORDER BY ft.requestedDate");
+        jpqlBuilder.append("ORDER BY ft.requestedDate DESC");
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);
@@ -1023,7 +1023,7 @@ public class ReportController implements Serializable {
             parameters.put("txType", transactionType);
         }
 
-        jpqlBuilder.append("ORDER BY ft.requestedDate");
+        jpqlBuilder.append("ORDER BY ft.requestedDate DESC");
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);
@@ -1829,9 +1829,7 @@ public class ReportController implements Serializable {
         }
 
         // CPC users (fuel station users) can edit if transaction is NOT dispensed AND NOT confirmed
-        if (userRole == WebUserRole.CPC_ADMINISTRATOR ||
-            userRole == WebUserRole.CPC_SUPER_USER ||
-            userRole == WebUserRole.CPC_USER) {
+        if (userRole == WebUserRole.INSTITUTION_TRANSPORT) {
 
             if (!fuelTransaction.isDispensed() && !fuelTransaction.isIssued()) {
                 fuelTransactionFacade.edit(fuelTransaction);
@@ -1865,6 +1863,11 @@ public class ReportController implements Serializable {
             userRole == WebUserRole.CPC_SUPER_USER ||
             userRole == WebUserRole.CPC_USER) {
 
+            return !fuelTransaction.isDispensed() && !fuelTransaction.isIssued();
+        }
+
+        // Institution transport users can edit if transaction is NOT dispensed AND NOT confirmed
+        if (userRole == WebUserRole.INSTITUTION_TRANSPORT) {
             return !fuelTransaction.isDispensed() && !fuelTransaction.isIssued();
         }
 
