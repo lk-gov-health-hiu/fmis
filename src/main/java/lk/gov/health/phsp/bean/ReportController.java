@@ -791,9 +791,9 @@ public class ReportController implements Serializable {
         }
 
         if (filterByIssuedDate) {
-            jpqlBuilder.append("ORDER BY ft.issuedDate");
+            jpqlBuilder.append("ORDER BY ft.issuedDate DESC");
         } else {
-            jpqlBuilder.append("ORDER BY ft.requestedDate");
+            jpqlBuilder.append("ORDER BY ft.requestedDate DESC");
         }
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
@@ -875,9 +875,9 @@ public class ReportController implements Serializable {
         }
 
         if (filterByIssuedDate) {
-            jpqlBuilder.append("ORDER BY ft.issuedDate");
+            jpqlBuilder.append("ORDER BY ft.issuedDate DESC");
         } else {
-            jpqlBuilder.append("ORDER BY ft.requestedDate");
+            jpqlBuilder.append("ORDER BY ft.requestedDate DESC");
         }
 
         List<FuelTransaction> resultList = fuelTransactionFacade.findByJpql(
@@ -947,7 +947,7 @@ public class ReportController implements Serializable {
             parameters.put("txType", transactionType);
         }
 
-        jpqlBuilder.append("ORDER BY ft.requestedDate");
+        jpqlBuilder.append("ORDER BY ft.requestedDate DESC");
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);
@@ -1023,7 +1023,7 @@ public class ReportController implements Serializable {
             parameters.put("txType", transactionType);
         }
 
-        jpqlBuilder.append("ORDER BY ft.requestedDate");
+        jpqlBuilder.append("ORDER BY ft.requestedDate DESC");
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);
