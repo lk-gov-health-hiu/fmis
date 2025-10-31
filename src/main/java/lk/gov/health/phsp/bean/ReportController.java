@@ -715,7 +715,9 @@ public class ReportController implements Serializable {
 
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestedDate, ft.transactionType, ")
+                .append("ft.id, ")
+                .append("COALESCE(ft.requestedDate, CURRENT_DATE), ")
+                .append("ft.transactionType, ")
                 .append("ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
@@ -723,7 +725,7 @@ public class ReportController implements Serializable {
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
-                .append("ft.issuedDate) FROM FuelTransaction ft ")
+                .append("COALESCE(ft.issuedDate, CURRENT_DATE)) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -958,7 +960,9 @@ public class ReportController implements Serializable {
         StringBuilder jpqlBuilder = new StringBuilder();
 
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
-                .append("ft.id, ft.requestedDate, ft.transactionType, ")
+                .append("ft.id, ")
+                .append("COALESCE(ft.requestedDate, CURRENT_DATE), ")
+                .append("ft.transactionType, ")
                 .append("ft.requestReferenceNumber, ")
                 .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
                 .append("ft.issueReferenceNumber, ")
@@ -966,7 +970,7 @@ public class ReportController implements Serializable {
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
-                .append("ft.issuedDate) FROM FuelTransaction ft ")
+                .append("COALESCE(ft.issuedDate, CURRENT_DATE)) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
