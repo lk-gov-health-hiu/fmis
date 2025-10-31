@@ -1152,6 +1152,8 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listInstitutionRequestsToPay() {
+        // Always filter by issued date for payment requests
+        filterByIssuedDate = true;
         transactions
                 = findFuelTransactions(
                         null, // institution
