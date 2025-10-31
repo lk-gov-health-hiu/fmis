@@ -76,17 +76,17 @@ public class MenuController implements Serializable {
 
     public String toIndex() {
         dashboardController.prepareDashboard();
-        return "/index";
+        return "/index?faces-redirect=true";
     }
 
     public String toReportsIndex() {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
-                return "/national/reports_index";
+                return "/national/reports_index?faces-redirect=true";
             case CTB:
-                return "/sltb/reports/index";
+                return "/sltb/reports/index?faces-redirect=true";
             case FUEL_REQUESTING_INSTITUTION:
-                return "/institution/reports_index";
+                return "/institution/reports_index?faces-redirect=true";
             default:
                 return "";
         }
@@ -96,9 +96,9 @@ public class MenuController implements Serializable {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
             case CTB:
-                return "/national/search";
+                return "/national/search?faces-redirect=true";
             case FUEL_REQUESTING_INSTITUTION:
-                return "/institution/search";
+                return "/institution/search?faces-redirect=true";
             default:
                 return "";
         }
@@ -108,16 +108,16 @@ public class MenuController implements Serializable {
         WebUserRoleLevel roleLevel = webUserController.getLoggedUser().getWebUserRoleLevel();
         InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
         if (roleLevel == WebUserRoleLevel.HEALTH_MINISTRY) {
-            return "/national/admin/index";
+            return "/national/admin/index?faces-redirect=true";
         } else if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-            return "/cpc/admin/index";
+            return "/cpc/admin/index?faces-redirect=true";
         } else {
-            return "/institution/admin/index";
+            return "/institution/admin/index?faces-redirect=true";
         }
     }
 
     public String toAdministrationIndexFirstLogin() {
-        return "/national/admin/index";
+        return "/national/admin/index?faces-redirect=true";
     }
 
     public String toPreferences() {
@@ -125,9 +125,9 @@ public class MenuController implements Serializable {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case FUEL_REQUESTING_INSTITUTION:
             case CTB:
-                return "/regional/institution/preferences";
+                return "/regional/institution/preferences?faces-redirect=true";
             case HEALTH_MINISTRY:
-                return "/national/admin/preferences";
+                return "/national/admin/preferences?faces-redirect=true";
             default:
                 return "";
         }
@@ -139,19 +139,19 @@ public class MenuController implements Serializable {
         InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/user_new";
+                return "/national/admin/user_new?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/user_new";
+                    return "/cpc/admin/user_new?faces-redirect=true";
                 } else {
-                    return "/institution/admin/user_new";
+                    return "/institution/admin/user_new?faces-redirect=true";
                 }
         }
     }
 
     public String toAddNewUserDataEntry() {
         webUserController.prepareToAddNewUser();
-        return "/dataentry/user_new";
+        return "/dataentry/user_new?faces-redirect=true";
     }
 
     public String toAddMultipleUsers() {
@@ -159,9 +159,9 @@ public class MenuController implements Serializable {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
             case CTB:
-                return "/national/admin/add_multiple_users";
+                return "/national/admin/add_multiple_users?faces-redirect=true";
             case FUEL_REQUESTING_INSTITUTION:
-                return "/institution/admin/add_multiple_users";
+                return "/institution/admin/add_multiple_users?faces-redirect=true";
             default:
                 return "";
         }
@@ -174,12 +174,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/institution";
+                return "/national/admin/institution?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/institution";
+                    return "/cpc/admin/institution?faces-redirect=true";
                 } else {
-                    return "/institution/admin/institution";
+                    return "/institution/admin/institution?faces-redirect=true";
                 }
         }
     }
@@ -188,9 +188,9 @@ public class MenuController implements Serializable {
         institutionController.prepareToAddNewInstitution();
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
-                return "/national/admin/institution_health";
+                return "/national/admin/institution_health?faces-redirect=true";
             default:
-                return "/institution/admin/institution_health";
+                return "/institution/admin/institution_health?faces-redirect=true";
         }
     }
 
@@ -201,12 +201,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/fuel_station";
+                return "/national/admin/fuel_station?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/fuel_station";
+                    return "/cpc/admin/fuel_station?faces-redirect=true";
                 } else {
-                    return "/institution/admin/fuel_station";
+                    return "/institution/admin/fuel_station?faces-redirect=true";
                 }
         }
     }
@@ -218,12 +218,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/vehicle";
+                return "/national/admin/vehicle?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/vehicle";
+                    return "/cpc/admin/vehicle?faces-redirect=true";
                 } else {
-                    return "/institution/admin/vehicle";
+                    return "/institution/admin/vehicle?faces-redirect=true";
                 }
         }
     }
@@ -235,12 +235,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/driver";
+                return "/national/admin/driver?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/driver";
+                    return "/cpc/admin/driver?faces-redirect=true";
                 } else {
-                    return "/institution/admin/driver";
+                    return "/institution/admin/driver?faces-redirect=true";
                 }
         }
     }
@@ -250,16 +250,16 @@ public class MenuController implements Serializable {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
             case CTB:
-                return "/national/admin/area";
+                return "/national/admin/area?faces-redirect=true";
             case FUEL_REQUESTING_INSTITUTION:
-                return "/institution/admin/area";
+                return "/institution/admin/area?faces-redirect=true";
             default:
                 return "";
         }
     }
 
     public String navigateToAddTotalFuel() {
-        return "/national/admin/total_fuel";
+        return "/national/admin/total_fuel?faces-redirect=true";
     }
 
     public String toAddMultipleNewInstitutions() {
@@ -267,9 +267,9 @@ public class MenuController implements Serializable {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case HEALTH_MINISTRY:
             case CTB:
-                return "/national/admin/add_multiple_institutions_with_a_user";
+                return "/national/admin/add_multiple_institutions_with_a_user?faces-redirect=true";
             case FUEL_REQUESTING_INSTITUTION:
-                return "/institution/admin/add_multiple_institutions_with_a_user";
+                return "/institution/admin/add_multiple_institutions_with_a_user?faces-redirect=true";
             default:
                 return "";
         }
@@ -277,12 +277,12 @@ public class MenuController implements Serializable {
 
     public String toAddNewInstitutionAtLetterEntry() {
         institutionController.prepareToAddNewInstitution();
-        return "/institution/institution_at_letter_entry";
+        return "/institution/institution_at_letter_entry?faces-redirect=true";
     }
 
     public String toListUsersFirstLogin() {
         webUserController.prepareListingAllUsers();
-        return "/national/admin/user_list";
+        return "/national/admin/user_list?faces-redirect=true";
     }
 
     public String toListUsers() {
@@ -292,19 +292,19 @@ public class MenuController implements Serializable {
         switch (roleLevel) {
             case HEALTH_MINISTRY:
                 webUserController.fillAllUsers();
-                return "/national/admin/user_list";
+                return "/national/admin/user_list?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/user_list";
+                    return "/cpc/admin/user_list?faces-redirect=true";
                 } else {
-                    return "/institution/admin/user_list";
+                    return "/institution/admin/user_list?faces-redirect=true";
                 }
         }
     }
 
     public String toListUsersDataentry() {
         webUserController.fillAllUsers();
-        return "/dataentry/user_list";
+        return "/dataentry/user_list?faces-redirect=true";
     }
 
     public String toListInstitutions() {
@@ -314,12 +314,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/institution_list";
+                return "/national/admin/institution_list?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/institution_list";
+                    return "/cpc/admin/institution_list?faces-redirect=true";
                 } else {
-                    return "/institution/admin/institution_list";
+                    return "/institution/admin/institution_list?faces-redirect=true";
                 }
         }
     }
@@ -330,12 +330,12 @@ public class MenuController implements Serializable {
         InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/institution_list_health";
+                return "/national/admin/institution_list_health?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/institution_list_health";
+                    return "/cpc/admin/institution_list_health?faces-redirect=true";
                 } else {
-                    return "/institution/admin/institution_list_health";
+                    return "/institution/admin/institution_list_health?faces-redirect=true";
                 }
         }
     }
@@ -347,12 +347,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/fuel_station_list";
+                return "/national/admin/fuel_station_list?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/fuel_station_list";
+                    return "/cpc/admin/fuel_station_list?faces-redirect=true";
                 } else {
-                    return "/institution/admin/fuel_station_list";
+                    return "/institution/admin/fuel_station_list?faces-redirect=true";
                 }
         }
     }
@@ -364,12 +364,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/vehicle_list";
+                return "/national/admin/vehicle_list?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/vehicle_list";
+                    return "/cpc/admin/vehicle_list?faces-redirect=true";
                 } else {
-                    return "/institution/admin/vehicle_list";
+                    return "/institution/admin/vehicle_list?faces-redirect=true";
                 }
         }
     }
@@ -380,12 +380,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/vehicle";
+                return "/national/admin/vehicle?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/vehicle";
+                    return "/cpc/admin/vehicle?faces-redirect=true";
                 } else {
-                    return "/institution/admin/vehicle";
+                    return "/institution/admin/vehicle?faces-redirect=true";
                 }
         }
     }
@@ -397,12 +397,12 @@ public class MenuController implements Serializable {
         System.out.println("institutionCategory = " + institutionCategory);
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/driver_list";
+                return "/national/admin/driver_list?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/driver_list";
+                    return "/cpc/admin/driver_list?faces-redirect=true";
                 } else {
-                    return "/institution/admin/driver_list";
+                    return "/institution/admin/driver_list?faces-redirect=true";
                 }
         }
     }
@@ -411,49 +411,49 @@ public class MenuController implements Serializable {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case CTB:
             case HEALTH_MINISTRY:
-                return "/national/admin/area_list";
+                return "/national/admin/area_list?faces-redirect=true";
             default:
-                return "/institution/admin/area_list";
+                return "/institution/admin/area_list?faces-redirect=true";
         }
     }
 
     public String toAddNewInstitutionDataEntry() {
         institutionController.prepareToAddNewInstitution();
-        return "/dataentry/institution";
+        return "/dataentry/institution?faces-redirect=true";
     }
 
     public String toDataEntry() {
-        return "/dataentry/index";
+        return "/dataentry/index?faces-redirect=true";
     }
 
     public String toListInstitutionsDataEntry() {
-        return "/dataentry/institution_list";
+        return "/dataentry/institution_list?faces-redirect=true";
     }
 
     public String toAddNewVehicleDataEntry() {
         driverController.prepareToAddNewDriver();
-        return "/dataentry/vehicle";
+        return "/dataentry/vehicle?faces-redirect=true";
     }
 
     public String toListVehiclesDataEntry() {
-        return "/dataentry/vehicle_list";
+        return "/dataentry/vehicle_list?faces-redirect=true";
     }
 
     public String toAddNewDriverDataEntry() {
         vehicleController.prepareToAddNewVehicle();
-        return "/dataentry/driver";
+        return "/dataentry/driver?faces-redirect=true";
     }
 
     public String toListDriversDataEntry() {
-        return "/dataentry/driver_list";
+        return "/dataentry/driver_list?faces-redirect=true";
     }
 
     public String toEditUserDataEntry() {
-        return "/dataentry/user_edit";
+        return "/dataentry/user_edit?faces-redirect=true";
     }
 
     public String toEditPasswordDataEntry() {
-        return "/dataentry/user_password";
+        return "/dataentry/user_password?faces-redirect=true";
     }
 
     public String toListInstitutionsWithUsers() {
@@ -462,9 +462,9 @@ public class MenuController implements Serializable {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case FUEL_REQUESTING_INSTITUTION:
             case CTB:
-                return "/institution/admin/institution_list_with_users";
+                return "/institution/admin/institution_list_with_users?faces-redirect=true";
             case HEALTH_MINISTRY:
-                return "/national/admin/institution_list_with_users";
+                return "/national/admin/institution_list_with_users?faces-redirect=true";
             default:
                 return "";
         }
@@ -474,16 +474,16 @@ public class MenuController implements Serializable {
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case FUEL_REQUESTING_INSTITUTION:
             case CTB:
-                return "/institution/admin/privileges";
+                return "/institution/admin/privileges?faces-redirect=true";
             case HEALTH_MINISTRY:
-                return "/national/admin/privileges";
+                return "/national/admin/privileges?faces-redirect=true";
             default:
                 return "";
         }
     }
 
     public String toPrivilegesFirstLogin() {
-        return "/national/admin/privileges";
+        return "/national/admin/privileges?faces-redirect=true";
     }
 
     public String toEditUser() {
@@ -492,12 +492,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/user_edit";
+                return "/national/admin/user_edit?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/user_edit";
+                    return "/cpc/admin/user_edit?faces-redirect=true";
                 } else {
-                    return "/institution/admin/user_edit";
+                    return "/institution/admin/user_edit?faces-redirect=true";
                 }
         }
     }
@@ -508,12 +508,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/institution_health";
+                return "/national/admin/institution_health?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/institution_health";
+                    return "/cpc/admin/institution_health?faces-redirect=true";
                 } else {
-                    return "/institution/admin/institution_health";
+                    return "/institution/admin/institution_health?faces-redirect=true";
                 }
         }
     }
@@ -525,12 +525,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/institution";
+                return "/national/admin/institution?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/my_institution";
+                    return "/cpc/admin/my_institution?faces-redirect=true";
                 } else {
-                    return "/institution/admin/my_institution";
+                    return "/institution/admin/my_institution?faces-redirect=true";
                 }
         }
     }
@@ -540,12 +540,12 @@ public class MenuController implements Serializable {
         InstitutionCategory institutionCategory = webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory();
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/fuel_station";
+                return "/national/admin/fuel_station?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/fuel_station";
+                    return "/cpc/admin/fuel_station?faces-redirect=true";
                 } else {
-                    return "/institution/admin/fuel_station";
+                    return "/institution/admin/fuel_station?faces-redirect=true";
                 }
         }
     }
@@ -556,12 +556,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/driver";
+                return "/national/admin/driver?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/driver";
+                    return "/cpc/admin/driver?faces-redirect=true";
                 } else {
-                    return "/institution/admin/driver";
+                    return "/institution/admin/driver?faces-redirect=true";
                 }
         }
     }
@@ -573,12 +573,12 @@ public class MenuController implements Serializable {
 
         switch (roleLevel) {
             case HEALTH_MINISTRY:
-                return "/national/admin/user_password";
+                return "/national/admin/user_password?faces-redirect=true";
             default:
                 if (institutionCategory == InstitutionCategory.CPC || institutionCategory == InstitutionCategory.CPC_HEAD_OFFICE) {
-                    return "/cpc/admin/user_password";
+                    return "/cpc/admin/user_password?faces-redirect=true";
                 } else {
-                    return "/institution/admin/user_password";
+                    return "/institution/admin/user_password?faces-redirect=true";
                 }
         }
     }
@@ -600,9 +600,9 @@ public class MenuController implements Serializable {
 
         switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
             case FUEL_REQUESTING_INSTITUTION:
-                return "/regional/admin/user_privileges";
+                return "/regional/admin/user_privileges?faces-redirect=true";
             case HEALTH_MINISTRY:
-                return "/national/admin/user_privileges";
+                return "/national/admin/user_privileges?faces-redirect=true";
             default:
                 return "";
         }
