@@ -94,6 +94,20 @@ public class FuelTransaction implements Serializable {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date issuedDate;
 
+    private boolean dispensed;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date dispensedAt;
+    @ManyToOne
+    private Institution dispensedInstitution;
+    @ManyToOne
+    private WebUser dispensedBy;
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date dispensedDate;
+    private Double dispensedQuantity;
+    private String dispensedReferenceNumber;
+    @Lob
+    private String dispensedComments;
+
     private boolean retired;
     @ManyToOne(fetch = FetchType.LAZY)
     private WebUser retiredBy;
@@ -582,6 +596,73 @@ public class FuelTransaction implements Serializable {
         this.issuedDate = issuedDate;
     }
 
+    public boolean isDispensed() {
+        return dispensed;
+    }
+
+    public void setDispensed(boolean dispensed) {
+        this.dispensed = dispensed;
+    }
+
+    public Date getDispensedAt() {
+        return dispensedAt;
+    }
+
+    public void setDispensedAt(Date dispensedAt) {
+        this.dispensedAt = dispensedAt;
+    }
+
+    public Institution getDispensedInstitution() {
+        return dispensedInstitution;
+    }
+
+    public void setDispensedInstitution(Institution dispensedInstitution) {
+        this.dispensedInstitution = dispensedInstitution;
+    }
+
+    public WebUser getDispensedBy() {
+        return dispensedBy;
+    }
+
+    public void setDispensedBy(WebUser dispensedBy) {
+        this.dispensedBy = dispensedBy;
+    }
+
+    public Date getDispensedDate() {
+        if (dispensedDate == null) {
+            dispensedDate = dispensedAt;
+        }
+        return dispensedDate;
+    }
+
+    public void setDispensedDate(Date dispensedDate) {
+        this.dispensedDate = dispensedDate;
+    }
+
+    public Double getDispensedQuantity() {
+        return dispensedQuantity;
+    }
+
+    public void setDispensedQuantity(Double dispensedQuantity) {
+        this.dispensedQuantity = dispensedQuantity;
+    }
+
+    public String getDispensedReferenceNumber() {
+        return dispensedReferenceNumber;
+    }
+
+    public void setDispensedReferenceNumber(String dispensedReferenceNumber) {
+        this.dispensedReferenceNumber = dispensedReferenceNumber;
+    }
+
+    public String getDispensedComments() {
+        return dispensedComments;
+    }
+
+    public void setDispensedComments(String dispensedComments) {
+        this.dispensedComments = dispensedComments;
+    }
+
     public boolean isSubmittedToPayment() {
         return submittedToPayment;
     }
@@ -612,6 +693,25 @@ public class FuelTransaction implements Serializable {
 
     public void setPaymentBill(Bill paymentBill) {
         this.paymentBill = paymentBill;
+    }
+
+    public String getStatus() {
+        if (cancelled) {
+            return "Cancelled";
+        }
+        if (rejected) {
+            return "Rejected";
+        }
+        if (retired) {
+            return "Retired";
+        }
+        if (dispensed) {
+            return "Dispensed";
+        }
+        if (issued) {
+            return "Confirmed";
+        }
+        return "Requested";
     }
 
 }
