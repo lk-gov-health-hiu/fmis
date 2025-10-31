@@ -41,7 +41,7 @@
                                         value="Vehicle" 
                                         for="acVehicle">
                                     </p:outputLabel>
-                                    <p:autoComplete 
+                                    <p:autoComplete
                                         id="acVehicle"
                                         value="#{fuelRequestAndIssueController.selected.vehicle}"
                                         completeMethod="#{vehicleController.completeVehiclesByWords}"
@@ -50,8 +50,8 @@
                                         inputStyleClass="w-100"
                                         forceSelection="true"
                                         maxResults="20"
-                                        itemLabel="#{v.vehicleNumber}"
-                                        itemValue="#{v}" 
+                                        itemLabel="#{v.vehicleNumber}#{v.allocationType ne null ? ' ('.concat(v.allocationType.label).concat(')') : ''}"
+                                        itemValue="#{v}"
                                         required="true"
                                         requiredMessage="Please select a Vehicle"
                                         title="Please select a vehicle"
@@ -73,7 +73,7 @@
                                         value="Driver" 
                                         for="acVehicle">
                                     </p:outputLabel>
-                                    <p:selectOneMenu 
+                                    <p:selectOneMenu
                                         id="acDriver"
                                         value="#{fuelRequestAndIssueController.selected.driver}"
                                         filter="true"
@@ -84,7 +84,7 @@
                                         styleClass="form-control w-100">
                                         <f:selectItem itemLabel="Select a driver"  />
                                         <f:selectItems value="#{driverController.institutionDrivers(fuelRequestAndIssueController.selected.vehicle.institution)}" var="d"
-                                                       itemLabel="#{d.name}" itemValue="#{d}" />
+                                                       itemLabel="#{d.name}#{d.allocationType ne null ? ' ('.concat(d.allocationType.label).concat(')') : ''}" itemValue="#{d}" />
                                     </p:selectOneMenu>
 
 
@@ -193,13 +193,13 @@
                                                 </h:outputText>
 
                                                 <h:outputLabel value="Vehicle:" />
-                                                <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}#{fuelRequestAndIssueController.selected.vehicle.allocationType ne null ? ' ('.concat(fuelRequestAndIssueController.selected.vehicle.allocationType.label).concat(')') : ''}" />
 
                                                 <h:outputLabel value="Institution:" />
                                                 <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.institution.name}" />
 
                                                 <h:outputLabel value="Driver:" />
-                                                <h:outputText value="#{fuelRequestAndIssueController.selected.driver.name}" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.driver.name}#{fuelRequestAndIssueController.selected.driver.allocationType ne null ? ' ('.concat(fuelRequestAndIssueController.selected.driver.allocationType.label).concat(')') : ''}" />
 
                                                 <h:outputLabel value="Fuel Station / Depot:" />
                                                 <h:outputText value="#{fuelRequestAndIssueController.selected.toInstitution.name}" />
