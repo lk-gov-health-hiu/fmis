@@ -21,8 +21,11 @@ public enum WebUserRole {
     INSTITUTION_USER("Institution User", AccessLevel.INSTITUTIONAL),
 
     // CTB Level
+    @Deprecated
     CTB_ADMINISTRATOR("SLTB Administrator", AccessLevel.NATIONAL),
+    @Deprecated
     CTB_SUPER_USER("SLTB Super User", AccessLevel.NATIONAL),
+    @Deprecated
     CTB_USER("SLTB User", AccessLevel.NATIONAL),
 
     // CPC Level
