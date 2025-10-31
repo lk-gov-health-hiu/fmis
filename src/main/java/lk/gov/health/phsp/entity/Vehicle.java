@@ -34,6 +34,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
+import lk.gov.health.phsp.enums.VehicleAllocationType;
 import lk.gov.health.phsp.enums.VehicleMake;
 import lk.gov.health.phsp.enums.VehiclePurpose;
 import lk.gov.health.phsp.enums.VehicleType;
@@ -70,6 +71,12 @@ public class Vehicle implements Serializable, Nameable {
     private VehicleMake make;
 
     private Double estiamtedMonthlyFuelConsumption;
+
+    private Double fuelCapacity;
+    private String chassisNumber;
+    @Enumerated(EnumType.STRING)
+    private VehicleAllocationType allocationType;
+    private Double vehicleAverageFuelConsumption;
 
     @ManyToOne
     private WebUser creater;
@@ -275,7 +282,39 @@ public class Vehicle implements Serializable, Nameable {
     public void setEstiamtedMonthlyFuelConsumption(Double estiamtedMonthlyFuelConsumption) {
         this.estiamtedMonthlyFuelConsumption = estiamtedMonthlyFuelConsumption;
     }
-    
-    
+
+    public Double getFuelCapacity() {
+        return fuelCapacity;
+    }
+
+    public void setFuelCapacity(Double fuelCapacity) {
+        this.fuelCapacity = fuelCapacity;
+    }
+
+    public String getChassisNumber() {
+        return chassisNumber;
+    }
+
+    public void setChassisNumber(String chassisNumber) {
+        this.chassisNumber = chassisNumber;
+    }
+
+    public VehicleAllocationType getAllocationType() {
+        return allocationType;
+    }
+
+    public void setAllocationType(VehicleAllocationType allocationType) {
+        this.allocationType = allocationType;
+    }
+
+    public Double getVehicleAverageFuelConsumption() {
+        return vehicleAverageFuelConsumption;
+    }
+
+    public void setVehicleAverageFuelConsumption(Double vehicleAverageFuelConsumption) {
+        this.vehicleAverageFuelConsumption = vehicleAverageFuelConsumption;
+    }
+
+
 
 }
