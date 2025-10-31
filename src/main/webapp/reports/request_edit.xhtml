@@ -26,10 +26,14 @@
                                                     <h:outputText value="Fuel Request Details - Edit" rendered="#{reportController.canEditTransaction}"></h:outputText>
                                                     <h:outputText value="Fuel Request Details - View Only" rendered="#{not reportController.canEditTransaction}"></h:outputText>
                                                 </h2>
-                                                <p:messages rendered="#{not reportController.canEditTransaction}">
-                                                    <p:message severity="warn" summary="View Only Mode"
-                                                              detail="This transaction is already #{reportController.fuelTransaction.dispensed ? 'dispensed' : 'confirmed'} and cannot be edited." />
-                                                </p:messages>
+                                                <ui:fragment rendered="#{not reportController.canEditTransaction}">
+                                                    <div class="alert alert-warning" role="alert">
+                                                        <strong>View Only Mode:</strong> This transaction is already
+                                                        <h:outputText value="dispensed" rendered="#{reportController.fuelTransaction.dispensed}" />
+                                                        <h:outputText value="confirmed" rendered="#{not reportController.fuelTransaction.dispensed}" />
+                                                        and cannot be edited.
+                                                    </div>
+                                                </ui:fragment>
                                             </div>
                                             <div class="col-md-4">
                                                 <p:commandButton value="Save" ajax="false"
