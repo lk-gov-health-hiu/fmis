@@ -378,6 +378,34 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Enter a referance number");
             return "";
         }
+
+        // Validation 1: Check if reference number is unique within 30 days for this institution
+        if (!isReferenceNumberUnique(selected.getRequestReferenceNumber(), webUserController.getLoggedInstitution())) {
+            JsfUtil.addErrorMessage("Reference number '" + selected.getRequestReferenceNumber() + "' has already been used within the last 30 days for this institution");
+            return "";
+        }
+
+        // Validation 2: Check if reference number and ODO meter differ from request quantity
+        if (!areFieldValuesDistinct(selected.getRequestReferenceNumber(), selected.getOdoMeterReading(), selected.getRequestQuantity())) {
+            JsfUtil.addErrorMessage("Request Reference Number and ODO Meter Reading must be different from Request Quantity");
+            return "";
+        }
+
+        // Validation 3: Check if ODO reading is greater than previous reading
+        Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
+        if (previousOdoReading != null && selected.getOdoMeterReading() != null) {
+            if (selected.getOdoMeterReading() <= previousOdoReading) {
+                JsfUtil.addErrorMessage("ODO Meter Reading (" + selected.getOdoMeterReading() + ") must be greater than the previous reading (" + previousOdoReading + ")");
+                return "";
+            }
+        }
+
+        // Validation 4: Check if there's already a pending request for this vehicle
+        if (hasPendingRequest(selected.getVehicle())) {
+            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been issued yet. Please wait for that request to be processed first.");
+            return "";
+        }
+
         selected.setRequestAt(new Date());
         save(selected);
         JsfUtil.addSuccessMessage("Request Submitted");
@@ -409,6 +437,48 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Enter Requested Date");
             return "";
         }
+
+        // Additional validations for required fields
+        if (selected.getRequestReferenceNumber() == null || selected.getRequestReferenceNumber().trim().isEmpty()) {
+            JsfUtil.addErrorMessage("Request Reference Number is required");
+            return "";
+        }
+        if (selected.getOdoMeterReading() == null) {
+            JsfUtil.addErrorMessage("ODO Meter Reading is required");
+            return "";
+        }
+        if (selected.getRequestQuantity() == null) {
+            JsfUtil.addErrorMessage("Request Quantity is required");
+            return "";
+        }
+
+        // Validation 1: Check if reference number is unique within 30 days for this institution
+        if (!isReferenceNumberUnique(selected.getRequestReferenceNumber(), selected.getVehicle().getInstitution())) {
+            JsfUtil.addErrorMessage("Reference number '" + selected.getRequestReferenceNumber() + "' has already been used within the last 30 days for this institution");
+            return "";
+        }
+
+        // Validation 2: Check if reference number and ODO meter differ from request quantity
+        if (!areFieldValuesDistinct(selected.getRequestReferenceNumber(), selected.getOdoMeterReading(), selected.getRequestQuantity())) {
+            JsfUtil.addErrorMessage("Request Reference Number and ODO Meter Reading must be different from Request Quantity");
+            return "";
+        }
+
+        // Validation 3: Check if ODO reading is greater than previous reading
+        Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
+        if (previousOdoReading != null && selected.getOdoMeterReading() != null) {
+            if (selected.getOdoMeterReading() <= previousOdoReading) {
+                JsfUtil.addErrorMessage("ODO Meter Reading (" + selected.getOdoMeterReading() + ") must be greater than the previous reading (" + previousOdoReading + ")");
+                return "";
+            }
+        }
+
+        // Validation 4: Check if there's already a pending request for this vehicle
+        if (hasPendingRequest(selected.getVehicle())) {
+            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been issued yet. Please wait for that request to be processed first.");
+            return "";
+        }
+
         selected.setInstitution(selected.getVehicle().getInstitution());
         if (selected.getTxDate() == null) {
             selected.setTxDate(new Date());
@@ -1263,6 +1333,95 @@ public class FuelRequestAndIssueController implements Serializable {
 
     private FuelTransactionHistoryFacade getFacade() {
         return fuelTransactionHistoryFacade;
+    }
+
+    // Validation Methods
+    private boolean isReferenceNumberUnique(String referenceNumber, Institution institution) {
+        if (referenceNumber == null || referenceNumber.trim().isEmpty() || institution == null) {
+            return true;
+        }
+
+        // Calculate date 30 days ago
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.add(java.util.Calendar.DAY_OF_MONTH, -30);
+        Date thirtyDaysAgo = cal.getTime();
+
+        String jpql = "SELECT COUNT(ft) FROM FuelTransaction ft "
+                + "WHERE ft.requestReferenceNumber = :refNum "
+                + "AND ft.fromInstitution = :institution "
+                + "AND ft.requestedDate >= :thirtyDaysAgo "
+                + "AND ft.retired = false";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("refNum", referenceNumber.trim());
+        params.put("institution", institution);
+        params.put("thirtyDaysAgo", thirtyDaysAgo);
+
+        Long count = fuelTransactionFacade.countByJpql(jpql, params);
+        return count == 0;
+    }
+
+    private boolean areFieldValuesDistinct(String referenceNumber, Double odoReading, Double requestQuantity) {
+        if (referenceNumber == null || odoReading == null || requestQuantity == null) {
+            return true; // Skip validation if any value is null
+        }
+
+        try {
+            Double refNumAsDouble = Double.parseDouble(referenceNumber.trim());
+            // Check if reference number equals request quantity or ODO reading
+            if (refNumAsDouble.equals(requestQuantity) || refNumAsDouble.equals(odoReading)) {
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            // Reference number is not numeric, which is fine
+        }
+
+        // Check if ODO reading equals request quantity
+        if (odoReading.equals(requestQuantity)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private Double getPreviousOdoReading(Vehicle vehicle) {
+        if (vehicle == null) {
+            return null;
+        }
+
+        String jpql = "SELECT ft FROM FuelTransaction ft "
+                + "WHERE ft.vehicle = :vehicle "
+                + "AND ft.retired = false "
+                + "AND ft.odoMeterReading IS NOT NULL "
+                + "ORDER BY ft.requestedDate DESC";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("vehicle", vehicle);
+
+        List<FuelTransaction> results = fuelTransactionFacade.findByJpql(jpql, params, 1);
+        if (results != null && !results.isEmpty()) {
+            return results.get(0).getOdoMeterReading();
+        }
+        return null;
+    }
+
+    private boolean hasPendingRequest(Vehicle vehicle) {
+        if (vehicle == null) {
+            return false;
+        }
+
+        String jpql = "SELECT COUNT(ft) FROM FuelTransaction ft "
+                + "WHERE ft.vehicle = :vehicle "
+                + "AND ft.issued = false "
+                + "AND ft.rejected = false "
+                + "AND ft.cancelled = false "
+                + "AND ft.retired = false";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("vehicle", vehicle);
+
+        Long count = fuelTransactionFacade.countByJpql(jpql, params);
+        return count > 0;
     }
 
     public void save(FuelTransaction saving) {
