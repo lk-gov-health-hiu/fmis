@@ -174,8 +174,17 @@ public class ReportController implements Serializable {
     // </editor-fold> 
     // <editor-fold defaultstate="collapsed" desc="Navigational Methods">
     public String navigateToListFuelRequests() {
+        // Check if user has institutional access level
+        if (isInstitutionalUser()) {
+            return navigateToListFuelRequestsInstitutional();
+        }
         fillAllInstitutionFuelTransactions();
         return "/reports/list?faces-redirect=true;";
+    }
+
+    public String navigateToListFuelRequestsInstitutional() {
+        fillInstitutionalFuelTransactions();
+        return "/reports/list_institutional?faces-redirect=true;";
     }
     
     public String navigateToListPayments() {
@@ -1873,6 +1882,213 @@ public class ReportController implements Serializable {
 
         // All other users cannot edit
         return false;
+    }
+
+    /**
+     * Check if the logged-in user is an institutional user
+     */
+    public boolean isInstitutionalUser() {
+        if (webUserController.getLoggedUser() == null) {
+            return false;
+        }
+        WebUserRole role = webUserController.getLoggedUser().getWebUserRole();
+        return role == WebUserRole.INSTITUTION_ADMINISTRATOR ||
+               role == WebUserRole.INSTITUTION_SUPER_USER ||
+               role == WebUserRole.INSTITUTION_TRANSPORT ||
+               role == WebUserRole.INSTITUTION_ACCOUNTS ||
+               role == WebUserRole.INSTITUTION_USER;
+    }
+
+    /**
+     * Get all institutions accessible by the logged-in user
+     * This includes their own institution and all subordinate institutions
+     */
+    public List<Institution> getAccessibleInstitutions() {
+        List<Institution> accessibleInstitutions = new ArrayList<>();
+        Institution loggedInstitution = webUserController.getLoggedInstitution();
+
+        if (loggedInstitution == null) {
+            return accessibleInstitutions;
+        }
+
+        // Add the user's own institution
+        accessibleInstitutions.add(loggedInstitution);
+
+        // Add all subordinate institutions recursively
+        accessibleInstitutions.addAll(findAllSubordinateInstitutions(loggedInstitution));
+
+        return accessibleInstitutions;
+    }
+
+    /**
+     * Recursively find all subordinate institutions
+     */
+    private List<Institution> findAllSubordinateInstitutions(Institution parent) {
+        List<Institution> subordinates = new ArrayList<>();
+        List<Institution> allInstitutions = institutionApplicationController.getInstitutions();
+
+        for (Institution inst : allInstitutions) {
+            if (inst.getParent() != null && inst.getParent().equals(parent)) {
+                subordinates.add(inst);
+                // Recursively add children of this institution
+                subordinates.addAll(findAllSubordinateInstitutions(inst));
+            }
+        }
+
+        return subordinates;
+    }
+
+    /**
+     * Fill transactions for institutional users
+     * Automatically filters by accessible institutions if no specific institution is selected
+     */
+    public void fillInstitutionalFuelTransactions() {
+        // Get accessible institutions
+        List<Institution> accessibleInstitutions = getAccessibleInstitutions();
+
+        if (accessibleInstitutions.isEmpty()) {
+            transactionLights = new ArrayList<>();
+            JsfUtil.addErrorMessage("No accessible institutions found for your account");
+            return;
+        }
+
+        // If no specific institution is selected, filter by all accessible institutions
+        if (fromInstitution == null) {
+            transactionLights = fillFuelTransactionsForInstitutions(
+                accessibleInstitutions,
+                toInstitution,
+                getFromDate(),
+                getToDate(),
+                vehicleType,
+                vehiclePurpose,
+                null,
+                null,
+                fuelTransactionType
+            );
+        } else {
+            // Verify the selected institution is accessible by this user
+            if (!accessibleInstitutions.contains(fromInstitution)) {
+                transactionLights = new ArrayList<>();
+                JsfUtil.addErrorMessage("You do not have access to view transactions for the selected institution");
+                return;
+            }
+
+            // Use the normal fill method for the specific institution
+            transactionLights = fillFuelTransactions(
+                fromInstitution,
+                toInstitution,
+                getFromDate(),
+                getToDate(),
+                vehicleType,
+                vehiclePurpose,
+                null,
+                null,
+                fuelTransactionType
+            );
+        }
+    }
+
+    /**
+     * Fill fuel transactions for multiple institutions
+     */
+    private List<FuelTransactionLight> fillFuelTransactionsForInstitutions(
+            List<Institution> institutions, Institution fuelStation, Date fd, Date td,
+            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver,
+            InstitutionType institutionType, FuelTransactionType transactionType) {
+
+        if (institutions == null || institutions.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
+                .append("ft.id, ")
+                .append("COALESCE(ft.requestedDate, CURRENT_DATE), ")
+                .append("ft.transactionType, ")
+                .append("ft.requestReferenceNumber, ")
+                .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
+                .append("ft.issueReferenceNumber, ")
+                .append("fi.name, ")
+                .append("ti.name, ")
+                .append("COALESCE(d.name, 'No Driver'), ")
+                .append("ti.code, ")
+                .append("COALESCE(ft.issuedDate, CURRENT_DATE), ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.vehicle v ")
+                .append("LEFT JOIN ft.driver d ")
+                .append("LEFT JOIN ft.fromInstitution fi ")
+                .append("LEFT JOIN ft.toInstitution ti ")
+                .append("WHERE ft.retired = :ret ");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ret", false);
+
+        // Filter by multiple institutions
+        jpqlBuilder.append("AND ft.fromInstitution IN :institutions ");
+        parameters.put("institutions", institutions);
+
+        if (fuelStation != null) {
+            jpqlBuilder.append("AND ft.toInstitution = :fuelStation ");
+            parameters.put("fuelStation", fuelStation);
+        }
+
+        if (fd != null && td != null) {
+            Calendar fdCal = Calendar.getInstance();
+            fdCal.setTime(fd);
+            fdCal.set(Calendar.HOUR_OF_DAY, 0);
+            fdCal.set(Calendar.MINUTE, 0);
+            fdCal.set(Calendar.SECOND, 0);
+            fdCal.set(Calendar.MILLISECOND, 0);
+            fd = fdCal.getTime();
+
+            Calendar tdCal = Calendar.getInstance();
+            tdCal.setTime(td);
+            tdCal.set(Calendar.HOUR_OF_DAY, 23);
+            tdCal.set(Calendar.MINUTE, 59);
+            tdCal.set(Calendar.SECOND, 59);
+            tdCal.set(Calendar.MILLISECOND, 999);
+            td = tdCal.getTime();
+
+            if (filterByIssuedDate) {
+                jpqlBuilder.append("AND ft.issuedDate BETWEEN :fromDate AND :toDate ");
+            } else {
+                jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            }
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+
+        if (vehicleType != null) {
+            jpqlBuilder.append("AND v.vehicleType = :vType ");
+            parameters.put("vType", vehicleType);
+        }
+        if (vehiclePurpose != null) {
+            jpqlBuilder.append("AND v.vehiclePurpose = :vPurpose ");
+            parameters.put("vPurpose", vehiclePurpose);
+        }
+        if (driver != null) {
+            jpqlBuilder.append("AND ft.driver = :drv ");
+            parameters.put("drv", driver);
+        }
+        if (institutionType != null) {
+            jpqlBuilder.append("AND ft.fromInstitution.institutionType = :instType ");
+            parameters.put("instType", institutionType);
+        }
+        if (transactionType != null) {
+            jpqlBuilder.append("AND ft.transactionType = :txType ");
+            parameters.put("txType", transactionType);
+        }
+
+        if (filterByIssuedDate) {
+            jpqlBuilder.append("ORDER BY ft.issuedDate DESC");
+        } else {
+            jpqlBuilder.append("ORDER BY ft.requestedDate DESC");
+        }
+
+        List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.DATE);
+
+        return resultList;
     }
 
     public void reverseDeletionSelected() {
