@@ -236,6 +236,10 @@ public class ApplicationController {
         return ftts;
     }
 
+    public lk.gov.health.phsp.enums.FuelType[] getFuelTypes() {
+        return lk.gov.health.phsp.enums.FuelType.values();
+    }
+
     public WebUserRole[] getWebUserRoles() {
         return WebUserRole.values();
     }
