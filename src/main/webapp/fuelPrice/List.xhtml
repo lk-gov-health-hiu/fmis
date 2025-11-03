@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+        <ui:composition template="/template.xhtml">
+            <ui:define name="content">
+                <h1 class="text-center mt-3 mb-3">List of Fuel Prices</h1>
+                <h:form id="FuelPriceListForm">
+                    <p:dataTable resizableColumns="true" multiViewState="true" resizeMode="expand"
+                                 id="datalist" value="#{fuelPriceController.items}" var="item"
+                                 selectionMode="single" selection="#{fuelPriceController.selected}"
+                                 paginator="true"
+                                 rowKey="#{item.id}"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,20,30,40,50">
+
+                        <p:ajax event="rowSelect"   update="createButton viewButton editButton deleteButton"/>
+                        <p:ajax event="rowUnselect" update="createButton viewButton editButton deleteButton"/>
+
+                        <p:column sortBy="#{item.fuelType.label}" filterBy="#{item.fuelType.label}" filterMatchMode="contains">
+                            <f:facet name="header">
+                                <h:outputText value="Fuel Type"/>
+                            </f:facet>
+                            <h:outputText value="#{item.fuelType.label}"/>
+                        </p:column>
+
+                        <p:column sortBy="#{item.price}" filterBy="#{item.price}" filterMatchMode="contains">
+                            <f:facet name="header">
+                                <h:outputText value="Price (Rs.)"/>
+                            </f:facet>
+                            <h:outputText value="#{item.price}">
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column sortBy="#{item.fromDate}" filterBy="#{item.fromDate}" filterMatchMode="contains">
+                            <f:facet name="header">
+                                <h:outputText value="From Date"/>
+                            </f:facet>
+                            <h:outputText value="#{item.fromDate}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column sortBy="#{item.toDate}" filterBy="#{item.toDate}" filterMatchMode="contains">
+                            <f:facet name="header">
+                                <h:outputText value="To Date"/>
+                            </f:facet>
+                            <h:outputText value="#{item.toDate}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column sortBy="#{item.year}" filterBy="#{item.year}" filterMatchMode="contains">
+                            <f:facet name="header">
+                                <h:outputText value="Year"/>
+                            </f:facet>
+                            <h:outputText value="#{item.year}"/>
+                        </p:column>
+
+                        <p:column sortBy="#{item.month}" filterBy="#{item.month}" filterMatchMode="contains">
+                            <f:facet name="header">
+                                <h:outputText value="Month"/>
+                            </f:facet>
+                            <h:outputText value="#{item.month}"/>
+                        </p:column>
+
+                        <f:facet name="footer">
+                            <h:commandLink class="btn btn-primary m-2" id="createButton" value="Create" actionListener="#{fuelPriceController.prepareCreate}">
+                                <i class="bi bi-plus-lg m-2"></i>
+                                <f:ajax render=":FuelPriceCreateForm" onevent="PF('FuelPriceCreateDialog').show()"></f:ajax>
+                            </h:commandLink>
+                            <h:commandLink class="btn btn-primary m-2" id="viewButton" value="View" disabled="#{empty fuelPriceController.selected}">
+                                <f:ajax render=":FuelPriceViewForm" onevent="PF('FuelPriceViewDialog').show()"></f:ajax>
+                                <i class="bi bi-search m-2"></i>
+                            </h:commandLink>
+                            <h:commandLink class="btn btn-primary m-2" id="editButton" value="Edit" disabled="#{empty fuelPriceController.selected}">
+                                <f:ajax render=":FuelPriceEditForm" onevent="PF('FuelPriceEditDialog').show()"></f:ajax>
+                                <i class="bi bi-pencil m-2"></i>
+                            </h:commandLink>
+                            <h:commandLink class="btn btn-primary m-2" id="deleteButton"
+                                          onclick="if (!confirm('Are you sure you want to delete?')) return false"
+                                          value="Delete"
+                                          action="#{fuelPriceController.deleteFuelPrice()}"
+                                          disabled="#{empty fuelPriceController.selected}">
+                                <f:setPropertyActionListener value="#{fuelPriceController.selected}" target="#{fuelPriceController.deleting}"></f:setPropertyActionListener>
+                                <i class="bi bi-trash m-2"></i>
+                            </h:commandLink>
+                        </f:facet>
+                    </p:dataTable>
+                </h:form>
+
+                <ui:include src="Create.xhtml"/>
+                <ui:include src="Edit.xhtml"/>
+                <ui:include src="View.xhtml"/>
+            </ui:define>
+        </ui:composition>
+    </body>
+</html>
