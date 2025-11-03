@@ -37,16 +37,17 @@
                         action="#{fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="View Orders"
                                 action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Make Payment Orders"
+                                action="#{fuelRequestAndIssueController.navigateToMakePayment()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Previously Completed Payment Orders"
+                                action="#{fuelRequestAndIssueController.navigateToPaymentsMade()}" />
+
                 </p:submenu>
 
                 <p:submenu
                     class="submenu"
                     label="Payment Management"
                     rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}" >
-                    <p:menuitem class="submenu-item" ajax="false" value="Make Payment Orders"
-                                action="#{fuelRequestAndIssueController.navigateToMakePayment()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Previously Completed Payment Orders"
-                                action="#{fuelRequestAndIssueController.navigateToPaymentsMade()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="Payment Bills"
                                 action="#{fuelRequestAndIssueController.navigateToListPaymentBills()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="Payments to Accept at CPC"
@@ -62,11 +63,11 @@
                     ajax="false"
                     value="Reports"
                     action="#{reportController.navigateToReportsIndex}" />
-                <p:menuitem 
-                    class="text-white" 
-                    ajax="false" 
-                    value="Administration" 
-                    action="#{menuController.toAdministrationIndex()}" />
+                <p:submenu label="Administration">
+                    <p:menuitem value="Administration Home" action="#{menuController.toAdministrationIndex()}" ajax="false" />
+                    <p:separator />
+                    <p:menuitem value="Migrate Bill Items" action="#{fuelRequestAndIssueController.navigateToMigrateBillItems()}" ajax="false" />
+                </p:submenu>
                 <p:submenu label="Settings">
                     <p:menuitem value="Change My Password" action="#{webUserController.toChangeMyPassword()}" ajax="false" />
                     <p:menuitem value="Change My Details" action="#{webUserController.toChangeMyDetails()}" ajax="false" />
