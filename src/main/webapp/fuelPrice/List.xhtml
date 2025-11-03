@@ -60,14 +60,16 @@
                             <f:facet name="header">
                                 <h:outputText value="Year"/>
                             </f:facet>
-                            <h:outputText value="#{item.year}"/>
+                            <h:outputText value="#{item.year}">
+                                <f:convertNumber pattern="####" groupingUsed="false" />
+                            </h:outputText>
                         </p:column>
 
                         <p:column sortBy="#{item.month}" filterBy="#{item.month}" filterMatchMode="contains">
                             <f:facet name="header">
                                 <h:outputText value="Month"/>
                             </f:facet>
-                            <h:outputText value="#{item.month}"/>
+                            <h:outputText value="#{fuelPriceController.getMonthName(item.month)}"/>
                         </p:column>
 
                         <f:facet name="footer">

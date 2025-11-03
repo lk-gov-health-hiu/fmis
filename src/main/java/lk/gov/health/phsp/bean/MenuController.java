@@ -623,9 +623,12 @@ public class MenuController implements Serializable {
 
     public String toListFuelPrices() {
         fuelPriceController.fillItems();
-        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
-            case HEALTH_MINISTRY:
-                return "/fuelPrice/list?faces-redirect=true";
+        switch (webUserController.getLoggedUser().getWebUserRole()) {
+            case CPC_ADMINISTRATOR:
+            case CPC_USER:
+            case SYSTEM_ADMINISTRATOR:
+            case SUPER_USER:
+                return "/fuelPrice/List?faces-redirect=true";
             default:
                 JsfUtil.addErrorMessage("You are NOT authorized to view fuel prices");
                 return "";

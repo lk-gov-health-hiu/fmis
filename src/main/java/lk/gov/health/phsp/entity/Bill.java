@@ -89,9 +89,25 @@ public class Bill implements Serializable {
     
     private Double totalQty;
     private Double totalValue;
-    
+
     @ManyToOne
     private WebUser billUser;
+
+    private boolean acceptedByCpc;
+
+    @ManyToOne
+    private WebUser acceptedByCpcUser;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date acceptedByCpcAt;
+
+    private boolean rejectedByCpc;
+
+    @ManyToOne
+    private WebUser rejectedByCpcUser;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date rejectedByCpcAt;
     
     
     
@@ -235,5 +251,53 @@ public class Bill implements Serializable {
     public void setBillUser(WebUser billUser) {
         this.billUser = billUser;
     }
-    
+
+    public boolean isAcceptedByCpc() {
+        return acceptedByCpc;
+    }
+
+    public void setAcceptedByCpc(boolean acceptedByCpc) {
+        this.acceptedByCpc = acceptedByCpc;
+    }
+
+    public WebUser getAcceptedByCpcUser() {
+        return acceptedByCpcUser;
+    }
+
+    public void setAcceptedByCpcUser(WebUser acceptedByCpcUser) {
+        this.acceptedByCpcUser = acceptedByCpcUser;
+    }
+
+    public Date getAcceptedByCpcAt() {
+        return acceptedByCpcAt;
+    }
+
+    public void setAcceptedByCpcAt(Date acceptedByCpcAt) {
+        this.acceptedByCpcAt = acceptedByCpcAt;
+    }
+
+    public boolean isRejectedByCpc() {
+        return rejectedByCpc;
+    }
+
+    public void setRejectedByCpc(boolean rejectedByCpc) {
+        this.rejectedByCpc = rejectedByCpc;
+    }
+
+    public WebUser getRejectedByCpcUser() {
+        return rejectedByCpcUser;
+    }
+
+    public void setRejectedByCpcUser(WebUser rejectedByCpcUser) {
+        this.rejectedByCpcUser = rejectedByCpcUser;
+    }
+
+    public Date getRejectedByCpcAt() {
+        return rejectedByCpcAt;
+    }
+
+    public void setRejectedByCpcAt(Date rejectedByCpcAt) {
+        this.rejectedByCpcAt = rejectedByCpcAt;
+    }
+
 }
