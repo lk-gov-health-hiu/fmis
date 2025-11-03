@@ -247,7 +247,8 @@
                                 ajax="false"
                                 action="#{reportController.navigateToEditRequest()}"
                                 icon="fa fa-edit"
-                                styleClass="ui-button-warning m-1">
+                                styleClass="ui-button-warning m-1"
+                                rendered="#{not (transaction.issued or transaction.dispensed)}">
                                 <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
                                 </f:setPropertyActionListener>
                             </p:commandButton>
@@ -256,7 +257,8 @@
                                 ajax="false"
                                 action="#{reportController.navigateToDeleteRequest()}"
                                 icon="fa fa-trash"
-                                styleClass="ui-button-danger m-1">
+                                styleClass="ui-button-danger m-1"
+                                rendered="#{not (transaction.issued or transaction.dispensed)}">
                                 <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
                                 </f:setPropertyActionListener>
                             </p:commandButton>

@@ -736,7 +736,7 @@ public class ReportController implements Serializable {
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
-                .append("COALESCE(ft.issuedDate, CURRENT_DATE), ")
+                .append("ft.issuedDate, ")
                 .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
@@ -983,7 +983,7 @@ public class ReportController implements Serializable {
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
-                .append("COALESCE(ft.issuedDate, CURRENT_DATE), ")
+                .append("ft.issuedDate, ")
                 .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
@@ -2234,7 +2234,7 @@ public class ReportController implements Serializable {
                 .append("ti.name, ")
                 .append("COALESCE(d.name, 'No Driver'), ")
                 .append("ti.code, ")
-                .append("COALESCE(ft.issuedDate, CURRENT_DATE), ")
+                .append("ft.issuedDate, ")
                 .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")

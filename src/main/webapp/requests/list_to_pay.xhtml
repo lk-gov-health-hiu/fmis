@@ -56,30 +56,25 @@
                                         <p:messages ></p:messages>
                                     </div>
                                     <div class="col-10 p-2" >
-                                        <p:commandButton 
-                                            value="Make Payment Request"
-                                            action="#{fuelRequestAndIssueController.makePaymentRequest()}"
-                                            icon="pi pi-dollar" 
+                                        <p:commandButton
+                                            value="Review Payment Request"
+                                            action="#{fuelRequestAndIssueController.navigateToReviewPaymentRequest()}"
+                                            icon="pi pi-eye"
                                             ajax="false"
-                                            class="ui-button-danger my-2"
-                                            onclick="if (!confirm('Are you sure you want to make a payment request?'))
-                                                        return false;" />
+                                            class="ui-button-warning my-2" />
 
 
-                                        <p:dataTable 
-                                            id="tbl" 
-                                            value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}" 
+                                        <p:dataTable
+                                            id="tbl"
+                                            value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}"
                                             rows="5"
                                             rowIndexVar="no"
-                                            selection="#{fuelRequestAndIssueController.selectedTransactions}"
                                             paginator="true"
                                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                             currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
                                             rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
                                             sortMode="multiple">
 
-                                            <p:column selectionMode="multiple" width="10" ></p:column>
-                                            
                                             <p:column headerText="No" width="10" >
                                                 <h:outputText value="#{no+1}" />
                                             </p:column>

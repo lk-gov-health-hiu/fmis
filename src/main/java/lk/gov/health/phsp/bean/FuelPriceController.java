@@ -175,8 +175,8 @@ public class FuelPriceController implements Serializable {
         }
     }
 
-    private void fillItems() {
-        items = getFacade().findAll("select f from FuelPrice f where f.retired=false order by f.fromDate desc");
+    public void fillItems() {
+        items = getFacade().findByJpql("select f from FuelPrice f where f.retired=false order by f.fromDate desc");
     }
 
     public List<FuelPrice> getItems() {
@@ -224,6 +224,18 @@ public class FuelPriceController implements Serializable {
 
     public void setUserTransactionController(UserTransactionController userTransactionController) {
         this.userTransactionController = userTransactionController;
+    }
+
+    public String getMonthName(Integer month) {
+        if (month == null) {
+            return "";
+        }
+        String[] monthNames = {"January", "February", "March", "April", "May", "June",
+                               "July", "August", "September", "October", "November", "December"};
+        if (month >= 1 && month <= 12) {
+            return monthNames[month - 1];
+        }
+        return month.toString();
     }
 
     @FacesConverter(forClass = FuelPrice.class)

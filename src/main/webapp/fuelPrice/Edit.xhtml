@@ -41,13 +41,25 @@
 
                         <p:outputLabel value="Year:" for="year" />
                         <p:inputNumber id="year" value="#{fuelPriceController.selected.year}"
-                                      decimalPlaces="0" />
+                                      decimalPlaces="0"
+                                      groupingUsed="false" />
 
                         <p:outputLabel value="Month:" for="month" />
-                        <p:inputNumber id="month" value="#{fuelPriceController.selected.month}"
-                                      decimalPlaces="0"
-                                      minValue="1"
-                                      maxValue="12" />
+                        <p:selectOneMenu id="month" value="#{fuelPriceController.selected.month}">
+                            <f:selectItem itemLabel="-- Select Month --" itemValue="#{null}" />
+                            <f:selectItem itemLabel="January" itemValue="1" />
+                            <f:selectItem itemLabel="February" itemValue="2" />
+                            <f:selectItem itemLabel="March" itemValue="3" />
+                            <f:selectItem itemLabel="April" itemValue="4" />
+                            <f:selectItem itemLabel="May" itemValue="5" />
+                            <f:selectItem itemLabel="June" itemValue="6" />
+                            <f:selectItem itemLabel="July" itemValue="7" />
+                            <f:selectItem itemLabel="August" itemValue="8" />
+                            <f:selectItem itemLabel="September" itemValue="9" />
+                            <f:selectItem itemLabel="October" itemValue="10" />
+                            <f:selectItem itemLabel="November" itemValue="11" />
+                            <f:selectItem itemLabel="December" itemValue="12" />
+                        </p:selectOneMenu>
 
                         <p:outputLabel value="Name/Description:" for="name" />
                         <p:inputText id="name" value="#{fuelPriceController.selected.name}" />

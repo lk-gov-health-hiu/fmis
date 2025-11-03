@@ -97,6 +97,8 @@ public class FuelRequestAndIssueController implements Serializable {
     private boolean filterByIssuedDate = true; // true = filter by issued date, false = filter by requested date; default is issued date
 
     private Bill fuelPaymentRequestBill;
+    private Bill selectedBill;
+    private List<FuelTransaction> selectedBillTransactions;
 
     private String searchingFuelRequestVehicleNumber;
 
@@ -870,6 +872,35 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/requests/list_to_paid?faces-redirect=true";
     }
 
+    public String navigateToListPaymentBills() {
+        listPaymentBills();
+        return "/requests/list_payment_bills?faces-redirect=true";
+    }
+
+    public String navigateToViewPaymentBill() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return null;
+        }
+        loadBillTransactions();
+        return "/requests/view_payment_bill?faces-redirect=true";
+    }
+
+    public String navigateToListBillsToAcceptAtCpc() {
+        listBillsToAcceptAtCpc();
+        return "/requests/list_bills_to_accept_at_cpc?faces-redirect=true";
+    }
+
+    public String navigateToListBillsAcceptedByCpc() {
+        listBillsAcceptedByCpc();
+        return "/requests/list_bills_accepted_by_cpc?faces-redirect=true";
+    }
+
+    public String navigateToListBillsRejectedByCpc() {
+        listBillsRejectedByCpc();
+        return "/requests/list_bills_rejected_by_cpc?faces-redirect=true";
+    }
+
     public String navigateToCreateNewDeleteRequest() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Select a transaction");
@@ -1044,11 +1075,86 @@ public class FuelRequestAndIssueController implements Serializable {
         bills = tmpBills;
     }
 
+    public void listBillsToAcceptAtCpc() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.acceptedByCpc = false "
+                + " AND b.rejectedByCpc = false "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("fromDate", fromDate);
+        params.put("toDate", toDate);
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listBillsAcceptedByCpc() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.acceptedByCpc = true "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("fromDate", fromDate);
+        params.put("toDate", toDate);
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listBillsRejectedByCpc() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.rejectedByCpc = true "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("fromDate", fromDate);
+        params.put("toDate", toDate);
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
     public void listInstitutionRequests() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null, null, null, fuelTransactionType);
     }
 
     boolean paymentRequestStarted = false;
+
+    public String navigateToReviewPaymentRequest() {
+        // Automatically select all transactions from the list
+        if (transactions == null || transactions.isEmpty()) {
+            JsfUtil.addErrorMessage("No transactions available to review");
+            return null;
+        }
+
+        // Auto-select all listed transactions
+        selectedTransactions = new ArrayList<>(transactions);
+        Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
+        return "/requests/review_payment?faces-redirect=true";
+    }
+
+    public void removeTransactionFromSelection(FuelTransaction transaction) {
+        if (selectedTransactions != null && transaction != null) {
+            selectedTransactions.remove(transaction);
+            JsfUtil.addSuccessMessage("Transaction removed from selection");
+        }
+    }
 
     public String makePaymentRequest() {
         if (paymentRequestStarted) {
@@ -1187,6 +1293,23 @@ public class FuelRequestAndIssueController implements Serializable {
                         null, // txTypes
                         null // type
                 );
+    }
+
+    public void loadBillTransactions() {
+        if (selectedBill == null) {
+            selectedBillTransactions = new ArrayList<>();
+            return;
+        }
+
+        String jpql = "SELECT ft FROM FuelTransaction ft "
+                + "WHERE ft.paymentBill = :bill "
+                + "AND ft.retired = false "
+                + "ORDER BY ft.requestedDate ASC";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("bill", selectedBill);
+
+        selectedBillTransactions = fuelTransactionFacade.findByJpql(jpql, params);
     }
 
     public void listPendingPaymentRequests() {
@@ -1620,6 +1743,22 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setFuelPaymentRequestBill(Bill fuelPaymentRequestBill) {
         this.fuelPaymentRequestBill = fuelPaymentRequestBill;
+    }
+
+    public Bill getSelectedBill() {
+        return selectedBill;
+    }
+
+    public void setSelectedBill(Bill selectedBill) {
+        this.selectedBill = selectedBill;
+    }
+
+    public List<FuelTransaction> getSelectedBillTransactions() {
+        return selectedBillTransactions;
+    }
+
+    public void setSelectedBillTransactions(List<FuelTransaction> selectedBillTransactions) {
+        this.selectedBillTransactions = selectedBillTransactions;
     }
 
     public List<Bill> getBills() {
