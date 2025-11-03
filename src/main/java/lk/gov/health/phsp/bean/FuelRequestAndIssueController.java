@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.persistence.TemporalType;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.entity.Bill;
+import lk.gov.health.phsp.entity.BillItem;
 import lk.gov.health.phsp.entity.DataAlterationRequest;
 import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
@@ -32,11 +33,13 @@ import lk.gov.health.phsp.entity.WebUser;
 import lk.gov.health.phsp.enums.DataAlterationRequestType;
 import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.facade.BillFacade;
+import lk.gov.health.phsp.facade.BillItemFacade;
 import lk.gov.health.phsp.facade.DataAlterationRequestFacade;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
 import lk.gov.health.phsp.facade.InstitutionFacade;
 import lk.gov.health.phsp.facade.VehicleFacade;
 import lk.gov.health.phsp.facade.WebUserFacade;
+import lk.gov.health.phsp.pojcs.BillItemMigrationResults;
 import org.primefaces.event.CaptureEvent;
 
 @Named
@@ -57,6 +60,8 @@ public class FuelRequestAndIssueController implements Serializable {
     DataAlterationRequestFacade dataAlterationRequestFacade;
     @EJB
     BillFacade billFacade;
+    @EJB
+    BillItemFacade billItemFacade;
 
     @Inject
     private WebUserController webUserController;
@@ -99,6 +104,9 @@ public class FuelRequestAndIssueController implements Serializable {
     private Bill fuelPaymentRequestBill;
     private Bill selectedBill;
     private List<FuelTransaction> selectedBillTransactions;
+    private BillItemMigrationResults migrationResults;
+    private String billRejectionComment;
+    private Map<Long, String> billItemComments; // Map of transaction ID to comment
 
     private String searchingFuelRequestVehicleNumber;
 
@@ -901,6 +909,23 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/requests/list_bills_rejected_by_cpc?faces-redirect=true";
     }
 
+    public String navigateToCpcBillAction() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return null;
+        }
+        loadBillTransactions();
+        // Clear rejection comment fields
+        billRejectionComment = null;
+        billItemComments = new HashMap<>();
+        return "/requests/cpc_bill_action?faces-redirect=true";
+    }
+
+    public String navigateToMigrateBillItems() {
+        migrationResults = null; // Clear previous results
+        return "/admin/migrate_bill_items?faces-redirect=true";
+    }
+
     public String navigateToCreateNewDeleteRequest() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Select a transaction");
@@ -1130,6 +1155,161 @@ public class FuelRequestAndIssueController implements Serializable {
         bills = tmpBills;
     }
 
+    public String acceptBillAtCpc() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return null;
+        }
+
+        // Mark bill as accepted
+        selectedBill.setAcceptedByCpc(true);
+        selectedBill.setAcceptedByCpcUser(webUserController.getLoggedUser());
+        selectedBill.setAcceptedByCpcAt(new Date());
+
+        // Save the bill
+        billFacade.edit(selectedBill);
+
+        JsfUtil.addSuccessMessage("Payment bill accepted successfully");
+
+        // Navigate back to the pending bills list
+        return navigateToListBillsToAcceptAtCpc();
+    }
+
+    public String rejectBillAtCpc() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return null;
+        }
+
+        // Validate: Rejection comment is mandatory
+        if (billRejectionComment == null || billRejectionComment.trim().isEmpty()) {
+            JsfUtil.addErrorMessage("Rejection comment is mandatory. Please provide a reason for rejecting this bill.");
+            return null;
+        }
+
+        // Mark bill as rejected
+        selectedBill.setRejectedByCpc(true);
+        selectedBill.setRejectedByCpcUser(webUserController.getLoggedUser());
+        selectedBill.setRejectedByCpcAt(new Date());
+        selectedBill.setRejectionComment(billRejectionComment.trim());
+
+        // Get all BillItems for this bill
+        String billItemsJpql = "SELECT bi FROM BillItem bi "
+                + "WHERE bi.bill = :bill "
+                + "AND bi.retired = false";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("bill", selectedBill);
+
+        List<BillItem> billItems = billItemFacade.findByJpql(billItemsJpql, params);
+
+        // Save bill item comments and reverse transactions
+        for (BillItem billItem : billItems) {
+            FuelTransaction ft = billItem.getFuelTransaction();
+            if (ft != null && !ft.isRetired()) {
+                // Save bill item comment if provided
+                if (billItemComments != null && billItemComments.containsKey(ft.getId())) {
+                    String comment = billItemComments.get(ft.getId());
+                    if (comment != null && !comment.trim().isEmpty()) {
+                        billItem.setComment(comment.trim());
+                        billItemFacade.edit(billItem);
+                    }
+                }
+
+                // Reverse the transaction - clear paymentBill so it can be resubmitted
+                ft.setSubmittedToPayment(false);
+                ft.setSubmittedToPaymentAt(null);
+                ft.setSubmittedToPaymentBy(null);
+                ft.setPaymentBill(null);  // Clear so transaction can be resubmitted to a new bill
+                fuelTransactionFacade.edit(ft);
+            }
+        }
+
+        // Save the bill
+        billFacade.edit(selectedBill);
+
+        JsfUtil.addSuccessMessage("Payment bill rejected and all transactions reversed successfully");
+
+        // Navigate back to the pending bills list
+        return navigateToListBillsToAcceptAtCpc();
+    }
+
+    public String migrateBillItems() {
+        migrationResults = new BillItemMigrationResults();
+        migrationResults.setStartTime(new Date());
+
+        try {
+            // Get all bills
+            String jpql = "SELECT b FROM Bill b WHERE b.retired = false";
+            List<Bill> allBills = billFacade.findByJpql(jpql);
+
+            for (Bill bill : allBills) {
+                migrationResults.setBillsProcessed(migrationResults.getBillsProcessed() + 1);
+
+                try {
+                    // Check if this bill already has BillItems
+                    String checkJpql = "SELECT bi FROM BillItem bi WHERE bi.bill = :bill AND bi.retired = false";
+                    Map<String, Object> checkParams = new HashMap<>();
+                    checkParams.put("bill", bill);
+                    List<BillItem> existingItems = billItemFacade.findByJpql(checkJpql, checkParams);
+
+                    if (existingItems != null && !existingItems.isEmpty()) {
+                        // Bill already has items, skip
+                        migrationResults.setBillsSkipped(migrationResults.getBillsSkipped() + 1);
+                        continue;
+                    }
+
+                    // Find all transactions that reference this bill
+                    String transJpql = "SELECT ft FROM FuelTransaction ft "
+                            + "WHERE ft.paymentBill = :bill "
+                            + "AND ft.retired = false";
+                    Map<String, Object> transParams = new HashMap<>();
+                    transParams.put("bill", bill);
+                    List<FuelTransaction> transactions = fuelTransactionFacade.findByJpql(transJpql, transParams);
+
+                    if (transactions == null || transactions.isEmpty()) {
+                        // No transactions found, skip
+                        migrationResults.setBillsSkipped(migrationResults.getBillsSkipped() + 1);
+                        continue;
+                    }
+
+                    // Create BillItems for each transaction
+                    for (FuelTransaction ft : transactions) {
+                        BillItem billItem = new BillItem();
+                        billItem.setBill(bill);
+                        billItem.setFuelTransaction(ft);
+                        billItem.setCreatedAt(new Date());
+                        billItem.setCreatedBy(webUserController.getLoggedUser());
+                        billItem.setRetired(false);
+                        billItemFacade.create(billItem);
+
+                        migrationResults.setBillItemsCreated(migrationResults.getBillItemsCreated() + 1);
+                    }
+
+                    migrationResults.setBillsMigrated(migrationResults.getBillsMigrated() + 1);
+
+                } catch (Exception e) {
+                    String error = "Error migrating bill " + bill.getBillNo() + ": " + e.getMessage();
+                    migrationResults.addError(error);
+                    Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, error, e);
+                }
+            }
+
+            migrationResults.setEndTime(new Date());
+            JsfUtil.addSuccessMessage("Migration completed. Bills migrated: " + migrationResults.getBillsMigrated()
+                    + ", BillItems created: " + migrationResults.getBillItemsCreated());
+
+        } catch (Exception e) {
+            migrationResults.setEndTime(new Date());
+            String error = "Fatal error during migration: " + e.getMessage();
+            migrationResults.addError(error);
+            JsfUtil.addErrorMessage(error);
+            Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, error, e);
+        }
+
+        return null; // Stay on the same page to show results
+    }
+
     public void listInstitutionRequests() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null, null, null, fuelTransactionType);
     }
@@ -1137,6 +1317,22 @@ public class FuelRequestAndIssueController implements Serializable {
     boolean paymentRequestStarted = false;
 
     public String navigateToReviewPaymentRequest() {
+        // Validate that from date and to date are in the same month
+        if (fromDate != null && toDate != null) {
+            java.util.Calendar fromCal = java.util.Calendar.getInstance();
+            fromCal.setTime(fromDate);
+
+            java.util.Calendar toCal = java.util.Calendar.getInstance();
+            toCal.setTime(toDate);
+
+            // Check if month and year are the same
+            if (fromCal.get(java.util.Calendar.MONTH) != toCal.get(java.util.Calendar.MONTH) ||
+                fromCal.get(java.util.Calendar.YEAR) != toCal.get(java.util.Calendar.YEAR)) {
+                JsfUtil.addErrorMessage("From Date and To Date must be in the same month");
+                return null;
+            }
+        }
+
         // Automatically select all transactions from the list
         if (transactions == null || transactions.isEmpty()) {
             JsfUtil.addErrorMessage("No transactions available to review");
@@ -1223,6 +1419,15 @@ public class FuelRequestAndIssueController implements Serializable {
                 qty += sft.getIssuedQuantity();
             }
             fuelTransactionFacade.edit(sft);
+
+            // Create BillItem to maintain bill-transaction relationship
+            BillItem billItem = new BillItem();
+            billItem.setBill(fuelPaymentRequestBill);
+            billItem.setFuelTransaction(sft);
+            billItem.setCreatedAt(new Date());
+            billItem.setCreatedBy(webUserController.getLoggedUser());
+            billItem.setRetired(false);
+            billItemFacade.create(billItem);
         }
 
         fuelPaymentRequestBill.setTotalQty(qty);
@@ -1301,15 +1506,45 @@ public class FuelRequestAndIssueController implements Serializable {
             return;
         }
 
-        String jpql = "SELECT ft FROM FuelTransaction ft "
-                + "WHERE ft.paymentBill = :bill "
-                + "AND ft.retired = false "
-                + "ORDER BY ft.requestedDate ASC";
+        // Query via BillItems to preserve history even if bill is rejected and paymentBill is cleared
+        String jpql = "SELECT bi.fuelTransaction FROM BillItem bi "
+                + "WHERE bi.bill = :bill "
+                + "AND bi.retired = false "
+                + "AND bi.fuelTransaction.retired = false "
+                + "ORDER BY bi.fuelTransaction.requestedDate ASC";
 
         Map<String, Object> params = new HashMap<>();
         params.put("bill", selectedBill);
 
         selectedBillTransactions = fuelTransactionFacade.findByJpql(jpql, params);
+    }
+
+    public String getBillItemComment(Long transactionId) {
+        if (selectedBill == null || transactionId == null) {
+            return "";
+        }
+
+        String jpql = "SELECT bi FROM BillItem bi "
+                + "WHERE bi.bill = :bill "
+                + "AND bi.fuelTransaction.id = :transactionId "
+                + "AND bi.retired = false";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("bill", selectedBill);
+        params.put("transactionId", transactionId);
+
+        try {
+            List<BillItem> results = billItemFacade.findByJpql(jpql, params);
+            if (results != null && !results.isEmpty()) {
+                BillItem billItem = results.get(0);
+                if (billItem != null && billItem.getComment() != null) {
+                    return billItem.getComment();
+                }
+            }
+        } catch (Exception e) {
+            // Ignore errors, just return empty
+        }
+        return "";
     }
 
     public void listPendingPaymentRequests() {
@@ -1767,6 +2002,33 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setBills(List<Bill> bills) {
         this.bills = bills;
+    }
+
+    public BillItemMigrationResults getMigrationResults() {
+        return migrationResults;
+    }
+
+    public void setMigrationResults(BillItemMigrationResults migrationResults) {
+        this.migrationResults = migrationResults;
+    }
+
+    public String getBillRejectionComment() {
+        return billRejectionComment;
+    }
+
+    public void setBillRejectionComment(String billRejectionComment) {
+        this.billRejectionComment = billRejectionComment;
+    }
+
+    public Map<Long, String> getBillItemComments() {
+        if (billItemComments == null) {
+            billItemComments = new HashMap<>();
+        }
+        return billItemComments;
+    }
+
+    public void setBillItemComments(Map<Long, String> billItemComments) {
+        this.billItemComments = billItemComments;
     }
 
     public Institution getFuelStation() {

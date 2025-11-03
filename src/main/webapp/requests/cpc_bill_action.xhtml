@@ -11,7 +11,7 @@
         <ui:composition template="./../template.xhtml">
 
             <ui:define name="title">
-                View Payment Bill
+                CPC Bill Review - Accept or Reject
             </ui:define>
 
             <ui:define name="content">
@@ -20,12 +20,12 @@
 
                         <div class="card mb-3" >
                             <div class="card-header bg-primary text-white" >
-                                <h2><h:outputText value="Payment Bill Details"></h:outputText></h2>
+                                <h2><h:outputText value="CPC Bill Review - Accept or Reject Payment"></h:outputText></h2>
                             </div>
                             <div class="card-body" >
                                 <p:commandButton
-                                    value="Back to Bills List"
-                                    action="#{fuelRequestAndIssueController.navigateToListPaymentBills()}"
+                                    value="Back to Pending Bills"
+                                    action="#{fuelRequestAndIssueController.navigateToListBillsToAcceptAtCpc()}"
                                     icon="pi pi-arrow-left"
                                     ajax="false"
                                     class="ui-button-secondary mb-3" />
@@ -39,6 +39,58 @@
                                 </h:panelGroup>
 
                                 <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill != null}">
+
+                                    <!-- Action Buttons -->
+                                    <div class="card mb-3">
+                                        <div class="card-header bg-warning text-white">
+                                            <h4>CPC Action Required</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="lead">Please review the bill details below and take appropriate action.</p>
+
+                                            <!-- Rejection Comment Section -->
+                                            <div class="card mt-3 mb-3" style="border: 2px solid #dc3545;">
+                                                <div class="card-header bg-danger text-white">
+                                                    <h5><i class="pi pi-exclamation-triangle"></i> Rejection Comments (Required if Rejecting)</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p><strong>Note:</strong> If you are rejecting this bill, you MUST provide a reason in the field below. This is mandatory.</p>
+                                                    <h:panelGrid columns="1" class="w-100">
+                                                        <h:outputLabel value="Bill-Level Rejection Comment: *" styleClass="font-weight-bold text-danger"/>
+                                                        <p:inputTextarea
+                                                            id="billRejectionComment"
+                                                            value="#{fuelRequestAndIssueController.billRejectionComment}"
+                                                            rows="4"
+                                                            cols="80"
+                                                            maxlength="4000"
+                                                            placeholder="Enter the reason for rejecting this bill (mandatory if rejecting)..."
+                                                            style="width: 100%;" />
+                                                    </h:panelGrid>
+                                                </div>
+                                            </div>
+
+                                            <div class="text-center mt-3">
+                                                <p:commandButton
+                                                    value="Accept Payment"
+                                                    action="#{fuelRequestAndIssueController.acceptBillAtCpc()}"
+                                                    icon="pi pi-check"
+                                                    ajax="false"
+                                                    styleClass="ui-button-success m-2"
+                                                    style="font-size: 1.2em; padding: 10px 30px;"
+                                                    onclick="if (!confirm('Are you sure you want to ACCEPT this payment bill? This action will mark the bill as accepted by CPC.')) return false;" />
+
+                                                <p:commandButton
+                                                    value="Reject Payment"
+                                                    action="#{fuelRequestAndIssueController.rejectBillAtCpc()}"
+                                                    icon="pi pi-times"
+                                                    ajax="false"
+                                                    styleClass="ui-button-danger m-2"
+                                                    style="font-size: 1.2em; padding: 10px 30px;"
+                                                    onclick="if (!confirm('Are you sure you want to REJECT this payment bill? This action will REVERSE all transactions in this bill and cannot be undone!')) return false;" />
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <!-- Bill Header Information -->
                                     <div class="card mb-3">
                                         <div class="card-header bg-info text-white">
@@ -86,71 +138,6 @@
                                                     </p:panelGrid>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- CPC Acceptance/Rejection Status -->
-                                    <div class="card mb-3">
-                                        <div class="card-header text-white"
-                                             style="background-color: #{fuelRequestAndIssueController.selectedBill.acceptedByCpc ? '#28a745' : (fuelRequestAndIssueController.selectedBill.rejectedByCpc ? '#dc3545' : '#ffc107')}">
-                                            <h4>CPC Payment Status</h4>
-                                        </div>
-                                        <div class="card-body">
-                                            <!-- Accepted Status -->
-                                            <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill.acceptedByCpc}">
-                                                <div class="alert alert-success">
-                                                    <h5><i class="pi pi-check-circle"></i> Payment Accepted by CPC</h5>
-                                                    <div class="row mt-3">
-                                                        <div class="col-md-6">
-                                                            <p:panelGrid columns="2" class="w-100">
-                                                                <h:outputLabel value="Accepted By:" styleClass="font-weight-bold"/>
-                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.acceptedByCpcUser.name}" />
-
-                                                                <h:outputLabel value="Accepted At:" styleClass="font-weight-bold"/>
-                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.acceptedByCpcAt}">
-                                                                    <f:convertDateTime pattern="dd MMMM yyyy HH:mm:ss" />
-                                                                </h:outputText>
-                                                            </p:panelGrid>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </h:panelGroup>
-
-                                            <!-- Rejected Status -->
-                                            <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill.rejectedByCpc}">
-                                                <div class="alert alert-danger">
-                                                    <h5><i class="pi pi-times-circle"></i> Payment Rejected by CPC</h5>
-                                                    <div class="row mt-3">
-                                                        <div class="col-md-6">
-                                                            <p:panelGrid columns="2" class="w-100">
-                                                                <h:outputLabel value="Rejected By:" styleClass="font-weight-bold"/>
-                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.rejectedByCpcUser.name}" />
-
-                                                                <h:outputLabel value="Rejected At:" styleClass="font-weight-bold"/>
-                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.rejectedByCpcAt}">
-                                                                    <f:convertDateTime pattern="dd MMMM yyyy HH:mm:ss" />
-                                                                </h:outputText>
-                                                            </p:panelGrid>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mt-3">
-                                                        <h:outputLabel value="Rejection Reason:" styleClass="font-weight-bold text-danger"/>
-                                                        <div class="card mt-2" style="border: 2px solid #dc3545;">
-                                                            <div class="card-body">
-                                                                <p style="white-space: pre-wrap;">#{fuelRequestAndIssueController.selectedBill.rejectionComment}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </h:panelGroup>
-
-                                            <!-- Pending Status -->
-                                            <h:panelGroup rendered="#{!fuelRequestAndIssueController.selectedBill.acceptedByCpc and !fuelRequestAndIssueController.selectedBill.rejectedByCpc}">
-                                                <div class="alert alert-warning">
-                                                    <h5><i class="pi pi-clock"></i> Pending CPC Review</h5>
-                                                    <p>This payment bill is awaiting review and action by CPC.</p>
-                                                </div>
-                                            </h:panelGroup>
                                         </div>
                                     </div>
 
@@ -238,14 +225,14 @@
                                                     </h:outputText>
                                                 </p:column>
 
-                                                <p:column headerText="Item Comment"
-                                                          rendered="#{fuelRequestAndIssueController.selectedBill.rejectedByCpc}">
-                                                    <h:outputText value="#{fuelRequestAndIssueController.getBillItemComment(transaction.id)}"
-                                                                  rendered="#{fuelRequestAndIssueController.getBillItemComment(transaction.id) ne ''}"
-                                                                  style="white-space: pre-wrap;" />
-                                                    <h:outputText value="No comment"
-                                                                  rendered="#{fuelRequestAndIssueController.getBillItemComment(transaction.id) eq ''}"
-                                                                  style="font-style: italic; color: #999;" />
+                                                <p:column headerText="Item Comment (Optional)" width="200">
+                                                    <p:inputTextarea
+                                                        value="#{fuelRequestAndIssueController.billItemComments[transaction.id]}"
+                                                        rows="2"
+                                                        cols="30"
+                                                        maxlength="1000"
+                                                        placeholder="Optional comment for this item..."
+                                                        style="width: 100%;" />
                                                 </p:column>
 
                                             </p:dataTable>
@@ -261,6 +248,33 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- Repeat Action Buttons at Bottom -->
+                                    <div class="card mt-3">
+                                        <div class="card-body text-center">
+                                            <p class="lead">Review complete? Take your decision:</p>
+                                            <div class="mt-3">
+                                                <p:commandButton
+                                                    value="Accept Payment"
+                                                    action="#{fuelRequestAndIssueController.acceptBillAtCpc()}"
+                                                    icon="pi pi-check"
+                                                    ajax="false"
+                                                    styleClass="ui-button-success m-2"
+                                                    style="font-size: 1.2em; padding: 10px 30px;"
+                                                    onclick="if (!confirm('Are you sure you want to ACCEPT this payment bill? This action will mark the bill as accepted by CPC.')) return false;" />
+
+                                                <p:commandButton
+                                                    value="Reject Payment"
+                                                    action="#{fuelRequestAndIssueController.rejectBillAtCpc()}"
+                                                    icon="pi pi-times"
+                                                    ajax="false"
+                                                    styleClass="ui-button-danger m-2"
+                                                    style="font-size: 1.2em; padding: 10px 30px;"
+                                                    onclick="if (!confirm('Are you sure you want to REJECT this payment bill? This action will REVERSE all transactions in this bill and cannot be undone!')) return false;" />
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </h:panelGroup>
 
                             </div>

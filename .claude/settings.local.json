@@ -6,7 +6,8 @@
       "Bash(git add:*)",
       "Bash(git log:*)",
       "Bash(dir:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(ls \"D:\\Dev\\fmis\\src\\main\\webapp\\admin\"\" 2>&1 || ls \"D:Devfmissrcmainwebapp \")"
     ],
     "deny": [],
     "ask": []
