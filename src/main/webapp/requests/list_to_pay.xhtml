@@ -25,8 +25,8 @@
                             <div class="card-body" >
 
                                 <div class="row" >
-                                    <div class="col-3 p-2" >
-                                        <h:panelGrid columns="2" >
+                                    <div class="col-2 p-2" >
+                                        <h:panelGrid columns="2" class="w-100" >
                                             <label for="fromDate">From Date</label>
                                             <p:calendar
                                                 id="fromDate"
@@ -43,7 +43,7 @@
                                                 pattern="dd MMMM yyyy"
                                                 class="w-100 m-1" />
                                         </h:panelGrid>
-                                        <h:panelGrid columns="1" >
+                                        <h:panelGrid columns="1" class="w-100" >
                                             <p:commandButton value="List Requests"
                                                              action="#{fuelRequestAndIssueController.listInstitutionRequestsToPay()}"
                                                              icon="pi pi-list" 
@@ -53,15 +53,9 @@
 
 
                                         </h:panelGrid>
-
                                         <p:messages ></p:messages>
-
-
-
                                     </div>
-
-                                    <div class="col-9 p-2" >
-
+                                    <div class="col-10 p-2" >
                                         <p:commandButton 
                                             value="Make Payment Request"
                                             action="#{fuelRequestAndIssueController.makePaymentRequest()}"
