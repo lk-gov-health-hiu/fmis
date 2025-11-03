@@ -1301,6 +1301,7 @@ public class FuelRequestAndIssueController implements Serializable {
             j += " AND ft.transactionType = :ftxs";
             params.put("ftxs", type);
         }
+         j += " order by ft.requestReferenceNumber ";
         List<FuelTransaction> fuelTransactions = getFacade().findByJpql(j, params);
         return fuelTransactions;
     }
