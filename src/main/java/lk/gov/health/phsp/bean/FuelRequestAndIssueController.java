@@ -1395,6 +1395,95 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     /**
+     * Generates a unique monthly number for bills based on the month, fromInstitution, and toInstitution.
+     * Format: YYYYMM-NNN where NNN is a 3-digit sequential number
+     * Example: 202511-001, 202511-002, etc.
+     *
+     * @param fromInstitution The institution making the payment request
+     * @param toInstitution The institution receiving the payment request
+     * @param billDate The date of the bill (used to extract month and year)
+     * @return A unique monthly number
+     */
+    private String generateMonthlyNumber(Institution fromInstitution, Institution toInstitution, Date billDate) {
+        if (fromInstitution == null || toInstitution == null || billDate == null) {
+            throw new IllegalArgumentException("fromInstitution, toInstitution, and billDate cannot be null");
+        }
+
+        // Extract year and month from bill date
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTime(billDate);
+        int year = cal.get(java.util.Calendar.YEAR);
+        int month = cal.get(java.util.Calendar.MONTH) + 1; // Calendar.MONTH is 0-based
+
+        // Create month prefix (YYYYMM format)
+        String monthPrefix = String.format("%04d%02d", year, month);
+
+        // Calculate start and end of the month for the query
+        cal.set(java.util.Calendar.DAY_OF_MONTH, 1);
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        cal.set(java.util.Calendar.MINUTE, 0);
+        cal.set(java.util.Calendar.SECOND, 0);
+        cal.set(java.util.Calendar.MILLISECOND, 0);
+        Date startOfMonth = cal.getTime();
+
+        cal.set(java.util.Calendar.DAY_OF_MONTH, cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH));
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 23);
+        cal.set(java.util.Calendar.MINUTE, 59);
+        cal.set(java.util.Calendar.SECOND, 59);
+        cal.set(java.util.Calendar.MILLISECOND, 999);
+        Date endOfMonth = cal.getTime();
+
+        // Query to find the last bill for this month with this institution combination
+        String jpql = "SELECT b FROM Bill b "
+                + "WHERE b.fromInstitution = :fromInstitution "
+                + "AND b.toInstitution = :toInstitution "
+                + "AND b.billDate BETWEEN :startOfMonth AND :endOfMonth "
+                + "AND b.retired = false "
+                + "AND b.monthlyNumber LIKE :prefix "
+                + "ORDER BY b.id DESC";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("fromInstitution", fromInstitution);
+        params.put("toInstitution", toInstitution);
+        params.put("startOfMonth", startOfMonth);
+        params.put("endOfMonth", endOfMonth);
+        params.put("prefix", monthPrefix + "%");
+
+        List<Bill> existingBills = billFacade.findByJpql(jpql, params, 1);
+
+        int nextSequentialNumber = 1;
+
+        if (existingBills != null && !existingBills.isEmpty()) {
+            String lastMonthlyNumber = existingBills.get(0).getMonthlyNumber();
+
+            if (lastMonthlyNumber != null) {
+                // Extract the sequential number from the last monthly number
+                // Format: YYYYMM-NNN (where NNN is the sequential number)
+                try {
+                    String[] parts = lastMonthlyNumber.split("-");
+                    if (parts.length == 2) {
+                        int lastNumber = Integer.parseInt(parts[1]);
+                        nextSequentialNumber = lastNumber + 1;
+                    }
+                } catch (NumberFormatException e) {
+                    // If parsing fails, start from 1
+                    Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                        .log(Level.WARNING, "Could not parse sequential number from monthly number: " + lastMonthlyNumber, e);
+                    nextSequentialNumber = 1;
+                }
+            }
+        }
+
+        // Format the sequential number with leading zeros (3 digits)
+        String sequentialPart = String.format("%03d", nextSequentialNumber);
+
+        // Generate the final monthly number
+        String monthlyNumber = monthPrefix + "-" + sequentialPart;
+
+        return monthlyNumber;
+    }
+
+    /**
      * Generates a unique bill number based on billType, fromInstitution, and toInstitution.
      * Format: [First 2 letters of billType][fromInstitution code][toInstitution code][sequential number]
      * Example: PAHSP001DEL001-0001
@@ -1543,6 +1632,22 @@ public class FuelRequestAndIssueController implements Serializable {
             Logger.getLogger(FuelRequestAndIssueController.class.getName())
                 .log(Level.SEVERE, "Error generating bill number", e);
             JsfUtil.addErrorMessage("Error generating bill number: " + e.getMessage());
+            paymentRequestStarted = false;
+            return null;
+        }
+
+        // Generate and set monthly number
+        try {
+            String monthlyNumber = generateMonthlyNumber(
+                hospital,
+                fuelStation,
+                fuelPaymentRequestBill.getBillDate()
+            );
+            fuelPaymentRequestBill.setMonthlyNumber(monthlyNumber);
+        } catch (Exception e) {
+            Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                .log(Level.SEVERE, "Error generating monthly number", e);
+            JsfUtil.addErrorMessage("Error generating monthly number: " + e.getMessage());
             paymentRequestStarted = false;
             return null;
         }
