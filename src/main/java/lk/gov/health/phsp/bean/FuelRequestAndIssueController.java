@@ -1654,15 +1654,19 @@ public class FuelRequestAndIssueController implements Serializable {
 
         billFacade.create(fuelPaymentRequestBill);
 
-        double qty = 0.0;
+        double qtyRequested = 0.0;
+        double qtyIssued = 0.0;
 
         for (FuelTransaction sft : selectedTransactions) {
             sft.setSubmittedToPayment(true);
             sft.setSubmittedToPaymentAt(new Date());
             sft.setSubmittedToPaymentBy(webUserController.getLoggedUser());
             sft.setPaymentBill(fuelPaymentRequestBill);
+            if (sft.getRequestQuantity() != null) {
+                qtyRequested += sft.getRequestQuantity();
+            }
             if (sft.getIssuedQuantity() != null) {
-                qty += sft.getIssuedQuantity();
+                qtyIssued += sft.getIssuedQuantity();
             }
             fuelTransactionFacade.edit(sft);
 
@@ -1676,7 +1680,8 @@ public class FuelRequestAndIssueController implements Serializable {
             billItemFacade.create(billItem);
         }
 
-        fuelPaymentRequestBill.setTotalQty(qty);
+        fuelPaymentRequestBill.setTotalQty(qtyRequested);
+        fuelPaymentRequestBill.setTotalIssuedQty(qtyIssued);
         billFacade.edit(fuelPaymentRequestBill);
         paymentRequestStarted = false;
 
@@ -2255,19 +2260,6 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setSelectedBillTransactions(List<FuelTransaction> selectedBillTransactions) {
         this.selectedBillTransactions = selectedBillTransactions;
-    }
-
-    public Double getSelectedBillTotalIssuedQty() {
-        if (selectedBillTransactions == null || selectedBillTransactions.isEmpty()) {
-            return 0.0;
-        }
-        double total = 0.0;
-        for (FuelTransaction transaction : selectedBillTransactions) {
-            if (transaction.isIssued() && transaction.getIssuedQuantity() != null) {
-                total += transaction.getIssuedQuantity();
-            }
-        }
-        return total;
     }
 
     public List<Bill> getBills() {
