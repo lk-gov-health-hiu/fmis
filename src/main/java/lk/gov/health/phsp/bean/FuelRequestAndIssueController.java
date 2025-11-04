@@ -87,6 +87,7 @@ public class FuelRequestAndIssueController implements Serializable {
     private List<Bill> bills;
     private List<FuelTransaction> selectedTransactions = null;
     private FuelTransaction selected;
+    private List<Institution> availableFuelStations;
 
     private FuelTransactionHistory selectedTransactionHistory;
     private List<FuelTransactionHistory> selectedTransactionHistories;
@@ -597,6 +598,38 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Need Issued Date");
             return "";
         }
+
+        // Validation: Check if issue reference number equals request reference number
+        if (selected.getIssueReferenceNumber() != null && selected.getRequestReferenceNumber() != null) {
+            if (selected.getIssueReferenceNumber().trim().equalsIgnoreCase(selected.getRequestReferenceNumber().trim())) {
+                JsfUtil.addErrorMessage("Issue Reference Number cannot be the same as Request Reference Number");
+                return "";
+            }
+        }
+
+        // Validation: Check if issue date is not before request date
+        if (selected.getIssuedDate() != null && selected.getRequestedDate() != null) {
+            // Reset time to 00:00:00 for date-only comparison
+            java.util.Calendar issuedCal = java.util.Calendar.getInstance();
+            issuedCal.setTime(selected.getIssuedDate());
+            issuedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            issuedCal.set(java.util.Calendar.MINUTE, 0);
+            issuedCal.set(java.util.Calendar.SECOND, 0);
+            issuedCal.set(java.util.Calendar.MILLISECOND, 0);
+
+            java.util.Calendar requestedCal = java.util.Calendar.getInstance();
+            requestedCal.setTime(selected.getRequestedDate());
+            requestedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            requestedCal.set(java.util.Calendar.MINUTE, 0);
+            requestedCal.set(java.util.Calendar.SECOND, 0);
+            requestedCal.set(java.util.Calendar.MILLISECOND, 0);
+
+            if (issuedCal.before(requestedCal)) {
+                JsfUtil.addErrorMessage("Issue Date cannot be before Request Date");
+                return "";
+            }
+        }
+
         selected.setIssued(true);
         selected.setIssuedAt(new Date());
         selected.setIssuedUser(webUserController.getLoggedUser());
@@ -1339,6 +1372,15 @@ public class FuelRequestAndIssueController implements Serializable {
             return null;
         }
 
+        // Validate that all transactions have a fuel station
+        for (FuelTransaction ft : transactions) {
+            if (ft.getToInstitution() == null) {
+                JsfUtil.addErrorMessage("All transactions must have a fuel station assigned. Please check transaction for vehicle: "
+                    + (ft.getVehicle() != null ? ft.getVehicle().getVehicleNumber() : "Unknown"));
+                return null;
+            }
+        }
+
         // Auto-select all listed transactions
         selectedTransactions = new ArrayList<>(transactions);
         Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
@@ -1350,6 +1392,88 @@ public class FuelRequestAndIssueController implements Serializable {
             selectedTransactions.remove(transaction);
             JsfUtil.addSuccessMessage("Transaction removed from selection");
         }
+    }
+
+    /**
+     * Generates a unique bill number based on billType, fromInstitution, and toInstitution.
+     * Format: [First 2 letters of billType][fromInstitution code][toInstitution code][sequential number]
+     * Example: PAHSP001DEL001-0001
+     *
+     * @param billType The type of the bill
+     * @param fromInstitution The institution making the payment request
+     * @param toInstitution The institution receiving the payment request
+     * @return A unique bill number
+     */
+    private String generateUniqueBillNumber(String billType, Institution fromInstitution, Institution toInstitution) {
+        if (billType == null || fromInstitution == null || toInstitution == null) {
+            throw new IllegalArgumentException("billType, fromInstitution, and toInstitution cannot be null");
+        }
+
+        if (fromInstitution.getCode() == null || fromInstitution.getCode().trim().isEmpty()) {
+            throw new IllegalArgumentException("fromInstitution must have a valid code");
+        }
+
+        if (toInstitution.getCode() == null || toInstitution.getCode().trim().isEmpty()) {
+            throw new IllegalArgumentException("toInstitution must have a valid code");
+        }
+
+        // Extract first two letters of bill type (convert to uppercase)
+        String billTypePrefix = billType.length() >= 2
+            ? billType.substring(0, 2).toUpperCase()
+            : billType.toUpperCase();
+
+        // Get institution codes (ensure they're uppercase for consistency)
+        String fromCode = fromInstitution.getCode().toUpperCase().trim();
+        String toCode = toInstitution.getCode().toUpperCase().trim();
+
+        // Create the prefix for the bill number
+        String billNumberPrefix = billTypePrefix + fromCode + toCode;
+
+        // Query to find the last bill with this combination
+        String jpql = "SELECT b FROM Bill b "
+                + "WHERE b.billType = :billType "
+                + "AND b.fromInstitution = :fromInstitution "
+                + "AND b.toInstitution = :toInstitution "
+                + "AND b.retired = false "
+                + "AND b.billNo LIKE :prefix "
+                + "ORDER BY b.id DESC";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("billType", billType);
+        params.put("fromInstitution", fromInstitution);
+        params.put("toInstitution", toInstitution);
+        params.put("prefix", billNumberPrefix + "%");
+
+        List<Bill> existingBills = billFacade.findByJpql(jpql, params, 1);
+
+        int nextSequentialNumber = 1;
+
+        if (existingBills != null && !existingBills.isEmpty()) {
+            String lastBillNo = existingBills.get(0).getBillNo();
+
+            // Extract the sequential number from the last bill number
+            // Format: PREFIX-NNNN (where NNNN is the sequential number)
+            try {
+                String[] parts = lastBillNo.split("-");
+                if (parts.length == 2) {
+                    int lastNumber = Integer.parseInt(parts[1]);
+                    nextSequentialNumber = lastNumber + 1;
+                }
+            } catch (NumberFormatException e) {
+                // If parsing fails, start from 1
+                Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                    .log(Level.WARNING, "Could not parse sequential number from bill: " + lastBillNo, e);
+                nextSequentialNumber = 1;
+            }
+        }
+
+        // Format the sequential number with leading zeros (4 digits)
+        String sequentialPart = String.format("%04d", nextSequentialNumber);
+
+        // Generate the final bill number
+        String billNumber = billNumberPrefix + "-" + sequentialPart;
+
+        return billNumber;
     }
 
     public String makePaymentRequest() {
@@ -1406,6 +1530,23 @@ public class FuelRequestAndIssueController implements Serializable {
         fuelPaymentRequestBill.setBillType("Payment Request From Hospital");
         fuelPaymentRequestBill.setFromInstitution(hospital);
         fuelPaymentRequestBill.setToInstitution(fuelStation);
+
+        // Generate and set unique bill number
+        try {
+            String billNumber = generateUniqueBillNumber(
+                fuelPaymentRequestBill.getBillType(),
+                hospital,
+                fuelStation
+            );
+            fuelPaymentRequestBill.setBillNo(billNumber);
+        } catch (Exception e) {
+            Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                .log(Level.SEVERE, "Error generating bill number", e);
+            JsfUtil.addErrorMessage("Error generating bill number: " + e.getMessage());
+            paymentRequestStarted = false;
+            return null;
+        }
+
         billFacade.create(fuelPaymentRequestBill);
 
         double qty = 0.0;
@@ -1469,7 +1610,7 @@ public class FuelRequestAndIssueController implements Serializable {
                 = findFuelTransactions(
                         null, // institution
                         webUserController.getLoggedInstitution(), // fromInstitution
-                        null, // toInstitution
+                        fuelStation, // toInstitution - use the selected fuel station filter
                         null, // vehicles
                         getFromDate(), // fromDateTime
                         getToDate(), // toDateTime
@@ -1480,6 +1621,20 @@ public class FuelRequestAndIssueController implements Serializable {
                         null, // txTypes
                         null // type
                 );
+
+        // Add any additional fuel stations from the search results to the dropdown
+        if (transactions != null && !transactions.isEmpty()) {
+            for (FuelTransaction ft : transactions) {
+                if (ft.getToInstitution() != null) {
+                    if (availableFuelStations == null) {
+                        availableFuelStations = new ArrayList<>();
+                    }
+                    if (!availableFuelStations.contains(ft.getToInstitution())) {
+                        availableFuelStations.add(ft.getToInstitution());
+                    }
+                }
+            }
+        }
     }
 
     public void listInstitutionRequestsPaid() {
@@ -2038,6 +2193,27 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setFuelStation(Institution fuelStation) {
         this.fuelStation = fuelStation;
+    }
+
+    public List<Institution> getAvailableFuelStations() {
+        if (availableFuelStations == null) {
+            availableFuelStations = new ArrayList<>();
+            Institution loggedInstitution = webUserController.getLoggedInstitution();
+            if (loggedInstitution != null) {
+                if (loggedInstitution.getSupplyInstitution() != null) {
+                    availableFuelStations.add(loggedInstitution.getSupplyInstitution());
+                }
+                if (loggedInstitution.getAlternativeSupplyInstitution() != null
+                    && !availableFuelStations.contains(loggedInstitution.getAlternativeSupplyInstitution())) {
+                    availableFuelStations.add(loggedInstitution.getAlternativeSupplyInstitution());
+                }
+            }
+        }
+        return availableFuelStations;
+    }
+
+    public void setAvailableFuelStations(List<Institution> availableFuelStations) {
+        this.availableFuelStations = availableFuelStations;
     }
 
     @FacesConverter(forClass = FuelTransaction.class)

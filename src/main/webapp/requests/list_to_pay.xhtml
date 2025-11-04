@@ -42,6 +42,20 @@
                                                 showButtonPanel="true"
                                                 pattern="dd MMMM yyyy"
                                                 class="w-100 m-1" />
+
+                                            <label for="fuelStation">Fuel Station</label>
+                                            <p:selectOneMenu
+                                                id="fuelStation"
+                                                value="#{fuelRequestAndIssueController.fuelStation}"
+                                                class="w-100 m-1"
+                                                filter="true"
+                                                filterMatchMode="contains">
+                                                <f:selectItem itemLabel="All Fuel Stations" itemValue="#{null}" />
+                                                <f:selectItems value="#{fuelRequestAndIssueController.availableFuelStations}"
+                                                               var="fs"
+                                                               itemLabel="#{fs.name}"
+                                                               itemValue="#{fs}" />
+                                            </p:selectOneMenu>
                                         </h:panelGrid>
                                         <h:panelGrid columns="1" class="w-100" >
                                             <p:commandButton value="List Requests"
