@@ -11,6 +11,7 @@
     <cc:interface>
         <cc:attribute name="bill" required="true"/>
         <cc:attribute name="transactions" required="true"/>
+        <cc:attribute name="totalIssuedQty" required="false" default="0"/>
     </cc:interface>
 
     <cc:implementation>
@@ -179,13 +180,6 @@
 
             <!-- Transactions Table with Serial Numbers -->
             <h3 style="margin-top: 20px; margin-bottom: 10px;">Transaction Details</h3>
-
-            <!-- Calculate Total Issued Quantity -->
-            <c:set var="totalIssuedQty" value="0" />
-            <ui:repeat value="#{cc.attrs.transactions}" var="trans">
-                <c:set var="totalIssuedQty" value="#{totalIssuedQty + (trans.issued ? trans.issuedQuantity : 0)}" />
-            </ui:repeat>
-
             <table class="bill-table">
                 <thead>
                     <tr>

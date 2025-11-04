@@ -2257,6 +2257,19 @@ public class FuelRequestAndIssueController implements Serializable {
         this.selectedBillTransactions = selectedBillTransactions;
     }
 
+    public Double getSelectedBillTotalIssuedQty() {
+        if (selectedBillTransactions == null || selectedBillTransactions.isEmpty()) {
+            return 0.0;
+        }
+        double total = 0.0;
+        for (FuelTransaction transaction : selectedBillTransactions) {
+            if (transaction.isIssued() && transaction.getIssuedQuantity() != null) {
+                total += transaction.getIssuedQuantity();
+            }
+        }
+        return total;
+    }
+
     public List<Bill> getBills() {
         return bills;
     }
