@@ -119,12 +119,6 @@ public class Bill implements Serializable {
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BillItem> billItems;
 
-    @PrePersist
-    private void generateBillNo() {
-        // Generate the bill number based on the institutions
-        this.billNo = fromInstitution.getCode() + "-" + toInstitution.getCode() + "-" + System.currentTimeMillis();
-    }
-
     
     
     

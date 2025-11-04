@@ -1,13 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mvn clean:*)",
       "Bash(mvn compile:*)",
-      "Bash(git add:*)",
-      "Bash(git log:*)",
-      "Bash(dir:*)",
-      "Bash(findstr:*)",
-      "Bash(ls \"D:\\Dev\\fmis\\src\\main\\webapp\\admin\"\" 2>&1 || ls \"D:Devfmissrcmainwebapp \")"
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []
