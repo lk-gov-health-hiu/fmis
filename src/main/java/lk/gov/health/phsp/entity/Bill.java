@@ -93,6 +93,7 @@ public class Bill implements Serializable {
     
     private Double totalQty;
     private Double totalValue;
+    private Double totalIssuedQty;
 
     @ManyToOne
     private WebUser billUser;
@@ -245,6 +246,14 @@ public class Bill implements Serializable {
 
     public void setTotalValue(Double totalValue) {
         this.totalValue = totalValue;
+    }
+
+    public Double getTotalIssuedQty() {
+        return totalIssuedQty;
+    }
+
+    public void setTotalIssuedQty(Double totalIssuedQty) {
+        this.totalIssuedQty = totalIssuedQty;
     }
 
     public WebUser getBillUser() {
