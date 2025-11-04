@@ -116,6 +116,8 @@ public class Bill implements Serializable {
     @Column(length = 4096)
     private String rejectionComment;
 
+    private String monthlyNumber;
+
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BillItem> billItems;
 
@@ -315,6 +317,14 @@ public class Bill implements Serializable {
 
     public void setBillItems(List<BillItem> billItems) {
         this.billItems = billItems;
+    }
+
+    public String getMonthlyNumber() {
+        return monthlyNumber;
+    }
+
+    public void setMonthlyNumber(String monthlyNumber) {
+        this.monthlyNumber = monthlyNumber;
     }
 
 }
