@@ -242,7 +242,7 @@
                                                           rendered="#{fuelRequestAndIssueController.selectedBill.rejectedByCpc}">
                                                     <h:outputText value="#{fuelRequestAndIssueController.getBillItemComment(transaction.id)}"
                                                                   rendered="#{fuelRequestAndIssueController.getBillItemComment(transaction.id) ne ''}"
-                                                                  style="white-space: pre-wrap;" />
+                                                                  style="white-space: pre-wrap; color: #333;" />
                                                     <h:outputText value="No comment"
                                                                   rendered="#{fuelRequestAndIssueController.getBillItemComment(transaction.id) eq ''}"
                                                                   style="font-style: italic; color: #999;" />

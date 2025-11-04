@@ -1552,6 +1552,7 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listInstitutionRequestsToMark() {
+        filterByIssuedDate= false;
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), false, false, false);
     }
 
