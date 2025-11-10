@@ -1063,10 +1063,12 @@ public class FuelRequestAndIssueController implements Serializable {
                 + " FROM Bill b "
                 + " WHERE b.retired = false "
                 + " AND b.fromInstitution IN :institutions "
+                + " AND b.toInstitution IN :fuelStations "
                 + " AND b.billDate BETWEEN :fromDate AND :toDate";
 
         Map<String, Object> params = new HashMap<>();
         params.put("institutions", webUserController.findAutherizedInstitutions());
+        params.put("fuelStations", webUserController.getLoggableInstitutions());
         params.put("fromDate", fromDate); // fromDate should be set beforehand
         params.put("toDate", toDate);     // toDate should be set beforehand
 
