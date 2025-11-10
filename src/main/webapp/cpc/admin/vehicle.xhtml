@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -13,7 +13,7 @@
                 <h:form id="VehicleCreateForm" style="padding-top: 1rem;">
                     <p:messages ></p:messages>
 
-                    <p:panelGrid columns="2" rendered="#{vehicleController.selected != null}" class="w-100">
+                    <p:panelGrid layout="tabular" columns="2" rendered="#{vehicleController.selected != null}" class="w-100">
 
                         <f:facet name="header">
                             <h:outputText value="Vehicle / Generator"/>

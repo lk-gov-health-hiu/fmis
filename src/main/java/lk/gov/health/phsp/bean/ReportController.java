@@ -80,6 +80,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Calendar;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import lk.gov.health.phsp.entity.Bill;
 
 // </editor-fold>   
@@ -171,6 +172,12 @@ public class ReportController implements Serializable {
      * Creates a new instance of ReportController
      */
     public ReportController() {
+    }
+
+    @PostConstruct
+    public void init() {
+        fromDate = CommonController.startOfTheMonth();
+        toDate = new Date();
     }
 
     // </editor-fold> 
@@ -1544,9 +1551,6 @@ public class ReportController implements Serializable {
     }
 
     public Date getFromDate() {
-        if (fromDate == null) {
-            fromDate = CommonController.startOfTheMonth();
-        }
         return fromDate;
     }
 
@@ -1555,9 +1559,6 @@ public class ReportController implements Serializable {
     }
 
     public Date getToDate() {
-        if (toDate == null) {
-            toDate = new Date();
-        }
         return toDate;
     }
 

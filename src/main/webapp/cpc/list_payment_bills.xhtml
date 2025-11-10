@@ -28,20 +28,18 @@
                                     <div class="col-2 p-2" >
                                         <h:panelGrid columns="2" class="w-100" >
                                             <label for="fromDate">From Date</label>
-                                            <p:calendar
-                                                id="fromDate"
-                                                value="#{fuelRequestAndIssueController.fromDate}"
-                                                showButtonPanel="true"
-                                                class="w-100 m-1"
-                                                pattern="dd MMMM yyyy"/>
+                                            <p:datePicker
+                    id="fromDate"
+                    value="#{fuelRequestAndIssueController.fromDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
 
                                             <label for="toDate">To Date</label>
-                                            <p:calendar
-                                                id="toDate"
-                                                value="#{fuelRequestAndIssueController.toDate}"
-                                                showButtonPanel="true"
-                                                pattern="dd MMMM yyyy"
-                                                class="w-100 m-1" />
+                                            <p:datePicker
+                    id="toDate"
+                    value="#{fuelRequestAndIssueController.toDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
                                         </h:panelGrid>
                                         <h:panelGrid columns="1" class="w-100" >
                                             <p:commandButton value="List Bills"

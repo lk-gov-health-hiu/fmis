@@ -139,11 +139,10 @@
                                                         </tr>
                                                         <tr>
                                                             <td><b>Request Created Date &amp; Time :</b></td>
-                                                            <td><p:calendar value="#{reportController.fuelTransaction.requestedDate}"
-                                                                            pattern="dd MMMM yyyy"
-                                                                            required="true"
-                                                                            requiredMessage="Please enter a date"
-                                                                            disabled="#{not reportController.canEditTransaction}" /></td>
+                                                            <td><p:datePicker
+                    value="#{reportController.fuelTransaction.requestedDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>ODO Reading:</b></td>
@@ -214,8 +213,10 @@
                                                             <tr>
                                                                 <td><b>Confirmation Recorded At:</b></td>
                                                                 <td>
-                                                                    <p:calendar value="#{reportController.fuelTransaction.issuedDate}" pattern="dd MM yyyy HH:mm a" disabled="#{not reportController.canEditTransaction}" >
-                                                                    </p:calendar>
+                                                                    <p:datePicker
+                    value="#{reportController.fuelTransaction.issuedDate}"
+                    pattern="dd MM yyyy HH:mm a">
+                </p:datePicker>
                                                                 </td>
                                                             </tr>
                                                             <!-- Other table rows for confirmed details -->

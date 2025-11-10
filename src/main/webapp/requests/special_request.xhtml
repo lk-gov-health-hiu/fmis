@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -19,8 +19,7 @@
                     <h:form >
                         <div class="row justify-content-md-center" >
                             <div class="col-12 col-sm-12 col-md-10 col-lg-8" >
-                                <p:panelGrid
-                                    columns="2"
+                                <p:panelGrid layout="tabular" columns="2"
                                     styleClass="form-panelgrid"
                                     columnClasses="form-label,form-field"
                                     class="w-100">
@@ -32,11 +31,11 @@
                                         value="Date" 
                                         for="calDate">
                                     </p:outputLabel>
-                                    <p:calendar 
-                                        id="calDate"
-                                        pattern="dd MMMM yyyy"
-                                        value="#{fuelRequestAndIssueController.selected.requestedDate}" >
-                                    </p:calendar>
+                                    <p:datePicker
+                    id="calDate"
+                    value="#{fuelRequestAndIssueController.selected.requestedDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
                                     <p:outputLabel 
                                         value="Vehicle" 
                                         for="acVehicle">
@@ -197,7 +196,7 @@
                                     <h:panelGroup id="confirmDialogPanel">
                                         <div class="p-3">
                                             <h5>Please confirm the following details:</h5>
-                                            <p:panelGrid columns="2" styleClass="form-panelgrid" columnClasses="form-label,form-field">
+                                            <p:panelGrid layout="tabular" columns="2" styleClass="form-panelgrid" columnClasses="form-label,form-field">
                                                 <h:outputLabel value="Date:" />
                                                 <h:outputText value="#{fuelRequestAndIssueController.selected.requestedDate}">
                                                     <f:convertDateTime pattern="dd MMMM yyyy" />

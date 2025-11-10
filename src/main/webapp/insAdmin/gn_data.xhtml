@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -11,10 +11,10 @@
             <ui:define name="content">
                 <p:panel header="Select an Area" >
                     <h:form>
-                        <p:panelGrid >
+                        <p:panelGrid layout="tabular" >
                             <p:row >
                                 <p:column colspan="2" >
-                                    <p:panelGrid columns="2" >
+                                    <p:panelGrid layout="tabular" columns="2" >
                                         <p:outputLabel value="Area" ></p:outputLabel>
                                         <p:selectOneMenu id="acPmci"
                                                          value="#{relationshipController.area}">
@@ -38,7 +38,7 @@
                                 </p:column>
                             </p:row>
                         </p:panelGrid>
-                        <p:panelGrid  columns="2" styleClass="alignTop">
+                        <p:panelGrid layout="tabular" columns="2" styleClass="alignTop">
                             <p:column >
                                 <p:dataTable resizableColumns="true" multiViewState="true" resizeMode="expand" id="tbl" value="#{relationshipController.items}" var="gn" >
                                     <p:column >
@@ -76,7 +76,7 @@
                             </p:column>
 
                             <p:column >
-                                <p:panelGrid columns="3" >
+                                <p:panelGrid layout="tabular" columns="3" >
                                     <f:facet name="header" >
                                         <p:outputLabel value="Add Another Data" ></p:outputLabel>
                                     </f:facet>

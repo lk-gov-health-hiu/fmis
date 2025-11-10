@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -12,8 +12,8 @@
 
             <ui:define name="reports">
                 <h:form >
-                    <p:panelGrid columns="3" class="w-100" >
-                        <p:panelGrid columns="2" class="w-100">
+                    <p:panelGrid layout="tabular" columns="3" class="w-100" >
+                        <p:panelGrid layout="tabular" columns="2" class="w-100">
                             <p:outputLabel value="Date Filter Type" >
                             </p:outputLabel>
                             <p:selectOneMenu
@@ -25,24 +25,20 @@
 
                             <p:outputLabel value="From" >
                             </p:outputLabel>
-                            <p:calendar
-                                class="w-100"
-                                inputStyleClass="w-100"
-                                value="#{reportController.fromDate}"
-                                pattern="dd MMMM yyyy">
-                            </p:calendar>
+                            <p:datePicker
+                    value="#{reportController.fromDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
 
                             <p:outputLabel value="To" >
                             </p:outputLabel>
-                            <p:calendar
-                                class="w-100"
-                                inputStyleClass="w-100"
-                                value="#{reportController.toDate}"
-                                pattern="dd MMMM yyyy">
-                            </p:calendar>
+                            <p:datePicker
+                    value="#{reportController.toDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
                         </p:panelGrid>
 
-                        <p:panelGrid columns="2"  class="w-100">
+                        <p:panelGrid layout="tabular" columns="2"  class="w-100">
                             <h:outputLabel value="Transaction Type:" for="transactionType" />
                             <p:selectOneMenu 
                                 id="transactionType"
@@ -88,7 +84,7 @@
                         </p:panelGrid>
 
 
-                        <p:panelGrid columns="2"  class="w-100">
+                        <p:panelGrid layout="tabular" columns="2"  class="w-100">
                             <p:outputLabel value="Requested for Institution" >
                             </p:outputLabel>
                             <p:autoComplete 
@@ -201,15 +197,15 @@
                             <h:outputText value="#{transaction.driverName}" />
                         </p:column>
 
-                        <p:column headerText="Requested Qty" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}" filterMatchMode="numeric">
+                        <p:column headerText="Requested Qty" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}" >
                             <h:outputText value="#{transaction.requestQuantity}" />
                         </p:column>
 
-                        <p:column headerText="Confirmed Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}" filterMatchMode="numeric">
+                        <p:column headerText="Confirmed Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}" >
                             <h:outputText value="#{transaction.issuedQuantity}" />
                         </p:column>
 
-                        <p:column headerText="Confirmed Date" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}" filterMatchMode="numeric">
+                        <p:column headerText="Confirmed Date" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}" >
                             <h:outputText value="#{transaction.issuedDate}" >
                                 <f:convertDateTime pattern="yyyy MMMM dd" ></f:convertDateTime>
                             </h:outputText>

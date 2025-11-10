@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -10,16 +10,22 @@
         <ui:composition template="./index.xhtml">
             <ui:define name="reports">
                 <h:form>
-                    <p:panelGrid columns="3">
-                        <p:panelGrid columns="2">
+                    <p:panelGrid layout="tabular" columns="3">
+                        <p:panelGrid layout="tabular" columns="2">
                             <p:outputLabel value="From" />
-                            <p:calendar value="#{reportController.fromDate}" pattern="dd MMMM yyyy" />
+                            <p:datePicker
+                    value="#{reportController.fromDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
 
                             <p:outputLabel value="To" />
-                            <p:calendar value="#{reportController.toDate}" pattern="dd MMMM yyyy" />
+                            <p:datePicker
+                    value="#{reportController.toDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
                         </p:panelGrid>
 
-                        <p:panelGrid columns="2">
+                        <p:panelGrid layout="tabular" columns="2">
                             <p:outputLabel value="Health Institution" />
                             <p:autoComplete value="#{reportController.fromInstitution}"
                                             completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
@@ -70,7 +76,7 @@
                             </p:commandLink>
                         </p:column>
 
-                        <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" filterMatchMode="numeric">
+                        <p:column headerText="Sum of Issued Qty" sortBy="#{summary.sumOfIssuedQty}" filterBy="#{summary.sumOfIssuedQty}" >
                             <h:outputText value="#{summary.sumOfIssuedQty}" />
                         </p:column>
 

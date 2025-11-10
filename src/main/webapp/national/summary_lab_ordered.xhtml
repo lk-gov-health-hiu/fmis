@@ -19,10 +19,16 @@
                     <h:form >
                         <h:panelGrid columns="2" styleClass="border border-light bg-white"  >
                             <h:outputLabel class="fs-6 fw-bold" value="From" ></h:outputLabel>
-                            <p:calendar value="#{nationalController.fromDate}" pattern="dd MMMM yyyy"></p:calendar><!-- comment -->
+                            <p:datePicker
+                    value="#{nationalController.fromDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker><!-- comment -->
 
                             <h:outputLabel class="fs-6 fw-bold" value="To" ></h:outputLabel>
-                            <p:calendar value="#{nationalController.toDate}" pattern="dd MMMM yyyy"></p:calendar>
+                            <p:datePicker
+                    value="#{nationalController.toDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
 
                             <h:outputLabel class="fs-6 fw-bold" value="Test" ></h:outputLabel>
                             <h:selectOneMenu value="#{nationalController.testType}" class="form-control" >

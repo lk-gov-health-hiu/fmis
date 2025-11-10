@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -13,18 +13,20 @@
             <ui:define name="reports">
                 <h:form >
 
-                    <p:panelGrid columns="2" >
+                    <p:panelGrid layout="tabular" columns="2" >
                         <p:outputLabel value="From" >
                         </p:outputLabel>
-                        <p:calendar value="#{reportController.fromDate}" 
-                                    pattern="dd MMMM yyyy">
-                        </p:calendar>
+                        <p:datePicker
+                    value="#{reportController.fromDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
 
                         <p:outputLabel value="To" >
                         </p:outputLabel>
-                        <p:calendar value="#{reportController.toDate}" 
-                                    pattern="dd MMMM yyyy">
-                        </p:calendar>
+                        <p:datePicker
+                    value="#{reportController.toDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
                         <p:outputLabel value="Fuel Station" >
                         </p:outputLabel>
                         <p:selectOneMenu 
@@ -98,15 +100,15 @@
                             <h:outputText value="#{transaction.driverName}" />
                         </p:column>
 
-                        <p:column headerText="Requested Qty" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}" filterMatchMode="numeric">
+                        <p:column headerText="Requested Qty" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}" >
                             <h:outputText value="#{transaction.requestQuantity}" />
                         </p:column>
 
-                        <p:column headerText="Issued Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}" filterMatchMode="numeric">
+                        <p:column headerText="Issued Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}" >
                             <h:outputText value="#{transaction.issuedQuantity}" />
                         </p:column>
                         
-                        <p:column headerText="Issued Date *" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}" filterMatchMode="numeric">
+                        <p:column headerText="Issued Date *" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}" >
                             <h:outputText value="#{transaction.issuedDate}" >
                                 <f:convertDateTime pattern="yyyy MMMM dd" ></f:convertDateTime>
                             </h:outputText>

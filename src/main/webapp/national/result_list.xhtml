@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -15,20 +15,24 @@
             </ui:define>
 
             <ui:define name="content">
-                <p:panelGrid columns="1" style="width: 100%;" styleClass="alignTop" >
+                <p:panelGrid layout="tabular" columns="1" style="width: 100%;" styleClass="alignTop" >
                     <f:facet name="header" >
                         <p:outputLabel value="Test List" ></p:outputLabel>
                     </f:facet>
 
                     <h:form >
-                        <p:panelGrid columns="2" >
+                        <p:panelGrid layout="tabular" columns="2" >
                             <p:outputLabel value="Ordered From" ></p:outputLabel>
-                            <p:calendar value="#{nationalController.fromDate}"
-                                        pattern="dd MMMM yyyy hh:mm a">
-                            </p:calendar><!-- comment -->
+                            <p:datePicker
+                    value="#{nationalController.fromDate}"
+                    pattern="dd MMMM yyyy hh:mm a">
+                </p:datePicker><!-- comment -->
 
                             <p:outputLabel value="Ordered To" ></p:outputLabel>
-                            <p:calendar value="#{nationalController.toDate}" pattern="dd MMMM yyyy hh:mm a"></p:calendar>
+                            <p:datePicker
+                    value="#{nationalController.toDate}"
+                    pattern="dd MMMM yyyy hh:mm a">
+                </p:datePicker>
 
                             <p:outputLabel value="Ordering Category" ></p:outputLabel>
                             <p:selectOneMenu value="#{nationalController.orderingCategory}" >

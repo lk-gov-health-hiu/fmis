@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -10,20 +10,23 @@
         <ui:composition template="/national/reports_index.xhtml">
             <ui:define name="reports">
 
-                <p:panelGrid columns="1" styleClass="alignTop bg-white w-100 border border-light" >
+                <p:panelGrid layout="tabular" columns="1" styleClass="alignTop bg-white w-100 border border-light" >
                     <f:facet name="header" >
                         <p:outputLabel value="Institution-vice Peformance Report" ></p:outputLabel>
                     </f:facet>
 
                     <h:form id="form" >
                         <div class="container bg-none mt-4 mb-4 w-100 d-flex justify-content-center align-items-center" >
-                            <p:panelGrid columns="2" class="shadow-lg p-3 mb-5 bg-white rounded border border-light">
+                            <p:panelGrid layout="tabular" columns="2" class="shadow-lg p-3 mb-5 bg-white rounded border border-light">
                                 <p:outputLabel class="h6 fw-bold" value="From" ></p:outputLabel>
                                 <p:datePicker value="#{nationalController.fromDate}" 
                                               pattern="dd MMMM yyyy hh:mm">
                                 </p:datePicker>
                                 <p:outputLabel class="h6 fw-bold" value="To" ></p:outputLabel>
-                                <p:calendar value="#{nationalController.toDate}" pattern="dd MMMM yyyy hh:mm"></p:calendar>
+                                <p:datePicker
+                    value="#{nationalController.toDate}"
+                    pattern="dd MMMM yyyy hh:mm">
+                </p:datePicker>
 
                                 <p:outputLabel class="h6 fw-bold" value="Ordering Category" ></p:outputLabel>
                                 <p:selectOneMenu class="form-control" value="#{nationalController.orderingCategory}" >

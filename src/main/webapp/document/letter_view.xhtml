@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -39,7 +39,7 @@
                 <div class="row">
                     <div class="col-md-6">
 
-                        <p:panelGrid columns="2"  class="w-100 border border-light">
+                        <p:panelGrid layout="tabular" columns="2"  class="w-100 border border-light">
 
                             <h:outputLabel class="fs-6" value="Letter ID:"></h:outputLabel>
                             <h:outputLabel class="fs-6 fw-bold" value="#{letterController.selected.id}"></h:outputLabel>
@@ -263,7 +263,7 @@
 
 
                         <h:form>
-                            <p:panelGrid columns="2"  class="w-100 border border-light">
+                            <p:panelGrid layout="tabular" columns="2"  class="w-100 border border-light">
                                 <f:facet name="header" >
                                     Forward / Copy to
                                 </f:facet>
@@ -302,7 +302,7 @@
                         </h:form>
 
                         <h:form>
-                            <p:panelGrid columns="2"  class="w-100 border border-light">
+                            <p:panelGrid layout="tabular" columns="2"  class="w-100 border border-light">
                                 <f:facet name="header" >
                                     Assign to
                                 </f:facet>
@@ -327,7 +327,7 @@
                         </h:form>
 
                         <h:form>
-                            <p:panelGrid columns="2"  class="w-100 border border-light">
+                            <p:panelGrid layout="tabular" columns="2"  class="w-100 border border-light">
                                 <f:facet name="header" >
                                     Add Actions
                                 </f:facet>
@@ -340,7 +340,7 @@
                         </h:form>
 
                         <h:form>
-                            <p:panelGrid columns="2"  class="w-100 border border-light" rendered="false">
+                            <p:panelGrid layout="tabular" columns="2"  class="w-100 border border-light" rendered="false">
                                 <f:facet name="header" >
                                     Transfer out
                                 </f:facet>

@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -13,12 +13,12 @@
         <ui:composition template="/template.xhtml">
             <ui:define name="content" class="bg-white">
 
-                <p:panelGrid columns="2" columnClasses="width20percent width80percent" styleClass="bg-white alignTop w-100 border border-light" >
+                <p:panelGrid layout="tabular" columns="2" columnClasses="width20percent width80percent" styleClass="bg-white alignTop w-100 border border-light" >
                     <f:facet name="header" >
                         <h:outputLabel class="fs-5 fw-bold my-2" value="Manage Users" ></h:outputLabel>
                     </f:facet>
                     <h:form >
-                        <p:panelGrid columns="1" class="border border-light w-100 bg-white">
+                        <p:panelGrid layout="tabular" columns="1" class="border border-light w-100 bg-white">
                             <h:commandButton  class="w-100 btn btn-success my-3"
                                 value="Add New User" 
                                 action="#{webUserController.toAddNewUserByInsAdmin()}">

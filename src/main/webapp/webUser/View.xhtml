@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -11,7 +11,7 @@
         <p:dialog id="WebUserViewDlg" widgetVar="WebUserViewDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundleClinical.ViewWebUserTitle}">
             <h:form id="WebUserViewForm">
                 <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{webUserController.selected != null}">
+                    <p:panelGrid layout="tabular" columns="2" rendered="#{webUserController.selected != null}">
                         <h:outputText value="#{bundleClinical.ViewWebUserLabel_serialVersionUID}"/>
                         <h:outputText value="#{webUserController.selected.serialVersionUID}" title="#{bundleClinical.ViewWebUserTitle_serialVersionUID}"/>
                         <h:outputText value="#{bundleClinical.ViewWebUserLabel_institution}"/>
