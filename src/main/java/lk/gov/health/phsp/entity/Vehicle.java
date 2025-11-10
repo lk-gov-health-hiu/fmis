@@ -67,6 +67,8 @@ public class Vehicle implements Serializable, Nameable {
     private String details;
     @ManyToOne
     private Institution institution;
+    @ManyToOne
+    private Institution permanentInstitution;
     @Enumerated(EnumType.STRING)
     private VehicleMake make;
 
@@ -257,6 +259,14 @@ public class Vehicle implements Serializable, Nameable {
 
     public void setInstitution(Institution institution) {
         this.institution = institution;
+    }
+
+    public Institution getPermanentInstitution() {
+        return permanentInstitution;
+    }
+
+    public void setPermanentInstitution(Institution permanentInstitution) {
+        this.permanentInstitution = permanentInstitution;
     }
 
     public VehiclePurpose getVehiclePurpose() {
