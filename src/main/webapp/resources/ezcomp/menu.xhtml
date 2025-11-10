@@ -47,7 +47,7 @@
                 <p:submenu
                     class="submenu"
                     label="Payment Management"
-                    rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}" >
+                    rendered="#{webUserController.institutionPaymentManagementMenuAvailable or webUserController.systemAdminPaymentManagementMenuAvailable}" >
                     <p:menuitem class="submenu-item" ajax="false" value="Payment Bills"
                                 action="#{fuelRequestAndIssueController.navigateToListPaymentBills()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="Payments to Accept at CPC"
@@ -56,6 +56,20 @@
                                 action="#{fuelRequestAndIssueController.navigateToListBillsAcceptedByCpc()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="Payments Rejected by CPC"
                                 action="#{fuelRequestAndIssueController.navigateToListBillsRejectedByCpc()}" />
+                </p:submenu>
+
+                <p:submenu
+                    class="submenu"
+                    label="CPC Payment Management"
+                    rendered="#{webUserController.cpcPaymentManagementMenuAvailable}" >
+                    <p:menuitem class="submenu-item" ajax="false" value="Payment Bills"
+                                action="#{fuelRequestAndIssueController.navigateToCpcListPaymentBills()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Payments to Accept"
+                                action="#{fuelRequestAndIssueController.navigateToCpcListBillsToAccept()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Payments Accepted"
+                                action="#{fuelRequestAndIssueController.navigateToCpcListBillsAccepted()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Payments Rejected"
+                                action="#{fuelRequestAndIssueController.navigateToCpcListBillsRejected()}" />
                 </p:submenu>
 
                 <p:menuitem
