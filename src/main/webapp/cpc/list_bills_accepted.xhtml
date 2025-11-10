@@ -53,6 +53,18 @@
                                         <p:messages ></p:messages>
                                     </div>
                                     <div class="col-10 p-2" >
+                                        <div class="mb-2">
+                                            <h:commandLink styleClass="btn btn-success me-2">
+                                                <i class="fa fa-file-excel-o"></i> Export to Excel
+                                                <p:dataExporter type="xlsx" target="tblBills" fileName="bills_accepted"/>
+                                            </h:commandLink>
+
+                                            <h:commandLink styleClass="btn btn-danger">
+                                                <i class="fa fa-file-pdf-o"></i> Export to PDF
+                                                <p:dataExporter type="pdf" target="tblBills" fileName="bills_accepted"/>
+                                            </h:commandLink>
+                                        </div>
+
                                         <p:dataTable
                                             id="tblBills"
                                             value="#{fuelRequestAndIssueController.bills}" var="bill" rowKey="#{bill.id}"
@@ -64,37 +76,25 @@
                                             rowsPerPageTemplate="10,20,50,{ShowAll|'All'}"
                                             sortMode="multiple">
 
-                                            <p:column headerText="No" width="10" >
+                                            <p:column headerText="No" width="4em" >
                                                 <h:outputText value="#{no+1}" />
                                             </p:column>
 
-                                            <p:column headerText="Bill No"
-                                                      sortBy="#{bill.billNo}" filterBy="#{bill.billNo}">
-                                                <p:commandLink
-                                                    ajax="false"
-                                                    value="#{bill.billNo}"
-                                                    action="#{fuelRequestAndIssueController.navigateToCpcViewPaymentBill()}">
-                                                    <f:setPropertyActionListener value="#{bill}" target="#{fuelRequestAndIssueController.selectedBill}" />
-                                                </p:commandLink>
-                                            </p:column>
-
-                                            <p:column headerText="Bill Date" sortBy="#{bill.billDate}" filterBy="#{bill.billDate}">
+                                            <p:column headerText="Date" sortBy="#{bill.billDate}" filterBy="#{bill.billDate}">
                                                 <h:outputText value="#{bill.billDate}">
                                                     <f:convertDateTime pattern="dd MMM yyyy" />
                                                 </h:outputText>
                                             </p:column>
 
-                                            <p:column headerText="Bill Type" sortBy="#{bill.billType}" filterBy="#{bill.billType}">
-                                                <h:outputText value="#{bill.billType}" />
-                                            </p:column>
 
-                                            <p:column headerText="From Institution"
+
+                                            <p:column headerText="Institution"
                                                       sortBy="#{bill.fromInstitution.name}"
                                                       filterBy="#{bill.fromInstitution.name}">
                                                 <h:outputText value="#{bill.fromInstitution.name}" />
                                             </p:column>
 
-                                            <p:column headerText="To Institution (Fuel Station)"
+                                            <p:column headerText="Dealer Name"
                                                       sortBy="#{bill.toInstitution.name}"
                                                       filterBy="#{bill.toInstitution.name}">
                                                 <h:outputText value="#{bill.toInstitution.name}" />
@@ -104,25 +104,23 @@
                                                 <h:outputText value="#{bill.toInstitution.code}" />
                                             </p:column>
 
-                                            <p:column headerText="Total Qty" sortBy="#{bill.totalQty}">
+                                            <p:column headerText="Ref No"
+                                                      sortBy="#{bill.billNo}" filterBy="#{bill.billNo}">
+                                                <p:commandLink
+                                                    ajax="false"
+                                                    value="#{bill.billNo}"
+                                                    action="#{fuelRequestAndIssueController.navigateToCpcViewPaymentBill()}">
+                                                    <f:setPropertyActionListener value="#{bill}" target="#{fuelRequestAndIssueController.selectedBill}" />
+                                                </p:commandLink>
+                                            </p:column>
+
+                                            <p:column headerText="Issued Qty in Leters" sortBy="#{bill.totalQty}">
                                                 <h:outputText value="#{bill.totalQty}">
                                                     <f:convertNumber pattern="#,##0.00" />
                                                 </h:outputText>
                                             </p:column>
 
-                                            <p:column headerText="Accepted By" sortBy="#{bill.acceptedByCpcUser.name}">
-                                                <h:outputText value="#{bill.acceptedByCpcUser.name}" />
-                                            </p:column>
-
-                                            <p:column headerText="Accepted At" sortBy="#{bill.acceptedByCpcAt}">
-                                                <h:outputText value="#{bill.acceptedByCpcAt}">
-                                                    <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
-                                                </h:outputText>
-                                            </p:column>
-
-                                            <p:column headerText="Status" sortBy="#{bill.status}" filterBy="#{bill.status}">
-                                                <h:outputText value="#{bill.status}" />
-                                            </p:column>
+                                          
 
                                             <p:column headerText="Actions" exportable="false" >
                                                 <p:commandButton value="View"
