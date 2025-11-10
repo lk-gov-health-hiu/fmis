@@ -23,12 +23,16 @@
 
 
                                         <h:outputLabel class="fs-6 fw-bold" value="Name" for="iname" />
-                                        <h:inputText class="form-control" id="iname" 
-                                                     value="#{webUserController.selected.institution.name}" title="#{bundle.EditWebUserTitle_webUserPerson}" 
+                                        <h:inputText class="form-control" id="iname"
+                                                     value="#{webUserController.selected.institution.name}" title="#{bundle.EditWebUserTitle_webUserPerson}"
                                                      required="true"
                                                      requiredMessage="Need a name for the institute">
                                         </h:inputText>
 
+                                        <h:outputLabel class="fs-6 fw-bold" value="Short Code" for="ishortCode" />
+                                        <h:inputText class="form-control" id="ishortCode"
+                                                     value="#{webUserController.selected.institution.shortCode}" title="Short Code">
+                                        </h:inputText>
 
                                         <h:outputLabel class="fs-6 fw-bold" value="Address" for="iaddress" />
                                         <h:inputTextarea  class="form-control text-muted" id="iaddress" value="#{webUserController.selected.institution.address}" 

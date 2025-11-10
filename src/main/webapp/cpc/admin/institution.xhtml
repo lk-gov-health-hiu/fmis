@@ -42,12 +42,17 @@
 
 
                         <h:outputLabel value="Name:" for="name" />
-                        <p:inputText id="name" 
+                        <p:inputText id="name"
 
                                      autocomplete="off"
                                      class="form-control"
                                      value="#{institutionController.selected.name}" title="Name" />
 
+                        <h:outputLabel value="Short Code:" for="shortCode" />
+                        <p:inputText id="shortCode"
+                                     autocomplete="off"
+                                     class="form-control"
+                                     value="#{institutionController.selected.shortCode}" title="Short Code" />
 
                         <h:outputLabel value="Fuel Station:" for="depo" />
                         <p:autoComplete  id="depo" 
