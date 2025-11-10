@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -16,7 +16,7 @@
                                     oncomplete="handleSubmit(args, 'FuelPriceEditDialog');"/>
                     <p:commandButton ajax="false" value="Cancel" onclick="FuelPriceEditDialog.hide()"/>
 
-                    <p:panelGrid columns="2" rendered="#{fuelPriceController.selected != null}">
+                    <p:panelGrid layout="tabular" columns="2" rendered="#{fuelPriceController.selected != null}">
                         <p:outputLabel value="Fuel Type:" for="fuelType" />
                         <p:selectOneMenu id="fuelType" value="#{fuelPriceController.selected.fuelType}" required="true">
                             <f:selectItems value="#{applicationController.fuelTypes}"
@@ -31,13 +31,18 @@
                                       required="true" />
 
                         <p:outputLabel value="From Date:" for="fromDate" />
-                        <p:calendar id="fromDate" value="#{fuelPriceController.selected.fromDate}"
-                                   pattern="dd/MM/yyyy"
-                                   required="true" />
+                        <p:datePicker
+                    id="fromDate"
+                    value="#{fuelPriceController.selected.fromDate}"
+                    pattern="dd/MM/yyyy">
+                </p:datePicker>
 
                         <p:outputLabel value="To Date:" for="toDate" />
-                        <p:calendar id="toDate" value="#{fuelPriceController.selected.toDate}"
-                                   pattern="dd/MM/yyyy" />
+                        <p:datePicker
+                    id="toDate"
+                    value="#{fuelPriceController.selected.toDate}"
+                    pattern="dd/MM/yyyy">
+                </p:datePicker>
 
                         <p:outputLabel value="Year:" for="year" />
                         <p:inputNumber id="year" value="#{fuelPriceController.selected.year}"

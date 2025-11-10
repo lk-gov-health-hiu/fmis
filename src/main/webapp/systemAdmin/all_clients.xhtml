@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -13,17 +13,23 @@
             <ui:define name="content">
 
                 <h:form id="form" >
-                    <p:panelGrid columns="1" >
+                    <p:panelGrid layout="tabular" columns="1" >
 
                         <f:facet name="header" >
                             <p:outputLabel value="Registed Clients" ></p:outputLabel>
                         </f:facet>
 
-                        <p:panelGrid columns="2" >
+                        <p:panelGrid layout="tabular" columns="2" >
                             <p:outputLabel value="From" ></p:outputLabel>
-                            <p:calendar value="#{clientController.from}" pattern="dd MM yyyy hh:mm a" ></p:calendar>
+                            <p:datePicker
+                    value="#{clientController.from}"
+                    pattern="dd MM yyyy hh:mm a">
+                </p:datePicker>
                             <p:outputLabel value="To" ></p:outputLabel>
-                            <p:calendar value="#{clientController.to}" pattern="dd MM yyyy hh:mm a" ></p:calendar>
+                            <p:datePicker
+                    value="#{clientController.to}"
+                    pattern="dd MM yyyy hh:mm a">
+                </p:datePicker>
 
                         </p:panelGrid>
 

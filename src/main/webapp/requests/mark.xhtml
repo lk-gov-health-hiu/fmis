@@ -41,9 +41,11 @@
 
 
                                                         <p:outputLabel for="calDate" value="Date" class="form-label"/>
-                                                        <p:calendar id="calDate" class="w-100"
-                                                                    inputStyleClass="w-100"
-                                                                    value="#{fuelRequestAndIssueController.selected.issuedDate}" pattern="dd MM yyyy" ></p:calendar>
+                                                        <p:datePicker
+                    id="calDate"
+                    value="#{fuelRequestAndIssueController.selected.issuedDate}"
+                    pattern="dd MM yyyy">
+                </p:datePicker>
 
                                                         <p:outputLabel value="Confirmed Quantity"
                                                                        for="qty">

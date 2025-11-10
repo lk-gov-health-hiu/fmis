@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(mvn compile:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"D:\\Dev\\fmis\\update-panelgrid.ps1\")",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

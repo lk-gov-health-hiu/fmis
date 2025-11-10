@@ -114,13 +114,13 @@ public class DashboardController implements Serializable {
 
         BarChartDataSet requestedSet = new BarChartDataSet();
         requestedSet.setLabel("Issued Quantity");
-        List<Number> requestedValues = new ArrayList<>();
+        List<Object> requestedValues = new ArrayList<>();
         List<String> bgColorRequested = new ArrayList<>();
         List<String> borderColorRequested = new ArrayList<>();
 
         BarChartDataSet remainingSet = new BarChartDataSet();
         remainingSet.setLabel("Requested, but not issued Quantity");
-        List<Number> remainingValues = new ArrayList<>();
+        List<Object> remainingValues = new ArrayList<>();
         List<String> bgColorRemaining = new ArrayList<>();
         List<String> borderColorRemaining = new ArrayList<>();
 
@@ -304,13 +304,13 @@ public class DashboardController implements Serializable {
 
         BarChartDataSet requestedSet = new BarChartDataSet();
         requestedSet.setLabel("Issued Quantity");
-        List<Number> requestedValues = new ArrayList<>();
+        List<Object> requestedValues = new ArrayList<>();
         List<String> bgColorRequested = new ArrayList<>();
         List<String> borderColorRequested = new ArrayList<>();
 
         BarChartDataSet remainingSet = new BarChartDataSet();
         remainingSet.setLabel("Requested, but not issued Quantity");
-        List<Number> remainingValues = new ArrayList<>();
+        List<Object> remainingValues = new ArrayList<>();
         List<String> bgColorRemaining = new ArrayList<>();
         List<String> borderColorRemaining = new ArrayList<>();
 

@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -13,7 +13,7 @@
             <ui:define name="content">
                 <h:form>
 
-                    <p:panelGrid columns="2" style="width: 100%;">
+                    <p:panelGrid layout="tabular" columns="2" style="width: 100%;">
                         <f:facet name="header" >
                             <p:commandButton ajax="false" action="#{preferenceController.savePreferencesInstitution()}" 
                                              value="SAVE" style="float: left;"></p:commandButton>
@@ -23,7 +23,7 @@
                         <p:tabView style="width: 100%;">
 
                             <p:tab title="Workflow" >
-                                <p:panelGrid columns="2" style="width: 100%;">
+                                <p:panelGrid layout="tabular" columns="2" style="width: 100%;">
                                     <p:outputLabel value="Lab Approval Steps" ></p:outputLabel>
                                     <p:selectOneMenu value="#{preferenceController.labApprovalSteps}">
                                         <f:selectItem itemLabel="Select" ></f:selectItem>
@@ -59,7 +59,7 @@
                             </p:tab>
 
                             <p:tab title="Terms" >
-                                <p:panelGrid columns="2" style="width: 100%;">
+                                <p:panelGrid layout="tabular" columns="2" style="width: 100%;">
                                     <p:outputLabel value="PCR Positive Term" ></p:outputLabel><!-- comment -->
                                     <p:inputText value="#{preferenceController.pcrPositiveTerm}" ></p:inputText>
 
@@ -83,7 +83,7 @@
                             </p:tab>
 
                             <p:tab title="Individual Print Report Format" >
-                                <p:panelGrid columns="2" style="width: 100%;">
+                                <p:panelGrid layout="tabular" columns="2" style="width: 100%;">
                                     <h:panelGroup >
                                         <p:outputLabel value="Lab Report HTML" ></p:outputLabel>
                                         {name}
@@ -137,7 +137,7 @@
 
 
                             <p:tab title="Bulk Print Report Format" >
-                                <p:panelGrid columns="2" style="width: 100%;">
+                                <p:panelGrid layout="tabular" columns="2" style="width: 100%;">
                                     <p:outputLabel value="Number of rows per page" ></p:outputLabel>
                                     <p:inputText value="#{preferenceController.numberOfRowsPerPage}" ></p:inputText>
                                     
