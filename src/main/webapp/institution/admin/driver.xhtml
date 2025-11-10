@@ -30,23 +30,37 @@
                             </f:facet>
 
 
-                            <h:outputLabel value="Institution:" for="ins" />
+                            <h:outputLabel value="Permanent Institution:" for="ins" />
 
-                            <p:selectOneMenu 
+                            <p:selectOneMenu
                                 filter="true"
-                                value="#{driverController.selected.institution}" 
+                                value="#{driverController.selected.institution}"
                                 filterMatchMode="contains"
-                                id="institution" 
-                                class="form-control form-control-sm w-100" 
+                                id="institution"
+                                class="form-control form-control-sm w-100"
                                 required="true">
                                 <f:selectItem itemLabel="Please Select" ></f:selectItem>
                                 <f:selectItems value="#{webUserController.loggableInstitutions}"
-                                               var="ins" 
+                                               var="ins"
                                                itemLabel="#{ins.name}"
                                                itemValue="#{ins}" ></f:selectItems>
                             </p:selectOneMenu>
 
+                            <h:outputLabel value="Temporarily Institution:" for="tempIns" />
 
+                            <p:selectOneMenu
+                                filter="true"
+                                value="#{driverController.selected.temporarilyInstitution}"
+                                filterMatchMode="contains"
+                                id="tempInstitution"
+                                class="form-control form-control-sm w-100"
+                                required="false">
+                                <f:selectItem itemLabel="Please Select" ></f:selectItem>
+                                <f:selectItems value="#{webUserController.loggableInstitutions}"
+                                               var="tempIns"
+                                               itemLabel="#{tempIns.name}"
+                                               itemValue="#{tempIns}" ></f:selectItems>
+                            </p:selectOneMenu>
 
                             <h:outputLabel value="Name:" for="name" />
                             <h:inputText id="name" 
