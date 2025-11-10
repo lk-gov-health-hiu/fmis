@@ -114,6 +114,10 @@
                                                 <h:outputText value="#{bill.billUser.name}" />
                                             </p:column>
 
+                                            <p:column headerText="Status" sortBy="#{bill.status}" filterBy="#{bill.status}">
+                                                <h:outputText value="#{bill.status}" />
+                                            </p:column>
+
                                             <p:column headerText="Actions" exportable="false" >
                                                 <p:commandButton value="View"
                                                                  ajax="false"
