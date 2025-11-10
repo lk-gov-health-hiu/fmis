@@ -41,14 +41,17 @@
                                    
 
                                     <h:outputLabel value="Code:" for="code" />
-                                    <h:inputText id="code" 
+                                    <h:inputText id="code"
                                                  autocomplete="off"
                                                  class="form-control"
                                                  value="#{institutionController.selected.code}" title="Code" />
-                                                   
-                                    
-                                    
-                                    
+
+                                    <h:outputLabel value="Short Code:" for="shortCode" />
+                                    <h:inputText id="shortCode"
+                                                 autocomplete="off"
+                                                 class="form-control"
+                                                 value="#{institutionController.selected.shortCode}" title="Short Code" />
+
                                     <h:outputLabel value="Parent:" for="parent" />
                                     <p:autoComplete  id="parent" class="d-block" inputStyleClass="form-control" 
                                                      value="#{institutionController.selected.parent}" 

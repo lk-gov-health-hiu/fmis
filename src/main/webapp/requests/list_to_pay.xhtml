@@ -29,17 +29,17 @@
                                         <h:panelGrid columns="2" class="w-100" >
                                             <label for="fromDate">From Date</label>
                                             <p:datePicker
-                    id="fromDate"
-                    value="#{fuelRequestAndIssueController.fromDate}"
-                    pattern="dd MMMM yyyy">
-                </p:datePicker>
+                                                id="fromDate"
+                                                value="#{fuelRequestAndIssueController.fromDate}"
+                                                pattern="dd MMMM yyyy">
+                                            </p:datePicker>
 
                                             <label for="toDate">To Date</label>
                                             <p:datePicker
-                    id="toDate"
-                    value="#{fuelRequestAndIssueController.toDate}"
-                    pattern="dd MMMM yyyy">
-                </p:datePicker>
+                                                id="toDate"
+                                                value="#{fuelRequestAndIssueController.toDate}"
+                                                pattern="dd MMMM yyyy">
+                                            </p:datePicker>
 
                                             <label for="fuelStation">Fuel Station</label>
                                             <p:selectOneMenu
@@ -127,7 +127,7 @@
                                             <p:column headerText="Iss. Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}">
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
                                             </p:column>
-                                            
+
                                             <p:column headerText="Issue Ref.No" filterBy="#{transaction.issueReferenceNumber}">
                                                 <h:outputText value="#{transaction.issueReferenceNumber}" />
                                             </p:column>
@@ -135,11 +135,11 @@
                                             <p:column headerText="Iss. from" sortBy="#{transaction.issuedInstitution.name}" filterBy="#{transaction.issuedInstitution.name}">
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
                                             </p:column>
-                                            
+
                                             <p:column headerText="Dealer Number" sortBy="#{transaction.issuedInstitution.code}" filterBy="#{transaction.issuedInstitution.code}" filterMatchMode="contains">
                                                 <h:outputText value="#{transaction.issuedInstitution.code}" />
                                             </p:column>
-                                            
+
                                             <p:column headerText="Actions" exportable="false" >
                                                 <p:commandButton value="View"
                                                                  ajax="false"

@@ -125,9 +125,9 @@
                                                 </p:column>
 
                                                 <p:column headerText="Dealer Number"
-                                                          sortBy="#{transaction.issuedInstitution.code}"
-                                                          filterBy="#{transaction.issuedInstitution.code}">
-                                                    <h:outputText value="#{transaction.issuedInstitution.code}" />
+                                                          sortBy="#{transaction.issuedInstitution.shortCode}"
+                                                          filterBy="#{transaction.issuedInstitution.shortCode}">
+                                                    <h:outputText value="#{transaction.issuedInstitution.shortCode}" />
                                                 </p:column>
 
                                             </p:dataTable>
