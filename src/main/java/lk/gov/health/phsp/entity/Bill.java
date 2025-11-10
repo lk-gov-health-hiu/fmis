@@ -119,6 +119,9 @@ public class Bill implements Serializable {
 
     private String monthlyNumber;
 
+    @ManyToOne
+    private FuelPrice fuelPrice;
+
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BillItem> billItems;
 
@@ -334,6 +337,14 @@ public class Bill implements Serializable {
 
     public void setMonthlyNumber(String monthlyNumber) {
         this.monthlyNumber = monthlyNumber;
+    }
+
+    public FuelPrice getFuelPrice() {
+        return fuelPrice;
+    }
+
+    public void setFuelPrice(FuelPrice fuelPrice) {
+        this.fuelPrice = fuelPrice;
     }
 
 }

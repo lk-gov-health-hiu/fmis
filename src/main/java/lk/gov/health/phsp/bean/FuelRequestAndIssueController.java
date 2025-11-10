@@ -5,6 +5,7 @@ import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -26,6 +27,7 @@ import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.entity.Bill;
 import lk.gov.health.phsp.entity.BillItem;
 import lk.gov.health.phsp.entity.DataAlterationRequest;
+import lk.gov.health.phsp.entity.FuelPrice;
 import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
@@ -35,6 +37,7 @@ import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.facade.BillFacade;
 import lk.gov.health.phsp.facade.BillItemFacade;
 import lk.gov.health.phsp.facade.DataAlterationRequestFacade;
+import lk.gov.health.phsp.facade.FuelPriceFacade;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
 import lk.gov.health.phsp.facade.InstitutionFacade;
 import lk.gov.health.phsp.facade.VehicleFacade;
@@ -50,6 +53,8 @@ public class FuelRequestAndIssueController implements Serializable {
     private FuelTransactionHistoryFacade fuelTransactionHistoryFacade;
     @EJB
     private FuelTransactionFacade fuelTransactionFacade;
+    @EJB
+    private FuelPriceFacade fuelPriceFacade;
     @EJB
     InstitutionFacade institutionFacade;
     @EJB
@@ -1565,6 +1570,39 @@ public class FuelRequestAndIssueController implements Serializable {
         return billNumber;
     }
 
+    /**
+     * Get the last fuel price entry for the given month and year
+     * @param billDate The date for which to find the fuel price
+     * @return The last FuelPrice entry for that month, or null if not found
+     */
+    private FuelPrice getLastFuelPriceForMonth(Date billDate) {
+        if (billDate == null) {
+            return null;
+        }
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(billDate);
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH) + 1; // Calendar.MONTH is 0-based
+
+        String jpql = "SELECT fp FROM FuelPrice fp "
+                + "WHERE fp.year = :year AND fp.month = :month "
+                + "AND fp.retired = false "
+                + "ORDER BY fp.createdAt DESC";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("year", year);
+        params.put("month", month);
+
+        List<FuelPrice> fuelPrices = fuelPriceFacade.findByJpql(jpql, params, 1);
+
+        if (fuelPrices != null && !fuelPrices.isEmpty()) {
+            return fuelPrices.get(0);
+        }
+
+        return null;
+    }
+
     public String makePaymentRequest() {
         if (paymentRequestStarted) {
             JsfUtil.addErrorMessage("Already started");
@@ -1650,6 +1688,23 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Error generating monthly number: " + e.getMessage());
             paymentRequestStarted = false;
             return null;
+        }
+
+        // Fetch and set the last fuel price for the month
+        try {
+            FuelPrice lastFuelPrice = getLastFuelPriceForMonth(fuelPaymentRequestBill.getBillDate());
+            if (lastFuelPrice != null) {
+                fuelPaymentRequestBill.setFuelPrice(lastFuelPrice);
+                Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                    .log(Level.INFO, "Set fuel price for bill: " + lastFuelPrice.getPrice());
+            } else {
+                Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                    .log(Level.WARNING, "No fuel price found for the bill month");
+            }
+        } catch (Exception e) {
+            Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                .log(Level.WARNING, "Error fetching fuel price for bill", e);
+            // Continue without fuel price - this is not a critical error
         }
 
         billFacade.create(fuelPaymentRequestBill);
