@@ -1062,12 +1062,10 @@ public class FuelRequestAndIssueController implements Serializable {
         String j = "SELECT b "
                 + " FROM Bill b "
                 + " WHERE b.retired = false "
-                + " AND b.fromInstitution IN :institutions "
                 + " AND b.toInstitution IN :fuelStations "
                 + " AND b.billDate BETWEEN :fromDate AND :toDate";
 
         Map<String, Object> params = new HashMap<>();
-        params.put("institutions", webUserController.findAutherizedInstitutions());
         params.put("fuelStations", webUserController.getLoggableInstitutions());
         params.put("fromDate", fromDate); // fromDate should be set beforehand
         params.put("toDate", toDate);     // toDate should be set beforehand
@@ -1176,9 +1174,11 @@ public class FuelRequestAndIssueController implements Serializable {
                 + " WHERE b.retired = false "
                 + " AND b.acceptedByCpc = false "
                 + " AND b.rejectedByCpc = false "
+                + " AND b.toInstitution IN :fuelStations "
                 + " AND b.billDate BETWEEN :fromDate AND :toDate";
 
         Map<String, Object> params = new HashMap<>();
+        params.put("fuelStations", webUserController.getLoggableInstitutions());
         params.put("fromDate", fromDate);
         params.put("toDate", toDate);
 
@@ -1194,9 +1194,11 @@ public class FuelRequestAndIssueController implements Serializable {
                 + " FROM Bill b "
                 + " WHERE b.retired = false "
                 + " AND b.acceptedByCpc = true "
+                + " AND b.toInstitution IN :fuelStations "
                 + " AND b.billDate BETWEEN :fromDate AND :toDate";
 
         Map<String, Object> params = new HashMap<>();
+        params.put("fuelStations", webUserController.getLoggableInstitutions());
         params.put("fromDate", fromDate);
         params.put("toDate", toDate);
 
@@ -1212,9 +1214,11 @@ public class FuelRequestAndIssueController implements Serializable {
                 + " FROM Bill b "
                 + " WHERE b.retired = false "
                 + " AND b.rejectedByCpc = true "
+                + " AND b.toInstitution IN :fuelStations "
                 + " AND b.billDate BETWEEN :fromDate AND :toDate";
 
         Map<String, Object> params = new HashMap<>();
+        params.put("fuelStations", webUserController.getLoggableInstitutions());
         params.put("fromDate", fromDate);
         params.put("toDate", toDate);
 
