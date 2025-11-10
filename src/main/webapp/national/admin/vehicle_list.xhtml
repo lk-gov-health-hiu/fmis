@@ -28,7 +28,7 @@
                             rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
                             >
 
-                            <p:column sortBy="#{item.vehicleNumber}" 
+                            <p:column sortBy="#{item.vehicleNumber}"
                                       filterBy="#{item.vehicleNumber}" filterMatchMode="contains" >
                                 <f:facet name="header">
                                     <h:outputText value="Number"/>
@@ -36,13 +36,20 @@
                                 <h:outputText value="#{item.vehicleNumber}"/>
                             </p:column>
 
+                            <p:column sortBy="#{item.permanentInstitution.name}"
+                                      filterBy="#{item.permanentInstitution.name}"
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Permanent Institution"/>
+                                </f:facet>
+                                <h:outputText value="#{item.permanentInstitution.name}"/>
+                            </p:column>
 
-
-                            <p:column sortBy="#{item.institution.name}" 
+                            <p:column sortBy="#{item.institution.name}"
                                       filterBy="#{item.institution.name}"
                                       filterMatchMode="contains" >
                                 <f:facet name="header">
-                                    <h:outputText value="Institution"/>
+                                    <h:outputText value="Currently Attached Institution"/>
                                 </f:facet>
                                 <h:outputText value="#{item.institution.name}"/>
                             </p:column>
