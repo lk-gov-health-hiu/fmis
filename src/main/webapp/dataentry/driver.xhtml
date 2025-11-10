@@ -17,21 +17,33 @@
                         <h:panelGrid columns="2" rendered="#{driverController.selected != null}" class="w-100">
 
 
-                            <h:outputLabel value="Institution:" for="ins" />
-                            <p:autoComplete  class="w-100" 
+                            <h:outputLabel value="Permanent Institution:" for="ins" />
+                            <p:autoComplete  class="w-100"
                                              id="ins"
-                                             inputStyleClass="form-control" 
-                                             value="#{driverController.selected.institution}" 
+                                             inputStyleClass="form-control"
+                                             value="#{driverController.selected.institution}"
                                              completeMethod="#{institutionController.completeInstitutions}"
-                                             var="i" 
-                                             itemLabel="#{i.name}" 
-                                             itemValue="#{i}" 
+                                             var="i"
+                                             itemLabel="#{i.name}"
+                                             itemValue="#{i}"
                                              forceSelection="True"
-                                             maxResults="15" 
+                                             maxResults="15"
                                              minQueryLength="3">
                             </p:autoComplete >
 
-
+                            <h:outputLabel value="Temporarily Institution:" for="tempIns" />
+                            <p:autoComplete  class="w-100"
+                                             id="tempIns"
+                                             inputStyleClass="form-control"
+                                             value="#{driverController.selected.temporarilyInstitution}"
+                                             completeMethod="#{institutionController.completeInstitutions}"
+                                             var="ti"
+                                             itemLabel="#{ti.name}"
+                                             itemValue="#{ti}"
+                                             forceSelection="True"
+                                             maxResults="15"
+                                             minQueryLength="3">
+                            </p:autoComplete >
 
                             <h:outputLabel value="Name:" for="name" />
                             <h:inputText id="name" 

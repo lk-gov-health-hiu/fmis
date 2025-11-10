@@ -56,6 +56,8 @@ public class Driver implements Serializable, Nameable {
     private String address;
     @ManyToOne
     private Institution institution;
+    @ManyToOne
+    private Institution temporarilyInstitution;
     @Enumerated(EnumType.STRING)
     private DriverAllocationType allocationType;
 
@@ -156,6 +158,14 @@ public class Driver implements Serializable, Nameable {
 
     public void setInstitution(Institution institution) {
         this.institution = institution;
+    }
+
+    public Institution getTemporarilyInstitution() {
+        return temporarilyInstitution;
+    }
+
+    public void setTemporarilyInstitution(Institution temporarilyInstitution) {
+        this.temporarilyInstitution = temporarilyInstitution;
     }
 
     public WebUser getCreater() {

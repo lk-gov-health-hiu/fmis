@@ -21,8 +21,11 @@
                                 <p:commandButton ajax="false" style="float: right;" class="btn btn-success" action="#{menuController.toListDriverss()}" value="Back"/>
                             </f:facet>
 
-                            <h:outputLabel value="Institution:" for="ins" />
-                            <h:inputText id="ins" class="form-control" value="#{driverController.selected.institution.name}" title="Institution" readonly="true"/>
+                            <h:outputLabel value="Permanent Institution:" for="ins" />
+                            <h:inputText id="ins" class="form-control" value="#{driverController.selected.institution.name}" title="Permanent Institution" readonly="true"/>
+
+                            <h:outputLabel value="Temporarily Institution:" for="tempIns" />
+                            <h:inputText id="tempIns" class="form-control" value="#{driverController.selected.temporarilyInstitution.name}" title="Temporarily Institution" readonly="true"/>
 
                             <h:outputLabel value="Name:" for="name" />
                             <h:inputText id="name" autocomplete="off" class="form-control" value="#{driverController.selected.name}" title="Name" readonly="true"/>
