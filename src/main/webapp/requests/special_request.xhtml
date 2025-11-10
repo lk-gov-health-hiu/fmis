@@ -56,18 +56,30 @@
                                         requiredMessage="Please select a Vehicle"
                                         title="Please select a vehicle"
                                         placeholder="Select a vehicle by typing few letters to search">
-                                        <p:ajax process="acVehicle" update="lblIns acDriver" ></p:ajax>
+                                        <p:ajax process="acVehicle" update="insDropdown acDriver" ></p:ajax>
                                     </p:autoComplete>
 
                                     <p:outputLabel
-                                        value="Permanent Institution">
+                                        value="Select Institution">
                                     </p:outputLabel>
-                                    <p:inputText
-                                        id="lblIns"
-                                        disabled="true"
+                                    <p:selectOneMenu
+                                        id="insDropdown"
+                                        value="#{fuelRequestAndIssueController.selected.fromInstitution}"
                                         class="w-100"
-                                        value="#{fuelRequestAndIssueController.selected.vehicle.institution.name}" >
-                                    </p:inputText>
+                                        styleClass="form-control"
+                                        required="true"
+                                        requiredMessage="Please select an institution">
+                                        <f:selectItem itemLabel="Select Institution" noSelectionOption="true" />
+                                        <f:selectItem
+                                            itemLabel="Permanent Institution: #{fuelRequestAndIssueController.selected.vehicle.institution.name}"
+                                            itemValue="#{fuelRequestAndIssueController.selected.vehicle.institution}"
+                                            rendered="#{fuelRequestAndIssueController.selected.vehicle.institution ne null}" />
+                                        <f:selectItem
+                                            itemLabel="Temporarily Attached: #{fuelRequestAndIssueController.selected.vehicle.temporarilyAttachedInstitution.name}"
+                                            itemValue="#{fuelRequestAndIssueController.selected.vehicle.temporarilyAttachedInstitution}"
+                                            rendered="#{fuelRequestAndIssueController.selected.vehicle.temporarilyAttachedInstitution ne null}" />
+                                        <p:ajax process="insDropdown" update="acDriver" />
+                                    </p:selectOneMenu>
 
                                     <p:outputLabel 
                                         value="Driver" 
@@ -82,7 +94,7 @@
                                         requiredMessage="You must select a driver"
                                         styleClass="form-control w-100">
                                         <f:selectItem itemLabel="Select a driver"  />
-                                        <f:selectItems value="#{driverController.institutionDrivers(fuelRequestAndIssueController.selected.vehicle.institution)}" var="d"
+                                        <f:selectItems value="#{driverController.institutionDrivers(fuelRequestAndIssueController.selected.fromInstitution)}" var="d"
                                                        itemLabel="#{d.name}#{d.allocationType ne null ? ' ('.concat(d.allocationType.label).concat(')') : ''}" itemValue="#{d}" />
                                     </p:selectOneMenu>
 
@@ -194,8 +206,8 @@
                                                 <h:outputLabel value="Vehicle:" />
                                                 <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}#{fuelRequestAndIssueController.selected.vehicle.allocationType ne null ? ' ('.concat(fuelRequestAndIssueController.selected.vehicle.allocationType.label).concat(')') : ''}" />
 
-                                                <h:outputLabel value="Permanent Institution:" />
-                                                <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.institution.name}" />
+                                                <h:outputLabel value="Selected Institution:" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.fromInstitution.name}" />
 
                                                 <h:outputLabel value="Driver:" />
                                                 <h:outputText value="#{fuelRequestAndIssueController.selected.driver.name}#{fuelRequestAndIssueController.selected.driver.allocationType ne null ? ' ('.concat(fuelRequestAndIssueController.selected.driver.allocationType.label).concat(')') : ''}" />
