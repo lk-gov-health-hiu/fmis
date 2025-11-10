@@ -36,22 +36,22 @@
                                 <h:outputText value="#{item.vehicleNumber}"/>
                             </p:column>
 
-                            <p:column sortBy="#{item.permanentInstitution.name}"
-                                      filterBy="#{item.permanentInstitution.name}"
-                                      filterMatchMode="contains" >
-                                <f:facet name="header">
-                                    <h:outputText value="Permanent Institution"/>
-                                </f:facet>
-                                <h:outputText value="#{item.permanentInstitution.name}"/>
-                            </p:column>
-
                             <p:column sortBy="#{item.institution.name}"
                                       filterBy="#{item.institution.name}"
                                       filterMatchMode="contains" >
                                 <f:facet name="header">
-                                    <h:outputText value="Currently Attached Institution"/>
+                                    <h:outputText value="Permanent Institution"/>
                                 </f:facet>
                                 <h:outputText value="#{item.institution.name}"/>
+                            </p:column>
+
+                            <p:column sortBy="#{item.temporarilyAttachedInstitution.name}"
+                                      filterBy="#{item.temporarilyAttachedInstitution.name}"
+                                      filterMatchMode="contains" >
+                                <f:facet name="header">
+                                    <h:outputText value="Temporarily Attached Institution"/>
+                                </f:facet>
+                                <h:outputText value="#{item.temporarilyAttachedInstitution.name}"/>
                             </p:column>
 
                             <p:column sortBy="#{item.institution.supplyInstitution.name}" 
