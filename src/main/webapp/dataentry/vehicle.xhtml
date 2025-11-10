@@ -40,10 +40,10 @@
                                                itemLabel="#{vp.label}"/>
                             </h:selectOneMenu>
 
-                            <h:outputLabel value="Institution:" for="ins" />
-                            <p:autoComplete  class="w-100" 
+                            <h:outputLabel value="Permanent Institution:" for="ins" />
+                            <p:autoComplete  class="w-100"
                                              id="ins"
-                                             inputStyleClass="form-control" 
+                                             inputStyleClass="form-control"
                                              value="#{vehicleController.selected.institution}" 
                                              completeMethod="#{institutionController.completeInstitutions}"
                                              var="i" 

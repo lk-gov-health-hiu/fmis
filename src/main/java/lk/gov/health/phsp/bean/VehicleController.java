@@ -272,13 +272,13 @@ public class VehicleController implements Serializable {
         }
         List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
         for (Vehicle vehicle : allVehicles) {
-            if (vehicle.getInstitution() == null && vehicle.getPermanentInstitution() == null) {
+            if (vehicle.getInstitution() == null && vehicle.getTemporarilyAttachedInstitution() == null) {
                 continue;
             }
             for (Institution ins : institutions) {
                 boolean matchesCurrentInstitution = vehicle.getInstitution() != null && vehicle.getInstitution().equals(ins);
-                boolean matchesPermanentInstitution = vehicle.getPermanentInstitution() != null && vehicle.getPermanentInstitution().equals(ins);
-                if (matchesCurrentInstitution || matchesPermanentInstitution) {
+                boolean matchesTemporarilyAttachedInstitution = vehicle.getTemporarilyAttachedInstitution() != null && vehicle.getTemporarilyAttachedInstitution().equals(ins);
+                if (matchesCurrentInstitution || matchesTemporarilyAttachedInstitution) {
                     filteredVehicles.add(vehicle);
                     break; // Break the inner loop as we found the institution
                 }
@@ -383,7 +383,7 @@ public class VehicleController implements Serializable {
         List<Vehicle> allIns;
         if (webUserController.getLoggedUser() != null
                 && webUserController.getLoggedUser().getInstitution() != null
-                && (webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.MOH
+                && (webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.HEALTH_MINISTRY
                 || webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.CPC_HEAD_OFFICE)) {
             allIns = vehicleApplicationController.getVehicles();
         } else {
@@ -453,6 +453,21 @@ public class VehicleController implements Serializable {
             return null;
         }
 
+        // Check for duplicate vehicle number
+        Vehicle existingVehicle = findVehicleByNumber(selected.getVehicleNumber());
+        if (existingVehicle != null) {
+            // If creating a new vehicle, any existing vehicle with same number is a duplicate
+            if (selected.getId() == null) {
+                JsfUtil.addErrorMessage("A vehicle with this number already exists: " + existingVehicle.getVehicleNumber());
+                return null;
+            }
+            // If updating an existing vehicle, check if the found vehicle is a different vehicle
+            if (!existingVehicle.getId().equals(selected.getId())) {
+                JsfUtil.addErrorMessage("A vehicle with this number already exists: " + existingVehicle.getVehicleNumber());
+                return null;
+            }
+        }
+
         if (selected.getName() == null || selected.getName().trim().equals("")) {
             selected.setName(selected.getVehicleNumber());
         }
@@ -478,6 +493,24 @@ public class VehicleController implements Serializable {
         if (ins == null) {
             return;
         }
+
+        // Check for duplicate vehicle number
+        if (ins.getVehicleNumber() != null && !ins.getVehicleNumber().trim().isEmpty()) {
+            Vehicle existingVehicle = findVehicleByNumber(ins.getVehicleNumber());
+            if (existingVehicle != null) {
+                // If creating a new vehicle, any existing vehicle with same number is a duplicate
+                if (ins.getId() == null) {
+                    JsfUtil.addErrorMessage("A vehicle with this number already exists: " + existingVehicle.getVehicleNumber());
+                    return;
+                }
+                // If updating an existing vehicle, check if the found vehicle is a different vehicle
+                if (!existingVehicle.getId().equals(ins.getId())) {
+                    JsfUtil.addErrorMessage("A vehicle with this number already exists: " + existingVehicle.getVehicleNumber());
+                    return;
+                }
+            }
+        }
+
         if (ins.getId() == null) {
             ins.setCreatedAt(new Date());
             if (ins.getCreater() == null) {

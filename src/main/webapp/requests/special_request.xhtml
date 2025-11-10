@@ -59,8 +59,8 @@
                                         <p:ajax process="acVehicle" update="lblIns acDriver" ></p:ajax>
                                     </p:autoComplete>
 
-                                    <p:outputLabel 
-                                        value="Institution">
+                                    <p:outputLabel
+                                        value="Permanent Institution">
                                     </p:outputLabel>
                                     <p:inputText
                                         id="lblIns"
@@ -194,7 +194,7 @@
                                                 <h:outputLabel value="Vehicle:" />
                                                 <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}#{fuelRequestAndIssueController.selected.vehicle.allocationType ne null ? ' ('.concat(fuelRequestAndIssueController.selected.vehicle.allocationType.label).concat(')') : ''}" />
 
-                                                <h:outputLabel value="Institution:" />
+                                                <h:outputLabel value="Permanent Institution:" />
                                                 <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.institution.name}" />
 
                                                 <h:outputLabel value="Driver:" />

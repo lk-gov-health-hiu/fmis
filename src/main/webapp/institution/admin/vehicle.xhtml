@@ -65,13 +65,13 @@
                                            itemLabel="#{vp.label}"/>
                         </h:selectOneMenu>
 
-                        <h:outputLabel value="Institution:" for="ins" />
+                        <h:outputLabel value="Permanent Institution:" for="ins" />
 
-                        <p:selectOneMenu 
+                        <p:selectOneMenu
                             id="ins"
                             filter="true"
                             filterMatchMode="contains"
-                            class="form-control form-control-sm w-100" 
+                            class="form-control form-control-sm w-100"
                             value="#{vehicleController.selected.institution}" 
                             required="true"
                             requiredMessage="Please select the institute">
