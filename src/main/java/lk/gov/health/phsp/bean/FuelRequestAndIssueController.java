@@ -1059,6 +1059,13 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listPaymentBills() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
         String j = "SELECT b "
                 + " FROM Bill b "
                 + " WHERE b.retired = false "
@@ -1169,6 +1176,13 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listBillsToAcceptAtCpc() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
         String j = "SELECT b "
                 + " FROM Bill b "
                 + " WHERE b.retired = false "
@@ -1190,6 +1204,13 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listBillsAcceptedByCpc() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
         String j = "SELECT b "
                 + " FROM Bill b "
                 + " WHERE b.retired = false "
@@ -1210,6 +1231,13 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listBillsRejectedByCpc() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
         String j = "SELECT b "
                 + " FROM Bill b "
                 + " WHERE b.retired = false "
@@ -2184,6 +2212,21 @@ public class FuelRequestAndIssueController implements Serializable {
 
         // Check if request quantity exceeds fuel capacity
         return requestQuantity <= vehicle.getFuelCapacity();
+    }
+
+    private boolean areDatesInSameMonth(Date fromDate, Date toDate) {
+        if (fromDate == null || toDate == null) {
+            return false;
+        }
+
+        Calendar calFrom = Calendar.getInstance();
+        calFrom.setTime(fromDate);
+
+        Calendar calTo = Calendar.getInstance();
+        calTo.setTime(toDate);
+
+        return calFrom.get(Calendar.YEAR) == calTo.get(Calendar.YEAR)
+                && calFrom.get(Calendar.MONTH) == calTo.get(Calendar.MONTH);
     }
 
     public void save(FuelTransaction saving) {
