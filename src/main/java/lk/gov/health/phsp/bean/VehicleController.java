@@ -272,11 +272,13 @@ public class VehicleController implements Serializable {
         }
         List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
         for (Vehicle vehicle : allVehicles) {
-            if (vehicle.getInstitution() == null) {
+            if (vehicle.getInstitution() == null && vehicle.getPermanentInstitution() == null) {
                 continue;
             }
             for (Institution ins : institutions) {
-                if (vehicle.getInstitution().equals(ins)) {
+                boolean matchesCurrentInstitution = vehicle.getInstitution() != null && vehicle.getInstitution().equals(ins);
+                boolean matchesPermanentInstitution = vehicle.getPermanentInstitution() != null && vehicle.getPermanentInstitution().equals(ins);
+                if (matchesCurrentInstitution || matchesPermanentInstitution) {
                     filteredVehicles.add(vehicle);
                     break; // Break the inner loop as we found the institution
                 }
@@ -376,7 +378,18 @@ public class VehicleController implements Serializable {
         if (nameQry.trim().equals("")) {
             return resIns;
         }
-        List<Vehicle> allIns = vehicleApplicationController.getVehicles();
+
+        // Get authorized vehicles for the logged user
+        List<Vehicle> allIns;
+        if (webUserController.getLoggedUser() != null
+                && webUserController.getLoggedUser().getInstitution() != null
+                && (webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.MOH
+                || webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.CPC_HEAD_OFFICE)) {
+            allIns = vehicleApplicationController.getVehicles();
+        } else {
+            allIns = fillVehicles(webUserController.getLoggableInstitutions());
+        }
+
         nameQry = nameQry.trim();
         String words[] = nameQry.split("\\s+");
 

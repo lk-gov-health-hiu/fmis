@@ -177,7 +177,7 @@
                     <td>Fuel Price (Last Entry for Month):</td>
                     <td>
                         <h:outputText value="#{cc.attrs.bill.fuelPrice.price}" rendered="#{cc.attrs.bill.fuelPrice != null}">
-                            <f:convertNumber pattern="Rs. #,##0.00"/>
+                            <f:convertNumber pattern="'Rs.' #,##0.00"/>
                         </h:outputText>
                         <h:outputText value="Not Available" rendered="#{cc.attrs.bill.fuelPrice == null}" style="color: #999; font-style: italic;"/>
                     </td>
