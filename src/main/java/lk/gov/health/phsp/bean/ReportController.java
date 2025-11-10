@@ -513,7 +513,7 @@ public class ReportController implements Serializable {
         Sheet sheet = workbook.createSheet("Transactions");
 
         Row headerRow = sheet.createRow(0);
-        String[] columnHeaders = {"Ordered Date", "Transaction Type", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No"};
+        String[] columnHeaders = {"Ordered Date", "Transaction Type", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No", "Submitted to Payment At"};
         for (int i = 0; i < columnHeaders.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(columnHeaders[i]);
@@ -537,6 +537,9 @@ public class ReportController implements Serializable {
             }
             if (transaction.getIssueReferenceNumber() != null) {
                 row.createCell(10).setCellValue(transaction.getIssueReferenceNumber());
+            }
+            if (transaction.getSubmittedToPaymentAt() != null) {
+                row.createCell(11).setCellValue(transaction.getSubmittedToPaymentAt().toString());
             }
         }
 
@@ -737,7 +740,8 @@ public class ReportController implements Serializable {
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
                 .append("ft.issuedDate, ")
-                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ")
+                .append("ft.submittedToPaymentAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -914,7 +918,8 @@ public class ReportController implements Serializable {
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
                 .append("ft.issuedDate, ")
-                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ")
+                .append("ft.submittedToPaymentAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -984,7 +989,8 @@ public class ReportController implements Serializable {
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
                 .append("ft.issuedDate, ")
-                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ")
+                .append("ft.submittedToPaymentAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
