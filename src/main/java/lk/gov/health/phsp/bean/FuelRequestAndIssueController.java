@@ -947,6 +947,36 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/requests/list_bills_rejected_by_cpc?faces-redirect=true";
     }
 
+    // CPC-specific navigation methods
+    public String navigateToCpcListPaymentBills() {
+        listPaymentBills();
+        return "/cpc/list_payment_bills?faces-redirect=true";
+    }
+
+    public String navigateToCpcViewPaymentBill() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return null;
+        }
+        loadBillTransactions();
+        return "/cpc/view_payment_bill?faces-redirect=true";
+    }
+
+    public String navigateToCpcListBillsToAccept() {
+        listBillsToAcceptAtCpc();
+        return "/cpc/list_bills_to_accept?faces-redirect=true";
+    }
+
+    public String navigateToCpcListBillsAccepted() {
+        listBillsAcceptedByCpc();
+        return "/cpc/list_bills_accepted?faces-redirect=true";
+    }
+
+    public String navigateToCpcListBillsRejected() {
+        listBillsRejectedByCpc();
+        return "/cpc/list_bills_rejected?faces-redirect=true";
+    }
+
     public String navigateToCpcBillAction() {
         if (selectedBill == null) {
             JsfUtil.addErrorMessage("No bill selected");
