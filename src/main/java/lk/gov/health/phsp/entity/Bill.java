@@ -347,4 +347,18 @@ public class Bill implements Serializable {
         this.fuelPrice = fuelPrice;
     }
 
+    @Transient
+    public String getStatus() {
+        if (retired) {
+            return "Retired";
+        }
+        if (rejectedByCpc) {
+            return "Rejected by CPC";
+        }
+        if (acceptedByCpc) {
+            return "Accepted by CPC";
+        }
+        return "Pending";
+    }
+
 }

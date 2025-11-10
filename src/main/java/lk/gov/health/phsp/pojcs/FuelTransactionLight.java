@@ -446,6 +446,9 @@ public class FuelTransactionLight implements Serializable {
         if (retired) {
             return "Retired";
         }
+        if (submittedToPaymentAt != null) {
+            return "Submitted to Payment";
+        }
         if (dispensed) {
             return "Dispensed";
         }
