@@ -168,6 +168,16 @@ public class FuelTransaction implements Serializable {
     @ManyToOne
     private Bill paymentBill;
 
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date acceptedByCpcAt;
+    @ManyToOne
+    private WebUser acceptedByCpcBy;
+
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date rejectedByCpcAt;
+    @ManyToOne
+    private WebUser rejectedByCpcBy;
+
     public String getIdString() {
         if (id == null) {
             return "";
@@ -695,6 +705,38 @@ public class FuelTransaction implements Serializable {
         this.paymentBill = paymentBill;
     }
 
+    public Date getAcceptedByCpcAt() {
+        return acceptedByCpcAt;
+    }
+
+    public void setAcceptedByCpcAt(Date acceptedByCpcAt) {
+        this.acceptedByCpcAt = acceptedByCpcAt;
+    }
+
+    public WebUser getAcceptedByCpcBy() {
+        return acceptedByCpcBy;
+    }
+
+    public void setAcceptedByCpcBy(WebUser acceptedByCpcBy) {
+        this.acceptedByCpcBy = acceptedByCpcBy;
+    }
+
+    public Date getRejectedByCpcAt() {
+        return rejectedByCpcAt;
+    }
+
+    public void setRejectedByCpcAt(Date rejectedByCpcAt) {
+        this.rejectedByCpcAt = rejectedByCpcAt;
+    }
+
+    public WebUser getRejectedByCpcBy() {
+        return rejectedByCpcBy;
+    }
+
+    public void setRejectedByCpcBy(WebUser rejectedByCpcBy) {
+        this.rejectedByCpcBy = rejectedByCpcBy;
+    }
+
     public String getStatus() {
         if (cancelled) {
             return "Cancelled";
@@ -704,6 +746,15 @@ public class FuelTransaction implements Serializable {
         }
         if (retired) {
             return "Retired";
+        }
+        if (rejectedByCpcAt != null) {
+            return "Rejected by CPC";
+        }
+        if (acceptedByCpcAt != null) {
+            return "CPC Approved";
+        }
+        if (submittedToPayment) {
+            return "Submitted to Payment";
         }
         if (dispensed) {
             return "Dispensed";

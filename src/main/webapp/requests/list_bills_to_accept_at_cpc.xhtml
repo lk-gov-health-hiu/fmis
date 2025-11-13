@@ -29,23 +29,23 @@
                                         <h:panelGrid columns="2" class="w-100" >
                                             <label for="fromDate">From Date</label>
                                             <p:datePicker
-                    id="fromDate"
-                    value="#{fuelRequestAndIssueController.fromDate}"
-                    pattern="dd MMMM yyyy"
-                    dateFormat="dd MM yy">
-                </p:datePicker>
+                                                id="fromDate"
+                                                value="#{fuelRequestAndIssueController.fromDate}"
+                                                pattern="dd MMMM yyyy"
+                                                >
+                                            </p:datePicker>
 
                                             <label for="toDate">To Date</label>
                                             <p:datePicker
-                    id="toDate"
-                    value="#{fuelRequestAndIssueController.toDate}"
-                    pattern="dd MMMM yyyy"
-                    dateFormat="dd MM yy">
-                </p:datePicker>
+                                                id="toDate"
+                                                value="#{fuelRequestAndIssueController.toDate}"
+                                                pattern="dd MMMM yyyy"
+                                                >
+                                            </p:datePicker>
                                         </h:panelGrid>
                                         <h:panelGrid columns="1" class="w-100" >
                                             <p:commandButton value="List Bills"
-                                                             action="#{fuelRequestAndIssueController.listBillsToAcceptAtCpc()}"
+                                                             action="#{fuelRequestAndIssueController.listBillsToAcceptAtCpcForInstitutions()}"
                                                              icon="pi pi-list"
                                                              ajax="false"
                                                              class="btn btn-primary w-100 my-2" />
@@ -124,13 +124,6 @@
                                                                  icon="fa fa-eye"
                                                                  styleClass="ui-button-info m-1"
                                                                  action="#{fuelRequestAndIssueController.navigateToViewPaymentBill()}" >
-                                                    <f:setPropertyActionListener value="#{bill}" target="#{fuelRequestAndIssueController.selectedBill}" />
-                                                </p:commandButton>
-                                                <p:commandButton value="Accept/Reject"
-                                                                 ajax="false"
-                                                                 icon="fa fa-tasks"
-                                                                 styleClass="ui-button-warning m-1"
-                                                                 action="#{fuelRequestAndIssueController.navigateToCpcBillAction()}" >
                                                     <f:setPropertyActionListener value="#{bill}" target="#{fuelRequestAndIssueController.selectedBill}" />
                                                 </p:commandButton>
                                             </p:column>

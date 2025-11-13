@@ -215,6 +215,18 @@
                             <h:outputText value="#{transaction.issueReferenceNumber}" />
                         </p:column>
 
+                        <p:column headerText="Submitted to Payment At" sortBy="#{transaction.submittedToPaymentAt}" filterBy="#{transaction.submittedToPaymentAt}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.submittedToPaymentAt}" >
+                                <f:convertDateTime pattern="yyyy MMMM dd" ></f:convertDateTime>
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="CPC Approved" sortBy="#{transaction.acceptedByCpcAt}" filterBy="#{transaction.acceptedByCpcAt}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.acceptedByCpcAt}" >
+                                <f:convertDateTime pattern="yyyy MMMM" ></f:convertDateTime>
+                            </h:outputText>
+                        </p:column>
+
                         <p:column width="150" headerText="Actions">
                             <p:commandButton 
                                 ajax="false" 

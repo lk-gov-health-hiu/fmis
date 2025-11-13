@@ -84,6 +84,8 @@ public class FuelRequestAndIssueController implements Serializable {
     WebUserApplicationController webUserApplicationController;
     @Inject
     QRCodeController qrCodeController;
+    @Inject
+    InstitutionController institutionController;
 
     private DataAlterationRequest dataAlterationRequest;
     private List<DataAlterationRequest> dataAlterationRequests;
@@ -115,6 +117,11 @@ public class FuelRequestAndIssueController implements Serializable {
     private Map<Long, String> billItemComments; // Map of transaction ID to comment
 
     private String searchingFuelRequestVehicleNumber;
+
+    // Filter properties for list_bills_to_accept
+    private String billNumberFilter;
+    private Institution filterFromInstitution;
+    private Institution filterFuelStation;
 
     public FuelRequestAndIssueController() {
     }
@@ -386,11 +393,11 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Select Fuel Station");
             return "";
         }
-        if(selected.getRequestReferenceNumber()==null){
+        if (selected.getRequestReferenceNumber() == null) {
             JsfUtil.addErrorMessage("Enter a referance number");
             return "";
         }
-        if(selected.getRequestReferenceNumber().trim().equals("")){
+        if (selected.getRequestReferenceNumber().trim().equals("")) {
             JsfUtil.addErrorMessage("Enter a referance number");
             return "";
         }
@@ -1084,6 +1091,32 @@ public class FuelRequestAndIssueController implements Serializable {
         bills = tmpBills;
     }
 
+    public void listPaymentBillsForInstitutions() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.fromInstitution IN :institutions "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("institutions", webUserController.getLoggableInstitutions());
+        params.put("fromDate", fromDate); // fromDate should be set beforehand
+        params.put("toDate", toDate);     // toDate should be set beforehand
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
     public void listPaymentBillsForNationalLevel() {
         StringBuilder j = new StringBuilder();
         j.append("SELECT DISTINCT b ")
@@ -1196,6 +1229,52 @@ public class FuelRequestAndIssueController implements Serializable {
         params.put("fromDate", fromDate);
         params.put("toDate", toDate);
 
+        // Add bill number filter
+        if (billNumberFilter != null && !billNumberFilter.trim().isEmpty()) {
+            j += " AND b.billNo LIKE :billNo";
+            params.put("billNo", "%" + billNumberFilter.trim() + "%");
+        }
+
+        // Add from institution filter
+        if (filterFromInstitution != null) {
+            j += " AND b.fromInstitution = :fromInstitution";
+            params.put("fromInstitution", filterFromInstitution);
+        }
+
+        // Add fuel station filter
+        if (filterFuelStation != null) {
+            j += " AND b.toInstitution = :toInstitution";
+            params.put("toInstitution", filterFuelStation);
+        }
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listBillsToAcceptAtCpcForInstitutions() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.acceptedByCpc = false "
+                + " AND b.rejectedByCpc = false "
+                + " AND b.fromInstitution IN :ins "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("ins", webUserController.getLoggableInstitutions());
+        params.put("fromDate", fromDate);
+        params.put("toDate", toDate);
+
         System.out.println("params = " + params);
         System.out.println("j = " + j);
 
@@ -1220,6 +1299,51 @@ public class FuelRequestAndIssueController implements Serializable {
 
         Map<String, Object> params = new HashMap<>();
         params.put("fuelStations", webUserController.getLoggableInstitutions());
+        params.put("fromDate", fromDate);
+        params.put("toDate", toDate);
+
+        // Add bill number filter
+        if (billNumberFilter != null && !billNumberFilter.trim().isEmpty()) {
+            j += " AND b.billNo LIKE :billNo";
+            params.put("billNo", "%" + billNumberFilter.trim() + "%");
+        }
+
+        // Add from institution filter
+        if (filterFromInstitution != null) {
+            j += " AND b.fromInstitution = :fromInstitution";
+            params.put("fromInstitution", filterFromInstitution);
+        }
+
+        // Add fuel station filter
+        if (filterFuelStation != null) {
+            j += " AND b.toInstitution = :toInstitution";
+            params.put("toInstitution", filterFuelStation);
+        }
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listBillsAcceptedByCpcForInstitutions() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.acceptedByCpc = true "
+                + " AND b.fromInstitution IN :ins "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("ins", webUserController.getLoggableInstitutions());
         params.put("fromDate", fromDate);
         params.put("toDate", toDate);
 
@@ -1257,21 +1381,78 @@ public class FuelRequestAndIssueController implements Serializable {
         bills = tmpBills;
     }
 
+    public void listBillsRejectedByCpcForInstituion() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.rejectedByCpc = true "
+                + " AND b.fromInstitution IN :ins "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("ins", webUserController.getLoggableInstitutions());
+        params.put("fromDate", fromDate);
+        params.put("toDate", toDate);
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
     public String acceptBillAtCpc() {
         if (selectedBill == null) {
             JsfUtil.addErrorMessage("No bill selected");
             return null;
         }
 
-        // Mark bill as accepted
+        Date acceptanceDate = new Date();
+        WebUser acceptanceUser = webUserController.getLoggedUser();
+
+        // Mark bill as accepted (and clear all rejection-related fields)
         selectedBill.setAcceptedByCpc(true);
-        selectedBill.setAcceptedByCpcUser(webUserController.getLoggedUser());
-        selectedBill.setAcceptedByCpcAt(new Date());
+        selectedBill.setRejectedByCpc(false);
+        selectedBill.setRejectedByCpcUser(null);
+        selectedBill.setRejectedByCpcAt(null);
+        selectedBill.setRejectionComment(null);
+        selectedBill.setAcceptedByCpcUser(acceptanceUser);
+        selectedBill.setAcceptedByCpcAt(acceptanceDate);
+
+        // Get all BillItems for this bill
+        String billItemsJpql = "SELECT bi FROM BillItem bi "
+                + "WHERE bi.bill = :bill "
+                + "AND bi.retired = false";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("bill", selectedBill);
+
+        List<BillItem> billItems = billItemFacade.findByJpql(billItemsJpql, params);
+
+        // Update each FuelTransaction with acceptance information
+        for (BillItem billItem : billItems) {
+            FuelTransaction ft = billItem.getFuelTransaction();
+            if (ft != null && !ft.isRetired()) {
+                // Mark as accepted and clear any rejection data
+                ft.setAcceptedByCpcAt(acceptanceDate);
+                ft.setAcceptedByCpcBy(acceptanceUser);
+                ft.setRejectedByCpcAt(null);
+                ft.setRejectedByCpcBy(null);
+                fuelTransactionFacade.edit(ft);
+            }
+        }
 
         // Save the bill
         billFacade.edit(selectedBill);
 
-        JsfUtil.addSuccessMessage("Payment bill accepted successfully");
+        JsfUtil.addSuccessMessage("Payment bill accepted successfully. " + billItems.size() + " transaction(s) updated.");
 
         // Navigate back to the pending bills list
         return navigateToListBillsToAcceptAtCpc();
@@ -1289,10 +1470,16 @@ public class FuelRequestAndIssueController implements Serializable {
             return null;
         }
 
-        // Mark bill as rejected
+        Date rejectionDate = new Date();
+        WebUser rejectionUser = webUserController.getLoggedUser();
+
+        // Mark bill as rejected (and clear all acceptance-related fields)
         selectedBill.setRejectedByCpc(true);
-        selectedBill.setRejectedByCpcUser(webUserController.getLoggedUser());
-        selectedBill.setRejectedByCpcAt(new Date());
+        selectedBill.setAcceptedByCpc(false);
+        selectedBill.setAcceptedByCpcUser(null);
+        selectedBill.setAcceptedByCpcAt(null);
+        selectedBill.setRejectedByCpcUser(rejectionUser);
+        selectedBill.setRejectedByCpcAt(rejectionDate);
         selectedBill.setRejectionComment(billRejectionComment.trim());
 
         // Get all BillItems for this bill
@@ -1318,6 +1505,12 @@ public class FuelRequestAndIssueController implements Serializable {
                     }
                 }
 
+                // Mark transaction as rejected by CPC and clear any acceptance data
+                ft.setRejectedByCpcAt(rejectionDate);
+                ft.setRejectedByCpcBy(rejectionUser);
+                ft.setAcceptedByCpcAt(null);
+                ft.setAcceptedByCpcBy(null);
+
                 // Reverse the transaction - clear paymentBill so it can be resubmitted
                 ft.setSubmittedToPayment(false);
                 ft.setSubmittedToPaymentAt(null);
@@ -1330,7 +1523,7 @@ public class FuelRequestAndIssueController implements Serializable {
         // Save the bill
         billFacade.edit(selectedBill);
 
-        JsfUtil.addSuccessMessage("Payment bill rejected and all transactions reversed successfully");
+        JsfUtil.addSuccessMessage("Payment bill rejected and all transactions reversed successfully. " + billItems.size() + " transaction(s) marked as rejected by CPC.");
 
         // Navigate back to the pending bills list
         return navigateToListBillsToAcceptAtCpc();
@@ -1428,8 +1621,8 @@ public class FuelRequestAndIssueController implements Serializable {
             toCal.setTime(toDate);
 
             // Check if month and year are the same
-            if (fromCal.get(java.util.Calendar.MONTH) != toCal.get(java.util.Calendar.MONTH) ||
-                fromCal.get(java.util.Calendar.YEAR) != toCal.get(java.util.Calendar.YEAR)) {
+            if (fromCal.get(java.util.Calendar.MONTH) != toCal.get(java.util.Calendar.MONTH)
+                    || fromCal.get(java.util.Calendar.YEAR) != toCal.get(java.util.Calendar.YEAR)) {
                 JsfUtil.addErrorMessage("From Date and To Date must be in the same month");
                 return null;
             }
@@ -1445,7 +1638,7 @@ public class FuelRequestAndIssueController implements Serializable {
         for (FuelTransaction ft : transactions) {
             if (ft.getToInstitution() == null) {
                 JsfUtil.addErrorMessage("All transactions must have a fuel station assigned. Please check transaction for vehicle: "
-                    + (ft.getVehicle() != null ? ft.getVehicle().getVehicleNumber() : "Unknown"));
+                        + (ft.getVehicle() != null ? ft.getVehicle().getVehicleNumber() : "Unknown"));
                 return null;
             }
         }
@@ -1464,9 +1657,9 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     /**
-     * Generates a unique monthly number for bills based on the month, fromInstitution, and toInstitution.
-     * Format: YYYYMM-NNN where NNN is a 3-digit sequential number
-     * Example: 202511-001, 202511-002, etc.
+     * Generates a unique monthly number for bills based on the month,
+     * fromInstitution, and toInstitution. Format: YYYYMM-NNN where NNN is a
+     * 3-digit sequential number Example: 202511-001, 202511-002, etc.
      *
      * @param fromInstitution The institution making the payment request
      * @param toInstitution The institution receiving the payment request
@@ -1537,7 +1730,7 @@ public class FuelRequestAndIssueController implements Serializable {
                 } catch (NumberFormatException e) {
                     // If parsing fails, start from 1
                     Logger.getLogger(FuelRequestAndIssueController.class.getName())
-                        .log(Level.WARNING, "Could not parse sequential number from monthly number: " + lastMonthlyNumber, e);
+                            .log(Level.WARNING, "Could not parse sequential number from monthly number: " + lastMonthlyNumber, e);
                     nextSequentialNumber = 1;
                 }
             }
@@ -1553,9 +1746,9 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     /**
-     * Generates a unique bill number based on billType, fromInstitution, and toInstitution.
-     * Format: [First 2 letters of billType][fromInstitution code][toInstitution code][sequential number]
-     * Example: PAHSP001DEL001-0001
+     * Generates a unique bill number based on billType, fromInstitution, and
+     * toInstitution. Format: [First 2 letters of billType][fromInstitution
+     * code][toInstitution code][sequential number] Example: PAHSP001DEL001-0001
      *
      * @param billType The type of the bill
      * @param fromInstitution The institution making the payment request
@@ -1577,8 +1770,8 @@ public class FuelRequestAndIssueController implements Serializable {
 
         // Extract first two letters of bill type (convert to uppercase)
         String billTypePrefix = billType.length() >= 2
-            ? billType.substring(0, 2).toUpperCase()
-            : billType.toUpperCase();
+                ? billType.substring(0, 2).toUpperCase()
+                : billType.toUpperCase();
 
         // Get institution codes (ensure they're uppercase for consistency)
         String fromCode = fromInstitution.getCode().toUpperCase().trim();
@@ -1620,7 +1813,7 @@ public class FuelRequestAndIssueController implements Serializable {
             } catch (NumberFormatException e) {
                 // If parsing fails, start from 1
                 Logger.getLogger(FuelRequestAndIssueController.class.getName())
-                    .log(Level.WARNING, "Could not parse sequential number from bill: " + lastBillNo, e);
+                        .log(Level.WARNING, "Could not parse sequential number from bill: " + lastBillNo, e);
                 nextSequentialNumber = 1;
             }
         }
@@ -1636,6 +1829,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
     /**
      * Get the last fuel price entry for the given month and year
+     *
      * @param billDate The date for which to find the fuel price
      * @return The last FuelPrice entry for that month, or null if not found
      */
@@ -1725,14 +1919,14 @@ public class FuelRequestAndIssueController implements Serializable {
         // Generate and set unique bill number
         try {
             String billNumber = generateUniqueBillNumber(
-                fuelPaymentRequestBill.getBillType(),
-                hospital,
-                fuelStation
+                    fuelPaymentRequestBill.getBillType(),
+                    hospital,
+                    fuelStation
             );
             fuelPaymentRequestBill.setBillNo(billNumber);
         } catch (Exception e) {
             Logger.getLogger(FuelRequestAndIssueController.class.getName())
-                .log(Level.SEVERE, "Error generating bill number", e);
+                    .log(Level.SEVERE, "Error generating bill number", e);
             JsfUtil.addErrorMessage("Error generating bill number: " + e.getMessage());
             paymentRequestStarted = false;
             return null;
@@ -1741,14 +1935,14 @@ public class FuelRequestAndIssueController implements Serializable {
         // Generate and set monthly number
         try {
             String monthlyNumber = generateMonthlyNumber(
-                hospital,
-                fuelStation,
-                fuelPaymentRequestBill.getBillDate()
+                    hospital,
+                    fuelStation,
+                    fuelPaymentRequestBill.getBillDate()
             );
             fuelPaymentRequestBill.setMonthlyNumber(monthlyNumber);
         } catch (Exception e) {
             Logger.getLogger(FuelRequestAndIssueController.class.getName())
-                .log(Level.SEVERE, "Error generating monthly number", e);
+                    .log(Level.SEVERE, "Error generating monthly number", e);
             JsfUtil.addErrorMessage("Error generating monthly number: " + e.getMessage());
             paymentRequestStarted = false;
             return null;
@@ -1760,14 +1954,14 @@ public class FuelRequestAndIssueController implements Serializable {
             if (lastFuelPrice != null) {
                 fuelPaymentRequestBill.setFuelPrice(lastFuelPrice);
                 Logger.getLogger(FuelRequestAndIssueController.class.getName())
-                    .log(Level.INFO, "Set fuel price for bill: " + lastFuelPrice.getPrice());
+                        .log(Level.INFO, "Set fuel price for bill: " + lastFuelPrice.getPrice());
             } else {
                 Logger.getLogger(FuelRequestAndIssueController.class.getName())
-                    .log(Level.WARNING, "No fuel price found for the bill month");
+                        .log(Level.WARNING, "No fuel price found for the bill month");
             }
         } catch (Exception e) {
             Logger.getLogger(FuelRequestAndIssueController.class.getName())
-                .log(Level.WARNING, "Error fetching fuel price for bill", e);
+                    .log(Level.WARNING, "Error fetching fuel price for bill", e);
             // Continue without fuel price - this is not a critical error
         }
 
@@ -1824,10 +2018,9 @@ public class FuelRequestAndIssueController implements Serializable {
         m.put("pb", fuelPaymentRequestBill);
 
         selectedTransactions = getFacade().findByJpql(jpql, m);
-        
+
         Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
 
-        
         return "/requests/list_payment?faces-redirect=true";
 
     }
@@ -1936,7 +2129,7 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listInstitutionRequestsToMark() {
-        filterByIssuedDate= false;
+        filterByIssuedDate = false;
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), false, false, false);
     }
 
@@ -2044,7 +2237,7 @@ public class FuelRequestAndIssueController implements Serializable {
             j += " AND ft.transactionType = :ftxs";
             params.put("ftxs", type);
         }
-         j += " order by ft.requestReferenceNumber ";
+        j += " order by ft.requestReferenceNumber ";
         List<FuelTransaction> fuelTransactions = getFacade().findByJpql(j, params);
         return fuelTransactions;
     }
@@ -2439,6 +2632,20 @@ public class FuelRequestAndIssueController implements Serializable {
         this.fuelStation = fuelStation;
     }
 
+    public List<Institution> completeFromInstitutions(String query) {
+        if (institutionController != null) {
+            return institutionController.completeFuelRequestingFromInstitutions(query);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Institution> completeFuelStations(String query) {
+        if (institutionController != null) {
+            return institutionController.completeInstitutions(query);
+        }
+        return new ArrayList<>();
+    }
+
     public List<Institution> getAvailableFuelStations() {
         if (availableFuelStations == null) {
             availableFuelStations = new ArrayList<>();
@@ -2448,7 +2655,7 @@ public class FuelRequestAndIssueController implements Serializable {
                     availableFuelStations.add(loggedInstitution.getSupplyInstitution());
                 }
                 if (loggedInstitution.getAlternativeSupplyInstitution() != null
-                    && !availableFuelStations.contains(loggedInstitution.getAlternativeSupplyInstitution())) {
+                        && !availableFuelStations.contains(loggedInstitution.getAlternativeSupplyInstitution())) {
                     availableFuelStations.add(loggedInstitution.getAlternativeSupplyInstitution());
                 }
             }
@@ -2458,6 +2665,30 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setAvailableFuelStations(List<Institution> availableFuelStations) {
         this.availableFuelStations = availableFuelStations;
+    }
+
+    public String getBillNumberFilter() {
+        return billNumberFilter;
+    }
+
+    public void setBillNumberFilter(String billNumberFilter) {
+        this.billNumberFilter = billNumberFilter;
+    }
+
+    public Institution getFilterFromInstitution() {
+        return filterFromInstitution;
+    }
+
+    public void setFilterFromInstitution(Institution filterFromInstitution) {
+        this.filterFromInstitution = filterFromInstitution;
+    }
+
+    public Institution getFilterFuelStation() {
+        return filterFuelStation;
+    }
+
+    public void setFilterFuelStation(Institution filterFuelStation) {
+        this.filterFuelStation = filterFuelStation;
     }
 
     @FacesConverter(forClass = FuelTransaction.class)
