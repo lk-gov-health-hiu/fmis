@@ -18,12 +18,20 @@
 
                         <f:facet name="header" >
                             <h:outputText value="Vehicle / Generator" ></h:outputText>
-                            <p:commandButton 
+                            <p:commandButton
                                 ajax="false"
-                                style="float: right;" 
-                                class="btn btn-success" 
-                                action="#{vehicleController.saveOrUpdateVehicle()}" 
+                                style="float: right;"
+                                class="btn btn-success"
+                                action="#{vehicleController.saveOrUpdateVehicle()}"
                                 value="Save"/>
+                            <p:commandButton
+                                ajax="false"
+                                style="float: right; margin-right: 10px;"
+                                class="btn btn-info"
+                                action="#{vehicleController.toPrintVehicleQRCode()}"
+                                value="Print QR Code"
+                                icon="pi pi-qrcode"
+                                rendered="#{vehicleController.selected.id != null}"/>
 
                         </f:facet>
 

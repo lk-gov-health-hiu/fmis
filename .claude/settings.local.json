@@ -6,7 +6,10 @@
       "Bash(powershell -ExecutionPolicy Bypass -File \"D:\\Dev\\fmis\\update-panelgrid.ps1\")",
       "Bash(python:*)",
       "Bash(nul)",
-      "Bash(mvn compile:compile:*)"
+      "Bash(mvn compile:compile:*)",
+      "Bash(mvn dependency:tree:*)",
+      "WebSearch",
+      "WebFetch(domain:mvnrepository.com)"
     ],
     "deny": [],
     "ask": []

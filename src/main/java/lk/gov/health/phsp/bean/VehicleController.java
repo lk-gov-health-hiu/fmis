@@ -87,8 +87,20 @@ public class VehicleController implements Serializable {
 
     public void generateQRCode() {
         try {
+            if (selected == null) {
+                return;
+            }
+
+            // Create JSON string with vehicle data
+            StringBuilder qrData = new StringBuilder();
+            qrData.append("{");
+            qrData.append("\"id\":\"").append(selected.getId() != null ? selected.getId() : "").append("\",");
+            qrData.append("\"vehicleNumber\":\"").append(selected.getVehicleNumber() != null ? selected.getVehicleNumber() : "").append("\",");
+            qrData.append("\"institutionName\":\"").append(selected.getInstitution() != null && selected.getInstitution().getName() != null ? selected.getInstitution().getName() : "").append("\"");
+            qrData.append("}");
+
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
-            BitMatrix bitMatrix = qrCodeWriter.encode(selected.getIdString(), BarcodeFormat.QR_CODE, 200, 200);
+            BitMatrix bitMatrix = qrCodeWriter.encode(qrData.toString(), BarcodeFormat.QR_CODE, 300, 300);
 
             BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -101,6 +113,15 @@ public class VehicleController implements Serializable {
         } catch (WriterException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String toPrintVehicleQRCode() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Please select a vehicle");
+            return "";
+        }
+        generateQRCode();
+        return "/institution/admin/vehicle_qr_print";
     }
 
     public StreamedContent getQrCode() {
