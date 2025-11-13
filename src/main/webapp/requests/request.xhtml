@@ -29,11 +29,12 @@
                                     </f:facet>
 
                                     <p:outputLabel for="calDate" value="Date" />
-                                    <p:datePicker
-                    id="calDate"
-                    value="#{fuelRequestAndIssueController.selected.requestedDate}"
-                    pattern="dd MM yyyy">
-                </p:datePicker>
+                                    <p:calendar
+                                        id="calDate"
+                                        value="#{fuelRequestAndIssueController.selected.requestedDate}"
+                                        pattern="dd MMMM yyyy"
+                                        dateFormat="dd MM yy">
+                                    </p:calendar>
 
                                     <p:outputLabel for="acVehicle" value="Vehicle" />
                                     <p:inputText  readonly="true" class="w-100" value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}#{fuelRequestAndIssueController.selected.vehicle.allocationType ne null ? ' ('.concat(fuelRequestAndIssueController.selected.vehicle.allocationType.label).concat(')') : ''}" rendered="#{fuelRequestAndIssueController.selected.vehicle ne null}" />
