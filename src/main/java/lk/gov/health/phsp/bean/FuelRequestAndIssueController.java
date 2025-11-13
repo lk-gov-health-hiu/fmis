@@ -1760,22 +1760,27 @@ public class FuelRequestAndIssueController implements Serializable {
             throw new IllegalArgumentException("billType, fromInstitution, and toInstitution cannot be null");
         }
 
-        if (fromInstitution.getCode() == null || fromInstitution.getCode().trim().isEmpty()) {
-            throw new IllegalArgumentException("fromInstitution must have a valid code");
+        // Use short codes if available, otherwise fall back to regular codes
+        String fromCode = fromInstitution.getShortCode() != null && !fromInstitution.getShortCode().trim().isEmpty()
+                ? fromInstitution.getShortCode().toUpperCase().trim()
+                : (fromInstitution.getCode() != null ? fromInstitution.getCode().toUpperCase().trim() : "");
+
+        String toCode = toInstitution.getShortCode() != null && !toInstitution.getShortCode().trim().isEmpty()
+                ? toInstitution.getShortCode().toUpperCase().trim()
+                : (toInstitution.getCode() != null ? toInstitution.getCode().toUpperCase().trim() : "");
+
+        if (fromCode.isEmpty()) {
+            throw new IllegalArgumentException("fromInstitution must have a valid code or short code");
         }
 
-        if (toInstitution.getCode() == null || toInstitution.getCode().trim().isEmpty()) {
-            throw new IllegalArgumentException("toInstitution must have a valid code");
+        if (toCode.isEmpty()) {
+            throw new IllegalArgumentException("toInstitution must have a valid code or short code");
         }
 
         // Extract first two letters of bill type (convert to uppercase)
         String billTypePrefix = billType.length() >= 2
                 ? billType.substring(0, 2).toUpperCase()
                 : billType.toUpperCase();
-
-        // Get institution codes (ensure they're uppercase for consistency)
-        String fromCode = fromInstitution.getCode().toUpperCase().trim();
-        String toCode = toInstitution.getCode().toUpperCase().trim();
 
         // Create the prefix for the bill number
         String billNumberPrefix = billTypePrefix + fromCode + toCode;
@@ -1803,7 +1808,7 @@ public class FuelRequestAndIssueController implements Serializable {
             String lastBillNo = existingBills.get(0).getBillNo();
 
             // Extract the sequential number from the last bill number
-            // Format: PREFIX-NNNN (where NNNN is the sequential number)
+            // Format: PREFIX-NN (where NN is the sequential number)
             try {
                 String[] parts = lastBillNo.split("-");
                 if (parts.length == 2) {
@@ -1818,8 +1823,8 @@ public class FuelRequestAndIssueController implements Serializable {
             }
         }
 
-        // Format the sequential number with leading zeros (4 digits)
-        String sequentialPart = String.format("%04d", nextSequentialNumber);
+        // Format the sequential number with leading zeros (2 digits)
+        String sequentialPart = String.format("%02d", nextSequentialNumber);
 
         // Generate the final bill number
         String billNumber = billNumberPrefix + "-" + sequentialPart;
@@ -2026,6 +2031,9 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listInstitutionRequestsToPay() {
+        // Clear the fuel stations dropdown to prevent accumulation across different logins
+        availableFuelStations = null;
+
         // Always filter by issued date for payment requests
         filterByIssuedDate = true;
         transactions
