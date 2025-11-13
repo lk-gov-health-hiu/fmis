@@ -146,7 +146,7 @@
         <dependency>
             <groupId>org.primefaces</groupId>
             <artifactId>primefaces</artifactId>
-            <version>14.0.0</version>
+            <version>14.0.12</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -291,12 +291,12 @@
         </dependency>
 
 
-        <!-- https://mvnrepository.com/artifact/org.primefaces.extensions/primefaces-extensions -->
+<!--         https://mvnrepository.com/artifact/org.primefaces.extensions/primefaces-extensions 
         <dependency>
             <groupId>org.primefaces.extensions</groupId>
             <artifactId>primefaces-extensions</artifactId>
             <version>10.0.5</version>
-        </dependency>
+        </dependency>-->
 
         <!-- JWT dependancy -->
         <dependency>
