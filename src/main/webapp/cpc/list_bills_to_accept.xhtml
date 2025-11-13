@@ -25,32 +25,64 @@
                             <div class="card-body" >
 
                                 <div class="row" >
-                                    <div class="col-2 p-2" >
-                                        <h:panelGrid columns="2" class="w-100" >
-                                            <label for="fromDate">From Date</label>
+                                    <div class="col-md-3" >
+                                        <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" >
+                                            <p:outputLabel for="fromDate" value="From Date" />
                                             <p:datePicker
                                                 id="fromDate"
                                                 value="#{fuelRequestAndIssueController.fromDate}"
                                                 pattern="dd MMMM yyyy"
-                                                class="w-100 m-1"/>
+                                                styleClass="w-100"/>
 
-                                            <label for="toDate">To Date</label>
+                                            <p:outputLabel for="toDate" value="To Date" />
                                             <p:datePicker
                                                 id="toDate"
                                                 pattern="dd MMMM yyyy"
                                                 value="#{fuelRequestAndIssueController.toDate}"
-                                                class="w-100 m-1" />
-                                        </h:panelGrid>
-                                        <h:panelGrid columns="1" class="w-100" >
+                                                styleClass="w-100" />
+
+                                            <p:outputLabel for="billNumber" value="Bill Number" />
+                                            <p:inputText
+                                                id="billNumber"
+                                                value="#{fuelRequestAndIssueController.billNumberFilter}"
+                                                placeholder="Enter bill number"
+                                                styleClass="w-100"/>
+
+                                            <p:outputLabel for="fromInstitution" value="From Institution" />
+                                            <p:autoComplete
+                                                id="fromInstitution"
+                                                value="#{fuelRequestAndIssueController.filterFromInstitution}"
+                                                completeMethod="#{fuelRequestAndIssueController.completeFromInstitutions}"
+                                                var="inst"
+                                                itemLabel="#{inst.name}"
+                                                itemValue="#{inst}"
+                                                forceSelection="true"
+                                                placeholder="Select institution"
+                                                styleClass="w-100"
+                                                dropdown="true"/>
+
+                                            <p:outputLabel for="fuelStation" value="Fuel Station" />
+                                            <p:autoComplete
+                                                id="fuelStation"
+                                                value="#{fuelRequestAndIssueController.filterFuelStation}"
+                                                completeMethod="#{fuelRequestAndIssueController.completeFuelStations}"
+                                                var="fs"
+                                                itemLabel="#{fs.name} - #{fs.code}"
+                                                itemValue="#{fs}"
+                                                forceSelection="true"
+                                                placeholder="Select fuel station"
+                                                styleClass="w-100"
+                                                dropdown="true"/>
+
                                             <p:commandButton value="List Bills"
                                                              action="#{fuelRequestAndIssueController.listBillsToAcceptAtCpc()}"
                                                              icon="pi pi-list"
                                                              ajax="false"
-                                                             class="btn btn-primary w-100 my-2" />
-                                        </h:panelGrid>
-                                        <p:messages ></p:messages>
+                                                             styleClass="ui-button-raised ui-button-primary w-100 mt-3" />
+                                        </p:panelGrid>
+                                        <p:messages />
                                     </div>
-                                    <div class="col-10 p-2" >
+                                    <div class="col-md-9" >
                                         <p:dataTable
                                             id="tblBills"
                                             value="#{fuelRequestAndIssueController.bills}" var="bill" rowKey="#{bill.id}"

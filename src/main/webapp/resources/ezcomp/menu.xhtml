@@ -38,8 +38,11 @@
                     <p:menuitem class="submenu-item" ajax="false" value="View Orders"
                                 action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
                     <p:menuitem class="submenu-item" ajax="false" value="Make Payment Orders"
+                                rendered="#{webUserController.institutionPaymentManagementMenuAvailable or webUserController.systemAdminPaymentManagementMenuAvailable}" 
                                 action="#{fuelRequestAndIssueController.navigateToMakePayment()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Previously Completed Payment Orders"
+                    <p:menuitem class="submenu-item" ajax="false"
+                                rendered="#{webUserController.institutionPaymentManagementMenuAvailable or webUserController.systemAdminPaymentManagementMenuAvailable}" 
+                                value="Previously Completed Payment Orders"
                                 action="#{fuelRequestAndIssueController.navigateToPaymentsMade()}" />
 
                 </p:submenu>
