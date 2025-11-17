@@ -25,10 +25,10 @@
                                 action="#{vehicleController.saveOrUpdateVehicle()}"
                                 value="Save"/>
                             <p:commandButton
-                                ajax="false"
+                                type="button"
                                 style="float: right; margin-right: 10px;"
                                 class="btn btn-info"
-                                action="#{vehicleController.toPrintVehicleQRCode()}"
+                                onclick="window.open('#{request.contextPath}/app/institution/admin/vehicle_qr_print_popup.xhtml', 'QRCodePrint', 'width=800,height=600,resizable=yes,scrollbars=yes'); return false;"
                                 value="Print QR Code"
                                 icon="pi pi-qrcode"
                                 rendered="#{vehicleController.selected.id != null}"/>

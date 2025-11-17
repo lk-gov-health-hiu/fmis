@@ -7,33 +7,7 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <h:head>
-        <title>Vehicle QR Code - Print</title>
         <style type="text/css">
-            @media screen {
-                body {
-                    background-color: #f5f5f5;
-                    font-family: Arial, sans-serif;
-                }
-
-                .page-container {
-                    max-width: 1200px;
-                    margin: 20px auto;
-                    padding: 20px;
-                }
-
-                .preview-card {
-                    background: white;
-                    padding: 30px;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                    text-align: center;
-                }
-
-                .button-container {
-                    margin-bottom: 30px;
-                }
-            }
-
             @media print {
                 @page {
                     size: 85.6mm 53.98mm;
@@ -103,54 +77,61 @@
                 padding: 3mm;
                 border-radius: 5px;
             }
+
+            .preview-container {
+                padding: 2rem;
+                text-align: center;
+            }
+
+            .button-container {
+                margin-bottom: 30px;
+            }
         </style>
     </h:head>
 
     <h:body>
-        <div class="page-container">
-            <div class="preview-card">
-                <h2 style="margin-bottom: 20px;">Vehicle QR Code Print Preview</h2>
+        <ui:composition template="/institution/admin/index.xhtml">
+            <ui:define name="admin">
+                <h:form id="VehicleQRPrintForm">
+                    <div class="preview-container">
+                        <h2 style="margin-bottom: 20px;">Vehicle QR Code Print</h2>
 
-                <div class="button-container">
-                    <p:commandButton value="Print QR Code"
-                                     type="button"
-                                     icon="pi pi-print"
-                                     styleClass="btn btn-primary">
-                        <p:printer target="printableArea" />
-                    </p:commandButton>
-
-                    <p:commandButton value="Back to Vehicle"
-                                     action="#{vehicleController.toEditVehicle()}"
-                                     icon="pi pi-arrow-left"
-                                     styleClass="btn btn-secondary"
-                                     style="margin-left: 10px;"/>
-                </div>
-
-                <h:panelGroup id="printableArea">
-                    <div class="credit-card-print">
-                        <div class="card-border">
-                            <div class="qr-code-container">
-                                <p:graphicImage value="#{vehicleController.qrCode}"
-                                                styleClass="qr-code-image"/>
-                            </div>
-
-                            <div class="vehicle-number-text">
-                                #{vehicleController.selected.vehicleNumber}
-                            </div>
-
-                            <h:panelGroup rendered="#{vehicleController.selected.institution != null}">
-                                <div class="institution-name">
-                                    #{vehicleController.selected.institution.name}
-                                </div>
-                            </h:panelGroup>
+                        <div class="button-container">
+                            <p:commandButton value="Print QR Code"
+                                             type="button"
+                                             icon="pi pi-print"
+                                             styleClass="btn btn-primary btn-lg">
+                                <p:printer target="printableArea" />
+                            </p:commandButton>
                         </div>
-                    </div>
-                </h:panelGroup>
 
-                <p style="margin-top: 30px; color: #666; font-size: 14px;">
-                    This QR code will be printed in credit card size (85.6mm x 53.98mm)
-                </p>
-            </div>
-        </div>
+                        <h:panelGroup id="printableArea">
+                            <div class="credit-card-print">
+                                <div class="card-border">
+                                    <div class="qr-code-container">
+                                        <p:graphicImage value="#{vehicleController.qrCode}"
+                                                        styleClass="qr-code-image"/>
+                                    </div>
+
+                                    <div class="vehicle-number-text">
+                                        #{vehicleController.selected.vehicleNumber}
+                                    </div>
+
+                                    <h:panelGroup rendered="#{vehicleController.selected.institution != null}">
+                                        <div class="institution-name">
+                                            #{vehicleController.selected.institution.name}
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+
+                        <p style="margin-top: 30px; color: #666; font-size: 14px;">
+                            This QR code will be printed in credit card size (85.6mm x 53.98mm)
+                        </p>
+                    </div>
+                </h:form>
+            </ui:define>
+        </ui:composition>
     </h:body>
 </html>
