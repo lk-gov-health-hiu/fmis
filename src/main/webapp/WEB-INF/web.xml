@@ -22,6 +22,11 @@
         <param-value>none</param-value>
     </context-param>
 
+    <context-param>
+        <param-name>primefaces.DATEPICKER_DATEFORMAT</param-name>
+        <param-value>dd MM yy</param-value>
+    </context-param>
+
 
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>

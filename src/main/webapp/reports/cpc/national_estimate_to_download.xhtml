@@ -56,7 +56,7 @@
                             <h:outputText value="#{row.fuelStation.district.name}" />
                         </p:column>
                         <p:column headerText="Fuel Station Estimate" 
-                                  filterMatchMode="numeric">
+                                  >
                             <h:outputText value="#{row.fuelStationEstimate}" />
                         </p:column>
                         <p:column headerText="Institution"
@@ -68,7 +68,7 @@
                             <h:outputText value="#{row.institution != null ? row.institution.parent.name : ''}" />
                         </p:column>
                         <p:column headerText="Institution Estimate" 
-                                  filterMatchMode="numeric">
+                                  >
                             <h:outputText value="#{row.institutionEstimate}" />
                         </p:column>
                         <p:column headerText="Vehicle" 
@@ -76,7 +76,7 @@
                             <h:outputText value="#{row.vehicle != null ? row.vehicle.name : ''}" />
                         </p:column>
                         <p:column headerText="Vehicle Estimate" 
-                                  filterMatchMode="numeric">
+                                  >
                             <h:outputText value="#{row.totalEstimate}" />
                         </p:column>
 

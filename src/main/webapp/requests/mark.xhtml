@@ -38,54 +38,58 @@
                                             <div class="container">
                                                 <div class="row">
                                                     <div class="col-md-6">
+                                                        <p:panelGrid columns="2" layout="tabular"  class="w-100 p-3 m-3">
+                                                            <p:outputLabel for="calDate" value="Date" />
+                                                            <p:datePicker
+                                                                id="calDate"
+                                                                value="#{fuelRequestAndIssueController.selected.issuedDate}"
+                                                                pattern="dd MMMM yyyy"
+                                                                >
+                                                            </p:datePicker>
 
+                                                            <p:outputLabel value="Confirmed Quantity"
+                                                                           for="qty">
+                                                            </p:outputLabel>
+                                                            <p:inputText
+                                                                id="qty"
+                                                                class="form-control"
+                                                                required="true"
+                                                                requiredMessage="Enter the Confirmed Quantity"
+                                                                value="#{fuelRequestAndIssueController.selected.issuedQuantity}" ></p:inputText>
+                                                            <p:outputLabel value="Confirmation Reference Number"
+                                                                           for="ref">
+                                                            </p:outputLabel>
+                                                            <p:inputText
+                                                                id="ref"
+                                                                class="form-control"
+                                                                required="true"
+                                                                requiredMessage="Enter the Reference Number"
+                                                                value="#{fuelRequestAndIssueController.selected.issueReferenceNumber}" ></p:inputText>
+                                                            <p:outputLabel value="Confirmed Fuel Shed / Depot"
+                                                                           for="qty">
+                                                            </p:outputLabel>
+                                                            <p:autoComplete
+                                                                id="depo"
+                                                                class="d-block"
+                                                                inputStyleClass="form-control"
+                                                                value="#{fuelRequestAndIssueController.selected.issuedInstitution}"
+                                                                completeMethod="#{institutionController.completeFuelStations}"
+                                                                var="i"
+                                                                disabled="true"
+                                                                itemLabel="#{i.name}"
+                                                                itemValue="#{i}"
+                                                                forceSelection="True"
+                                                                maxResults="15"
+                                                                minQueryLength="3">
+                                                            </p:autoComplete >
 
-                                                        <p:outputLabel for="calDate" value="Date" class="form-label"/>
-                                                        <p:calendar id="calDate" class="w-100"
-                                                                    inputStyleClass="w-100"
-                                                                    value="#{fuelRequestAndIssueController.selected.issuedDate}" pattern="dd MM yyyy" ></p:calendar>
+                                                            <p:commandButton  value="Mark as Confirmed" 
+                                                                              ajax="false"
+                                                                              class="btn btn-primary w-75 m-2 p-2"
+                                                                              action="#{fuelRequestAndIssueController.submitMarkVehicleFuelRequestIssue()}" >
+                                                            </p:commandButton>
 
-                                                        <p:outputLabel value="Confirmed Quantity"
-                                                                       for="qty">
-                                                        </p:outputLabel>
-                                                        <p:inputText
-                                                            id="qty"
-                                                            class="form-control"
-                                                            required="true"
-                                                            requiredMessage="Enter the Confirmed Quantity"
-                                                            value="#{fuelRequestAndIssueController.selected.issuedQuantity}" ></p:inputText>
-                                                        <p:outputLabel value="Confirmation Reference Number"
-                                                                       for="ref">
-                                                        </p:outputLabel>
-                                                        <p:inputText
-                                                            id="ref"
-                                                            class="form-control"
-                                                            required="true"
-                                                            requiredMessage="Enter the Reference Number"
-                                                            value="#{fuelRequestAndIssueController.selected.issueReferenceNumber}" ></p:inputText>
-                                                        <p:outputLabel value="Confirmed Fuel Shed / Depot"
-                                                                       for="qty">
-                                                        </p:outputLabel>
-                                                        <p:autoComplete
-                                                            id="depo"
-                                                            class="d-block"
-                                                            inputStyleClass="form-control"
-                                                            value="#{fuelRequestAndIssueController.selected.issuedInstitution}"
-                                                            completeMethod="#{institutionController.completeFuelStations}"
-                                                            var="i"
-                                                            disabled="true"
-                                                            itemLabel="#{i.name}"
-                                                            itemValue="#{i}"
-                                                            forceSelection="True"
-                                                            maxResults="15"
-                                                            minQueryLength="3">
-                                                        </p:autoComplete >
-
-                                                        <p:commandButton  value="Mark as Confirmed" 
-                                                                          ajax="false"
-                                                                          class="btn btn-primary w-75 m-2 p-2"
-                                                                          action="#{fuelRequestAndIssueController.submitMarkVehicleFuelRequestIssue()}" >
-                                                        </p:commandButton>
+                                                        </p:panelGrid>
 
                                                     </div>
                                                     <div class="col-md-6">

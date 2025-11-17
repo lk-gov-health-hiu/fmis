@@ -1,0 +1,155 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../template.xhtml">
+
+            <ui:define name="title">
+                Review Payment Request
+            </ui:define>
+
+            <ui:define name="content">
+                <div class="container-fluid p-2" >
+                    <h:form >
+
+                        <div class="card" >
+                            <div class="card-header" >
+                                <h2><h:outputText value="Review Selected Transactions for Payment Request"></h:outputText></h2>
+                            </div>
+                            <div class="card-body" >
+
+                                <div class="row" >
+                                    <div class="col-12 p-2" >
+                                        <div class="mb-3">
+                                            <p:commandButton
+                                                value="Back to Selection"
+                                                action="/requests/list_to_pay?faces-redirect=true"
+                                                icon="pi pi-arrow-left"
+                                                ajax="false"
+                                                class="ui-button-secondary mr-2" />
+
+                                            <p:commandButton
+                                                value="Confirm and Make Payment Request"
+                                                action="#{fuelRequestAndIssueController.makePaymentRequest()}"
+                                                icon="pi pi-check"
+                                                ajax="false"
+                                                class="ui-button-danger"
+                                                disabled="#{empty fuelRequestAndIssueController.selectedTransactions}"
+                                                onclick="if (!confirm('Are you sure you want to make a payment request for these transactions?'))
+                                                            return false;" />
+                                        </div>
+
+                                        <p:messages ></p:messages>
+
+                                        <h:panelGroup rendered="#{empty fuelRequestAndIssueController.selectedTransactions}">
+                                            <div class="alert alert-warning" role="alert">
+                                                <i class="pi pi-exclamation-triangle"></i> No transactions selected. Please go back and select transactions.
+                                            </div>
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{not empty fuelRequestAndIssueController.selectedTransactions}">
+                                            <div class="alert alert-info" role="alert">
+                                                <i class="pi pi-info-circle"></i> Review the selected transactions below before confirming the payment request.
+                                            </div>
+
+                                            <p:dataTable
+                                                id="tblReview"
+                                                value="#{fuelRequestAndIssueController.selectedTransactions}"
+                                                var="transaction"
+                                                rowKey="#{transaction.id}"
+                                                rows="10"
+                                                rowIndexVar="no"
+                                                paginator="true"
+                                                paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                                rowsPerPageTemplate="10,20,50,{ShowAll|'All'}"
+                                                sortMode="multiple">
+
+                                                <p:column headerText="No" width="50" >
+                                                    <h:outputText value="#{no+1}" />
+                                                </p:column>
+
+                                                <p:column headerText="Vehicle"
+                                                          sortBy="#{transaction.vehicle.vehicleNumber}"
+                                                          filterBy="#{transaction.vehicle.vehicleNumber}">
+                                                    <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
+                                                </p:column>
+
+                                                <p:column headerText="Ref.No"
+                                                          sortBy="#{transaction.requestReferenceNumber}"
+                                                          filterBy="#{transaction.requestReferenceNumber}">
+                                                    <h:outputText value="#{transaction.requestReferenceNumber}" />
+                                                </p:column>
+
+                                                <p:column headerText="Requested At"
+                                                          sortBy="#{transaction.requestedDate}"
+                                                          filterBy="#{transaction.requestedDate}">
+                                                    <h:outputText value="#{transaction.requestedDate}">
+                                                        <f:convertDateTime pattern="dd MMM yyyy" />
+                                                    </h:outputText>
+                                                </p:column>
+
+                                                <p:column headerText="Requested Qty"
+                                                          sortBy="#{transaction.requestQuantity}">
+                                                    <h:outputText value="#{transaction.requestQuantity}" />
+                                                </p:column>
+
+                                                <p:column headerText="Issued At"
+                                                          sortBy="#{transaction.issuedDate}"
+                                                          filterBy="#{transaction.issuedDate}">
+                                                    <h:outputText value="#{transaction.issuedDate}">
+                                                        <f:convertDateTime pattern="dd MMM yyyy" />
+                                                    </h:outputText>
+                                                </p:column>
+
+                                                <p:column headerText="Issued Qty"
+                                                          sortBy="#{transaction.issuedQuantity}">
+                                                    <h:outputText value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}" />
+                                                </p:column>
+
+                                                <p:column headerText="Issue Ref.No"
+                                                          filterBy="#{transaction.issueReferenceNumber}">
+                                                    <h:outputText value="#{transaction.issueReferenceNumber}" />
+                                                </p:column>
+
+                                                <p:column headerText="Issued from"
+                                                          sortBy="#{transaction.issuedInstitution.name}"
+                                                          filterBy="#{transaction.issuedInstitution.name}">
+                                                    <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
+                                                </p:column>
+
+                                                <p:column headerText="Dealer Number"
+                                                          sortBy="#{transaction.issuedInstitution.shortCode}"
+                                                          filterBy="#{transaction.issuedInstitution.shortCode}">
+                                                    <h:outputText value="#{transaction.issuedInstitution.shortCode}" />
+                                                </p:column>
+
+                                            </p:dataTable>
+
+                                            <div class="mt-3">
+                                                <h4>Summary</h4>
+                                                <p><strong>Total Transactions:</strong> #{fuelRequestAndIssueController.selectedTransactions.size()}</p>
+                                            </div>
+                                        </h:panelGroup>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

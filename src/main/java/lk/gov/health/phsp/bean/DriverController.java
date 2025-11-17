@@ -284,6 +284,13 @@ public class DriverController implements Serializable {
             return "";
         }
 
+        // Check for duplicate NIC
+        Driver existingDriver = getFacade().findDriverByNic(selected.getNic(), selected.getId());
+        if (existingDriver != null) {
+            JsfUtil.addErrorMessage("A driver with this NIC (" + selected.getNic() + ") already exists. Name: " + existingDriver.getName());
+            return "";
+        }
+
         if (selected.getId() == null) {
             selected.setCreatedAt(new Date());
             selected.setCreater(webUserController.getLoggedUser());
@@ -305,6 +312,16 @@ public class DriverController implements Serializable {
         if (ins == null) {
             return;
         }
+
+        // Check for duplicate NIC
+        if (ins.getNic() != null && !ins.getNic().trim().isEmpty()) {
+            Driver existingDriver = getFacade().findDriverByNic(ins.getNic(), ins.getId());
+            if (existingDriver != null) {
+                JsfUtil.addErrorMessage("A driver with this NIC (" + ins.getNic() + ") already exists. Name: " + existingDriver.getName());
+                return;
+            }
+        }
+
         if (ins.getId() == null) {
             if (ins.getCreater() == null) {
                 ins.setCreater(webUserController.getLoggedUser());

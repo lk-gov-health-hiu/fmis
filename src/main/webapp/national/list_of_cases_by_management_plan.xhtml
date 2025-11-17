@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -10,7 +10,7 @@
 
         <ui:composition template="/national/reports_index.xhtml">
             <ui:define name="reports">
-                <p:panelGrid columns="1" styleClass="alignTop" >
+                <p:panelGrid layout="tabular" columns="1" styleClass="alignTop" >
                     <f:facet name="header" >
                         <p:outputLabel value="First Contacts" ></p:outputLabel>
                     </f:facet>
@@ -19,12 +19,16 @@
                         <div class="container bg-none mt-4 mb-4 w-100 d-flex justify-content-center align-items-center" >
                             <h:panelGrid columns="2" class="shadow-lg p-3 mb-5 bg-white rounded">
                                 <h:outputLabel class="h6 fw-bold" value="From" ></h:outputLabel>
-                                <p:calendar value="#{nationalController.fromDate}" 
-                                            pattern="dd MMMM yyyy hh:mm a">
-                                </p:calendar><!-- comment -->
+                                <p:datePicker
+                    value="#{nationalController.fromDate}"
+                    pattern="dd MMMM yyyy hh:mm a">
+                </p:datePicker><!-- comment -->
 
                                 <h:outputLabel class="h6 fw-bold" value="To" ></h:outputLabel>
-                                <p:calendar value="#{nationalController.toDate}" pattern="dd MMMM yyyy hh:mm a"></p:calendar>
+                                <p:datePicker
+                    value="#{nationalController.toDate}"
+                    pattern="dd MMMM yyyy hh:mm a">
+                </p:datePicker>
 
                                 <h:outputLabel class="h6 fw-bold" value="Plan of Management" ></h:outputLabel>
                                 <h:selectOneMenu value="#{nationalController.managementType}" class="form-select">

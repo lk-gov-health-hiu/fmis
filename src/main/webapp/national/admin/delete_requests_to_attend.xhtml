@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -12,21 +12,23 @@
 
             <ui:define name="admin">
                 <h:form >
-                    <p:panelGrid columns="3" >
-                        <p:panelGrid columns="2" >
+                    <p:panelGrid layout="tabular" columns="3" >
+                        <p:panelGrid layout="tabular" columns="2" >
                             <p:outputLabel value="From" >
                             </p:outputLabel>
-                            <p:calendar value="#{fuelRequestAndIssueController.fromDate}" 
-                                        pattern="dd MMMM yyyy">
-                            </p:calendar>
+                            <p:datePicker
+                    value="#{fuelRequestAndIssueController.fromDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
 
                             <p:outputLabel value="To" >
                             </p:outputLabel>
-                            <p:calendar value="#{fuelRequestAndIssueController.toDate}" 
-                                        pattern="dd MMMM yyyy">
-                            </p:calendar>
+                            <p:datePicker
+                    value="#{fuelRequestAndIssueController.toDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
                         </p:panelGrid>
-                        <p:panelGrid columns="2" >
+                        <p:panelGrid layout="tabular" columns="2" >
                             <p:outputLabel value="Requested for Institution" >
                             </p:outputLabel>
                             <p:autoComplete 
@@ -129,11 +131,11 @@
                             <h:outputText value="#{transaction.fuelTransaction.driver.name}" />
                         </p:column>
 
-                        <p:column headerText="Requested Qty" sortBy="#{transaction.fuelTransaction.requestQuantity}" filterBy="#{transaction.fuelTransaction.requestQuantity}" filterMatchMode="numeric">
+                        <p:column headerText="Requested Qty" sortBy="#{transaction.fuelTransaction.requestQuantity}" filterBy="#{transaction.fuelTransaction.requestQuantity}" >
                             <h:outputText value="#{transaction.fuelTransaction.requestQuantity}" />
                         </p:column>
 
-                        <p:column headerText="Issued Qty" sortBy="#{transaction.fuelTransaction.issuedQuantity}" filterBy="#{transaction.fuelTransaction.issuedQuantity}" filterMatchMode="numeric">
+                        <p:column headerText="Issued Qty" sortBy="#{transaction.fuelTransaction.issuedQuantity}" filterBy="#{transaction.fuelTransaction.issuedQuantity}" >
                             <h:outputText value="#{transaction.fuelTransaction.issuedQuantity}" />
                         </p:column>
 

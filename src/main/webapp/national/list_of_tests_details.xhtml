@@ -20,12 +20,16 @@
                         <div class="container bg-none mt-4 mb-4 w-100 d-flex justify-content-center align-items-center" >
                             <h:panelGrid columns="2" class="shadow-lg p-3 mb-5 bg-white rounded">
                                 <h:outputLabel class="h6 fw-bold" value="Ordered From" ></h:outputLabel>
-                                <p:calendar value="#{nationalController.fromDate}"
-                                            pattern="dd MMMM yyyy hh:mm a">
-                                </p:calendar><!-- comment -->
+                                <p:datePicker
+                    value="#{nationalController.fromDate}"
+                    pattern="dd MMMM yyyy hh:mm a">
+                </p:datePicker><!-- comment -->
 
                                 <h:outputLabel class="h6 fw-bold" value="Ordered To" ></h:outputLabel>
-                                <p:calendar value="#{nationalController.toDate}" pattern="dd MMMM yyyy hh:mm a"></p:calendar>
+                                <p:datePicker
+                    value="#{nationalController.toDate}"
+                    pattern="dd MMMM yyyy hh:mm a">
+                </p:datePicker>
 
                                 <h:commandButton value="Generate Excel" class="btn btn-success w-100">
                                     <p:dataExporter target="tbl" type="xlsx" fileName="tests" ></p:dataExporter>

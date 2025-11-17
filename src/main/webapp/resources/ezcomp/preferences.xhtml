@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:cc="http://xmlns.jcp.org/jsf/composite"
@@ -13,7 +13,7 @@
     <!-- IMPLEMENTATION -->
     <cc:implementation>
         <h:form>
-            <p:panelGrid columns="1" class="border border-light bg-white w-100">
+            <p:panelGrid layout="tabular" columns="1" class="border border-light bg-white w-100">
                 <f:facet name="header" >
                     <p:outputLabel class="fs-6 fw-bold text-white" value="Preferences" ></p:outputLabel>
                 </f:facet>
@@ -21,7 +21,7 @@
                 <p:tabView style="width: 100%;">
 
                     <p:tab title="Workflow" >
-                        <p:panelGrid columns="2" class="w-100 border border-light bg-white">
+                        <p:panelGrid layout="tabular" columns="2" class="w-100 border border-light bg-white">
                             <p:outputLabel value="Lab Approval Steps" class="fs-6 fw-bold" ></p:outputLabel>
                             <p:selectOneMenu value="#{preferenceController.labApprovalSteps}" class="form-control w-100">
                                 <f:selectItem itemLabel="Select"></f:selectItem>
@@ -57,7 +57,7 @@
                     </p:tab>
 
                     <p:tab title="Terms" >
-                        <p:panelGrid columns="2" class="w-100 border border-light bg-white" >
+                        <p:panelGrid layout="tabular" columns="2" class="w-100 border border-light bg-white" >
                             <p:outputLabel value="PCR Positive Term" class="fs-6 fw-bold" ></p:outputLabel><!-- comment -->
                             <p:inputText value="#{preferenceController.pcrPositiveTerm}" class="form-control w-100"></p:inputText>
 
@@ -100,7 +100,7 @@
                     </p:tab>
 
                     <p:tab title="Individual Print Report Format" >
-                        <p:panelGrid columns="2" class="w-100 border border-light bg-white">
+                        <p:panelGrid layout="tabular" columns="2" class="w-100 border border-light bg-white">
                             <h:panelGroup >
                                 <p:outputLabel value="Lab Report HTML" class="fw-bold"></p:outputLabel>
                                 {name}
@@ -152,7 +152,7 @@
 
 
                     <p:tab title="Bulk Print Report Format" >
-                        <p:panelGrid columns="2" class="w-100 border border-light bg-white">
+                        <p:panelGrid layout="tabular" columns="2" class="w-100 border border-light bg-white">
                             <p:outputLabel value="Number of rows per page" class="fs-6 fw-bold"></p:outputLabel>
                             <p:inputText value="#{preferenceController.numberOfRowsPerPage}" class="form-control w-100"></p:inputText>
 

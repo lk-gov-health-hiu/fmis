@@ -25,17 +25,22 @@ package lk.gov.health.phsp.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 /**
@@ -89,18 +94,37 @@ public class Bill implements Serializable {
     
     private Double totalQty;
     private Double totalValue;
-    
+    private Double totalIssuedQty;
+
     @ManyToOne
     private WebUser billUser;
-    
-    
-    
 
-    @PrePersist
-    private void generateBillNo() {
-        // Generate the bill number based on the institutions
-        this.billNo = fromInstitution.getCode() + "-" + toInstitution.getCode() + "-" + System.currentTimeMillis();
-    }
+    private boolean acceptedByCpc;
+
+    @ManyToOne
+    private WebUser acceptedByCpcUser;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date acceptedByCpcAt;
+
+    private boolean rejectedByCpc;
+
+    @ManyToOne
+    private WebUser rejectedByCpcUser;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date rejectedByCpcAt;
+
+    @Column(length = 4096)
+    private String rejectionComment;
+
+    private String monthlyNumber;
+
+    @ManyToOne
+    private FuelPrice fuelPrice;
+
+    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<BillItem> billItems;
 
     
     
@@ -228,6 +252,14 @@ public class Bill implements Serializable {
         this.totalValue = totalValue;
     }
 
+    public Double getTotalIssuedQty() {
+        return totalIssuedQty;
+    }
+
+    public void setTotalIssuedQty(Double totalIssuedQty) {
+        this.totalIssuedQty = totalIssuedQty;
+    }
+
     public WebUser getBillUser() {
         return billUser;
     }
@@ -235,5 +267,99 @@ public class Bill implements Serializable {
     public void setBillUser(WebUser billUser) {
         this.billUser = billUser;
     }
-    
+
+    public boolean isAcceptedByCpc() {
+        return acceptedByCpc;
+    }
+
+    public void setAcceptedByCpc(boolean acceptedByCpc) {
+        this.acceptedByCpc = acceptedByCpc;
+    }
+
+    public WebUser getAcceptedByCpcUser() {
+        return acceptedByCpcUser;
+    }
+
+    public void setAcceptedByCpcUser(WebUser acceptedByCpcUser) {
+        this.acceptedByCpcUser = acceptedByCpcUser;
+    }
+
+    public Date getAcceptedByCpcAt() {
+        return acceptedByCpcAt;
+    }
+
+    public void setAcceptedByCpcAt(Date acceptedByCpcAt) {
+        this.acceptedByCpcAt = acceptedByCpcAt;
+    }
+
+    public boolean isRejectedByCpc() {
+        return rejectedByCpc;
+    }
+
+    public void setRejectedByCpc(boolean rejectedByCpc) {
+        this.rejectedByCpc = rejectedByCpc;
+    }
+
+    public WebUser getRejectedByCpcUser() {
+        return rejectedByCpcUser;
+    }
+
+    public void setRejectedByCpcUser(WebUser rejectedByCpcUser) {
+        this.rejectedByCpcUser = rejectedByCpcUser;
+    }
+
+    public Date getRejectedByCpcAt() {
+        return rejectedByCpcAt;
+    }
+
+    public void setRejectedByCpcAt(Date rejectedByCpcAt) {
+        this.rejectedByCpcAt = rejectedByCpcAt;
+    }
+
+    public String getRejectionComment() {
+        return rejectionComment;
+    }
+
+    public void setRejectionComment(String rejectionComment) {
+        this.rejectionComment = rejectionComment;
+    }
+
+    public List<BillItem> getBillItems() {
+        return billItems;
+    }
+
+    public void setBillItems(List<BillItem> billItems) {
+        this.billItems = billItems;
+    }
+
+    public String getMonthlyNumber() {
+        return monthlyNumber;
+    }
+
+    public void setMonthlyNumber(String monthlyNumber) {
+        this.monthlyNumber = monthlyNumber;
+    }
+
+    public FuelPrice getFuelPrice() {
+        return fuelPrice;
+    }
+
+    public void setFuelPrice(FuelPrice fuelPrice) {
+        this.fuelPrice = fuelPrice;
+    }
+
+    @Transient
+    public String getStatus() {
+        if (retired) {
+            return "Retired";
+        }
+        if (rejectedByCpc) {
+            return "Rejected by CPC";
+        }
+        if (acceptedByCpc) {
+            return "Accepted by CPC";
+        }
+        return "Pending";
+    }
+
 }

@@ -47,5 +47,32 @@ public class DriverFacade extends AbstractFacade<Driver> {
     public DriverFacade() {
         super(Driver.class);
     }
-    
+
+    /**
+     * Find a driver by NIC, optionally excluding a specific driver by ID
+     * @param nic The NIC to search for
+     * @param excludeId The driver ID to exclude from the search (null if creating new)
+     * @return Driver with the matching NIC, or null if not found
+     */
+    public Driver findDriverByNic(String nic, Long excludeId) {
+        if (nic == null || nic.trim().isEmpty()) {
+            return null;
+        }
+
+        String jpql;
+        java.util.Map<String, Object> parameters = new java.util.HashMap<>();
+        parameters.put("nic", nic.trim());
+
+        if (excludeId != null) {
+            // When editing, exclude the current driver from the search
+            jpql = "SELECT d FROM Driver d WHERE LOWER(d.nic) = LOWER(:nic) AND d.id != :excludeId AND d.retired = false";
+            parameters.put("excludeId", excludeId);
+        } else {
+            // When creating, just check if NIC exists
+            jpql = "SELECT d FROM Driver d WHERE LOWER(d.nic) = LOWER(:nic) AND d.retired = false";
+        }
+
+        return findFirstByJpql(jpql, parameters);
+    }
+
 }

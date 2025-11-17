@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -14,8 +14,7 @@
                     <p:messages ></p:messages>
 
 
-                    <p:panelGrid 
-                        columns="2" 
+                    <p:panelGrid layout="tabular" columns="2" 
                         rendered="#{vehicleController.selected != null}" 
                         class="w-100">
                         <f:facet name="header" >
@@ -61,17 +60,31 @@
                                            itemLabel="#{vp.label}"/>
                         </h:selectOneMenu>
 
-                        <h:outputLabel value="Institution:" for="ins" />
-                        <p:autoComplete  class="w-100" 
-                                         id="ins"
-                                         inputStyleClass="form-control" 
-                                         value="#{vehicleController.selected.institution}" 
+                        <h:outputLabel value="Permanent Institution:" for="permIns" />
+                        <p:autoComplete  class="w-100"
+                                         id="permIns"
+                                         inputStyleClass="form-control"
+                                         value="#{vehicleController.selected.institution}"
                                          completeMethod="#{institutionController.completeInstitutions}"
-                                         var="i" 
-                                         itemLabel="#{i.name}" 
-                                         itemValue="#{i}" 
+                                         var="pi"
+                                         itemLabel="#{pi.name}"
+                                         itemValue="#{pi}"
                                          forceSelection="True"
-                                         maxResults="15" 
+                                         maxResults="15"
+                                         minQueryLength="3">
+                        </p:autoComplete >
+
+                        <h:outputLabel value="Temporarily Attached Institution:" for="ins" />
+                        <p:autoComplete  class="w-100"
+                                         id="ins"
+                                         inputStyleClass="form-control"
+                                         value="#{vehicleController.selected.temporarilyAttachedInstitution}"
+                                         completeMethod="#{institutionController.completeInstitutions}"
+                                         var="i"
+                                         itemLabel="#{i.name}"
+                                         itemValue="#{i}"
+                                         forceSelection="True"
+                                         maxResults="15"
                                          minQueryLength="3">
                         </p:autoComplete >
 

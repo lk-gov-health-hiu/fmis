@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:cc="http://xmlns.jcp.org/jsf/composite"
@@ -194,12 +194,11 @@
                                             <p:outputLabel for="calDp" value="#{ii.name}"  style="#{ii.generatedCss}" ></p:outputLabel>
                                         </td>
                                         <td>
-                                            <p:calendar id="calDp" value="#{ii.dateValue}" 
-                                                        required="#{ii.referanceDesignComponentFormItem.required}" navigator="true"
-                                                        requiredMessage="#{ii.referanceDesignComponentFormItem.requiredErrorMessage}" 
-                                                        pattern="dd MMMM yyyy">
-                                                <p:ajax  event="blur" process="@this"   listener="#{clientEncounterComponentItemController.save(ii)}" ></p:ajax>
-                                            </p:calendar>
+                                            <p:datePicker
+                    id="calDp"
+                    value="#{ii.dateValue}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
                                         </td>
 
                                     </h:panelGroup>
@@ -208,11 +207,11 @@
                                             <p:outputLabel for="calC" value="#{ii.referanceDesignComponentFormItem.name}" ></p:outputLabel>
                                         </td>
                                         <td>
-                                            <p:calendar id="calC" value="#{ii.dateValue}" 
-                                                        required="#{ii.referanceDesignComponentFormItem.required}" 
-                                                        requiredMessage="#{ii.referanceDesignComponentFormItem.requiredErrorMessage}" pattern="dd MMMM yyyy">
-                                                <p:ajax  event="blur" process="@this"   listener="#{clientEncounterComponentItemController.save(ii)}" ></p:ajax>
-                                            </p:calendar>
+                                            <p:datePicker
+                    id="calC"
+                    value="#{ii.dateValue}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
                                         </td>
 
                                     </h:panelGroup>
@@ -297,7 +296,7 @@
                             <td>
                                 <p:outputLabel value="#{ii.referanceDesignComponentFormItem.descreption}" ></p:outputLabel>
                                 <h:panelGroup rendered="true">
-                                    <p:panelGrid columns="2" rendered="false" >
+                                    <p:panelGrid layout="tabular" columns="2" rendered="false" >
                                         <p:outputLabel value="Name" ></p:outputLabel>
                                         <p:outputLabel value="#{ii.referanceDesignComponentFormItem.name}" ></p:outputLabel>
                                         <p:outputLabel value="renderType" ></p:outputLabel>

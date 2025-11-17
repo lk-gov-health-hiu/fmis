@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -25,7 +25,7 @@
                             <h:panelGroup id="bill" style="size: A4; margin: auto;" >
 
 
-                                <p:panelGrid columns="2" styleClass="table table-bordered" columnClasses="font-weight-bold,">
+                                <p:panelGrid layout="tabular" columns="2" styleClass="table table-bordered" columnClasses="font-weight-bold,">
                                     <f:facet name="header">
                                         <p:outputLabel value="Fuel Payment Request" styleClass="h4" />
                                     </f:facet>
@@ -69,7 +69,7 @@
 
 
 
-                                <p:panelGrid columns="2" styleClass="table table-bordered" columnClasses="font-weight-bold,">
+                                <p:panelGrid layout="tabular" columns="2" styleClass="table table-bordered" columnClasses="font-weight-bold,">
                                     <h:outputText value="Request Date:" />
                                     <h:outputText value="#{reportController.bill.billDate}">
                                         <f:convertDateTime pattern="dd MMM yyyy" />

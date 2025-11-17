@@ -1,10 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mvn clean:*)",
       "Bash(mvn compile:*)",
-      "Bash(git add:*)",
-      "Bash(git log:*)"
+      "Bash(dir:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"D:\\Dev\\fmis\\update-panelgrid.ps1\")",
+      "Bash(python:*)",
+      "Bash(nul)",
+      "Bash(mvn compile:compile:*)",
+      "Bash(mvn dependency:tree:*)",
+      "WebSearch",
+      "WebFetch(domain:mvnrepository.com)"
     ],
     "deny": [],
     "ask": []

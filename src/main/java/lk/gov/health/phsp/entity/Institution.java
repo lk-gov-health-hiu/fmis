@@ -70,6 +70,9 @@ public class Institution implements Serializable, Nameable {
     @Column(name = "CODE", nullable = false, length = 50)
     private String code;
 
+    @Column(length = 4)
+    private String shortCode;
+
     @Column(name = "ADDRESS", length = 255)
     private String address;
 
@@ -499,6 +502,22 @@ public class Institution implements Serializable, Nameable {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getShortCode() {
+        if (shortCode == null || shortCode.trim().isEmpty()) {
+            if (code != null && !code.trim().isEmpty()) {
+                return code.length() >= 4 ? code.substring(0, 4) : code;
+            } else if (name != null && !name.trim().isEmpty()) {
+                return name.length() >= 4 ? name.substring(0, 4) : name;
+            }
+            return "";
+        }
+        return shortCode;
+    }
+
+    public void setShortCode(String shortCode) {
+        this.shortCode = shortCode;
     }
 
     public String getInsName() {

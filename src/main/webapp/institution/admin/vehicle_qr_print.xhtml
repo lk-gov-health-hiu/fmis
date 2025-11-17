@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:head>
+        <style type="text/css">
+            @media print {
+                @page {
+                    size: 85.6mm 53.98mm;
+                    margin: 0;
+                }
+
+                body {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+
+            /* Credit card size printable area: 85.6mm x 53.98mm */
+            .credit-card-print {
+                width: 85.6mm;
+                height: 53.98mm;
+                padding: 8mm;
+                box-sizing: border-box;
+                background: white;
+                border: 2px solid #333;
+                border-radius: 8px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+                font-family: Arial, sans-serif;
+            }
+
+            .qr-code-container {
+                text-align: center;
+                margin-bottom: 5mm;
+            }
+
+            .qr-code-image {
+                display: block;
+                width: 25mm;
+                height: 25mm;
+                margin: 0 auto;
+            }
+
+            .vehicle-number-text {
+                font-size: 18pt;
+                font-weight: bold;
+                color: #333;
+                text-align: center;
+                letter-spacing: 2px;
+                margin-top: 3mm;
+                word-wrap: break-word;
+                max-width: 100%;
+            }
+
+            .institution-name {
+                font-size: 9pt;
+                color: #666;
+                text-align: center;
+                margin-top: 2mm;
+                font-weight: 600;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100%;
+            }
+
+            .card-border {
+                border: 1px solid #ddd;
+                padding: 3mm;
+                border-radius: 5px;
+            }
+
+            .preview-container {
+                padding: 2rem;
+                text-align: center;
+            }
+
+            .button-container {
+                margin-bottom: 30px;
+            }
+        </style>
+    </h:head>
+
+    <h:body>
+        <ui:composition template="/institution/admin/index.xhtml">
+            <ui:define name="admin">
+                <h:form id="VehicleQRPrintForm">
+                    <div class="preview-container">
+                        <h2 style="margin-bottom: 20px;">Vehicle QR Code Print</h2>
+
+                        <div class="button-container">
+                            <p:commandButton value="Print QR Code"
+                                             type="button"
+                                             icon="pi pi-print"
+                                             styleClass="btn btn-primary btn-lg">
+                                <p:printer target="printableArea" />
+                            </p:commandButton>
+                        </div>
+
+                        <h:panelGroup id="printableArea">
+                            <div class="credit-card-print">
+                                <div class="card-border">
+                                    <div class="qr-code-container">
+                                        <p:graphicImage value="#{vehicleController.qrCode}"
+                                                        styleClass="qr-code-image"/>
+                                    </div>
+
+                                    <div class="vehicle-number-text">
+                                        #{vehicleController.selected.vehicleNumber}
+                                    </div>
+
+                                    <h:panelGroup rendered="#{vehicleController.selected.institution != null}">
+                                        <div class="institution-name">
+                                            #{vehicleController.selected.institution.name}
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+
+                        <p style="margin-top: 30px; color: #666; font-size: 14px;">
+                            This QR code will be printed in credit card size (85.6mm x 53.98mm)
+                        </p>
+                    </div>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
