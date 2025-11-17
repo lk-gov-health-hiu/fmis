@@ -1,0 +1,291 @@
+﻿<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../template.xhtml">
+
+            <ui:define name="title">
+                CPC Bill Review - Accept or Reject
+            </ui:define>
+
+            <ui:define name="content">
+                <div class="container-fluid p-2" >
+                    <h:form >
+
+                        <div class="card mb-3" >
+                            <div class="card-header bg-primary text-white" >
+                                <h2><h:outputText value="CPC Bill Review - Accept or Reject Payment"></h:outputText></h2>
+                            </div>
+                            <div class="card-body" >
+                                <p:commandButton
+                                    value="Back to Pending Bills"
+                                    action="#{fuelRequestAndIssueController.navigateToListBillsToAcceptAtCpc()}"
+                                    icon="pi pi-arrow-left"
+                                    ajax="false"
+                                    class="ui-button-secondary mb-3" />
+
+                                <p:messages ></p:messages>
+
+                                <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill == null}">
+                                    <div class="alert alert-warning" role="alert">
+                                        <i class="pi pi-exclamation-triangle"></i> No bill selected. Please go back and select a bill.
+                                    </div>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill != null}">
+
+                                    <!-- Action Buttons -->
+                                    <div class="card mb-3">
+                                        <div class="card-header bg-warning text-white">
+                                            <h4>CPC Action Required</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="lead">Please review the bill details below and take appropriate action.</p>
+
+                                            <!-- Rejection Comment Section -->
+                                            <div class="card mt-3 mb-3" style="border: 2px solid #dc3545;">
+                                                <div class="card-header bg-danger text-white">
+                                                    <h5><i class="pi pi-exclamation-triangle"></i> Rejection Comments (Required if Rejecting)</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p><strong>Note:</strong> If you are rejecting this bill, you MUST provide a reason in the field below. This is mandatory.</p>
+                                                    <h:panelGrid columns="1" class="w-100">
+                                                        <h:outputLabel value="Bill-Level Rejection Comment: *" styleClass="font-weight-bold text-danger"/>
+                                                        <p:inputTextarea
+                                                            id="billRejectionComment"
+                                                            value="#{fuelRequestAndIssueController.billRejectionComment}"
+                                                            rows="4"
+                                                            cols="80"
+                                                            maxlength="4000"
+                                                            placeholder="Enter the reason for rejecting this bill (mandatory if rejecting)..."
+                                                            style="width: 100%;" />
+                                                    </h:panelGrid>
+                                                </div>
+                                            </div>
+
+                                            <div class="text-center mt-3">
+                                                <p:commandButton
+                                                    value="Accept Payment"
+                                                    action="#{fuelRequestAndIssueController.acceptBillAtCpc()}"
+                                                    icon="pi pi-check"
+                                                    ajax="false"
+                                                    styleClass="ui-button-success m-2"
+                                                    style="font-size: 1.2em; padding: 10px 30px;"
+                                                    onclick="if (!confirm('Are you sure you want to ACCEPT this payment bill? This action will mark the bill as accepted by CPC.')) return false;" />
+
+                                                <p:commandButton
+                                                    value="Reject Payment"
+                                                    action="#{fuelRequestAndIssueController.rejectBillAtCpc()}"
+                                                    icon="pi pi-times"
+                                                    ajax="false"
+                                                    styleClass="ui-button-danger m-2"
+                                                    style="font-size: 1.2em; padding: 10px 30px;"
+                                                    onclick="if (!confirm('Are you sure you want to REJECT this payment bill? This action will REVERSE all transactions in this bill and cannot be undone!')) return false;" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bill Header Information -->
+                                    <div class="card mb-3">
+                                        <div class="card-header bg-info text-white">
+                                            <h4>Bill Information</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <p:panelGrid layout="tabular" columns="2" class="w-100">
+                                                        <h:outputLabel value="Bill No:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billNo}" />
+
+                                                        <h:outputLabel value="Bill Date:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billDate}">
+                                                            <f:convertDateTime pattern="dd MMMM yyyy" />
+                                                        </h:outputText>
+
+                                                        <h:outputLabel value="Bill Type:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billType}" />
+
+                                                        <h:outputLabel value="Created By:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billUser.name}" />
+
+                                                        <h:outputLabel value="Created At:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billTime}">
+                                                            <f:convertDateTime pattern="dd MMMM yyyy HH:mm:ss" />
+                                                        </h:outputText>
+                                                    </p:panelGrid>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p:panelGrid layout="tabular" columns="2" class="w-100">
+                                                        <h:outputLabel value="From Institution:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.fromInstitution.name}" />
+
+                                                        <h:outputLabel value="To Institution (Fuel Station):" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.toInstitution.name}" />
+
+                                                        <h:outputLabel value="Dealer Number:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.toInstitution.code}" />
+
+                                                        <h:outputLabel value="Total Quantity:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.totalQty}">
+                                                            <f:convertNumber pattern="#,##0.00" />
+                                                        </h:outputText>
+                                                    </p:panelGrid>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bill Items (Transactions) -->
+                                    <div class="card">
+                                        <div class="card-header bg-success text-white">
+                                            <h4>Transactions in this Bill</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <p:dataTable
+                                                id="tblTransactions"
+                                                value="#{fuelRequestAndIssueController.selectedBillTransactions}"
+                                                var="transaction"
+                                                rowKey="#{transaction.id}"
+                                                rows="10"
+                                                rowIndexVar="no"
+                                                paginator="true"
+                                                paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                                rowsPerPageTemplate="10,20,50,{ShowAll|'All'}"
+                                                sortMode="multiple"
+                                                emptyMessage="No transactions found for this bill">
+
+                                                <p:column headerText="No" width="50" >
+                                                    <h:outputText value="#{no+1}" />
+                                                </p:column>
+
+                                                <p:column headerText="Vehicle"
+                                                          sortBy="#{transaction.vehicle.vehicleNumber}"
+                                                          filterBy="#{transaction.vehicle.vehicleNumber}">
+                                                    <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
+                                                </p:column>
+
+                                                <p:column headerText="Request Ref.No"
+                                                          sortBy="#{transaction.requestReferenceNumber}"
+                                                          filterBy="#{transaction.requestReferenceNumber}">
+                                                    <h:outputText value="#{transaction.requestReferenceNumber}" />
+                                                </p:column>
+
+                                                <p:column headerText="Requested At"
+                                                          sortBy="#{transaction.requestedDate}"
+                                                          filterBy="#{transaction.requestedDate}">
+                                                    <h:outputText value="#{transaction.requestedDate}">
+                                                        <f:convertDateTime pattern="dd MMM yyyy" />
+                                                    </h:outputText>
+                                                </p:column>
+
+                                                <p:column headerText="Requested Qty"
+                                                          sortBy="#{transaction.requestQuantity}">
+                                                    <h:outputText value="#{transaction.requestQuantity}">
+                                                        <f:convertNumber pattern="#,##0.00" />
+                                                    </h:outputText>
+                                                </p:column>
+
+                                                <p:column headerText="Issued At"
+                                                          sortBy="#{transaction.issuedDate}"
+                                                          filterBy="#{transaction.issuedDate}">
+                                                    <h:outputText value="#{transaction.issuedDate}">
+                                                        <f:convertDateTime pattern="dd MMM yyyy" />
+                                                    </h:outputText>
+                                                </p:column>
+
+                                                <p:column headerText="Issued Qty"
+                                                          sortBy="#{transaction.issuedQuantity}">
+                                                    <h:outputText value="#{transaction.issuedQuantity}">
+                                                        <f:convertNumber pattern="#,##0.00" />
+                                                    </h:outputText>
+                                                </p:column>
+
+                                                <p:column headerText="Issue Ref.No"
+                                                          filterBy="#{transaction.issueReferenceNumber}">
+                                                    <h:outputText value="#{transaction.issueReferenceNumber}" />
+                                                </p:column>
+
+                                                <p:column headerText="Driver"
+                                                          sortBy="#{transaction.driver.name}"
+                                                          filterBy="#{transaction.driver.name}">
+                                                    <h:outputText value="#{transaction.driver.name}" />
+                                                </p:column>
+
+                                                <p:column headerText="Submitted To Payment At"
+                                                          sortBy="#{transaction.submittedToPaymentAt}">
+                                                    <h:outputText value="#{transaction.submittedToPaymentAt}">
+                                                        <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                                    </h:outputText>
+                                                </p:column>
+
+                                                <p:column headerText="Item Comment (Optional)" width="200">
+                                                    <p:inputTextarea
+                                                        value="#{fuelRequestAndIssueController.billItemComments[transaction.id]}"
+                                                        rows="2"
+                                                        cols="30"
+                                                        maxlength="1000"
+                                                        placeholder="Optional comment for this item..."
+                                                        style="width: 100%;" />
+                                                </p:column>
+
+                                            </p:dataTable>
+
+                                            <div class="mt-3 alert alert-info">
+                                                <h5>Summary</h5>
+                                                <p><strong>Total Transactions:</strong> #{fuelRequestAndIssueController.selectedBillTransactions.size()}</p>
+                                                <p><strong>Total Quantity:</strong>
+                                                    <h:outputText value="#{fuelRequestAndIssueController.selectedBill.totalQty}">
+                                                        <f:convertNumber pattern="#,##0.00" />
+                                                    </h:outputText> Liters
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Repeat Action Buttons at Bottom -->
+                                    <div class="card mt-3">
+                                        <div class="card-body text-center">
+                                            <p class="lead">Review complete? Take your decision:</p>
+                                            <div class="mt-3">
+                                                <p:commandButton
+                                                    value="Accept Payment"
+                                                    action="#{fuelRequestAndIssueController.acceptBillAtCpc()}"
+                                                    icon="pi pi-check"
+                                                    ajax="false"
+                                                    styleClass="ui-button-success m-2"
+                                                    style="font-size: 1.2em; padding: 10px 30px;"
+                                                    onclick="if (!confirm('Are you sure you want to ACCEPT this payment bill? This action will mark the bill as accepted by CPC.')) return false;" />
+
+                                                <p:commandButton
+                                                    value="Reject Payment"
+                                                    action="#{fuelRequestAndIssueController.rejectBillAtCpc()}"
+                                                    icon="pi pi-times"
+                                                    ajax="false"
+                                                    styleClass="ui-button-danger m-2"
+                                                    style="font-size: 1.2em; padding: 10px 30px;"
+                                                    onclick="if (!confirm('Are you sure you want to REJECT this payment bill? This action will REVERSE all transactions in this bill and cannot be undone!')) return false;" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </h:panelGroup>
+
+                            </div>
+                        </div>
+
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

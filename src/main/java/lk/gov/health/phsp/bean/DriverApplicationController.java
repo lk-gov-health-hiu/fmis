@@ -88,7 +88,11 @@ public class DriverApplicationController {
     public List<Driver> findDriversByInstitution(Institution institution) {
         List<Driver> vs = new ArrayList<>();
         for (Driver driver : getDrivers()) {
-            if (driver.getInstitution() != null && driver.getInstitution().equals(institution)) {
+            // Check if the institution matches either permanent or temporarily institution
+            boolean matchesPermanent = driver.getInstitution() != null && driver.getInstitution().equals(institution);
+            boolean matchesTemporary = driver.getTemporarilyInstitution() != null && driver.getTemporarilyInstitution().equals(institution);
+
+            if (matchesPermanent || matchesTemporary) {
                 vs.add(driver);
             }
         }
@@ -98,7 +102,11 @@ public class DriverApplicationController {
     public List<Driver> findDriversByInstitutions(List<Institution> institutions) {
         List<Driver> vs = new ArrayList<>();
         for (Driver driver : getDrivers()) {
-            if (driver.getInstitution() != null && institutions.contains(driver.getInstitution())) {
+            // Check if any institution matches either permanent or temporarily institution
+            boolean matchesPermanent = driver.getInstitution() != null && institutions.contains(driver.getInstitution());
+            boolean matchesTemporary = driver.getTemporarilyInstitution() != null && institutions.contains(driver.getTemporarilyInstitution());
+
+            if (matchesPermanent || matchesTemporary) {
                 vs.add(driver);
             }
         }

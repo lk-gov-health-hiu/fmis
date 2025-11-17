@@ -13,48 +13,78 @@
                 autoDisplay="false"
                 class="navbar navbar-expand-lg navbar-dark bg-primary W-100" style="border: none;">
                 <p:menuitem class="text-white" ajax="false" value="Home" icon="ui-icon-home" action="#{menuController.toIndex()}" />
-                <p:submenu 
-                    class="submenu" 
-                    label="Diesel Orders" 
+                <p:submenu
+                    class="submenu"
+                    label="Diesel Orders"
                     rendered="#{webUserController.dieselMenuAvailable}" >
-                    <p:menuitem 
-                        class="submenu-item" 
-                        ajax="false" 
-                        value="Create Order" 
+                    <p:menuitem
+                        class="submenu-item"
+                        ajax="false"
+                        value="Create Order"
                         rendered="#{webUserController.dieselFuelRequestMenuAvailable}"
                         action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}" />
-                    <p:menuitem 
-                        class="submenu-item" 
-                        ajax="false" 
-                        value="Create Special Order" 
+                    <p:menuitem
+                        class="submenu-item"
+                        ajax="false"
+                        value="Create Special Order"
                         rendered="#{webUserController.dieselSpecialFuelRequestMenuAvailable}"
                         action="#{fuelRequestAndIssueController.navigateToAddSpecialVehicleFuelRequest()}" />
-                    <p:menuitem 
-                        class="submenu-item" 
-                        ajax="false" 
-                        value="Mark Received Orders" 
+                    <p:menuitem
+                        class="submenu-item"
+                        ajax="false"
+                        value="Mark Received Orders"
                         rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}"
                         action="#{fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Make Payment Orders" 
-                                rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}"
-                                action="#{fuelRequestAndIssueController.navigateToMakePayment()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Previously Completed Payment Orders" 
-                                rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}"
-                                action="#{fuelRequestAndIssueController.navigateToPaymentsMade()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="View Orders" 
+                    <p:menuitem class="submenu-item" ajax="false" value="View Orders"
                                 action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Make Payment Orders"
+                                rendered="#{webUserController.institutionPaymentManagementMenuAvailable or webUserController.systemAdminPaymentManagementMenuAvailable}" 
+                                action="#{fuelRequestAndIssueController.navigateToMakePayment()}" />
+                    <p:menuitem class="submenu-item" ajax="false"
+                                rendered="#{webUserController.institutionPaymentManagementMenuAvailable or webUserController.systemAdminPaymentManagementMenuAvailable}" 
+                                value="Previously Completed Payment Orders"
+                                action="#{fuelRequestAndIssueController.navigateToPaymentsMade()}" />
+
                 </p:submenu>
 
-                <p:menuitem 
-                    class="text-white" 
-                    ajax="false" 
-                    value="Reports" 
+                <p:submenu
+                    class="submenu"
+                    label="Payment Management"
+                    rendered="#{webUserController.institutionPaymentManagementMenuAvailable or webUserController.systemAdminPaymentManagementMenuAvailable}" >
+                    <p:menuitem class="submenu-item" ajax="false" value="Payment Bills"
+                                action="#{fuelRequestAndIssueController.navigateToListPaymentBills()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Payments to Accept at CPC"
+                                action="#{fuelRequestAndIssueController.navigateToListBillsToAcceptAtCpc()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Payments Accepted by CPC"
+                                action="#{fuelRequestAndIssueController.navigateToListBillsAcceptedByCpc()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Payments Rejected by CPC"
+                                action="#{fuelRequestAndIssueController.navigateToListBillsRejectedByCpc()}" />
+                </p:submenu>
+
+                <p:submenu
+                    class="submenu"
+                    label="CPC Payment Management"
+                    rendered="#{webUserController.cpcPaymentManagementMenuAvailable}" >
+                    <p:menuitem class="submenu-item" ajax="false" value="Payment Bills"
+                                action="#{fuelRequestAndIssueController.navigateToCpcListPaymentBills()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Payments to Accept"
+                                action="#{fuelRequestAndIssueController.navigateToCpcListBillsToAccept()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Payments Accepted"
+                                action="#{fuelRequestAndIssueController.navigateToCpcListBillsAccepted()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="Payments Rejected"
+                                action="#{fuelRequestAndIssueController.navigateToCpcListBillsRejected()}" />
+                </p:submenu>
+
+                <p:menuitem
+                    class="text-white"
+                    ajax="false"
+                    value="Reports"
                     action="#{reportController.navigateToReportsIndex}" />
-                <p:menuitem 
-                    class="text-white" 
-                    ajax="false" 
-                    value="Administration" 
-                    action="#{menuController.toAdministrationIndex()}" />
+                <p:submenu label="Administration">
+                    <p:menuitem value="Administration Home" action="#{menuController.toAdministrationIndex()}" ajax="false" />
+                    <p:separator />
+                    <p:menuitem value="Migrate Bill Items" action="#{fuelRequestAndIssueController.navigateToMigrateBillItems()}" ajax="false" />
+                </p:submenu>
                 <p:submenu label="Settings">
                     <p:menuitem value="Change My Password" action="#{webUserController.toChangeMyPassword()}" ajax="false" />
                     <p:menuitem value="Change My Details" action="#{webUserController.toChangeMyDetails()}" ajax="false" />
@@ -71,7 +101,12 @@
                     <p:menuitem value="About" action="/about_us"   ajax="false" />
                 </p:submenu>
 
-
+                <p:menuitem
+                    class="text-white"
+                    ajax="false"
+                    value="Logout"
+                    icon="ui-icon-power"
+                    action="#{webUserController.logOut()}" />
 
             </p:menubar>
         </h:form>

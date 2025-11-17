@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:cc="http://xmlns.jcp.org/jsf/composite"
@@ -335,14 +335,11 @@
                             <p:outputLabel for="calDp" value="#{ii.di.name}"  style="#{ii.di.css}" ></p:outputLabel>
                         </div>
                         <div class="col-md-8" >
-                            <p:calendar id="calDp" value="#{ii.ci.dateValue}" 
-                                        required="#{ii.di.required}" navigator="true"
-                                        requiredMessage="#{ii.di.requiredErrorMessage}" 
-                                        pattern="dd MMMM yyyy">
-                                <p:ajax  event="blur" process="@this"   listener="#{clientEncounterComponentItemController.save(ii.ci)}" ></p:ajax>
-                                <p:ajax  event="dateSelect" process="@this"   listener="#{clientEncounterComponentItemController.save(ii.ci)}" ></p:ajax>
-                                <p:ajax  event="change" process="@this"   listener="#{clientEncounterComponentItemController.save(ii.ci)}" ></p:ajax>
-                            </p:calendar>
+                            <p:datePicker
+                    id="calDp"
+                    value="#{ii.ci.dateValue}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
                         </div>
                     </div>
                 </h:panelGroup>
@@ -352,14 +349,11 @@
                             <p:outputLabel for="calCS" value="#{ii.di.name}" ></p:outputLabel>
                         </div>
                         <div class="col-md-8" >
-                            <p:calendar id="calCS" value="#{ii.ci.dateValue}" 
-                                        required="#{ii.di.required}" 
-                                        requiredMessage="#{ii.di.requiredErrorMessage}" pattern="dd MMMM yyyy">
-                                <p:ajax  event="blur" process="calCS"   listener="#{clientEncounterComponentItemController.save(ii.ci)}" ></p:ajax>
-                                <p:ajax  event="blur" process="calCS"   listener="#{clientEncounterComponentItemController.save(ii.ci)}" ></p:ajax>
-                                <p:ajax  event="dateSelect" process="calCS"   listener="#{clientEncounterComponentItemController.save(ii.ci)}" ></p:ajax>
-                                <p:ajax  event="change" process="calCS"   listener="#{clientEncounterComponentItemController.save(ii.ci)}" ></p:ajax>
-                            </p:calendar>
+                            <p:datePicker
+                    id="calCS"
+                    value="#{ii.ci.dateValue}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
                         </div>
                     </div>
                 </h:panelGroup>
@@ -482,7 +476,7 @@
                     <p:outputLabel value="#{ii.di.descreption}"  ></p:outputLabel>
                 </h:panelGroup>
                 <h:panelGroup rendered="true">
-                    <p:panelGrid columns="2" rendered="false" >
+                    <p:panelGrid layout="tabular" columns="2" rendered="false" >
                         <p:outputLabel value="Name" ></p:outputLabel>
                         <p:outputLabel value="#{ii.di.name}" ></p:outputLabel>
                         <p:outputLabel value="renderType" ></p:outputLabel>

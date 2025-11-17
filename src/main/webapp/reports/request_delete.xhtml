@@ -28,10 +28,10 @@
                                             <div class="col-md-4">
                                                 <p:commandButton value="Delete" ajax="false"
                                                                  disabled="false"
-                                                                 rendered="#{not reportController.fuelTransaction.retired}"
-                                                                 action="#{reportController.deleteSelected()}" 
+                                                                 rendered="#{not reportController.fuelTransaction.retired and reportController.canDeleteTransaction}"
+                                                                 action="#{reportController.deleteSelected()}"
                                                                  onclick="return confirm('Are you sure you want to delete?');"
-                                                                 icon="fa fa-trash" 
+                                                                 icon="fa fa-trash"
                                                                  styleClass="ui-button-danger ui-button-raised">
                                                 </p:commandButton>
 
@@ -128,51 +128,107 @@
                                                     </table>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <!-- Issue Details -->
+                                                    <!-- Confirmed Details -->
                                                     <ui:fragment rendered="#{reportController.fuelTransaction.issued}">
                                                         <table class="table">
                                                             <tr>
                                                                 <th colspan="2" class="text-center bg-primary text-white">
-                                                                    Issue Details
+                                                                    Confirmed Details
                                                                 </th>
                                                             </tr>
                                                             <tr>
-                                                                <td><b>Issued by:</b></td>
+                                                                <td><b>Confirmed by:</b></td>
                                                                 <td><h:outputText value="#{reportController.fuelTransaction.toInstitution.name}" /></td>
                                                             </tr>
                                                             <!-- Other table rows for request details -->
                                                             <tr>
-                                                                <td><b>Issued Quantity:</b></td>
+                                                                <td><b>Confirmed Quantity:</b></td>
                                                                 <td><h:outputText value="#{reportController.fuelTransaction.issuedQuantity}" /></td>
                                                             </tr>
                                                              <tr>
-                                                                <td><b>Invoice Number:</b></td>
+                                                                <td><b>Invoice No:</b></td>
                                                                 <td><h:outputText value="#{reportController.fuelTransaction.issueReferenceNumber}" /></td>
                                                             </tr>
                                                             <tr>
-                                                                <td><b>Issued From:</b></td>
+                                                                <td><b>Confirmed From:</b></td>
                                                                 <td><h:outputText value="#{reportController.fuelTransaction.issuedInstitution.name}" /></td>
                                                             </tr>
                                                             <tr>
-                                                                <td><b>Issue Marked User:</b></td>
+                                                                <td><b>Confirmation Marked User:</b></td>
                                                                 <td><h:outputText value="#{reportController.fuelTransaction.issuedUser.person.name}" /></td>
                                                             </tr>
                                                             <tr>
-                                                                <td><b>Issue Recorded At:</b></td>
+                                                                <td><b>Confirmation Date:</b></td>
                                                                 <td>
-                                                                    <h:outputText value="#{reportController.fuelTransaction.issuedAt}" >
-                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
+                                                                    <h:outputText value="#{reportController.fuelTransaction.issuedDate}" >
+                                                                        <f:convertDateTime pattern="dd MMMM yyyy"></f:convertDateTime>
                                                                     </h:outputText>
                                                                 </td>
                                                             </tr>
-                                                            <!-- Other table rows for issued details -->
+                                                            <!-- Other table rows for confirmed details -->
                                                         </table>
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{!reportController.fuelTransaction.issued}">
                                                         <table class="table">
                                                             <tr>
                                                                 <th class="text-center bg-danger text-white">
-                                                                    Not issued yet
+                                                                    Not confirmed yet
+                                                                </th>
+                                                            </tr>
+                                                        </table>
+                                                    </ui:fragment>
+
+                                                    <!-- Dispensing Details -->
+                                                    <ui:fragment rendered="#{reportController.fuelTransaction.dispensed}">
+                                                        <table class="table">
+                                                            <tr>
+                                                                <th colspan="2" class="text-center bg-success text-white">
+                                                                    Dispensing Details
+                                                                </th>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Dispensed By:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.dispensedBy.person.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Dispensed At:</b></td>
+                                                                <td>
+                                                                    <h:outputText value="#{reportController.fuelTransaction.dispensedDate}">
+                                                                        <f:convertDateTime pattern="dd MMMM yyyy"></f:convertDateTime>
+                                                                    </h:outputText>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Dispensing Recorded At:</b></td>
+                                                                <td>
+                                                                    <h:outputText value="#{reportController.fuelTransaction.dispensedAt}">
+                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
+                                                                    </h:outputText>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Dispensed Quantity:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.dispensedQuantity}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Dispensed From:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.dispensedInstitution.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Dispensing Reference No.:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.dispensedReferenceNumber}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Dispensing Comments:</b></td>
+                                                                <td><h:outputText value="#{reportController.fuelTransaction.dispensedComments}" /></td>
+                                                            </tr>
+                                                        </table>
+                                                    </ui:fragment>
+                                                    <ui:fragment rendered="#{!reportController.fuelTransaction.dispensed}">
+                                                        <table class="table">
+                                                            <tr>
+                                                                <th class="text-center bg-warning text-dark">
+                                                                    Not dispensed yet
                                                                 </th>
                                                             </tr>
                                                         </table>

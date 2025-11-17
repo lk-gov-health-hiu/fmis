@@ -36,10 +36,12 @@
                                                 </ui:fragment>
                                             </div>
                                             <div class="col-md-4">
-                                                <p:commandButton value="Save" ajax="false"
+                                                <p:commandButton value="Save"
                                                                  rendered="#{reportController.canEditTransaction}"
                                                                  action="#{reportController.saveSelected}"
                                                                  icon="fa fa-save"
+                                                                 process="@form"
+                                                                 update="@form"
                                                                  styleClass="ui-button-success ui-button-raised m-1">
                                                 </p:commandButton>
 
@@ -64,7 +66,7 @@
                                     </div>
                                     <div class="card-body" >
 
-
+                                        <p:messages id="messages" showDetail="true" closable="true" />
 
 
                                         <!-- Request Details -->
@@ -128,19 +130,33 @@
                                                         </tr>
                                                         <tr>
                                                             <td><b>Request Quantity:</b></td>
-                                                            <td><p:inputText value="#{reportController.fuelTransaction.requestQuantity}" disabled="#{not reportController.canEditTransaction}" /></td>
+                                                            <td><p:inputNumber value="#{reportController.fuelTransaction.requestQuantity}"
+                                                                               minValue="0"
+                                                                               decimalPlaces="2"
+                                                                               required="true"
+                                                                               requiredMessage="Quantity is required"
+                                                                               disabled="#{not reportController.canEditTransaction}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Request Created Date &amp; Time :</b></td>
-                                                            <td><p:calendar value="#{reportController.fuelTransaction.requestedDate}" pattern="dd MMMM yyyy" disabled="#{not reportController.canEditTransaction}" /></td>
+                                                            <td><p:datePicker
+                    value="#{reportController.fuelTransaction.requestedDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>ODO Reading:</b></td>
-                                                            <td><p:inputText value="#{reportController.fuelTransaction.odoMeterReading}" disabled="#{not reportController.canEditTransaction}" /></td>
+                                                            <td><p:inputText value="#{reportController.fuelTransaction.odoMeterReading}"
+                                                                             required="true"
+                                                                             requiredMessage="ODO Meter Reading is required"
+                                                                             disabled="#{not reportController.canEditTransaction}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Request Reference No.:</b></td>
-                                                            <td><p:inputText value="#{reportController.fuelTransaction.requestReferenceNumber}" disabled="#{not reportController.canEditTransaction}" /></td>
+                                                            <td><p:inputText value="#{reportController.fuelTransaction.requestReferenceNumber}"
+                                                                             required="true"
+                                                                             requiredMessage="Request Reference Number is required"
+                                                                             disabled="#{not reportController.canEditTransaction}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Comments:</b></td>
@@ -197,8 +213,10 @@
                                                             <tr>
                                                                 <td><b>Confirmation Recorded At:</b></td>
                                                                 <td>
-                                                                    <p:calendar value="#{reportController.fuelTransaction.issuedDate}" pattern="dd MM yyyy HH:mm a" disabled="#{not reportController.canEditTransaction}" >
-                                                                    </p:calendar>
+                                                                    <p:datePicker
+                    value="#{reportController.fuelTransaction.issuedDate}"
+                    pattern="dd MM yyyy HH:mm a">
+                </p:datePicker>
                                                                 </td>
                                                             </tr>
                                                             <!-- Other table rows for confirmed details -->

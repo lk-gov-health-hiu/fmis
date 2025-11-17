@@ -24,10 +24,16 @@
                                     <p:outputLabel class="h6 fw-bold" value="Listing" ></p:outputLabel>
                                 </f:facet>
                                 <h:outputLabel class="h6 fw-bold" value="From" ></h:outputLabel>
-                                <p:calendar value="#{nationalController.fromDate}" pattern="dd MMMM yyyy"></p:calendar><!-- comment -->
+                                <p:datePicker
+                    value="#{nationalController.fromDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker><!-- comment -->
 
                                 <h:outputLabel class="h6 fw-bold" value="To" ></h:outputLabel>
-                                <p:calendar value="#{nationalController.toDate}" pattern="dd MMMM yyyy"></p:calendar>
+                                <p:datePicker
+                    value="#{nationalController.toDate}"
+                    pattern="dd MMMM yyyy">
+                </p:datePicker>
 
                                 <h:outputLabel class="h6 fw-bold" value="Ordered Institution" ></h:outputLabel>
                                 <p:autoComplete value="#{nationalController.institution}"

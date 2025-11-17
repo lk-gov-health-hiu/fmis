@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../template.xhtml">
+
+            <ui:define name="title">
+                Payments Accepted by CPC
+            </ui:define>
+
+            <ui:define name="content">
+                <div class="container-fluid p-2" >
+                    <h:form >
+
+                        <div class="card" >
+                            <div class="card-header" >
+                                <h2><h:outputText value="Payment Bills Accepted by CPC"></h:outputText></h2>
+                            </div>
+                            <div class="card-body" >
+
+                                <div class="row" >
+                                    <div class="col-2 p-2" >
+                                        <h:panelGrid columns="2" class="w-100" >
+                                            <label for="fromDate">From Date</label>
+                                            <p:datePicker
+                                                id="fromDate"
+                                                value="#{fuelRequestAndIssueController.fromDate}"
+                                                pattern="dd MMMM yyyy"
+                                                >
+                                            </p:datePicker>
+
+                                            <label for="toDate">To Date</label>
+                                            <p:datePicker
+                                                id="toDate"
+                                                value="#{fuelRequestAndIssueController.toDate}"
+                                                pattern="dd MMMM yyyy"
+                                                >
+                                            </p:datePicker>
+                                        </h:panelGrid>
+                                        <h:panelGrid columns="1" class="w-100" >
+                                            <p:commandButton value="List Bills"
+                                                             action="#{fuelRequestAndIssueController.listBillsAcceptedByCpcForInstitutions()}"
+                                                             icon="pi pi-list"
+                                                             ajax="false"
+                                                             class="btn btn-primary w-100 my-2" />
+                                        </h:panelGrid>
+                                        <p:messages ></p:messages>
+                                    </div>
+                                    <div class="col-10 p-2" >
+                                        <p:dataTable
+                                            id="tblBills"
+                                            value="#{fuelRequestAndIssueController.bills}" var="bill" rowKey="#{bill.id}"
+                                            rows="10"
+                                            rowIndexVar="no"
+                                            paginator="true"
+                                            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                            currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                            rowsPerPageTemplate="10,20,50,{ShowAll|'All'}"
+                                            sortMode="multiple">
+
+                                            <p:column headerText="No" width="10" >
+                                                <h:outputText value="#{no+1}" />
+                                            </p:column>
+
+                                            <p:column headerText="Bill No"
+                                                      sortBy="#{bill.billNo}" filterBy="#{bill.billNo}">
+                                                <p:commandLink
+                                                    ajax="false"
+                                                    value="#{bill.billNo}"
+                                                    action="#{fuelRequestAndIssueController.navigateToViewPaymentBill()}">
+                                                    <f:setPropertyActionListener value="#{bill}" target="#{fuelRequestAndIssueController.selectedBill}" />
+                                                </p:commandLink>
+                                            </p:column>
+
+                                            <p:column headerText="Bill Date" sortBy="#{bill.billDate}" filterBy="#{bill.billDate}">
+                                                <h:outputText value="#{bill.billDate}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy" />
+                                                </h:outputText>
+                                            </p:column>
+
+                                            <p:column headerText="Bill Type" sortBy="#{bill.billType}" filterBy="#{bill.billType}">
+                                                <h:outputText value="#{bill.billType}" />
+                                            </p:column>
+
+                                            <p:column headerText="From Institution"
+                                                      sortBy="#{bill.fromInstitution.name}"
+                                                      filterBy="#{bill.fromInstitution.name}">
+                                                <h:outputText value="#{bill.fromInstitution.name}" />
+                                            </p:column>
+
+                                            <p:column headerText="To Institution (Fuel Station)"
+                                                      sortBy="#{bill.toInstitution.name}"
+                                                      filterBy="#{bill.toInstitution.name}">
+                                                <h:outputText value="#{bill.toInstitution.name}" />
+                                            </p:column>
+
+                                            <p:column headerText="Dealer Number" sortBy="#{bill.toInstitution.code}" filterBy="#{bill.toInstitution.code}">
+                                                <h:outputText value="#{bill.toInstitution.code}" />
+                                            </p:column>
+
+                                            <p:column headerText="Total Qty" sortBy="#{bill.totalQty}">
+                                                <h:outputText value="#{bill.totalQty}">
+                                                    <f:convertNumber pattern="#,##0.00" />
+                                                </h:outputText>
+                                            </p:column>
+
+                                            <p:column headerText="Accepted By" sortBy="#{bill.acceptedByCpcUser.name}">
+                                                <h:outputText value="#{bill.acceptedByCpcUser.name}" />
+                                            </p:column>
+
+                                            <p:column headerText="Accepted At" sortBy="#{bill.acceptedByCpcAt}">
+                                                <h:outputText value="#{bill.acceptedByCpcAt}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                                </h:outputText>
+                                            </p:column>
+
+                                            <p:column headerText="Status" sortBy="#{bill.status}" filterBy="#{bill.status}">
+                                                <h:outputText value="#{bill.status}" />
+                                            </p:column>
+
+                                            <p:column headerText="Actions" exportable="false" >
+                                                <p:commandButton value="View"
+                                                                 ajax="false"
+                                                                 icon="fa fa-eye"
+                                                                 styleClass="ui-button-info"
+                                                                 action="#{fuelRequestAndIssueController.navigateToViewPaymentBill()}" >
+                                                    <f:setPropertyActionListener value="#{bill}" target="#{fuelRequestAndIssueController.selectedBill}" />
+                                                </p:commandButton>
+                                            </p:column>
+
+                                        </p:dataTable>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

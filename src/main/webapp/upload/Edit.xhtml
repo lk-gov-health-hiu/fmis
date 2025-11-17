@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -11,7 +11,7 @@
         <p:dialog id="UploadEditDlg" widgetVar="UploadEditDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundleClinical.EditUploadTitle}">
             <h:form id="UploadEditForm">
                 <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{uploadController.selected != null}">
+                    <p:panelGrid layout="tabular" columns="2" rendered="#{uploadController.selected != null}">
                         <p:outputLabel value="#{bundleClinical.EditUploadLabel_institution}" for="institution" />
                         <p:selectOneMenu id="institution" value="#{uploadController.selected.institution}" >
                             <f:selectItem itemLabel="#{bundleClinical.SelectOneMessage}"/>
@@ -31,7 +31,11 @@
                                            itemValue="#{createrItem}"/>
                         </p:selectOneMenu>
                         <p:outputLabel value="#{bundleClinical.EditUploadLabel_createdAt}" for="createdAt" />
-                        <p:calendar id="createdAt" pattern="MM/dd/yyyy HH:mm:ss" value="#{uploadController.selected.createdAt}" title="#{bundleClinical.EditUploadTitle_createdAt}"  showOn="button"/>
+                        <p:datePicker
+                    id="createdAt"
+                    value="#{uploadController.selected.createdAt}"
+                    pattern="MM/dd/yyyy HH:mm:ss">
+                </p:datePicker>
                         <p:outputLabel value="#{bundleClinical.EditUploadLabel_retirer}" for="retirer" />
                         <p:selectOneMenu id="retirer" value="#{uploadController.selected.retirer}" >
                             <f:selectItem itemLabel="#{bundleClinical.SelectOneMessage}"/>
@@ -40,7 +44,11 @@
                                            itemValue="#{retirerItem}"/>
                         </p:selectOneMenu>
                         <p:outputLabel value="#{bundleClinical.EditUploadLabel_retiredAt}" for="retiredAt" />
-                        <p:calendar id="retiredAt" pattern="MM/dd/yyyy HH:mm:ss" value="#{uploadController.selected.retiredAt}" title="#{bundleClinical.EditUploadTitle_retiredAt}"  showOn="button"/>
+                        <p:datePicker
+                    id="retiredAt"
+                    value="#{uploadController.selected.retiredAt}"
+                    pattern="MM/dd/yyyy HH:mm:ss">
+                </p:datePicker>
                         <p:outputLabel value="#{bundleClinical.EditUploadLabel_retireComments}" for="retireComments" />
                         <p:inputText id="retireComments" value="#{uploadController.selected.retireComments}" title="#{bundleClinical.EditUploadTitle_retireComments}" />
                         <p:outputLabel value="#{bundleClinical.EditUploadLabel_baImage}" for="baImage" />

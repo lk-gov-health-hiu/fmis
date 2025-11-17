@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -20,7 +20,7 @@
                             Change Logged Institute
                         </div>
                         <div class="card-body" >
-                            <p:panelGrid columns="1" >
+                            <p:panelGrid layout="tabular" columns="1" >
                                 <p:outputLabel value="Logged Institute" ></p:outputLabel>
                                 <p:selectOneMenu value="#{webUserController.loggedInstitution}" >
                                     <f:selectItems value="#{webUserController.loggableInstitutions}"

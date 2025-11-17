@@ -32,6 +32,7 @@ public enum WebUserRole {
     CPC_ADMINISTRATOR("CPC Administrator", AccessLevel.NATIONAL),
     CPC_SUPER_USER("CPC Super User", AccessLevel.NATIONAL),
     CPC_USER("CPC User", AccessLevel.INSTITUTIONAL),
+    CPC_FUEL_DISPENSOR("CPC Fuel Dispensor", AccessLevel.INSTITUTIONAL),
 
     // CB Level
     CB_ADMINISTRATOR("CB Administrator", AccessLevel.NATIONAL),

@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../template.xhtml">
+
+            <ui:define name="title">
+                Migrate Bill Items - Data Migration Utility
+            </ui:define>
+
+            <ui:define name="content">
+                <div class="container-fluid p-2" >
+                    <h:form >
+
+                        <div class="card mb-3" >
+                            <div class="card-header bg-warning text-dark" >
+                                <h2><h:outputText value="Bill Items Migration Utility"></h:outputText></h2>
+                            </div>
+                            <div class="card-body" >
+
+                                <div class="alert alert-info" role="alert">
+                                    <h5><i class="pi pi-info-circle"></i> What does this tool do?</h5>
+                                    <p>This utility creates BillItems for old payment bills that were created before the BillItem system was implemented.</p>
+                                    <ul>
+                                        <li>Finds all bills that don't have BillItems</li>
+                                        <li>For each bill, finds all transactions that reference it</li>
+                                        <li>Creates BillItems to link bills and transactions</li>
+                                        <li>Preserves complete audit trail for historical data</li>
+                                    </ul>
+                                    <p><strong>Note:</strong> This operation is safe to run multiple times. It only creates missing BillItems.</p>
+                                </div>
+
+                                <div class="card mb-3">
+                                    <div class="card-header bg-primary text-white">
+                                        <h4>Run Migration</h4>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <p class="lead">Click the button below to start the migration process.</p>
+                                        <p:commandButton
+                                            value="Start Migration"
+                                            action="#{fuelRequestAndIssueController.migrateBillItems()}"
+                                            icon="pi pi-cog"
+                                            ajax="false"
+                                            styleClass="ui-button-success"
+                                            style="font-size: 1.2em; padding: 10px 30px;"
+                                            onclick="if (!confirm('Are you sure you want to start the migration? This will create BillItems for all bills that don\'t have them yet.')) return false;" />
+                                    </div>
+                                </div>
+
+                                <p:messages ></p:messages>
+
+                                <!-- Migration Results -->
+                                <h:panelGroup rendered="#{fuelRequestAndIssueController.migrationResults != null}">
+                                    <div class="card">
+                                        <div class="card-header bg-success text-white">
+                                            <h4>Migration Results</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <h:panelGrid columns="2" class="w-100">
+                                                        <h:outputLabel value="Total Bills Processed:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.migrationResults.billsProcessed}" />
+
+                                                        <h:outputLabel value="Bills with Existing Items (Skipped):" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.migrationResults.billsSkipped}" />
+
+                                                        <h:outputLabel value="Bills Migrated:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.migrationResults.billsMigrated}"
+                                                                      styleClass="text-success font-weight-bold" />
+
+                                                        <h:outputLabel value="Bill Items Created:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.migrationResults.billItemsCreated}"
+                                                                      styleClass="text-success font-weight-bold" />
+                                                    </h:panelGrid>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h:panelGrid columns="2" class="w-100">
+                                                        <h:outputLabel value="Errors Encountered:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.migrationResults.errorsCount}"
+                                                                      styleClass="#{fuelRequestAndIssueController.migrationResults.errorsCount > 0 ? 'text-danger font-weight-bold' : 'text-success'}" />
+
+                                                        <h:outputLabel value="Started At:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.migrationResults.startTime}">
+                                                            <f:convertDateTime pattern="dd MMM yyyy HH:mm:ss" />
+                                                        </h:outputText>
+
+                                                        <h:outputLabel value="Completed At:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.migrationResults.endTime}">
+                                                            <f:convertDateTime pattern="dd MMM yyyy HH:mm:ss" />
+                                                        </h:outputText>
+
+                                                        <h:outputLabel value="Duration:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.migrationResults.duration}" />
+                                                    </h:panelGrid>
+                                                </div>
+                                            </div>
+
+                                            <!-- Error Details if any -->
+                                            <h:panelGroup rendered="#{fuelRequestAndIssueController.migrationResults.errorsCount > 0}">
+                                                <div class="alert alert-danger mt-3">
+                                                    <h5>Errors:</h5>
+                                                    <ui:repeat value="#{fuelRequestAndIssueController.migrationResults.errors}" var="error">
+                                                        <p>#{error}</p>
+                                                    </ui:repeat>
+                                                </div>
+                                            </h:panelGroup>
+
+                                            <div class="alert alert-success mt-3">
+                                                <i class="pi pi-check-circle"></i> Migration completed successfully!
+                                            </div>
+                                        </div>
+                                    </div>
+                                </h:panelGroup>
+
+                            </div>
+                        </div>
+
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

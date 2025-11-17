@@ -67,6 +67,8 @@ public class MenuController implements Serializable {
     DashboardController dashboardController;
     @Inject
     AreaController areaController;
+    @Inject
+    FuelPriceController fuelPriceController;
 
     /**
      * Creates a new instance of MenuController
@@ -604,6 +606,31 @@ public class MenuController implements Serializable {
             case HEALTH_MINISTRY:
                 return "/national/admin/user_privileges?faces-redirect=true";
             default:
+                return "";
+        }
+    }
+
+    public String toAddNewFuelPrice() {
+        fuelPriceController.prepareToAddNewFuelPrice();
+        switch (webUserController.getLoggedUser().getWebUserRoleLevel()) {
+            case HEALTH_MINISTRY:
+                return "/fuelPrice/fuelPrice?faces-redirect=true";
+            default:
+                JsfUtil.addErrorMessage("You are NOT authorized to add fuel prices");
+                return "";
+        }
+    }
+
+    public String toListFuelPrices() {
+        fuelPriceController.fillItems();
+        switch (webUserController.getLoggedUser().getWebUserRole()) {
+            case CPC_ADMINISTRATOR:
+            case CPC_USER:
+            case SYSTEM_ADMINISTRATOR:
+            case SUPER_USER:
+                return "/fuelPrice/List?faces-redirect=true";
+            default:
+                JsfUtil.addErrorMessage("You are NOT authorized to view fuel prices");
                 return "";
         }
     }

@@ -5,6 +5,7 @@ import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -24,7 +25,9 @@ import javax.inject.Inject;
 import javax.persistence.TemporalType;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.entity.Bill;
+import lk.gov.health.phsp.entity.BillItem;
 import lk.gov.health.phsp.entity.DataAlterationRequest;
+import lk.gov.health.phsp.entity.FuelPrice;
 import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
@@ -32,11 +35,14 @@ import lk.gov.health.phsp.entity.WebUser;
 import lk.gov.health.phsp.enums.DataAlterationRequestType;
 import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.facade.BillFacade;
+import lk.gov.health.phsp.facade.BillItemFacade;
 import lk.gov.health.phsp.facade.DataAlterationRequestFacade;
+import lk.gov.health.phsp.facade.FuelPriceFacade;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
 import lk.gov.health.phsp.facade.InstitutionFacade;
 import lk.gov.health.phsp.facade.VehicleFacade;
 import lk.gov.health.phsp.facade.WebUserFacade;
+import lk.gov.health.phsp.pojcs.BillItemMigrationResults;
 import org.primefaces.event.CaptureEvent;
 
 @Named
@@ -48,6 +54,8 @@ public class FuelRequestAndIssueController implements Serializable {
     @EJB
     private FuelTransactionFacade fuelTransactionFacade;
     @EJB
+    private FuelPriceFacade fuelPriceFacade;
+    @EJB
     InstitutionFacade institutionFacade;
     @EJB
     VehicleFacade vehicleFacade;
@@ -57,6 +65,8 @@ public class FuelRequestAndIssueController implements Serializable {
     DataAlterationRequestFacade dataAlterationRequestFacade;
     @EJB
     BillFacade billFacade;
+    @EJB
+    BillItemFacade billItemFacade;
 
     @Inject
     private WebUserController webUserController;
@@ -74,6 +84,8 @@ public class FuelRequestAndIssueController implements Serializable {
     WebUserApplicationController webUserApplicationController;
     @Inject
     QRCodeController qrCodeController;
+    @Inject
+    InstitutionController institutionController;
 
     private DataAlterationRequest dataAlterationRequest;
     private List<DataAlterationRequest> dataAlterationRequests;
@@ -82,6 +94,7 @@ public class FuelRequestAndIssueController implements Serializable {
     private List<Bill> bills;
     private List<FuelTransaction> selectedTransactions = null;
     private FuelTransaction selected;
+    private List<Institution> availableFuelStations;
 
     private FuelTransactionHistory selectedTransactionHistory;
     private List<FuelTransactionHistory> selectedTransactionHistories;
@@ -97,8 +110,18 @@ public class FuelRequestAndIssueController implements Serializable {
     private boolean filterByIssuedDate = true; // true = filter by issued date, false = filter by requested date; default is issued date
 
     private Bill fuelPaymentRequestBill;
+    private Bill selectedBill;
+    private List<FuelTransaction> selectedBillTransactions;
+    private BillItemMigrationResults migrationResults;
+    private String billRejectionComment;
+    private Map<Long, String> billItemComments; // Map of transaction ID to comment
 
     private String searchingFuelRequestVehicleNumber;
+
+    // Filter properties for list_bills_to_accept
+    private String billNumberFilter;
+    private Institution filterFromInstitution;
+    private Institution filterFuelStation;
 
     public FuelRequestAndIssueController() {
     }
@@ -370,11 +393,11 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Select Fuel Station");
             return "";
         }
-        if(selected.getRequestReferenceNumber()==null){
+        if (selected.getRequestReferenceNumber() == null) {
             JsfUtil.addErrorMessage("Enter a referance number");
             return "";
         }
-        if(selected.getRequestReferenceNumber().trim().equals("")){
+        if (selected.getRequestReferenceNumber().trim().equals("")) {
             JsfUtil.addErrorMessage("Enter a referance number");
             return "";
         }
@@ -587,6 +610,38 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Need Issued Date");
             return "";
         }
+
+        // Validation: Check if issue reference number equals request reference number
+        if (selected.getIssueReferenceNumber() != null && selected.getRequestReferenceNumber() != null) {
+            if (selected.getIssueReferenceNumber().trim().equalsIgnoreCase(selected.getRequestReferenceNumber().trim())) {
+                JsfUtil.addErrorMessage("Issue Reference Number cannot be the same as Request Reference Number");
+                return "";
+            }
+        }
+
+        // Validation: Check if issue date is not before request date
+        if (selected.getIssuedDate() != null && selected.getRequestedDate() != null) {
+            // Reset time to 00:00:00 for date-only comparison
+            java.util.Calendar issuedCal = java.util.Calendar.getInstance();
+            issuedCal.setTime(selected.getIssuedDate());
+            issuedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            issuedCal.set(java.util.Calendar.MINUTE, 0);
+            issuedCal.set(java.util.Calendar.SECOND, 0);
+            issuedCal.set(java.util.Calendar.MILLISECOND, 0);
+
+            java.util.Calendar requestedCal = java.util.Calendar.getInstance();
+            requestedCal.setTime(selected.getRequestedDate());
+            requestedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            requestedCal.set(java.util.Calendar.MINUTE, 0);
+            requestedCal.set(java.util.Calendar.SECOND, 0);
+            requestedCal.set(java.util.Calendar.MILLISECOND, 0);
+
+            if (issuedCal.before(requestedCal)) {
+                JsfUtil.addErrorMessage("Issue Date cannot be before Request Date");
+                return "";
+            }
+        }
+
         selected.setIssued(true);
         selected.setIssuedAt(new Date());
         selected.setIssuedUser(webUserController.getLoggedUser());
@@ -870,6 +925,82 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/requests/list_to_paid?faces-redirect=true";
     }
 
+    public String navigateToListPaymentBills() {
+        listPaymentBills();
+        return "/requests/list_payment_bills?faces-redirect=true";
+    }
+
+    public String navigateToViewPaymentBill() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return null;
+        }
+        loadBillTransactions();
+        return "/requests/view_payment_bill?faces-redirect=true";
+    }
+
+    public String navigateToListBillsToAcceptAtCpc() {
+        listBillsToAcceptAtCpc();
+        return "/requests/list_bills_to_accept_at_cpc?faces-redirect=true";
+    }
+
+    public String navigateToListBillsAcceptedByCpc() {
+        listBillsAcceptedByCpc();
+        return "/requests/list_bills_accepted_by_cpc?faces-redirect=true";
+    }
+
+    public String navigateToListBillsRejectedByCpc() {
+        listBillsRejectedByCpc();
+        return "/requests/list_bills_rejected_by_cpc?faces-redirect=true";
+    }
+
+    // CPC-specific navigation methods
+    public String navigateToCpcListPaymentBills() {
+        listPaymentBills();
+        return "/cpc/list_payment_bills?faces-redirect=true";
+    }
+
+    public String navigateToCpcViewPaymentBill() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return null;
+        }
+        loadBillTransactions();
+        return "/cpc/view_payment_bill?faces-redirect=true";
+    }
+
+    public String navigateToCpcListBillsToAccept() {
+        listBillsToAcceptAtCpc();
+        return "/cpc/list_bills_to_accept?faces-redirect=true";
+    }
+
+    public String navigateToCpcListBillsAccepted() {
+        listBillsAcceptedByCpc();
+        return "/cpc/list_bills_accepted?faces-redirect=true";
+    }
+
+    public String navigateToCpcListBillsRejected() {
+        listBillsRejectedByCpc();
+        return "/cpc/list_bills_rejected?faces-redirect=true";
+    }
+
+    public String navigateToCpcBillAction() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return null;
+        }
+        loadBillTransactions();
+        // Clear rejection comment fields
+        billRejectionComment = null;
+        billItemComments = new HashMap<>();
+        return "/requests/cpc_bill_action?faces-redirect=true";
+    }
+
+    public String navigateToMigrateBillItems() {
+        migrationResults = null; // Clear previous results
+        return "/admin/migrate_bill_items?faces-redirect=true";
+    }
+
     public String navigateToCreateNewDeleteRequest() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Select a transaction");
@@ -935,6 +1066,39 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listPaymentBills() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.toInstitution IN :fuelStations "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("fuelStations", webUserController.getLoggableInstitutions());
+        params.put("fromDate", fromDate); // fromDate should be set beforehand
+        params.put("toDate", toDate);     // toDate should be set beforehand
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listPaymentBillsForInstitutions() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
         String j = "SELECT b "
                 + " FROM Bill b "
                 + " WHERE b.retired = false "
@@ -942,7 +1106,7 @@ public class FuelRequestAndIssueController implements Serializable {
                 + " AND b.billDate BETWEEN :fromDate AND :toDate";
 
         Map<String, Object> params = new HashMap<>();
-        params.put("institutions", webUserController.findAutherizedInstitutions());
+        params.put("institutions", webUserController.getLoggableInstitutions());
         params.put("fromDate", fromDate); // fromDate should be set beforehand
         params.put("toDate", toDate);     // toDate should be set beforehand
 
@@ -1044,11 +1208,663 @@ public class FuelRequestAndIssueController implements Serializable {
         bills = tmpBills;
     }
 
+    public void listBillsToAcceptAtCpc() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.acceptedByCpc = false "
+                + " AND b.rejectedByCpc = false "
+                + " AND b.toInstitution IN :fuelStations "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("fuelStations", webUserController.getLoggableInstitutions());
+        params.put("fromDate", fromDate);
+        params.put("toDate", toDate);
+
+        // Add bill number filter
+        if (billNumberFilter != null && !billNumberFilter.trim().isEmpty()) {
+            j += " AND b.billNo LIKE :billNo";
+            params.put("billNo", "%" + billNumberFilter.trim() + "%");
+        }
+
+        // Add from institution filter
+        if (filterFromInstitution != null) {
+            j += " AND b.fromInstitution = :fromInstitution";
+            params.put("fromInstitution", filterFromInstitution);
+        }
+
+        // Add fuel station filter
+        if (filterFuelStation != null) {
+            j += " AND b.toInstitution = :toInstitution";
+            params.put("toInstitution", filterFuelStation);
+        }
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listBillsToAcceptAtCpcForInstitutions() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.acceptedByCpc = false "
+                + " AND b.rejectedByCpc = false "
+                + " AND b.fromInstitution IN :ins "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("ins", webUserController.getLoggableInstitutions());
+        params.put("fromDate", fromDate);
+        params.put("toDate", toDate);
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listBillsAcceptedByCpc() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.acceptedByCpc = true "
+                + " AND b.toInstitution IN :fuelStations "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("fuelStations", webUserController.getLoggableInstitutions());
+        params.put("fromDate", fromDate);
+        params.put("toDate", toDate);
+
+        // Add bill number filter
+        if (billNumberFilter != null && !billNumberFilter.trim().isEmpty()) {
+            j += " AND b.billNo LIKE :billNo";
+            params.put("billNo", "%" + billNumberFilter.trim() + "%");
+        }
+
+        // Add from institution filter
+        if (filterFromInstitution != null) {
+            j += " AND b.fromInstitution = :fromInstitution";
+            params.put("fromInstitution", filterFromInstitution);
+        }
+
+        // Add fuel station filter
+        if (filterFuelStation != null) {
+            j += " AND b.toInstitution = :toInstitution";
+            params.put("toInstitution", filterFuelStation);
+        }
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listBillsAcceptedByCpcForInstitutions() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.acceptedByCpc = true "
+                + " AND b.fromInstitution IN :ins "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("ins", webUserController.getLoggableInstitutions());
+        params.put("fromDate", fromDate);
+        params.put("toDate", toDate);
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listBillsRejectedByCpc() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.rejectedByCpc = true "
+                + " AND b.toInstitution IN :fuelStations "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("fuelStations", webUserController.getLoggableInstitutions());
+        params.put("fromDate", fromDate);
+        params.put("toDate", toDate);
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public void listBillsRejectedByCpcForInstituion() {
+        // Validate that fromDate and toDate are in the same month
+        if (!areDatesInSameMonth(fromDate, toDate)) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            bills = new ArrayList<>();
+            return;
+        }
+
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.rejectedByCpc = true "
+                + " AND b.fromInstitution IN :ins "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("ins", webUserController.getLoggableInstitutions());
+        params.put("fromDate", fromDate);
+        params.put("toDate", toDate);
+
+        System.out.println("params = " + params);
+        System.out.println("j = " + j);
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
+    public String acceptBillAtCpc() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return null;
+        }
+
+        Date acceptanceDate = new Date();
+        WebUser acceptanceUser = webUserController.getLoggedUser();
+
+        // Mark bill as accepted (and clear all rejection-related fields)
+        selectedBill.setAcceptedByCpc(true);
+        selectedBill.setRejectedByCpc(false);
+        selectedBill.setRejectedByCpcUser(null);
+        selectedBill.setRejectedByCpcAt(null);
+        selectedBill.setRejectionComment(null);
+        selectedBill.setAcceptedByCpcUser(acceptanceUser);
+        selectedBill.setAcceptedByCpcAt(acceptanceDate);
+
+        // Get all BillItems for this bill
+        String billItemsJpql = "SELECT bi FROM BillItem bi "
+                + "WHERE bi.bill = :bill "
+                + "AND bi.retired = false";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("bill", selectedBill);
+
+        List<BillItem> billItems = billItemFacade.findByJpql(billItemsJpql, params);
+
+        // Update each FuelTransaction with acceptance information
+        for (BillItem billItem : billItems) {
+            FuelTransaction ft = billItem.getFuelTransaction();
+            if (ft != null && !ft.isRetired()) {
+                // Mark as accepted and clear any rejection data
+                ft.setAcceptedByCpcAt(acceptanceDate);
+                ft.setAcceptedByCpcBy(acceptanceUser);
+                ft.setRejectedByCpcAt(null);
+                ft.setRejectedByCpcBy(null);
+                fuelTransactionFacade.edit(ft);
+            }
+        }
+
+        // Save the bill
+        billFacade.edit(selectedBill);
+
+        JsfUtil.addSuccessMessage("Payment bill accepted successfully. " + billItems.size() + " transaction(s) updated.");
+
+        // Navigate back to the pending bills list
+        return navigateToListBillsToAcceptAtCpc();
+    }
+
+    public String rejectBillAtCpc() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return null;
+        }
+
+        // Validate: Rejection comment is mandatory
+        if (billRejectionComment == null || billRejectionComment.trim().isEmpty()) {
+            JsfUtil.addErrorMessage("Rejection comment is mandatory. Please provide a reason for rejecting this bill.");
+            return null;
+        }
+
+        Date rejectionDate = new Date();
+        WebUser rejectionUser = webUserController.getLoggedUser();
+
+        // Mark bill as rejected (and clear all acceptance-related fields)
+        selectedBill.setRejectedByCpc(true);
+        selectedBill.setAcceptedByCpc(false);
+        selectedBill.setAcceptedByCpcUser(null);
+        selectedBill.setAcceptedByCpcAt(null);
+        selectedBill.setRejectedByCpcUser(rejectionUser);
+        selectedBill.setRejectedByCpcAt(rejectionDate);
+        selectedBill.setRejectionComment(billRejectionComment.trim());
+
+        // Get all BillItems for this bill
+        String billItemsJpql = "SELECT bi FROM BillItem bi "
+                + "WHERE bi.bill = :bill "
+                + "AND bi.retired = false";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("bill", selectedBill);
+
+        List<BillItem> billItems = billItemFacade.findByJpql(billItemsJpql, params);
+
+        // Save bill item comments and reverse transactions
+        for (BillItem billItem : billItems) {
+            FuelTransaction ft = billItem.getFuelTransaction();
+            if (ft != null && !ft.isRetired()) {
+                // Save bill item comment if provided
+                if (billItemComments != null && billItemComments.containsKey(ft.getId())) {
+                    String comment = billItemComments.get(ft.getId());
+                    if (comment != null && !comment.trim().isEmpty()) {
+                        billItem.setComment(comment.trim());
+                        billItemFacade.edit(billItem);
+                    }
+                }
+
+                // Mark transaction as rejected by CPC and clear any acceptance data
+                ft.setRejectedByCpcAt(rejectionDate);
+                ft.setRejectedByCpcBy(rejectionUser);
+                ft.setAcceptedByCpcAt(null);
+                ft.setAcceptedByCpcBy(null);
+
+                // Reverse the transaction - clear paymentBill so it can be resubmitted
+                ft.setSubmittedToPayment(false);
+                ft.setSubmittedToPaymentAt(null);
+                ft.setSubmittedToPaymentBy(null);
+                ft.setPaymentBill(null);  // Clear so transaction can be resubmitted to a new bill
+                fuelTransactionFacade.edit(ft);
+            }
+        }
+
+        // Save the bill
+        billFacade.edit(selectedBill);
+
+        JsfUtil.addSuccessMessage("Payment bill rejected and all transactions reversed successfully. " + billItems.size() + " transaction(s) marked as rejected by CPC.");
+
+        // Navigate back to the pending bills list
+        return navigateToListBillsToAcceptAtCpc();
+    }
+
+    public String migrateBillItems() {
+        migrationResults = new BillItemMigrationResults();
+        migrationResults.setStartTime(new Date());
+
+        try {
+            // Get all bills
+            String jpql = "SELECT b FROM Bill b WHERE b.retired = false";
+            List<Bill> allBills = billFacade.findByJpql(jpql);
+
+            for (Bill bill : allBills) {
+                migrationResults.setBillsProcessed(migrationResults.getBillsProcessed() + 1);
+
+                try {
+                    // Check if this bill already has BillItems
+                    String checkJpql = "SELECT bi FROM BillItem bi WHERE bi.bill = :bill AND bi.retired = false";
+                    Map<String, Object> checkParams = new HashMap<>();
+                    checkParams.put("bill", bill);
+                    List<BillItem> existingItems = billItemFacade.findByJpql(checkJpql, checkParams);
+
+                    if (existingItems != null && !existingItems.isEmpty()) {
+                        // Bill already has items, skip
+                        migrationResults.setBillsSkipped(migrationResults.getBillsSkipped() + 1);
+                        continue;
+                    }
+
+                    // Find all transactions that reference this bill
+                    String transJpql = "SELECT ft FROM FuelTransaction ft "
+                            + "WHERE ft.paymentBill = :bill "
+                            + "AND ft.retired = false";
+                    Map<String, Object> transParams = new HashMap<>();
+                    transParams.put("bill", bill);
+                    List<FuelTransaction> transactions = fuelTransactionFacade.findByJpql(transJpql, transParams);
+
+                    if (transactions == null || transactions.isEmpty()) {
+                        // No transactions found, skip
+                        migrationResults.setBillsSkipped(migrationResults.getBillsSkipped() + 1);
+                        continue;
+                    }
+
+                    // Create BillItems for each transaction
+                    for (FuelTransaction ft : transactions) {
+                        BillItem billItem = new BillItem();
+                        billItem.setBill(bill);
+                        billItem.setFuelTransaction(ft);
+                        billItem.setCreatedAt(new Date());
+                        billItem.setCreatedBy(webUserController.getLoggedUser());
+                        billItem.setRetired(false);
+                        billItemFacade.create(billItem);
+
+                        migrationResults.setBillItemsCreated(migrationResults.getBillItemsCreated() + 1);
+                    }
+
+                    migrationResults.setBillsMigrated(migrationResults.getBillsMigrated() + 1);
+
+                } catch (Exception e) {
+                    String error = "Error migrating bill " + bill.getBillNo() + ": " + e.getMessage();
+                    migrationResults.addError(error);
+                    Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, error, e);
+                }
+            }
+
+            migrationResults.setEndTime(new Date());
+            JsfUtil.addSuccessMessage("Migration completed. Bills migrated: " + migrationResults.getBillsMigrated()
+                    + ", BillItems created: " + migrationResults.getBillItemsCreated());
+
+        } catch (Exception e) {
+            migrationResults.setEndTime(new Date());
+            String error = "Fatal error during migration: " + e.getMessage();
+            migrationResults.addError(error);
+            JsfUtil.addErrorMessage(error);
+            Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, error, e);
+        }
+
+        return null; // Stay on the same page to show results
+    }
+
     public void listInstitutionRequests() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null, null, null, fuelTransactionType);
     }
 
     boolean paymentRequestStarted = false;
+
+    public String navigateToReviewPaymentRequest() {
+        // Validate that from date and to date are in the same month
+        if (fromDate != null && toDate != null) {
+            java.util.Calendar fromCal = java.util.Calendar.getInstance();
+            fromCal.setTime(fromDate);
+
+            java.util.Calendar toCal = java.util.Calendar.getInstance();
+            toCal.setTime(toDate);
+
+            // Check if month and year are the same
+            if (fromCal.get(java.util.Calendar.MONTH) != toCal.get(java.util.Calendar.MONTH)
+                    || fromCal.get(java.util.Calendar.YEAR) != toCal.get(java.util.Calendar.YEAR)) {
+                JsfUtil.addErrorMessage("From Date and To Date must be in the same month");
+                return null;
+            }
+        }
+
+        // Automatically select all transactions from the list
+        if (transactions == null || transactions.isEmpty()) {
+            JsfUtil.addErrorMessage("No transactions available to review");
+            return null;
+        }
+
+        // Validate that all transactions have a fuel station
+        for (FuelTransaction ft : transactions) {
+            if (ft.getToInstitution() == null) {
+                JsfUtil.addErrorMessage("All transactions must have a fuel station assigned. Please check transaction for vehicle: "
+                        + (ft.getVehicle() != null ? ft.getVehicle().getVehicleNumber() : "Unknown"));
+                return null;
+            }
+        }
+
+        // Auto-select all listed transactions
+        selectedTransactions = new ArrayList<>(transactions);
+        Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
+        return "/requests/review_payment?faces-redirect=true";
+    }
+
+    public void removeTransactionFromSelection(FuelTransaction transaction) {
+        if (selectedTransactions != null && transaction != null) {
+            selectedTransactions.remove(transaction);
+            JsfUtil.addSuccessMessage("Transaction removed from selection");
+        }
+    }
+
+    /**
+     * Generates a unique monthly number for bills based on the month,
+     * fromInstitution, and toInstitution. Format: YYYYMM-NNN where NNN is a
+     * 3-digit sequential number Example: 202511-001, 202511-002, etc.
+     *
+     * @param fromInstitution The institution making the payment request
+     * @param toInstitution The institution receiving the payment request
+     * @param billDate The date of the bill (used to extract month and year)
+     * @return A unique monthly number
+     */
+    private String generateMonthlyNumber(Institution fromInstitution, Institution toInstitution, Date billDate) {
+        if (fromInstitution == null || toInstitution == null || billDate == null) {
+            throw new IllegalArgumentException("fromInstitution, toInstitution, and billDate cannot be null");
+        }
+
+        // Extract year and month from bill date
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTime(billDate);
+        int year = cal.get(java.util.Calendar.YEAR);
+        int month = cal.get(java.util.Calendar.MONTH) + 1; // Calendar.MONTH is 0-based
+
+        // Create month prefix (YYYYMM format)
+        String monthPrefix = String.format("%04d%02d", year, month);
+
+        // Calculate start and end of the month for the query
+        cal.set(java.util.Calendar.DAY_OF_MONTH, 1);
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        cal.set(java.util.Calendar.MINUTE, 0);
+        cal.set(java.util.Calendar.SECOND, 0);
+        cal.set(java.util.Calendar.MILLISECOND, 0);
+        Date startOfMonth = cal.getTime();
+
+        cal.set(java.util.Calendar.DAY_OF_MONTH, cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH));
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 23);
+        cal.set(java.util.Calendar.MINUTE, 59);
+        cal.set(java.util.Calendar.SECOND, 59);
+        cal.set(java.util.Calendar.MILLISECOND, 999);
+        Date endOfMonth = cal.getTime();
+
+        // Query to find the last bill for this month with this institution combination
+        String jpql = "SELECT b FROM Bill b "
+                + "WHERE b.fromInstitution = :fromInstitution "
+                + "AND b.toInstitution = :toInstitution "
+                + "AND b.billDate BETWEEN :startOfMonth AND :endOfMonth "
+                + "AND b.retired = false "
+                + "AND b.monthlyNumber LIKE :prefix "
+                + "ORDER BY b.id DESC";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("fromInstitution", fromInstitution);
+        params.put("toInstitution", toInstitution);
+        params.put("startOfMonth", startOfMonth);
+        params.put("endOfMonth", endOfMonth);
+        params.put("prefix", monthPrefix + "%");
+
+        List<Bill> existingBills = billFacade.findByJpql(jpql, params, 1);
+
+        int nextSequentialNumber = 1;
+
+        if (existingBills != null && !existingBills.isEmpty()) {
+            String lastMonthlyNumber = existingBills.get(0).getMonthlyNumber();
+
+            if (lastMonthlyNumber != null) {
+                // Extract the sequential number from the last monthly number
+                // Format: YYYYMM-NNN (where NNN is the sequential number)
+                try {
+                    String[] parts = lastMonthlyNumber.split("-");
+                    if (parts.length == 2) {
+                        int lastNumber = Integer.parseInt(parts[1]);
+                        nextSequentialNumber = lastNumber + 1;
+                    }
+                } catch (NumberFormatException e) {
+                    // If parsing fails, start from 1
+                    Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                            .log(Level.WARNING, "Could not parse sequential number from monthly number: " + lastMonthlyNumber, e);
+                    nextSequentialNumber = 1;
+                }
+            }
+        }
+
+        // Format the sequential number with leading zeros (3 digits)
+        String sequentialPart = String.format("%03d", nextSequentialNumber);
+
+        // Generate the final monthly number
+        String monthlyNumber = monthPrefix + "-" + sequentialPart;
+
+        return monthlyNumber;
+    }
+
+    /**
+     * Generates a unique bill number based on billType, fromInstitution, and
+     * toInstitution. Format: [First 2 letters of billType][fromInstitution
+     * code][toInstitution code][sequential number] Example: PAHSP001DEL001-0001
+     *
+     * @param billType The type of the bill
+     * @param fromInstitution The institution making the payment request
+     * @param toInstitution The institution receiving the payment request
+     * @return A unique bill number
+     */
+    private String generateUniqueBillNumber(String billType, Institution fromInstitution, Institution toInstitution) {
+        if (billType == null || fromInstitution == null || toInstitution == null) {
+            throw new IllegalArgumentException("billType, fromInstitution, and toInstitution cannot be null");
+        }
+
+        // Use short codes if available, otherwise fall back to regular codes
+        String fromCode = fromInstitution.getShortCode() != null && !fromInstitution.getShortCode().trim().isEmpty()
+                ? fromInstitution.getShortCode().toUpperCase().trim()
+                : (fromInstitution.getCode() != null ? fromInstitution.getCode().toUpperCase().trim() : "");
+
+        String toCode = toInstitution.getShortCode() != null && !toInstitution.getShortCode().trim().isEmpty()
+                ? toInstitution.getShortCode().toUpperCase().trim()
+                : (toInstitution.getCode() != null ? toInstitution.getCode().toUpperCase().trim() : "");
+
+        if (fromCode.isEmpty()) {
+            throw new IllegalArgumentException("fromInstitution must have a valid code or short code");
+        }
+
+        if (toCode.isEmpty()) {
+            throw new IllegalArgumentException("toInstitution must have a valid code or short code");
+        }
+
+        // Extract first two letters of bill type (convert to uppercase)
+        String billTypePrefix = billType.length() >= 2
+                ? billType.substring(0, 2).toUpperCase()
+                : billType.toUpperCase();
+
+        // Create the prefix for the bill number
+        String billNumberPrefix = billTypePrefix + fromCode + toCode;
+
+        // Query to find the last bill with this combination
+        String jpql = "SELECT b FROM Bill b "
+                + "WHERE b.billType = :billType "
+                + "AND b.fromInstitution = :fromInstitution "
+                + "AND b.toInstitution = :toInstitution "
+                + "AND b.retired = false "
+                + "AND b.billNo LIKE :prefix "
+                + "ORDER BY b.id DESC";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("billType", billType);
+        params.put("fromInstitution", fromInstitution);
+        params.put("toInstitution", toInstitution);
+        params.put("prefix", billNumberPrefix + "%");
+
+        List<Bill> existingBills = billFacade.findByJpql(jpql, params, 1);
+
+        int nextSequentialNumber = 1;
+
+        if (existingBills != null && !existingBills.isEmpty()) {
+            String lastBillNo = existingBills.get(0).getBillNo();
+
+            // Extract the sequential number from the last bill number
+            // Format: PREFIX-NN (where NN is the sequential number)
+            try {
+                String[] parts = lastBillNo.split("-");
+                if (parts.length == 2) {
+                    int lastNumber = Integer.parseInt(parts[1]);
+                    nextSequentialNumber = lastNumber + 1;
+                }
+            } catch (NumberFormatException e) {
+                // If parsing fails, start from 1
+                Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                        .log(Level.WARNING, "Could not parse sequential number from bill: " + lastBillNo, e);
+                nextSequentialNumber = 1;
+            }
+        }
+
+        // Format the sequential number with leading zeros (2 digits)
+        String sequentialPart = String.format("%02d", nextSequentialNumber);
+
+        // Generate the final bill number
+        String billNumber = billNumberPrefix + "-" + sequentialPart;
+
+        return billNumber;
+    }
+
+    /**
+     * Get the last fuel price entry for the given month and year
+     *
+     * @param billDate The date for which to find the fuel price
+     * @return The last FuelPrice entry for that month, or null if not found
+     */
+    private FuelPrice getLastFuelPriceForMonth(Date billDate) {
+        if (billDate == null) {
+            return null;
+        }
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(billDate);
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH) + 1; // Calendar.MONTH is 0-based
+
+        String jpql = "SELECT fp FROM FuelPrice fp "
+                + "WHERE fp.year = :year AND fp.month = :month "
+                + "AND fp.retired = false "
+                + "ORDER BY fp.createdAt DESC";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("year", year);
+        params.put("month", month);
+
+        List<FuelPrice> fuelPrices = fuelPriceFacade.findByJpql(jpql, params, 1);
+
+        if (fuelPrices != null && !fuelPrices.isEmpty()) {
+            return fuelPrices.get(0);
+        }
+
+        return null;
+    }
 
     public String makePaymentRequest() {
         if (paymentRequestStarted) {
@@ -1104,22 +1920,86 @@ public class FuelRequestAndIssueController implements Serializable {
         fuelPaymentRequestBill.setBillType("Payment Request From Hospital");
         fuelPaymentRequestBill.setFromInstitution(hospital);
         fuelPaymentRequestBill.setToInstitution(fuelStation);
+
+        // Generate and set unique bill number
+        try {
+            String billNumber = generateUniqueBillNumber(
+                    fuelPaymentRequestBill.getBillType(),
+                    hospital,
+                    fuelStation
+            );
+            fuelPaymentRequestBill.setBillNo(billNumber);
+        } catch (Exception e) {
+            Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                    .log(Level.SEVERE, "Error generating bill number", e);
+            JsfUtil.addErrorMessage("Error generating bill number: " + e.getMessage());
+            paymentRequestStarted = false;
+            return null;
+        }
+
+        // Generate and set monthly number
+        try {
+            String monthlyNumber = generateMonthlyNumber(
+                    hospital,
+                    fuelStation,
+                    fuelPaymentRequestBill.getBillDate()
+            );
+            fuelPaymentRequestBill.setMonthlyNumber(monthlyNumber);
+        } catch (Exception e) {
+            Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                    .log(Level.SEVERE, "Error generating monthly number", e);
+            JsfUtil.addErrorMessage("Error generating monthly number: " + e.getMessage());
+            paymentRequestStarted = false;
+            return null;
+        }
+
+        // Fetch and set the last fuel price for the month
+        try {
+            FuelPrice lastFuelPrice = getLastFuelPriceForMonth(fuelPaymentRequestBill.getBillDate());
+            if (lastFuelPrice != null) {
+                fuelPaymentRequestBill.setFuelPrice(lastFuelPrice);
+                Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                        .log(Level.INFO, "Set fuel price for bill: " + lastFuelPrice.getPrice());
+            } else {
+                Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                        .log(Level.WARNING, "No fuel price found for the bill month");
+            }
+        } catch (Exception e) {
+            Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                    .log(Level.WARNING, "Error fetching fuel price for bill", e);
+            // Continue without fuel price - this is not a critical error
+        }
+
         billFacade.create(fuelPaymentRequestBill);
 
-        double qty = 0.0;
+        double qtyRequested = 0.0;
+        double qtyIssued = 0.0;
 
         for (FuelTransaction sft : selectedTransactions) {
             sft.setSubmittedToPayment(true);
             sft.setSubmittedToPaymentAt(new Date());
             sft.setSubmittedToPaymentBy(webUserController.getLoggedUser());
             sft.setPaymentBill(fuelPaymentRequestBill);
+            if (sft.getRequestQuantity() != null) {
+                qtyRequested += sft.getRequestQuantity();
+            }
             if (sft.getIssuedQuantity() != null) {
-                qty += sft.getIssuedQuantity();
+                qtyIssued += sft.getIssuedQuantity();
             }
             fuelTransactionFacade.edit(sft);
+
+            // Create BillItem to maintain bill-transaction relationship
+            BillItem billItem = new BillItem();
+            billItem.setBill(fuelPaymentRequestBill);
+            billItem.setFuelTransaction(sft);
+            billItem.setCreatedAt(new Date());
+            billItem.setCreatedBy(webUserController.getLoggedUser());
+            billItem.setRetired(false);
+            billItemFacade.create(billItem);
         }
 
-        fuelPaymentRequestBill.setTotalQty(qty);
+        fuelPaymentRequestBill.setTotalQty(qtyRequested);
+        fuelPaymentRequestBill.setTotalIssuedQty(qtyIssued);
         billFacade.edit(fuelPaymentRequestBill);
         paymentRequestStarted = false;
 
@@ -1143,22 +2023,24 @@ public class FuelRequestAndIssueController implements Serializable {
         m.put("pb", fuelPaymentRequestBill);
 
         selectedTransactions = getFacade().findByJpql(jpql, m);
-        
+
         Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
 
-        
         return "/requests/list_payment?faces-redirect=true";
 
     }
 
     public void listInstitutionRequestsToPay() {
+        // Clear the fuel stations dropdown to prevent accumulation across different logins
+        availableFuelStations = null;
+
         // Always filter by issued date for payment requests
         filterByIssuedDate = true;
         transactions
                 = findFuelTransactions(
                         null, // institution
                         webUserController.getLoggedInstitution(), // fromInstitution
-                        null, // toInstitution
+                        fuelStation, // toInstitution - use the selected fuel station filter
                         null, // vehicles
                         getFromDate(), // fromDateTime
                         getToDate(), // toDateTime
@@ -1169,6 +2051,20 @@ public class FuelRequestAndIssueController implements Serializable {
                         null, // txTypes
                         null // type
                 );
+
+        // Add any additional fuel stations from the search results to the dropdown
+        if (transactions != null && !transactions.isEmpty()) {
+            for (FuelTransaction ft : transactions) {
+                if (ft.getToInstitution() != null) {
+                    if (availableFuelStations == null) {
+                        availableFuelStations = new ArrayList<>();
+                    }
+                    if (!availableFuelStations.contains(ft.getToInstitution())) {
+                        availableFuelStations.add(ft.getToInstitution());
+                    }
+                }
+            }
+        }
     }
 
     public void listInstitutionRequestsPaid() {
@@ -1189,11 +2085,59 @@ public class FuelRequestAndIssueController implements Serializable {
                 );
     }
 
+    public void loadBillTransactions() {
+        if (selectedBill == null) {
+            selectedBillTransactions = new ArrayList<>();
+            return;
+        }
+
+        // Query via BillItems to preserve history even if bill is rejected and paymentBill is cleared
+        String jpql = "SELECT bi.fuelTransaction FROM BillItem bi "
+                + "WHERE bi.bill = :bill "
+                + "AND bi.retired = false "
+                + "AND bi.fuelTransaction.retired = false "
+                + "ORDER BY bi.fuelTransaction.requestedDate ASC";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("bill", selectedBill);
+
+        selectedBillTransactions = fuelTransactionFacade.findByJpql(jpql, params);
+    }
+
+    public String getBillItemComment(Long transactionId) {
+        if (selectedBill == null || transactionId == null) {
+            return "";
+        }
+
+        String jpql = "SELECT bi FROM BillItem bi "
+                + "WHERE bi.bill = :bill "
+                + "AND bi.fuelTransaction.id = :transactionId "
+                + "AND bi.retired = false";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("bill", selectedBill);
+        params.put("transactionId", transactionId);
+
+        try {
+            List<BillItem> results = billItemFacade.findByJpql(jpql, params);
+            if (results != null && !results.isEmpty()) {
+                BillItem billItem = results.get(0);
+                if (billItem != null && billItem.getComment() != null) {
+                    return billItem.getComment();
+                }
+            }
+        } catch (Exception e) {
+            // Ignore errors, just return empty
+        }
+        return "";
+    }
+
     public void listPendingPaymentRequests() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null);
     }
 
     public void listInstitutionRequestsToMark() {
+        filterByIssuedDate = false;
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), false, false, false);
     }
 
@@ -1301,6 +2245,7 @@ public class FuelRequestAndIssueController implements Serializable {
             j += " AND ft.transactionType = :ftxs";
             params.put("ftxs", type);
         }
+        j += " order by ft.requestReferenceNumber ";
         List<FuelTransaction> fuelTransactions = getFacade().findByJpql(j, params);
         return fuelTransactions;
     }
@@ -1470,6 +2415,21 @@ public class FuelRequestAndIssueController implements Serializable {
         return requestQuantity <= vehicle.getFuelCapacity();
     }
 
+    private boolean areDatesInSameMonth(Date fromDate, Date toDate) {
+        if (fromDate == null || toDate == null) {
+            return false;
+        }
+
+        Calendar calFrom = Calendar.getInstance();
+        calFrom.setTime(fromDate);
+
+        Calendar calTo = Calendar.getInstance();
+        calTo.setTime(toDate);
+
+        return calFrom.get(Calendar.YEAR) == calTo.get(Calendar.YEAR)
+                && calFrom.get(Calendar.MONTH) == calTo.get(Calendar.MONTH);
+    }
+
     public void save(FuelTransaction saving) {
         if (saving == null) {
             return;
@@ -1621,6 +2581,22 @@ public class FuelRequestAndIssueController implements Serializable {
         this.fuelPaymentRequestBill = fuelPaymentRequestBill;
     }
 
+    public Bill getSelectedBill() {
+        return selectedBill;
+    }
+
+    public void setSelectedBill(Bill selectedBill) {
+        this.selectedBill = selectedBill;
+    }
+
+    public List<FuelTransaction> getSelectedBillTransactions() {
+        return selectedBillTransactions;
+    }
+
+    public void setSelectedBillTransactions(List<FuelTransaction> selectedBillTransactions) {
+        this.selectedBillTransactions = selectedBillTransactions;
+    }
+
     public List<Bill> getBills() {
         return bills;
     }
@@ -1629,12 +2605,98 @@ public class FuelRequestAndIssueController implements Serializable {
         this.bills = bills;
     }
 
+    public BillItemMigrationResults getMigrationResults() {
+        return migrationResults;
+    }
+
+    public void setMigrationResults(BillItemMigrationResults migrationResults) {
+        this.migrationResults = migrationResults;
+    }
+
+    public String getBillRejectionComment() {
+        return billRejectionComment;
+    }
+
+    public void setBillRejectionComment(String billRejectionComment) {
+        this.billRejectionComment = billRejectionComment;
+    }
+
+    public Map<Long, String> getBillItemComments() {
+        if (billItemComments == null) {
+            billItemComments = new HashMap<>();
+        }
+        return billItemComments;
+    }
+
+    public void setBillItemComments(Map<Long, String> billItemComments) {
+        this.billItemComments = billItemComments;
+    }
+
     public Institution getFuelStation() {
         return fuelStation;
     }
 
     public void setFuelStation(Institution fuelStation) {
         this.fuelStation = fuelStation;
+    }
+
+    public List<Institution> completeFromInstitutions(String query) {
+        if (institutionController != null) {
+            return institutionController.completeFuelRequestingFromInstitutions(query);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Institution> completeFuelStations(String query) {
+        if (institutionController != null) {
+            return institutionController.completeInstitutions(query);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Institution> getAvailableFuelStations() {
+        if (availableFuelStations == null) {
+            availableFuelStations = new ArrayList<>();
+            Institution loggedInstitution = webUserController.getLoggedInstitution();
+            if (loggedInstitution != null) {
+                if (loggedInstitution.getSupplyInstitution() != null) {
+                    availableFuelStations.add(loggedInstitution.getSupplyInstitution());
+                }
+                if (loggedInstitution.getAlternativeSupplyInstitution() != null
+                        && !availableFuelStations.contains(loggedInstitution.getAlternativeSupplyInstitution())) {
+                    availableFuelStations.add(loggedInstitution.getAlternativeSupplyInstitution());
+                }
+            }
+        }
+        return availableFuelStations;
+    }
+
+    public void setAvailableFuelStations(List<Institution> availableFuelStations) {
+        this.availableFuelStations = availableFuelStations;
+    }
+
+    public String getBillNumberFilter() {
+        return billNumberFilter;
+    }
+
+    public void setBillNumberFilter(String billNumberFilter) {
+        this.billNumberFilter = billNumberFilter;
+    }
+
+    public Institution getFilterFromInstitution() {
+        return filterFromInstitution;
+    }
+
+    public void setFilterFromInstitution(Institution filterFromInstitution) {
+        this.filterFromInstitution = filterFromInstitution;
+    }
+
+    public Institution getFilterFuelStation() {
+        return filterFuelStation;
+    }
+
+    public void setFilterFuelStation(Institution filterFuelStation) {
+        this.filterFuelStation = filterFuelStation;
     }
 
     @FacesConverter(forClass = FuelTransaction.class)

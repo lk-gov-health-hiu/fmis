@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -16,7 +16,7 @@
                      <p:tabView  rendered="#{institutionController.selected != null}">
 
                         <p:tab title="Details" >
-                            <p:panelGrid columns="2">
+                            <p:panelGrid layout="tabular" columns="2">
                                 <p:outputLabel value="Type:" for="institutionType" />
                                 <p:selectOneMenu id="institutionType" 
                                                  value="#{institutionController.selected.institutionType}" title="InstitutionType" 
@@ -44,7 +44,7 @@
                             </p:panelGrid>
                         </p:tab>
                         <p:tab title="Contact Details" >
-                            <p:panelGrid columns="2">
+                            <p:panelGrid layout="tabular" columns="2">
                                 <p:outputLabel value="Address:" for="address" />
                                 <p:inputText id="address" value="#{institutionController.selected.address}" title="Address" />
                                 <p:outputLabel value="Fax:" for="fax" />
@@ -61,7 +61,7 @@
                         </p:tab>
                         
                         <p:tab title="Location" >
-                            <p:panelGrid columns="2">
+                            <p:panelGrid layout="tabular" columns="2">
                                 <p:outputLabel value="Province:" for="province" />
                                 <p:autoComplete id="province" value="#{institutionController.selected.province}"
                                                 completeMethod="#{areaController.completeProvinces}"
@@ -142,7 +142,7 @@
                     </p:tabView>
                      
                      <!--
-                     <p:panelGrid columns="2" rendered="#{institutionController.selected != null}">
+                     <p:panelGrid layout="tabular" columns="2" rendered="#{institutionController.selected != null}">
                         <h:outputText value="#{bundleClinical.ViewInstitutionLabel_id}"/>
                         <h:outputText value="#{institutionController.selected.id}" title="#{bundleClinical.ViewInstitutionTitle_id}"/>
                         <h:outputText value="#{bundleClinical.ViewInstitutionLabel_institutionType}"/>

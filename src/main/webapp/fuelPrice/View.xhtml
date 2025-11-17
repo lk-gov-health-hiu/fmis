@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+        <p:dialog id="FuelPriceViewDlg" widgetVar="FuelPriceViewDialog" modal="true" resizable="false" appendTo="@(body)" header="View Fuel Price">
+            <h:form id="FuelPriceViewForm">
+                <h:panelGroup id="display">
+                    <p:commandButton ajax="false" value="Close" onclick="FuelPriceViewDialog.hide()"/>
+
+                    <p:panelGrid layout="tabular" columns="2" rendered="#{fuelPriceController.selected != null}">
+                        <p:outputLabel value="Fuel Type:"/>
+                        <h:outputText value="#{fuelPriceController.selected.fuelType.label}"/>
+
+                        <p:outputLabel value="Price (Rs.):"/>
+                        <h:outputText value="#{fuelPriceController.selected.price}">
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputText>
+
+                        <p:outputLabel value="From Date:"/>
+                        <h:outputText value="#{fuelPriceController.selected.fromDate}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </h:outputText>
+
+                        <p:outputLabel value="To Date:"/>
+                        <h:outputText value="#{fuelPriceController.selected.toDate}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </h:outputText>
+
+                        <p:outputLabel value="Year:"/>
+                        <h:outputText value="#{fuelPriceController.selected.year}">
+                            <f:convertNumber pattern="####" groupingUsed="false" />
+                        </h:outputText>
+
+                        <p:outputLabel value="Month:"/>
+                        <h:outputText value="#{fuelPriceController.getMonthName(fuelPriceController.selected.month)}"/>
+
+                        <p:outputLabel value="Name/Description:"/>
+                        <h:outputText value="#{fuelPriceController.selected.name}"/>
+
+                        <p:outputLabel value="Comments:"/>
+                        <h:outputText value="#{fuelPriceController.selected.comments}"/>
+
+                        <p:outputLabel value="Created By:"/>
+                        <h:outputText value="#{fuelPriceController.selected.creater.name}"/>
+
+                        <p:outputLabel value="Created At:"/>
+                        <h:outputText value="#{fuelPriceController.selected.createdAt}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                        </h:outputText>
+
+                        <p:outputLabel value="Edited By:" rendered="#{fuelPriceController.selected.editer != null}"/>
+                        <h:outputText value="#{fuelPriceController.selected.editer.name}" rendered="#{fuelPriceController.selected.editer != null}"/>
+
+                        <p:outputLabel value="Edited At:" rendered="#{fuelPriceController.selected.editedAt != null}"/>
+                        <h:outputText value="#{fuelPriceController.selected.editedAt}" rendered="#{fuelPriceController.selected.editedAt != null}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                        </h:outputText>
+                    </p:panelGrid>
+                </h:panelGroup>
+            </h:form>
+        </p:dialog>
+    </ui:composition>
+</html>

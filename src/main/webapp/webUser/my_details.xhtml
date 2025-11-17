@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -14,7 +14,7 @@
                 <p:panel id="WebUserEditDlg" header="Edit My Detais" style="text-align: center; height: 100%;">
                     <h:form id="WebUserEditForm">
 
-                        <p:panelGrid columns="2" rendered="#{webUserController.loggedUser != null}" style="margin: auto; text-align: left;">
+                        <p:panelGrid layout="tabular" columns="2" rendered="#{webUserController.loggedUser != null}" style="margin: auto; text-align: left;">
                             <f:facet name="header" >
                                 <p:commandButton actionListener="#{webUserController.updateMyDetails()}" value="#{bundleClinical.Save}" />
                                 <p:commandButton value="Back" action="index"/>

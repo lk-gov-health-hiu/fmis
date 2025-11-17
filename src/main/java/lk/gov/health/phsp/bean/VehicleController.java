@@ -87,8 +87,20 @@ public class VehicleController implements Serializable {
 
     public void generateQRCode() {
         try {
+            if (selected == null) {
+                return;
+            }
+
+            // Create JSON string with vehicle data
+            StringBuilder qrData = new StringBuilder();
+            qrData.append("{");
+            qrData.append("\"id\":\"").append(selected.getId() != null ? selected.getId() : "").append("\",");
+            qrData.append("\"vehicleNumber\":\"").append(selected.getVehicleNumber() != null ? selected.getVehicleNumber() : "").append("\",");
+            qrData.append("\"institutionName\":\"").append(selected.getInstitution() != null && selected.getInstitution().getName() != null ? selected.getInstitution().getName() : "").append("\"");
+            qrData.append("}");
+
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
-            BitMatrix bitMatrix = qrCodeWriter.encode(selected.getIdString(), BarcodeFormat.QR_CODE, 200, 200);
+            BitMatrix bitMatrix = qrCodeWriter.encode(qrData.toString(), BarcodeFormat.QR_CODE, 300, 300);
 
             BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -101,6 +113,15 @@ public class VehicleController implements Serializable {
         } catch (WriterException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String toPrintVehicleQRCode() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Please select a vehicle");
+            return "";
+        }
+        generateQRCode();
+        return "/institution/admin/vehicle_qr_print";
     }
 
     public StreamedContent getQrCode() {
@@ -272,11 +293,13 @@ public class VehicleController implements Serializable {
         }
         List<Vehicle> allVehicles = vehicleApplicationController.getVehicles();
         for (Vehicle vehicle : allVehicles) {
-            if (vehicle.getInstitution() == null) {
+            if (vehicle.getInstitution() == null && vehicle.getTemporarilyAttachedInstitution() == null) {
                 continue;
             }
             for (Institution ins : institutions) {
-                if (vehicle.getInstitution().equals(ins)) {
+                boolean matchesCurrentInstitution = vehicle.getInstitution() != null && vehicle.getInstitution().equals(ins);
+                boolean matchesTemporarilyAttachedInstitution = vehicle.getTemporarilyAttachedInstitution() != null && vehicle.getTemporarilyAttachedInstitution().equals(ins);
+                if (matchesCurrentInstitution || matchesTemporarilyAttachedInstitution) {
                     filteredVehicles.add(vehicle);
                     break; // Break the inner loop as we found the institution
                 }
@@ -376,7 +399,18 @@ public class VehicleController implements Serializable {
         if (nameQry.trim().equals("")) {
             return resIns;
         }
-        List<Vehicle> allIns = vehicleApplicationController.getVehicles();
+
+        // Get authorized vehicles for the logged user
+        List<Vehicle> allIns;
+        if (webUserController.getLoggedUser() != null
+                && webUserController.getLoggedUser().getInstitution() != null
+                && (webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.HEALTH_MINISTRY
+                || webUserController.getLoggedUser().getInstitution().getInstitutionType().getCategory() == InstitutionCategory.CPC_HEAD_OFFICE)) {
+            allIns = vehicleApplicationController.getVehicles();
+        } else {
+            allIns = fillVehicles(webUserController.getLoggableInstitutions());
+        }
+
         nameQry = nameQry.trim();
         String words[] = nameQry.split("\\s+");
 
@@ -440,6 +474,21 @@ public class VehicleController implements Serializable {
             return null;
         }
 
+        // Check for duplicate vehicle number
+        Vehicle existingVehicle = findVehicleByNumber(selected.getVehicleNumber());
+        if (existingVehicle != null) {
+            // If creating a new vehicle, any existing vehicle with same number is a duplicate
+            if (selected.getId() == null) {
+                JsfUtil.addErrorMessage("A vehicle with this number already exists: " + existingVehicle.getVehicleNumber());
+                return null;
+            }
+            // If updating an existing vehicle, check if the found vehicle is a different vehicle
+            if (!existingVehicle.getId().equals(selected.getId())) {
+                JsfUtil.addErrorMessage("A vehicle with this number already exists: " + existingVehicle.getVehicleNumber());
+                return null;
+            }
+        }
+
         if (selected.getName() == null || selected.getName().trim().equals("")) {
             selected.setName(selected.getVehicleNumber());
         }
@@ -465,6 +514,24 @@ public class VehicleController implements Serializable {
         if (ins == null) {
             return;
         }
+
+        // Check for duplicate vehicle number
+        if (ins.getVehicleNumber() != null && !ins.getVehicleNumber().trim().isEmpty()) {
+            Vehicle existingVehicle = findVehicleByNumber(ins.getVehicleNumber());
+            if (existingVehicle != null) {
+                // If creating a new vehicle, any existing vehicle with same number is a duplicate
+                if (ins.getId() == null) {
+                    JsfUtil.addErrorMessage("A vehicle with this number already exists: " + existingVehicle.getVehicleNumber());
+                    return;
+                }
+                // If updating an existing vehicle, check if the found vehicle is a different vehicle
+                if (!existingVehicle.getId().equals(ins.getId())) {
+                    JsfUtil.addErrorMessage("A vehicle with this number already exists: " + existingVehicle.getVehicleNumber());
+                    return;
+                }
+            }
+        }
+
         if (ins.getId() == null) {
             ins.setCreatedAt(new Date());
             if (ins.getCreater() == null) {

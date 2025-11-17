@@ -273,6 +273,59 @@ public class WebUserController implements Serializable {
         return false;
     }
 
+    public boolean isInstitutionPaymentManagementMenuAvailable() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRoleLevel() == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRoleLevel() != WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION) {
+            return false;
+        }
+        WebUserRole role = loggedUser.getWebUserRole();
+        if (role == WebUserRole.INSTITUTION_ACCOUNTS ||
+            role == WebUserRole.INSTITUTION_ADMINISTRATOR ||
+            role == WebUserRole.INSTITUTION_SUPER_USER) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isCpcPaymentManagementMenuAvailable() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        WebUserRole role = loggedUser.getWebUserRole();
+        if (role == WebUserRole.CPC_ADMINISTRATOR ||
+            role == WebUserRole.CPC_SUPER_USER ||
+            role == WebUserRole.CPC_USER) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isSystemAdminPaymentManagementMenuAvailable() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        WebUserRole role = loggedUser.getWebUserRole();
+        if (role == WebUserRole.SYSTEM_ADMINISTRATOR ||
+            role == WebUserRole.SUPER_USER) {
+            return true;
+        }
+        return false;
+    }
+
     public void onResize(ColumnResizeEvent event) {
         String viewId = event.getFacesContext().getViewRoot().getViewId();
         String columnId = event.getColumn().getClientId();

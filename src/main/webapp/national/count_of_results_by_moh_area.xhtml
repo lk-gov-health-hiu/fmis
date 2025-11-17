@@ -26,11 +26,16 @@
                             </h:selectOneMenu>
 
                             <h:outputLabel class="h6 fw-bold" value="Ordered From"></h:outputLabel>
-                            <p:calendar value="#{nationalController.fromDate}" pattern="dd MMMM yyyy hh:mm">
-                            </p:calendar><!-- comment -->
+                            <p:datePicker
+                    value="#{nationalController.fromDate}"
+                    pattern="dd MMMM yyyy hh:mm">
+                </p:datePicker><!-- comment -->
 
                             <h:outputLabel class="h6 fw-bold" value="Ordered To"></h:outputLabel>
-                            <p:calendar value="#{nationalController.toDate}" pattern="dd MMMM yyyy hh:mm"></p:calendar>
+                            <p:datePicker
+                    value="#{nationalController.toDate}"
+                    pattern="dd MMMM yyyy hh:mm">
+                </p:datePicker>
 
                             <h:outputLabel class="h6 fw-bold" value="Ordering Category"></h:outputLabel>
                             <h:selectOneMenu class="form-select" value="#{nationalController.orderingCategory}">

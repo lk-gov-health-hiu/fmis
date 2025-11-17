@@ -31,9 +31,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import lk.gov.health.phsp.entity.Area;
@@ -78,6 +80,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Calendar;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import lk.gov.health.phsp.entity.Bill;
 
 // </editor-fold>   
@@ -169,6 +172,12 @@ public class ReportController implements Serializable {
      * Creates a new instance of ReportController
      */
     public ReportController() {
+    }
+
+    @PostConstruct
+    public void init() {
+        fromDate = CommonController.startOfTheMonth();
+        toDate = new Date();
     }
 
     // </editor-fold> 
@@ -511,7 +520,7 @@ public class ReportController implements Serializable {
         Sheet sheet = workbook.createSheet("Transactions");
 
         Row headerRow = sheet.createRow(0);
-        String[] columnHeaders = {"Ordered Date", "Transaction Type", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No"};
+        String[] columnHeaders = {"Ordered Date", "Transaction Type", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No", "Submitted to Payment At", "CPC Approved"};
         for (int i = 0; i < columnHeaders.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(columnHeaders[i]);
@@ -535,6 +544,12 @@ public class ReportController implements Serializable {
             }
             if (transaction.getIssueReferenceNumber() != null) {
                 row.createCell(10).setCellValue(transaction.getIssueReferenceNumber());
+            }
+            if (transaction.getSubmittedToPaymentAt() != null) {
+                row.createCell(11).setCellValue(transaction.getSubmittedToPaymentAt().toString());
+            }
+            if (transaction.getAcceptedByCpcAt() != null) {
+                row.createCell(12).setCellValue(transaction.getAcceptedByCpcAt().toString());
             }
         }
 
@@ -734,8 +749,11 @@ public class ReportController implements Serializable {
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
-                .append("COALESCE(ft.issuedDate, CURRENT_DATE), ")
-                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
+                .append("ft.issuedDate, ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ")
+                .append("ft.submittedToPaymentAt, ")
+                .append("ft.acceptedByCpcAt, ")
+                .append("ft.rejectedByCpcAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -912,7 +930,10 @@ public class ReportController implements Serializable {
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
                 .append("ft.issuedDate, ")
-                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ")
+                .append("ft.submittedToPaymentAt, ")
+                .append("ft.acceptedByCpcAt, ")
+                .append("ft.rejectedByCpcAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -981,8 +1002,11 @@ public class ReportController implements Serializable {
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
-                .append("COALESCE(ft.issuedDate, CURRENT_DATE), ")
-                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
+                .append("ft.issuedDate, ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ")
+                .append("ft.submittedToPaymentAt, ")
+                .append("ft.acceptedByCpcAt, ")
+                .append("ft.rejectedByCpcAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -1536,9 +1560,6 @@ public class ReportController implements Serializable {
     }
 
     public Date getFromDate() {
-        if (fromDate == null) {
-            fromDate = CommonController.startOfTheMonth();
-        }
         return fromDate;
     }
 
@@ -1547,9 +1568,6 @@ public class ReportController implements Serializable {
     }
 
     public Date getToDate() {
-        if (toDate == null) {
-            toDate = new Date();
-        }
         return toDate;
     }
 
@@ -1812,8 +1830,8 @@ public class ReportController implements Serializable {
         if (fuelTransaction == null) {
             return;
         }
-        if (webUserController.getLoggedUser().getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
-            JsfUtil.addErrorMessage("You are NOT autherized");
+        if (!isCanDeleteTransaction()) {
+            JsfUtil.addErrorMessage("You are NOT authorized to delete this transaction");
             return;
         }
         fuelTransaction.setRetired(true);
@@ -1825,6 +1843,75 @@ public class ReportController implements Serializable {
 
     public void saveSelected() {
         if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("No transaction selected");
+            return;
+        }
+
+        // Validate required fields
+        if (fuelTransaction.getRequestedDate() == null) {
+            JsfUtil.addErrorMessage("Please enter a date");
+            return;
+        }
+
+        if (fuelTransaction.getVehicle() == null) {
+            JsfUtil.addErrorMessage("You must select a vehicle");
+            return;
+        }
+
+        if (fuelTransaction.getDriver() == null) {
+            JsfUtil.addErrorMessage("You must select a driver");
+            return;
+        }
+
+        if (fuelTransaction.getToInstitution() == null) {
+            JsfUtil.addErrorMessage("Select a Fuel station");
+            return;
+        }
+
+        if (fuelTransaction.getRequestQuantity() == null) {
+            JsfUtil.addErrorMessage("Quantity is required");
+            return;
+        }
+
+        if (fuelTransaction.getRequestQuantity() <= 0) {
+            JsfUtil.addErrorMessage("Quantity must be greater than 0");
+            return;
+        }
+
+        if (fuelTransaction.getOdoMeterReading() == null) {
+            JsfUtil.addErrorMessage("ODO Meter Reading is required");
+            return;
+        }
+
+        if (fuelTransaction.getRequestReferenceNumber() == null || fuelTransaction.getRequestReferenceNumber().trim().isEmpty()) {
+            JsfUtil.addErrorMessage("Request Reference Number is required");
+            return;
+        }
+
+        // Validation 1: Check if reference number is unique within 30 days for this institution
+        if (!isReferenceNumberUniqueForEdit(fuelTransaction.getRequestReferenceNumber(), fuelTransaction.getFromInstitution(), fuelTransaction.getId())) {
+            JsfUtil.addErrorMessage("Reference number '" + fuelTransaction.getRequestReferenceNumber() + "' has already been used within the last 30 days for this institution");
+            return;
+        }
+
+        // Validation 2: Check if reference number and ODO meter differ from request quantity
+        if (!areFieldValuesDistinct(fuelTransaction.getRequestReferenceNumber(), fuelTransaction.getOdoMeterReading(), fuelTransaction.getRequestQuantity())) {
+            JsfUtil.addErrorMessage("Request Reference Number and ODO Meter Reading must be different from Request Quantity");
+            return;
+        }
+
+        // Validation 3: Check if ODO reading is greater than previous reading
+        Double previousOdoReading = getPreviousOdoReading(fuelTransaction.getVehicle(), fuelTransaction.getId());
+        if (previousOdoReading != null && fuelTransaction.getOdoMeterReading() != null) {
+            if (fuelTransaction.getOdoMeterReading() <= previousOdoReading) {
+                JsfUtil.addErrorMessage("ODO Meter Reading (" + fuelTransaction.getOdoMeterReading() + ") must be greater than the previous reading (" + previousOdoReading + ")");
+                return;
+            }
+        }
+
+        // Validation 4: Check if request quantity exceeds vehicle fuel capacity
+        if (!isRequestQuantityWithinCapacity(fuelTransaction.getVehicle(), fuelTransaction.getRequestQuantity())) {
+            JsfUtil.addErrorMessage("Requested quantity (" + fuelTransaction.getRequestQuantity() + " liters) exceeds the vehicle's fuel tank capacity (" + fuelTransaction.getVehicle().getFuelCapacity() + " liters)");
             return;
         }
 
@@ -1855,6 +1942,102 @@ public class ReportController implements Serializable {
         JsfUtil.addErrorMessage("You are NOT autherized");
     }
 
+    private boolean isReferenceNumberUniqueForEdit(String referenceNumber, Institution institution, Long currentTransactionId) {
+        if (referenceNumber == null || referenceNumber.trim().isEmpty() || institution == null) {
+            return true;
+        }
+
+        // Calculate date 30 days ago
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.add(java.util.Calendar.DAY_OF_MONTH, -30);
+        Date thirtyDaysAgo = cal.getTime();
+
+        String jpql = "SELECT COUNT(ft) FROM FuelTransaction ft "
+                + "WHERE ft.requestReferenceNumber = :refNum "
+                + "AND ft.fromInstitution = :institution "
+                + "AND ft.requestedDate >= :thirtyDaysAgo "
+                + "AND ft.retired = false "
+                + "AND ft.id != :currentId";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("refNum", referenceNumber.trim());
+        params.put("institution", institution);
+        params.put("thirtyDaysAgo", thirtyDaysAgo);
+        params.put("currentId", currentTransactionId != null ? currentTransactionId : -1L);
+
+        Long count = fuelTransactionFacade.countByJpql(jpql, params);
+        return count == 0;
+    }
+
+    private boolean areFieldValuesDistinct(String referenceNumber, Double odoReading, Double requestQuantity) {
+        if (referenceNumber == null || odoReading == null || requestQuantity == null) {
+            return true; // Skip validation if any value is null
+        }
+
+        try {
+            Double refNumAsDouble = Double.parseDouble(referenceNumber.trim());
+            // Check if reference number equals request quantity or ODO reading
+            if (refNumAsDouble.equals(requestQuantity) || refNumAsDouble.equals(odoReading)) {
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            // Reference number is not numeric, which is fine
+        }
+
+        // Check if ODO reading equals request quantity
+        if (odoReading.equals(requestQuantity)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isRequestQuantityWithinCapacity(Vehicle vehicle, Double requestQuantity) {
+        // Skip validation if vehicle or request quantity is null
+        if (vehicle == null || requestQuantity == null) {
+            return true;
+        }
+
+        // Skip validation if fuel capacity is not set for the vehicle
+        if (vehicle.getFuelCapacity() == null) {
+            return true;
+        }
+
+        // Check if request quantity exceeds fuel capacity
+        return requestQuantity <= vehicle.getFuelCapacity();
+    }
+
+    private Double getPreviousOdoReading(Vehicle vehicle, Long currentTransactionId) {
+        if (vehicle == null) {
+            return null;
+        }
+
+        if (vehicle.getId() == null) {
+            return null;
+        }
+
+        try {
+            String jpql = "SELECT ft FROM FuelTransaction ft "
+                    + "WHERE ft.vehicle.id = :vehicleId "
+                    + "AND ft.retired = false "
+                    + "AND ft.odoMeterReading IS NOT NULL "
+                    + "AND ft.id != :currentId "
+                    + "ORDER BY ft.requestedDate DESC";
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("vehicleId", vehicle.getId());
+            params.put("currentId", currentTransactionId != null ? currentTransactionId : -1L);
+
+            List<FuelTransaction> results = fuelTransactionFacade.findByJpql(jpql, params, 1);
+            if (results != null && !results.isEmpty()) {
+                return results.get(0).getOdoMeterReading();
+            }
+        } catch (Exception e) {
+            // Log error but don't fail validation
+        }
+        return null;
+    }
+
     public boolean isCanEditTransaction() {
         if (fuelTransaction == null) {
             return false;
@@ -1881,6 +2064,32 @@ public class ReportController implements Serializable {
         }
 
         // All other users cannot edit
+        return false;
+    }
+
+    /**
+     * Check if the current user can delete the transaction
+     * 1. System admins can delete at any stage
+     * 2. Institution users can delete if NOT dispensed or confirmed
+     */
+    public boolean isCanDeleteTransaction() {
+        if (fuelTransaction == null) {
+            return false;
+        }
+
+        WebUserRole userRole = webUserController.getLoggedUser().getWebUserRole();
+
+        // System administrators can always delete at any stage
+        if (userRole == WebUserRole.SYSTEM_ADMINISTRATOR) {
+            return true;
+        }
+
+        // Institution users can delete if transaction is NOT dispensed AND NOT confirmed
+        if (isInstitutionalUser()) {
+            return !fuelTransaction.isDispensed() && !fuelTransaction.isIssued();
+        }
+
+        // All other users cannot delete
         return false;
     }
 
@@ -1922,16 +2131,45 @@ public class ReportController implements Serializable {
 
     /**
      * Recursively find all subordinate institutions
+     * Uses a visited set to prevent infinite loops from circular references
      */
     private List<Institution> findAllSubordinateInstitutions(Institution parent) {
+        Set<Long> visitedIds = new HashSet<>();
+        return findAllSubordinateInstitutions(parent, visitedIds);
+    }
+
+    /**
+     * Internal method to recursively find subordinate institutions with cycle detection
+     */
+    private List<Institution> findAllSubordinateInstitutions(Institution parent, Set<Long> visitedIds) {
         List<Institution> subordinates = new ArrayList<>();
+
+        // Prevent infinite loops - if we've already visited this institution, return empty list
+        if (parent == null || parent.getId() == null || visitedIds.contains(parent.getId())) {
+            return subordinates;
+        }
+
+        // Mark this institution as visited
+        visitedIds.add(parent.getId());
+
         List<Institution> allInstitutions = institutionApplicationController.getInstitutions();
 
         for (Institution inst : allInstitutions) {
-            if (inst.getParent() != null && inst.getParent().equals(parent)) {
+            // Skip if institution or its parent is null
+            if (inst == null || inst.getId() == null || inst.getParent() == null) {
+                continue;
+            }
+
+            // Skip if we've already visited this institution (circular reference protection)
+            if (visitedIds.contains(inst.getId())) {
+                continue;
+            }
+
+            // Check if this institution is a child of the parent
+            if (inst.getParent().equals(parent)) {
                 subordinates.add(inst);
                 // Recursively add children of this institution
-                subordinates.addAll(findAllSubordinateInstitutions(inst));
+                subordinates.addAll(findAllSubordinateInstitutions(inst, visitedIds));
             }
         }
 
@@ -2012,8 +2250,11 @@ public class ReportController implements Serializable {
                 .append("ti.name, ")
                 .append("COALESCE(d.name, 'No Driver'), ")
                 .append("ti.code, ")
-                .append("COALESCE(ft.issuedDate, CURRENT_DATE), ")
-                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed) FROM FuelTransaction ft ")
+                .append("ft.issuedDate, ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ")
+                .append("ft.submittedToPaymentAt, ")
+                .append("ft.acceptedByCpcAt, ")
+                .append("ft.rejectedByCpcAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")

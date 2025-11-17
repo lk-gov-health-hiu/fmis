@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -9,12 +9,12 @@
     <body>
         <ui:composition template="/template.xhtml">
             <ui:define name="content">
-                <p:panelGrid style="width: 100%;" columns="2" styleClass="alignTop" columnClasses="width80percent width20percent">
+                <p:panelGrid layout="tabular" style="width: 100%;" columns="2" styleClass="alignTop" columnClasses="width80percent width20percent">
                     <f:facet name="header" >
                         <p:outputLabel value="Manage Institutions" ></p:outputLabel>
                     </f:facet>
                     <h:form>
-                        <p:panelGrid columns="1" >
+                        <p:panelGrid layout="tabular" columns="1" >
                             <p:commandButton value="Add Institution" ajax="false" styleClass="width18rem" 
                                              action="#{institutionController.toAddInstitution}"></p:commandButton>
                             <p:commandButton value="List Institutions" ajax="false"  styleClass="width18rem" 

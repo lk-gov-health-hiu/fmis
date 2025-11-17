@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -15,7 +15,7 @@
                     <p:panel header="Manage Areas" >
                         <p:tabView orientation="left" >
                             <p:tab title="GN Areas" >
-                                <p:panelGrid columns="1" >
+                                <p:panelGrid layout="tabular" columns="1" >
                                     <p:commandButton ajax="false" action="/insAdmin/gn_areas_for_pmci" value="Draining GN Areas" ></p:commandButton>
                                     <p:commandButton ajax="false" action="/insAdmin/gn_data" value="Data for GN Areas" ></p:commandButton>
                                 </p:panelGrid>

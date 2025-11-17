@@ -1,0 +1,83 @@
+﻿<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+        <ui:composition template="/template.xhtml">
+            <ui:define name="content">
+                <h1 class="text-center mt-3 mb-3">Add New Fuel Price</h1>
+                <h:form>
+                    <p:panel header="Fuel Price Details">
+                        <p:panelGrid layout="tabular" columns="2">
+                            <p:outputLabel value="Fuel Type:" for="fuelType" />
+                            <p:selectOneMenu id="fuelType" value="#{fuelPriceController.selected.fuelType}" required="true">
+                                <f:selectItems value="#{applicationController.fuelTypes}"
+                                              var="fuelType"
+                                              itemValue="#{fuelType}"
+                                              itemLabel="#{fuelType.label}"></f:selectItems>
+                            </p:selectOneMenu>
+
+                            <p:outputLabel value="Price (Rs.):" for="price" />
+                            <p:inputNumber id="price" value="#{fuelPriceController.selected.price}"
+                                          decimalPlaces="2"
+                                          required="true" />
+
+                            <p:outputLabel value="From Date:" for="fromDate" />
+                            <p:datePicker
+                    id="fromDate"
+                    value="#{fuelPriceController.selected.fromDate}"
+                    pattern="dd/MM/yyyy">
+                </p:datePicker>
+
+                            <p:outputLabel value="To Date:" for="toDate" />
+                            <p:datePicker
+                    id="toDate"
+                    value="#{fuelPriceController.selected.toDate}"
+                    pattern="dd/MM/yyyy">
+                </p:datePicker>
+
+                            <p:outputLabel value="Year:" for="year" />
+                            <p:inputNumber id="year" value="#{fuelPriceController.selected.year}"
+                                          decimalPlaces="0"
+                                          groupingUsed="false" />
+
+                            <p:outputLabel value="Month:" for="month" />
+                            <p:selectOneMenu id="month" value="#{fuelPriceController.selected.month}">
+                                <f:selectItem itemLabel="-- Select Month --" itemValue="#{null}" />
+                                <f:selectItem itemLabel="January" itemValue="1" />
+                                <f:selectItem itemLabel="February" itemValue="2" />
+                                <f:selectItem itemLabel="March" itemValue="3" />
+                                <f:selectItem itemLabel="April" itemValue="4" />
+                                <f:selectItem itemLabel="May" itemValue="5" />
+                                <f:selectItem itemLabel="June" itemValue="6" />
+                                <f:selectItem itemLabel="July" itemValue="7" />
+                                <f:selectItem itemLabel="August" itemValue="8" />
+                                <f:selectItem itemLabel="September" itemValue="9" />
+                                <f:selectItem itemLabel="October" itemValue="10" />
+                                <f:selectItem itemLabel="November" itemValue="11" />
+                                <f:selectItem itemLabel="December" itemValue="12" />
+                            </p:selectOneMenu>
+
+                            <p:outputLabel value="Name/Description:" for="name" />
+                            <p:inputText id="name" value="#{fuelPriceController.selected.name}" />
+
+                            <p:outputLabel value="Comments:" for="comments" />
+                            <p:inputTextarea id="comments" value="#{fuelPriceController.selected.comments}"
+                                            rows="3"
+                                            cols="30" />
+                        </p:panelGrid>
+
+                        <f:facet name="footer">
+                            <p:commandButton value="Save" action="#{fuelPriceController.saveOrUpdateFuelPrice()}" ajax="false" />
+                            <p:commandButton value="Cancel" action="#{fuelPriceController.toListFuelPrices()}" ajax="false" immediate="true" />
+                        </f:facet>
+                    </p:panel>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </body>
+</html>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -14,7 +14,7 @@
                 <h:panelGroup id="display">
                     <p:tabView >
                         <p:tab title="Basic Details" >
-                            <p:panelGrid columns="2" rendered="#{itemController.selected != null}">
+                            <p:panelGrid layout="tabular" columns="2" rendered="#{itemController.selected != null}">
 
                                 <p:outputLabel value="#{bundleClinical.EditItemLabel_itemType}" for="itemType" />
                                 <p:selectOneMenu
@@ -81,7 +81,7 @@
                       
 
                         <p:tab title="Developer" >
-                            <p:panelGrid columns="2" >
+                            <p:panelGrid layout="tabular" columns="2" >
                                 <p:outputLabel value="Read Only" ></p:outputLabel>
                                 <p:selectBooleanButton value="#{itemController.selected.readOnly}"
                                                        onLabel="Yes" offLabel="No" 
