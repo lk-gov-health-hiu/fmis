@@ -48,6 +48,8 @@ public class FuelDispenseController implements Serializable {
     private Date fromDate;
     private Date toDate;
     private String scannedVehicleNumber;
+    private Long scannedVehicleId;
+    private String redirectUrl;  // For automatic navigation after QR scan
 
     public FuelDispenseController() {
     }
@@ -169,8 +171,8 @@ public class FuelDispenseController implements Serializable {
 
         JsfUtil.addSuccessMessage("Fuel dispensed successfully");
 
-        // Refresh the list and navigate back
-        return navigateToListTransactionsToDispense();
+        // Clear data and navigate to QR scan page
+        return navigateToQrScan();
     }
 
     /**
@@ -180,6 +182,15 @@ public class FuelDispenseController implements Serializable {
         scannedVehicleNumber = null;
         selected = null;
         return "/cpc/fuel_dispense_qr_scan?faces-redirect=true";
+    }
+
+    /**
+     * Navigate to home page
+     */
+    public String navigateToHome() {
+        scannedVehicleNumber = null;
+        selected = null;
+        return "/index?faces-redirect=true";
     }
 
     /**
@@ -201,11 +212,15 @@ public class FuelDispenseController implements Serializable {
         } else {
             // Parse JSON if the QR contains JSON data
             scannedVehicleNumber = parseVehicleNumberFromQr(qrData);
+            scannedVehicleId = parseVehicleIdFromQr(qrData);
+
             if (scannedVehicleNumber != null && !scannedVehicleNumber.isEmpty()) {
-                addAjaxMessage(FacesMessage.SEVERITY_INFO, "Success", "QR Code scanned successfully: " + scannedVehicleNumber);
+                addAjaxMessage(FacesMessage.SEVERITY_INFO, "Success", "QR Code scanned successfully: " + scannedVehicleNumber +
+                    (scannedVehicleId != null ? " (ID: " + scannedVehicleId + ")" : ""));
             } else {
                 addAjaxMessage(FacesMessage.SEVERITY_ERROR, "Parse Error", "Could not extract vehicle number from QR code: " + qrData);
                 scannedVehicleNumber = null;
+                scannedVehicleId = null;
             }
         }
     }
@@ -248,15 +263,47 @@ public class FuelDispenseController implements Serializable {
     }
 
     /**
+     * Parse vehicle ID from QR code JSON
+     */
+    private Long parseVehicleIdFromQr(String qrData) {
+        if (qrData == null || qrData.trim().isEmpty()) {
+            return null;
+        }
+
+        String trimmed = qrData.trim();
+        if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+            try {
+                String idField = extractJsonField(trimmed, "id");
+                if (idField != null && !idField.isEmpty()) {
+                    return Long.parseLong(idField);
+                }
+            } catch (Exception e) {
+                // If parsing fails, return null
+            }
+        }
+        return null;
+    }
+
+    /**
      * Simple JSON field extractor (without external JSON library)
      */
     private String extractJsonField(String json, String fieldName) {
+        // Try with quotes (for strings)
         String pattern = "\"" + fieldName + "\"\\s*:\\s*\"([^\"]+)\"";
         java.util.regex.Pattern p = java.util.regex.Pattern.compile(pattern);
         java.util.regex.Matcher m = p.matcher(json);
         if (m.find()) {
             return m.group(1);
         }
+
+        // Try without quotes (for numbers)
+        pattern = "\"" + fieldName + "\"\\s*:\\s*([0-9]+)";
+        p = java.util.regex.Pattern.compile(pattern);
+        m = p.matcher(json);
+        if (m.find()) {
+            return m.group(1);
+        }
+
         return null;
     }
 
@@ -266,6 +313,62 @@ public class FuelDispenseController implements Serializable {
     private void addAjaxMessage(FacesMessage.Severity severity, String summary, String detail) {
         FacesMessage message = new FacesMessage(severity, summary, detail);
         FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+
+    /**
+     * Process automatically scanned QR code from JavaScript scanner
+     * This method is called via AJAX when the continuous scanner detects a QR code
+     */
+    public void processScannedQr() {
+        System.out.println("=== processScannedQr called ===");
+        System.out.println("Scanned QR data: " + scannedVehicleNumber);
+
+        // Reset redirect URL
+        redirectUrl = null;
+
+        if (scannedVehicleNumber == null || scannedVehicleNumber.trim().isEmpty()) {
+            addAjaxMessage(FacesMessage.SEVERITY_ERROR, "Error", "No QR code data received");
+            return;
+        }
+
+        // Parse the QR code data (handles both plain text and JSON)
+        String parsedNumber = parseVehicleNumberFromQr(scannedVehicleNumber);
+        Long parsedId = parseVehicleIdFromQr(scannedVehicleNumber);
+
+        if (parsedNumber == null || parsedNumber.isEmpty()) {
+            addAjaxMessage(FacesMessage.SEVERITY_ERROR, "Parse Error",
+                "Could not extract vehicle number from QR code: " + scannedVehicleNumber);
+            return;
+        }
+
+        // Update the scanned values with parsed data
+        scannedVehicleNumber = parsedNumber;
+        scannedVehicleId = parsedId;
+
+        System.out.println("Parsed vehicle number: " + parsedNumber);
+        if (parsedId != null) {
+            System.out.println("Parsed vehicle ID: " + parsedId);
+        }
+
+        addAjaxMessage(FacesMessage.SEVERITY_INFO, "QR Detected",
+            "Processing vehicle: " + parsedNumber);
+
+        // Automatically search for the transaction
+        String navigationOutcome = searchFuelTransactionByVehicleQr();
+
+        if (navigationOutcome != null && !navigationOutcome.isEmpty()) {
+            // Store the URL for JavaScript to navigate to
+            // Convert JSF navigation outcome to actual URL with proper context path
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            String contextPath = facesContext.getExternalContext().getRequestContextPath();
+
+            // Remove ?faces-redirect=true and add .xhtml extension
+            String page = navigationOutcome.replace("?faces-redirect=true", ".xhtml");
+
+            // Construct full URL with context path
+            redirectUrl = contextPath + page;
+            System.out.println("Navigation URL set: " + redirectUrl);
+        }
     }
 
     /**
@@ -427,6 +530,14 @@ public class FuelDispenseController implements Serializable {
 
     public void setScannedVehicleNumber(String scannedVehicleNumber) {
         this.scannedVehicleNumber = scannedVehicleNumber;
+    }
+
+    public String getRedirectUrl() {
+        return redirectUrl;
+    }
+
+    public void setRedirectUrl(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
     }
 
     /**
