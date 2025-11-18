@@ -75,6 +75,14 @@
                                          actionListener="#{vehicleController.saveOrUpdateVehicle()}"
                                          disabled="#{!vehicleController.canEditVehicleDetails}"
                                          value="Save"/>
+                        <p:commandButton
+                            type="button"
+                            style="margin-left: 10px;"
+                            styleClass="btn btn-info"
+                            onclick="window.open('#{request.contextPath}/app/dataentry/vehicle_qr_print_popup.xhtml', 'QRCodePrint', 'width=800,height=600,resizable=yes,scrollbars=yes'); return false;"
+                            value="Print QR Code"
+                            icon="pi pi-qrcode"
+                            rendered="#{vehicleController.selected.id != null}"/>
 
                     </h:panelGroup>
                 </h:form>
