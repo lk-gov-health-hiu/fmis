@@ -19,6 +19,8 @@ import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.persistence.TemporalType;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import org.primefaces.event.CaptureEvent;
 
 /**
@@ -185,33 +187,112 @@ public class FuelDispenseController implements Serializable {
      */
     public void onCaptureOfVehicleQr(CaptureEvent captureEvent) {
         byte[] imageData = captureEvent.getData();
-        scannedVehicleNumber = qrCodeController.scanQRCode(imageData);
+        String qrData = qrCodeController.scanQRCode(imageData);
 
-        if (scannedVehicleNumber == null || scannedVehicleNumber.trim().isEmpty() || scannedVehicleNumber.equals("Error")) {
-            JsfUtil.addErrorMessage("QR Code scanning failed. Please try again.");
+        if (qrData == null || qrData.trim().isEmpty()) {
+            addAjaxMessage(FacesMessage.SEVERITY_ERROR, "QR Code scanning failed", "No data received. Please try again.");
+            scannedVehicleNumber = null;
+        } else if (qrData.equals("QR_NOT_FOUND")) {
+            addAjaxMessage(FacesMessage.SEVERITY_WARN, "QR Code not found", "No QR code detected in the image. Please position the QR code clearly in front of the camera and try again.");
+            scannedVehicleNumber = null;
+        } else if (qrData.equals("IMAGE_ERROR")) {
+            addAjaxMessage(FacesMessage.SEVERITY_ERROR, "Image error", "Failed to read camera image. Please try again.");
             scannedVehicleNumber = null;
         } else {
-            JsfUtil.addSuccessMessage("QR Code scanned successfully: " + scannedVehicleNumber);
+            // Parse JSON if the QR contains JSON data
+            scannedVehicleNumber = parseVehicleNumberFromQr(qrData);
+            if (scannedVehicleNumber != null && !scannedVehicleNumber.isEmpty()) {
+                addAjaxMessage(FacesMessage.SEVERITY_INFO, "Success", "QR Code scanned successfully: " + scannedVehicleNumber);
+            } else {
+                addAjaxMessage(FacesMessage.SEVERITY_ERROR, "Parse Error", "Could not extract vehicle number from QR code: " + qrData);
+                scannedVehicleNumber = null;
+            }
         }
+    }
+
+    /**
+     * Parse vehicle number from QR code data (handles both plain text and JSON)
+     */
+    private String parseVehicleNumberFromQr(String qrData) {
+        if (qrData == null || qrData.trim().isEmpty()) {
+            return null;
+        }
+
+        // Check if it's JSON (starts with { or [)
+        String trimmed = qrData.trim();
+        if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+            try {
+                // Try to parse as JSON and extract "number" or "vehicleNumber" field
+                // Simple JSON parsing without external library
+                String numberField = extractJsonField(trimmed, "number");
+                if (numberField != null && !numberField.isEmpty()) {
+                    return numberField;
+                }
+
+                numberField = extractJsonField(trimmed, "vehicleNumber");
+                if (numberField != null && !numberField.isEmpty()) {
+                    return numberField;
+                }
+
+                // If no specific field found, return the whole JSON
+                // This might happen if the format is different
+                return trimmed;
+            } catch (Exception e) {
+                // If JSON parsing fails, return as is
+                return trimmed;
+            }
+        }
+
+        // Not JSON, return as plain text
+        return trimmed;
+    }
+
+    /**
+     * Simple JSON field extractor (without external JSON library)
+     */
+    private String extractJsonField(String json, String fieldName) {
+        String pattern = "\"" + fieldName + "\"\\s*:\\s*\"([^\"]+)\"";
+        java.util.regex.Pattern p = java.util.regex.Pattern.compile(pattern);
+        java.util.regex.Matcher m = p.matcher(json);
+        if (m.find()) {
+            return m.group(1);
+        }
+        return null;
+    }
+
+    /**
+     * Add message for AJAX responses (doesn't use flash scope)
+     */
+    private void addAjaxMessage(FacesMessage.Severity severity, String summary, String detail) {
+        FacesMessage message = new FacesMessage(severity, summary, detail);
+        FacesContext.getCurrentInstance().addMessage(null, message);
     }
 
     /**
      * Search for fuel transaction by scanned vehicle QR code
      */
     public String searchFuelTransactionByVehicleQr() {
+        System.out.println("=== searchFuelTransactionByVehicleQr called ===");
+        System.out.println("Scanned vehicle number: " + scannedVehicleNumber);
+
         if (scannedVehicleNumber == null || scannedVehicleNumber.trim().isEmpty()) {
             JsfUtil.addErrorMessage("Vehicle QR code not scanned properly. Please try again.");
+            System.out.println("ERROR: Empty vehicle number");
             return "";
         }
 
         // Search for the vehicle
         List<Vehicle> vehicles = vehicleController.searchVehicles(scannedVehicleNumber);
+        System.out.println("Vehicles found: " + (vehicles != null ? vehicles.size() : "null"));
+
         if (vehicles == null || vehicles.isEmpty()) {
             JsfUtil.addErrorMessage("No vehicle found with number: " + scannedVehicleNumber);
+            System.out.println("ERROR: No vehicle found");
             return "";
         }
 
         Vehicle vehicle = vehicles.get(0);
+        System.out.println("Vehicle ID: " + vehicle.getId() + ", Number: " + vehicle.getVehicleNumber());
 
         // First, try to find transactions for this vehicle at the current institution
         String jpql = "SELECT f FROM FuelTransaction f "
@@ -228,10 +309,15 @@ public class FuelDispenseController implements Serializable {
         parameters.put("vehicle", vehicle);
         parameters.put("institution", webUserController.getLoggedInstitution());
 
+        System.out.println("Current institution: " + (webUserController.getLoggedInstitution() != null ? webUserController.getLoggedInstitution().getName() : "null"));
+        System.out.println("Searching with institution filter...");
+
         List<FuelTransaction> results = fuelTransactionFacade.findByJpql(jpql, parameters);
+        System.out.println("Results with institution filter: " + (results != null ? results.size() : "null"));
 
         // If no results at this institution, try searching without institution filter
         if (results == null || results.isEmpty()) {
+            System.out.println("No results at this institution, searching all institutions...");
             String jpqlBroad = "SELECT f FROM FuelTransaction f "
                     + "WHERE f.retired = false "
                     + "AND f.cancelled = false "
@@ -245,13 +331,17 @@ public class FuelDispenseController implements Serializable {
             paramsBroad.put("vehicle", vehicle);
 
             results = fuelTransactionFacade.findByJpql(jpqlBroad, paramsBroad);
+            System.out.println("Results without institution filter: " + (results != null ? results.size() : "null"));
 
             if (results == null || results.isEmpty()) {
+                System.out.println("ERROR: No transactions found anywhere for this vehicle");
                 JsfUtil.addErrorMessage("No pending fuel transactions found for vehicle: " + scannedVehicleNumber +
                         ". Please ensure fuel has been issued for this vehicle.");
                 return "";
             } else {
                 // Found transactions but at a different institution
+                System.out.println("ERROR: Found " + results.size() + " transaction(s) at different institution");
+                System.out.println("Transaction issued at: " + (results.get(0).getIssuedInstitution() != null ? results.get(0).getIssuedInstitution().getName() : "null"));
                 JsfUtil.addErrorMessage("Found transaction at " +
                         (results.get(0).getIssuedInstitution() != null ? results.get(0).getIssuedInstitution().getName() : "another location") +
                         ". You can only dispense fuel issued at your institution: " +
@@ -262,6 +352,7 @@ public class FuelDispenseController implements Serializable {
 
         // Get the most recent transaction
         selected = results.get(0);
+        System.out.println("SUCCESS: Transaction found! ID=" + selected.getId());
 
         // Initialize dispensed fields
         if (selected.getDispensedQuantity() == null) {
@@ -273,6 +364,7 @@ public class FuelDispenseController implements Serializable {
 
         JsfUtil.addSuccessMessage("Transaction found for vehicle: " + scannedVehicleNumber);
 
+        System.out.println("Navigating to: /cpc/fuel_dispense_mark?faces-redirect=true");
         // Navigate to the dispense page
         return "/cpc/fuel_dispense_mark?faces-redirect=true";
     }
@@ -342,13 +434,13 @@ public class FuelDispenseController implements Serializable {
      */
     public void debugCheckTransactions() {
         if (scannedVehicleNumber == null || scannedVehicleNumber.trim().isEmpty()) {
-            JsfUtil.addErrorMessage("No vehicle number scanned");
+            addAjaxMessage(FacesMessage.SEVERITY_ERROR, "Debug", "No vehicle number scanned");
             return;
         }
 
         List<Vehicle> vehicles = vehicleController.searchVehicles(scannedVehicleNumber);
         if (vehicles == null || vehicles.isEmpty()) {
-            JsfUtil.addErrorMessage("Vehicle not found: " + scannedVehicleNumber);
+            addAjaxMessage(FacesMessage.SEVERITY_ERROR, "Debug", "Vehicle not found: " + scannedVehicleNumber);
             return;
         }
 
@@ -362,7 +454,7 @@ public class FuelDispenseController implements Serializable {
         List<FuelTransaction> allTransactions = fuelTransactionFacade.findByJpql(jpql, params);
 
         if (allTransactions == null || allTransactions.isEmpty()) {
-            JsfUtil.addErrorMessage("NO TRANSACTIONS FOUND AT ALL for vehicle: " + scannedVehicleNumber);
+            addAjaxMessage(FacesMessage.SEVERITY_ERROR, "Debug", "NO TRANSACTIONS FOUND AT ALL for vehicle: " + scannedVehicleNumber);
         } else {
             FuelTransaction latest = allTransactions.get(0);
             String msg = "Found " + allTransactions.size() + " total transactions. Latest: ID=" + latest.getId() +
@@ -372,7 +464,7 @@ public class FuelDispenseController implements Serializable {
                     ", Rejected=" + latest.isRejected() +
                     ", IssuedInst=" + (latest.getIssuedInstitution() != null ? latest.getIssuedInstitution().getName() : "null") +
                     ", CurrentInst=" + (webUserController.getLoggedInstitution() != null ? webUserController.getLoggedInstitution().getName() : "null");
-            JsfUtil.addSuccessMessage(msg);
+            addAjaxMessage(FacesMessage.SEVERITY_INFO, "Debug", msg);
         }
     }
 }

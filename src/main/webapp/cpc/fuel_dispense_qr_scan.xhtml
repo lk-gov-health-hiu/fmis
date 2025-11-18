@@ -34,8 +34,9 @@
                                             </div>
 
                                             <h:form id="qrForm">
-                                                <p:growl id="growl" showDetail="true" sticky="false" life="5000"/>
+                                                <p:growl id="growl" showDetail="true" sticky="true"/>
                                                 <p:messages id="messages" showDetail="true" closable="true"/>
+                                                <h:messages id="jsfMessages" showDetail="true"/>
 
                                                 <div class="my-4">
                                                     <p:photoCam widgetVar="pc"
@@ -52,27 +53,43 @@
                                                 </div>
 
                                                 <h:panelGroup id="scannedInfo">
-                                                    <h:panelGroup rendered="#{fuelDispenseController.scannedVehicleNumber != null and fuelDispenseController.scannedVehicleNumber ne 'Error'}">
+                                                    <!-- Debug: Show raw value -->
+                                                    <h:panelGroup rendered="#{fuelDispenseController.scannedVehicleNumber != null}">
+                                                        <div class="alert alert-info mt-3">
+                                                            <h6>Debug Info:</h6>
+                                                            <p><strong>scannedVehicleNumber value:</strong> "#{fuelDispenseController.scannedVehicleNumber}"</p>
+                                                            <p><strong>Is null?</strong> #{fuelDispenseController.scannedVehicleNumber == null}</p>
+                                                            <p><strong>Equals QR_NOT_FOUND?</strong> #{fuelDispenseController.scannedVehicleNumber eq 'QR_NOT_FOUND'}</p>
+                                                            <p><strong>Equals IMAGE_ERROR?</strong> #{fuelDispenseController.scannedVehicleNumber eq 'IMAGE_ERROR'}</p>
+                                                        </div>
+                                                    </h:panelGroup>
+
+                                                    <h:panelGroup rendered="#{fuelDispenseController.scannedVehicleNumber != null and fuelDispenseController.scannedVehicleNumber ne 'QR_NOT_FOUND' and fuelDispenseController.scannedVehicleNumber ne 'IMAGE_ERROR'}">
                                                         <div class="alert alert-success mt-3">
                                                             <h5>Scanned Vehicle Number: <strong>#{fuelDispenseController.scannedVehicleNumber}</strong></h5>
+                                                            <p class="mb-0">Click "Process" below to search for fuel transactions</p>
                                                         </div>
                                                     </h:panelGroup>
                                                 </h:panelGroup>
 
                                                 <div class="my-3" id="processBtn">
-                                                    <h:panelGroup rendered="#{fuelDispenseController.scannedVehicleNumber != null and fuelDispenseController.scannedVehicleNumber ne 'Error'}">
-                                                        <p:commandButton value="Process Scanned Vehicle"
-                                                                         ajax="false"
-                                                                         action="#{fuelDispenseController.searchFuelTransactionByVehicleQr()}"
-                                                                         icon="pi pi-arrow-right"
-                                                                         class="btn btn-primary btn-lg me-2" />
+                                                    <h:panelGroup rendered="#{fuelDispenseController.scannedVehicleNumber != null and fuelDispenseController.scannedVehicleNumber ne 'QR_NOT_FOUND' and fuelDispenseController.scannedVehicleNumber ne 'IMAGE_ERROR'}">
+                                                        <div class="d-grid gap-2">
+                                                            <p:commandButton value="Process Scanned Vehicle - Find Fuel Transaction"
+                                                                             ajax="false"
+                                                                             action="#{fuelDispenseController.searchFuelTransactionByVehicleQr()}"
+                                                                             icon="pi pi-arrow-right"
+                                                                             styleClass="ui-button-success"
+                                                                             style="font-size: 1.2rem; padding: 1rem;" />
 
-                                                        <p:commandButton value="Debug: Check Transactions"
-                                                                         ajax="true"
-                                                                         actionListener="#{fuelDispenseController.debugCheckTransactions()}"
-                                                                         update="qrForm:messages qrForm:growl"
-                                                                         icon="pi pi-search"
-                                                                         class="btn btn-warning btn-sm" />
+                                                            <p:commandButton value="Debug: Check All Transactions for This Vehicle"
+                                                                             ajax="true"
+                                                                             actionListener="#{fuelDispenseController.debugCheckTransactions()}"
+                                                                             update="qrForm:messages qrForm:growl"
+                                                                             icon="pi pi-search"
+                                                                             styleClass="ui-button-warning"
+                                                                             style="padding: 0.5rem;" />
+                                                        </div>
                                                     </h:panelGroup>
                                                 </div>
 
