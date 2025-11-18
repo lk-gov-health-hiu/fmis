@@ -213,7 +213,7 @@ public class FuelDispenseController implements Serializable {
 
         Vehicle vehicle = vehicles.get(0);
 
-        // Search for the last fuel transaction for this vehicle that is issued but not dispensed
+        // First, try to find transactions for this vehicle at the current institution
         String jpql = "SELECT f FROM FuelTransaction f "
                 + "WHERE f.retired = false "
                 + "AND f.cancelled = false "
@@ -230,9 +230,34 @@ public class FuelDispenseController implements Serializable {
 
         List<FuelTransaction> results = fuelTransactionFacade.findByJpql(jpql, parameters);
 
+        // If no results at this institution, try searching without institution filter
         if (results == null || results.isEmpty()) {
-            JsfUtil.addErrorMessage("No pending fuel transactions found for vehicle: " + scannedVehicleNumber);
-            return "";
+            String jpqlBroad = "SELECT f FROM FuelTransaction f "
+                    + "WHERE f.retired = false "
+                    + "AND f.cancelled = false "
+                    + "AND f.rejected = false "
+                    + "AND f.issued = true "
+                    + "AND f.dispensed = false "
+                    + "AND f.vehicle = :vehicle "
+                    + "ORDER BY f.issuedDate DESC, f.issuedAt DESC";
+
+            Map<String, Object> paramsBroad = new HashMap<>();
+            paramsBroad.put("vehicle", vehicle);
+
+            results = fuelTransactionFacade.findByJpql(jpqlBroad, paramsBroad);
+
+            if (results == null || results.isEmpty()) {
+                JsfUtil.addErrorMessage("No pending fuel transactions found for vehicle: " + scannedVehicleNumber +
+                        ". Please ensure fuel has been issued for this vehicle.");
+                return "";
+            } else {
+                // Found transactions but at a different institution
+                JsfUtil.addErrorMessage("Found transaction at " +
+                        (results.get(0).getIssuedInstitution() != null ? results.get(0).getIssuedInstitution().getName() : "another location") +
+                        ". You can only dispense fuel issued at your institution: " +
+                        webUserController.getLoggedInstitution().getName());
+                return "";
+            }
         }
 
         // Get the most recent transaction
@@ -310,5 +335,44 @@ public class FuelDispenseController implements Serializable {
 
     public void setScannedVehicleNumber(String scannedVehicleNumber) {
         this.scannedVehicleNumber = scannedVehicleNumber;
+    }
+
+    /**
+     * Debug method to check all transactions for a vehicle
+     */
+    public void debugCheckTransactions() {
+        if (scannedVehicleNumber == null || scannedVehicleNumber.trim().isEmpty()) {
+            JsfUtil.addErrorMessage("No vehicle number scanned");
+            return;
+        }
+
+        List<Vehicle> vehicles = vehicleController.searchVehicles(scannedVehicleNumber);
+        if (vehicles == null || vehicles.isEmpty()) {
+            JsfUtil.addErrorMessage("Vehicle not found: " + scannedVehicleNumber);
+            return;
+        }
+
+        Vehicle vehicle = vehicles.get(0);
+
+        // Check all transactions for this vehicle
+        String jpql = "SELECT f FROM FuelTransaction f WHERE f.vehicle = :vehicle ORDER BY f.id DESC";
+        Map<String, Object> params = new HashMap<>();
+        params.put("vehicle", vehicle);
+
+        List<FuelTransaction> allTransactions = fuelTransactionFacade.findByJpql(jpql, params);
+
+        if (allTransactions == null || allTransactions.isEmpty()) {
+            JsfUtil.addErrorMessage("NO TRANSACTIONS FOUND AT ALL for vehicle: " + scannedVehicleNumber);
+        } else {
+            FuelTransaction latest = allTransactions.get(0);
+            String msg = "Found " + allTransactions.size() + " total transactions. Latest: ID=" + latest.getId() +
+                    ", Issued=" + latest.isIssued() +
+                    ", Dispensed=" + latest.isDispensed() +
+                    ", Cancelled=" + latest.isCancelled() +
+                    ", Rejected=" + latest.isRejected() +
+                    ", IssuedInst=" + (latest.getIssuedInstitution() != null ? latest.getIssuedInstitution().getName() : "null") +
+                    ", CurrentInst=" + (webUserController.getLoggedInstitution() != null ? webUserController.getLoggedInstitution().getName() : "null");
+            JsfUtil.addSuccessMessage(msg);
+        }
     }
 }
