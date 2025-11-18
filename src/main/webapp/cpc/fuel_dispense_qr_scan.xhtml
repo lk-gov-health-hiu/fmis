@@ -29,8 +29,8 @@
                                             <div class="alert alert-info">
                                                 <h4>Instructions:</h4>
                                                 <p>1. Position the vehicle QR code in front of your camera</p>
-                                                <p>2. Click the "Capture" button to scan the QR code</p>
-                                                <p>3. The system will automatically find the pending fuel transaction</p>
+                                                <p>2. The scanner will automatically detect and process the QR code</p>
+                                                <p>3. Keep the QR code steady until it's detected (indicated by a green border)</p>
                                             </div>
 
                                             <h:form id="qrForm">
@@ -38,18 +38,35 @@
                                                 <p:messages id="messages" showDetail="true" closable="true"/>
                                                 <h:messages id="jsfMessages" showDetail="true"/>
 
+                                                <!-- Hidden input to store scanned QR value -->
+                                                <h:inputHidden id="hiddenQrValue" value="#{fuelDispenseController.scannedVehicleNumber}" />
+                                                <h:inputHidden id="redirectUrlValue" value="#{fuelDispenseController.redirectUrl}" />
+
+                                                <!-- Remote command to trigger backend processing -->
+                                                <p:remoteCommand name="processQrCode"
+                                                                 actionListener="#{fuelDispenseController.processScannedQr()}"
+                                                                 update="qrForm:messages qrForm:growl qrForm:scannedInfo qrForm:processBtn redirectUrlValue"
+                                                                 process="@this hiddenQrValue"
+                                                                 oncomplete="handleQrProcessingComplete()" />
+
+                                                <!-- QR Scanner Container -->
                                                 <div class="my-4">
-                                                    <p:photoCam widgetVar="pc"
-                                                                listener="#{fuelDispenseController.onCaptureOfVehicleQr}"
-                                                                update="qrForm:growl qrForm:messages qrForm:scannedInfo qrForm:processBtn"
-                                                                process="@this" />
+                                                    <div id="qr-reader" style="width: 100%; max-width: 600px; margin: 0 auto; border: 3px solid #ddd; border-radius: 10px;"></div>
+                                                    <div id="qr-reader-results" class="mt-3"></div>
                                                 </div>
-                                                <div class="my-3">
+
+                                                <div class="my-3 text-center">
                                                     <p:commandButton type="button"
-                                                                     value="Capture QR Code"
-                                                                     onclick="PF('pc').capture()"
-                                                                     icon="pi pi-camera"
-                                                                     class="btn btn-success btn-lg" />
+                                                                     value="Stop Scanner"
+                                                                     onclick="stopScanning()"
+                                                                     icon="pi pi-times"
+                                                                     styleClass="ui-button-danger"
+                                                                     style="margin-right: 10px;" />
+                                                    <p:commandButton type="button"
+                                                                     value="Restart Scanner"
+                                                                     onclick="startScanning()"
+                                                                     icon="pi pi-refresh"
+                                                                     styleClass="ui-button-info" />
                                                 </div>
 
                                                 <h:panelGroup id="scannedInfo">
@@ -72,7 +89,7 @@
                                                     </h:panelGroup>
                                                 </h:panelGroup>
 
-                                                <div class="my-3" id="processBtn">
+                                                <h:panelGroup id="processBtn" layout="block" class="my-3">
                                                     <h:panelGroup rendered="#{fuelDispenseController.scannedVehicleNumber != null and fuelDispenseController.scannedVehicleNumber ne 'QR_NOT_FOUND' and fuelDispenseController.scannedVehicleNumber ne 'IMAGE_ERROR'}">
                                                         <div class="d-grid gap-2">
                                                             <p:commandButton value="Process Scanned Vehicle - Find Fuel Transaction"
@@ -91,7 +108,7 @@
                                                                              style="padding: 0.5rem;" />
                                                         </div>
                                                     </h:panelGroup>
-                                                </div>
+                                                </h:panelGroup>
 
                                                 <div class="my-3">
                                                     <p:commandButton value="Back to List"
@@ -111,6 +128,157 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Include html5-qrcode library -->
+                <h:outputScript>
+                    var script = document.createElement('script');
+                    script.src = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
+                    document.head.appendChild(script);
+                </h:outputScript>
+
+                <!-- QR Scanner JavaScript -->
+                <script type="text/javascript">
+                    //<![CDATA[
+                    let html5QrCode;
+                    let isScanning = false;
+                    let lastScannedCode = null;
+                    let scanCooldown = false;
+
+                    // Handle completion of QR processing - redirect if URL is set
+                    function handleQrProcessingComplete() {
+                        var redirectUrlElement = document.getElementById('qrForm:redirectUrlValue');
+                        if (redirectUrlElement && redirectUrlElement.value && redirectUrlElement.value.trim() !== '') {
+                            var url = redirectUrlElement.value.trim();
+                            console.log('QR processing complete. Redirecting to: ' + url);
+                            // Redirect to the fuel dispense page (URL already includes context path from backend)
+                            setTimeout(function() {
+                                window.location.href = url;
+                            }, 500); // Small delay to let messages display
+                        } else {
+                            console.log('QR processing complete but no redirect URL set (likely an error occurred)');
+                        }
+                    }
+
+                    function onScanSuccess(decodedText, decodedResult) {
+                        // Prevent multiple scans of the same code
+                        if (scanCooldown || lastScannedCode === decodedText) {
+                            return;
+                        }
+
+                        lastScannedCode = decodedText;
+                        scanCooldown = true;
+
+                        console.log(`QR Code detected: ${decodedText}`);
+
+                        // Visual feedback - green border
+                        document.getElementById('qr-reader').style.border = '3px solid #28a745';
+
+                        // Display scanned result
+                        document.getElementById('qr-reader-results').innerHTML =
+                            '<div class="alert alert-success"><strong>QR Code Detected:</strong> ' + decodedText + '</div>';
+
+                        // Optional: Play beep sound
+                        try {
+                            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGm98OScTgwOUKXh8LhjHQU2kdj0zHksBSN2yPDck0ILElyz6+mmUhQKRp/h8r9sIQUrgs/z2Yk1CBhqvPPmnE4LDlCm4u+6Yx0ENpLZ9ctzKwQgeMnx3pRCChBbsunqp1MUCkaf4fO/ayEELILP9NqJNQgYarz05qBPCw1SpuTwuWQcBDWS2/bOdSsEHnrK8eCXQgkPXLXq7qpUFQlHoOL0wWsgBCuCz/TajDUIGGq98+ahUAwNUKPg8LxlHgU0kt33z3YsBB17zPLhmUQJDly16u+qVRUJR6Dj9MJsIAQrgs/02ow1CBhqvPTnoVAMDlCj4PC9Zh4FNJHa9s92LAQee83y4ppFCQ5ct+vwrFUVCUef4vPDbCAEK4HP9NuMNQgZa7zz56NSDAxPouHwvWYeBTWS2vXPdy0DHnrN8uObRgkOXLbq8KxWFAlGn+Hz4qpWEwlHoePzw20hBCuCz/TcjTQIF2q88+ekUQ0MUKXj8L5nHwU3k9z3z3ktBCB6zvHgnkYKDl236/GtVxQJRp/h8+KrVhMJR6Hj88RuIgUrlM302o01CA==');
+                            audio.play();
+                        } catch (e) {
+                            console.log('Audio playback failed:', e);
+                        }
+
+                        // Set the hidden input value
+                        document.getElementById('qrForm:hiddenQrValue').value = decodedText;
+
+                        // Trigger the backend processing via PrimeFaces remote command
+                        processQrCode([{name: 'scannedVehicleNumber', value: decodedText}]);
+
+                        // Stop scanning after detection (optional - comment out if you want continuous scanning)
+                        setTimeout(function() {
+                            stopScanning();
+                        }, 1000);
+
+                        // Reset cooldown after 3 seconds
+                        setTimeout(function() {
+                            scanCooldown = false;
+                            lastScannedCode = null;
+                        }, 3000);
+                    }
+
+                    function onScanFailure(error) {
+                        // Handle scan failure silently (this happens continuously while scanning)
+                        // console.warn(`QR Code scan error: ${error}`);
+                    }
+
+                    function startScanning() {
+                        if (isScanning) {
+                            console.log('Scanner already running');
+                            return;
+                        }
+
+                        // Reset visual feedback
+                        document.getElementById('qr-reader').style.border = '3px solid #ddd';
+                        document.getElementById('qr-reader-results').innerHTML =
+                            '<div class="alert alert-primary">Scanning... Position QR code in front of camera</div>';
+
+                        if (!html5QrCode) {
+                            html5QrCode = new Html5Qrcode("qr-reader");
+                        }
+
+                        const config = {
+                            fps: 10,    // Scans per second
+                            qrbox: { width: 250, height: 250 },  // Scanning box size
+                            aspectRatio: 1.0
+                        };
+
+                        html5QrCode.start(
+                            { facingMode: "environment" },  // Use back camera on mobile
+                            config,
+                            onScanSuccess,
+                            onScanFailure
+                        ).then(() => {
+                            isScanning = true;
+                            console.log('QR Code scanner started successfully');
+                        }).catch((err) => {
+                            console.error('Unable to start scanner:', err);
+                            document.getElementById('qr-reader-results').innerHTML =
+                                '<div class="alert alert-danger">Failed to start camera: ' + err + '</div>';
+                        });
+                    }
+
+                    function stopScanning() {
+                        if (!isScanning || !html5QrCode) {
+                            console.log('Scanner not running');
+                            return;
+                        }
+
+                        html5QrCode.stop().then(() => {
+                            isScanning = false;
+                            console.log('QR Code scanner stopped');
+                            document.getElementById('qr-reader-results').innerHTML =
+                                '<div class="alert alert-warning">Scanner stopped. Click "Restart Scanner" to continue.</div>';
+                        }).catch((err) => {
+                            console.error('Error stopping scanner:', err);
+                        });
+                    }
+
+                    // Auto-start scanning when page loads
+                    window.addEventListener('load', function() {
+                        // Wait for html5-qrcode library to load
+                        let checkLibraryLoaded = setInterval(function() {
+                            if (typeof Html5Qrcode !== 'undefined') {
+                                clearInterval(checkLibraryLoaded);
+                                setTimeout(startScanning, 500);
+                            }
+                        }, 100);
+                    });
+
+                    // Cleanup on page unload
+                    window.addEventListener('beforeunload', function() {
+                        if (isScanning && html5QrCode) {
+                            html5QrCode.stop();
+                        }
+                    });
+                    //]]>
+                </script>
 
             </ui:define>
 
