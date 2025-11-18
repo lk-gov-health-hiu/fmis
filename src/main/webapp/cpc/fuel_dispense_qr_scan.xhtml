@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/template.xhtml">
+
+            <ui:define name="title">
+                Scan Vehicle QR Code
+            </ui:define>
+
+            <ui:define name="content">
+
+                <div class="container-fluid p-2 w-100">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h2>Scan Vehicle QR Code for Fuel Dispensing</h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row justify-content-center">
+                                        <div class="col-md-8 text-center">
+                                            <div class="alert alert-info">
+                                                <h4>Instructions:</h4>
+                                                <p>1. Position the vehicle QR code in front of your camera</p>
+                                                <p>2. Click the "Capture" button to scan the QR code</p>
+                                                <p>3. The system will automatically find the pending fuel transaction</p>
+                                            </div>
+
+                                            <h:form>
+                                                <div class="my-4">
+                                                    <p:photoCam widgetVar="pc"
+                                                                listener="#{fuelDispenseController.onCaptureOfVehicleQr}"
+                                                                update="@form" />
+                                                </div>
+                                                <div class="my-3">
+                                                    <p:commandButton type="button"
+                                                                     value="Capture QR Code"
+                                                                     onclick="PF('pc').capture()"
+                                                                     icon="pi pi-camera"
+                                                                     class="btn btn-success btn-lg" />
+                                                </div>
+
+                                                <div class="my-3">
+                                                    <p:commandButton value="Back to List"
+                                                                     ajax="false"
+                                                                     action="#{fuelDispenseController.navigateToListTransactionsToDispense()}"
+                                                                     icon="pi pi-arrow-left"
+                                                                     class="btn btn-secondary"
+                                                                     immediate="true" />
+                                                </div>
+
+                                                <h:panelGroup rendered="#{fuelDispenseController.scannedVehicleNumber != null}">
+                                                    <div class="alert alert-success mt-3">
+                                                        <h5>Scanned Vehicle Number: <strong>#{fuelDispenseController.scannedVehicleNumber}</strong></h5>
+                                                    </div>
+                                                </h:panelGroup>
+                                            </h:form>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </h:body>
+</html>
