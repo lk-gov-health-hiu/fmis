@@ -33,11 +33,14 @@
                                                 <p>3. The system will automatically find the pending fuel transaction</p>
                                             </div>
 
-                                            <h:form>
+                                            <h:form id="qrForm">
+                                                <p:growl id="growl" showDetail="true" sticky="false" life="5000"/>
+
                                                 <div class="my-4">
                                                     <p:photoCam widgetVar="pc"
                                                                 listener="#{fuelDispenseController.onCaptureOfVehicleQr}"
-                                                                update="@form" />
+                                                                update="qrForm:growl qrForm:scannedInfo qrForm:processBtn"
+                                                                process="@this" />
                                                 </div>
                                                 <div class="my-3">
                                                     <p:commandButton type="button"
@@ -45,6 +48,24 @@
                                                                      onclick="PF('pc').capture()"
                                                                      icon="pi pi-camera"
                                                                      class="btn btn-success btn-lg" />
+                                                </div>
+
+                                                <h:panelGroup id="scannedInfo">
+                                                    <h:panelGroup rendered="#{fuelDispenseController.scannedVehicleNumber != null and fuelDispenseController.scannedVehicleNumber ne 'Error'}">
+                                                        <div class="alert alert-success mt-3">
+                                                            <h5>Scanned Vehicle Number: <strong>#{fuelDispenseController.scannedVehicleNumber}</strong></h5>
+                                                        </div>
+                                                    </h:panelGroup>
+                                                </h:panelGroup>
+
+                                                <div class="my-3" id="processBtn">
+                                                    <h:panelGroup rendered="#{fuelDispenseController.scannedVehicleNumber != null and fuelDispenseController.scannedVehicleNumber ne 'Error'}">
+                                                        <p:commandButton value="Process Scanned Vehicle"
+                                                                         ajax="false"
+                                                                         action="#{fuelDispenseController.searchFuelTransactionByVehicleQr()}"
+                                                                         icon="pi pi-arrow-right"
+                                                                         class="btn btn-primary btn-lg" />
+                                                    </h:panelGroup>
                                                 </div>
 
                                                 <div class="my-3">
@@ -56,11 +77,6 @@
                                                                      immediate="true" />
                                                 </div>
 
-                                                <h:panelGroup rendered="#{fuelDispenseController.scannedVehicleNumber != null}">
-                                                    <div class="alert alert-success mt-3">
-                                                        <h5>Scanned Vehicle Number: <strong>#{fuelDispenseController.scannedVehicleNumber}</strong></h5>
-                                                    </div>
-                                                </h:panelGroup>
                                             </h:form>
 
                                         </div>
