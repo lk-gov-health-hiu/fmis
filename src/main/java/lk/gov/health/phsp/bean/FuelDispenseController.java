@@ -350,24 +350,55 @@ public class FuelDispenseController implements Serializable {
             System.out.println("Parsed vehicle ID: " + parsedId);
         }
 
-        addAjaxMessage(FacesMessage.SEVERITY_INFO, "QR Detected",
-            "Processing vehicle: " + parsedNumber);
+        // Don't show messages here - just redirect immediately if successful
+        // Messages will be shown on the destination page if there are errors
 
         // Automatically search for the transaction
         String navigationOutcome = searchFuelTransactionByVehicleQr();
 
         if (navigationOutcome != null && !navigationOutcome.isEmpty()) {
             // Store the URL for JavaScript to navigate to
-            // Convert JSF navigation outcome to actual URL with proper context path
             FacesContext facesContext = FacesContext.getCurrentInstance();
+
+            // Get various request details for debugging
             String contextPath = facesContext.getExternalContext().getRequestContextPath();
+            String servletPath = facesContext.getExternalContext().getRequestServletPath();
+            String requestURI = ((javax.servlet.http.HttpServletRequest) facesContext.getExternalContext().getRequest()).getRequestURI();
+
+            System.out.println("=== URL Construction Debug ===");
+            System.out.println("Context path: " + contextPath);
+            System.out.println("Servlet path: " + servletPath);
+            System.out.println("Request URI: " + requestURI);
+
+            // Extract servlet mapping from request URI
+            // Request URI format: /fmis/app/cpc/fuel_dispense_qr_scan.xhtml
+            // We need: /fmis/app
+            String baseURL = contextPath;
+            if (requestURI != null && contextPath != null) {
+                // Remove context path from request URI to get the relative path
+                String relativePath = requestURI.substring(contextPath.length());
+                System.out.println("Relative path: " + relativePath);
+
+                // Extract first segment after context path (e.g., "/app" from "/app/cpc/...")
+                if (relativePath.startsWith("/")) {
+                    int secondSlash = relativePath.indexOf('/', 1);
+                    if (secondSlash > 0) {
+                        String servletMapping = relativePath.substring(0, secondSlash);
+                        baseURL = contextPath + servletMapping;
+                        System.out.println("Servlet mapping: " + servletMapping);
+                    }
+                }
+            }
 
             // Remove ?faces-redirect=true and add .xhtml extension
             String page = navigationOutcome.replace("?faces-redirect=true", ".xhtml");
 
-            // Construct full URL with context path
-            redirectUrl = contextPath + page;
-            System.out.println("Navigation URL set: " + redirectUrl);
+            // Construct full URL
+            redirectUrl = baseURL + page;
+            System.out.println("Base URL: " + baseURL);
+            System.out.println("Page: " + page);
+            System.out.println("Final navigation URL: " + redirectUrl);
+            System.out.println("=== End URL Construction ===");
         }
     }
 
