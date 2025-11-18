@@ -23,6 +23,7 @@
                                 style="float: right;"
                                 class="btn btn-success"
                                 action="#{vehicleController.saveOrUpdateVehicle()}"
+                                disabled="#{!vehicleController.canEditVehicleDetails}"
                                 value="Save"/>
                             <p:commandButton
                                 type="button"
@@ -36,24 +37,26 @@
                         </f:facet>
 
                         <h:outputLabel value="Number:" for="number" />
-                        <h:inputText id="number" 
+                        <h:inputText id="number"
                                      required="true"
                                      requiredMessage="Please enter the number"
                                      autocomplete="off"
                                      class="form-control"
-                                     value="#{vehicleController.selected.vehicleNumber}" 
+                                     disabled="#{!vehicleController.canEditVehicleDetails}"
+                                     value="#{vehicleController.selected.vehicleNumber}"
                                      title="Number" />
 
                         <h:outputLabel value="Type:" for="vehicleType" />
-                        <p:selectOneMenu id="vehicleType" 
+                        <p:selectOneMenu id="vehicleType"
                                          class="form-control"
                                          filter="true"
                                          filterMatchMode="contains"
-                                         required="true" 
+                                         required="true"
+                                         disabled="#{!vehicleController.canEditVehicleDetails}"
                                          requiredMessage="Please select a Type"
                                          value="#{vehicleController.selected.vehicleType}" title="VehicleType">
                             <f:selectItem itemLabel="Select Vehicle Type" ></f:selectItem>
-                            <f:selectItems value="#{applicationController.vehicleTypes}" 
+                            <f:selectItems value="#{applicationController.vehicleTypes}"
                                            var="vt"
                                            itemValue="#{vt}"
                                            itemLabel="#{vt.label}"/>
@@ -61,12 +64,13 @@
                         </p:selectOneMenu>
 
                         <h:outputLabel value="Main Purpose:" for="vehiclePurpose" />
-                        <h:selectOneMenu id="vehiclePurpose" 
+                        <h:selectOneMenu id="vehiclePurpose"
                                          class="form-control"
                                          required="true"
+                                         disabled="#{!vehicleController.canEditVehicleDetails}"
                                          requiredMessage="Please select the Main Purpose the vehicle is used for"
                                          value="#{vehicleController.selected.vehiclePurpose}" title="VehiclePurpose">
-                            <f:selectItems value="#{applicationController.vehiclePurposes}" 
+                            <f:selectItems value="#{applicationController.vehiclePurposes}"
                                            var="vp"
                                            itemValue="#{vp}"
                                            itemLabel="#{vp.label}"/>
@@ -79,12 +83,13 @@
                             filter="true"
                             filterMatchMode="contains"
                             class="form-control form-control-sm w-100"
-                            value="#{vehicleController.selected.institution}" 
+                            disabled="#{!vehicleController.canEditVehicleDetails}"
+                            value="#{vehicleController.selected.institution}"
                             required="true"
                             requiredMessage="Please select the institute">
                             <f:selectItem itemLabel="Please Select" ></f:selectItem>
                             <f:selectItems value="#{webUserController.loggableInstitutions}"
-                                           var="ins" 
+                                           var="ins"
                                            itemLabel="#{ins.name}"
                                            itemValue="#{ins}" ></f:selectItems>
                         </p:selectOneMenu>
@@ -97,20 +102,22 @@
                         </h:panelGroup>
 
                         <h:panelGroup id="makeSelect">
-                            <p:selectOneMenu id="make" 
+                            <p:selectOneMenu id="make"
                                              filter="true"
                                              filterMatchMode="contains"
                                              class="form-control"
-                                             value="#{vehicleController.selected.make}" 
-                                             title="Make" 
+                                             disabled="#{!vehicleController.canEditVehicleDetails}"
+                                             value="#{vehicleController.selected.make}"
+                                             title="Make"
                                              rendered="#{vehicleController.selected.vehicleType.vehicle}">
                                 <f:selectItem itemLabel="Select" ></f:selectItem>
                                 <f:selectItems value="#{commonController.vehicleMakes}" ></f:selectItems>
                             </p:selectOneMenu>
-                            <h:inputText id="makeName" 
+                            <h:inputText id="makeName"
                                          autocomplete="off"
                                          class="form-control"
-                                         value="#{vehicleController.selected.vehicleMake}" 
+                                         disabled="#{!vehicleController.canEditVehicleDetails}"
+                                         value="#{vehicleController.selected.vehicleMake}"
                                          title="Name"
                                          rendered="#{!vehicleController.selected.vehicleType.vehicle}" />
                         </h:panelGroup>
@@ -119,6 +126,7 @@
                         <h:inputText id="model"
                                      autocomplete="off"
                                      class="form-control"
+                                     disabled="#{!vehicleController.canEditVehicleDetails}"
                                      value="#{vehicleController.selected.estiamtedMonthlyFuelConsumption}"
                                      title="Estimated Monthly Fuel Consumption" />
 
@@ -126,6 +134,7 @@
                         <h:inputText id="fuelCapacity"
                                      autocomplete="off"
                                      class="form-control"
+                                     disabled="#{!vehicleController.canEditVehicleDetails}"
                                      value="#{vehicleController.selected.fuelCapacity}"
                                      title="Fuel Capacity" />
 
@@ -133,12 +142,14 @@
                         <h:inputText id="chassisNumber"
                                      autocomplete="off"
                                      class="form-control"
+                                     disabled="#{!vehicleController.canEditVehicleDetails}"
                                      value="#{vehicleController.selected.chassisNumber}"
                                      title="Chassis Number" />
 
                         <h:outputLabel value="Allocation Type:" for="allocationType" />
                         <h:selectOneMenu id="allocationType"
                                          class="form-control"
+                                         disabled="#{!vehicleController.canEditVehicleDetails}"
                                          value="#{vehicleController.selected.allocationType}"
                                          title="Allocation Type">
                             <f:selectItem itemLabel="Select Allocation Type" />
@@ -152,6 +163,7 @@
                         <h:inputText id="avgFuelConsumption"
                                      autocomplete="off"
                                      class="form-control"
+                                     disabled="#{!vehicleController.canEditVehicleDetails}"
                                      value="#{vehicleController.selected.vehicleAverageFuelConsumption}"
                                      title="Vehicle Average Fuel Consumption" />
 
