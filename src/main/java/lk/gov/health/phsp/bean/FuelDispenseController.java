@@ -183,10 +183,16 @@ public class FuelDispenseController implements Serializable {
     /**
      * Handle QR code capture event
      */
-    public String onCaptureOfVehicleQr(CaptureEvent captureEvent) {
+    public void onCaptureOfVehicleQr(CaptureEvent captureEvent) {
         byte[] imageData = captureEvent.getData();
         scannedVehicleNumber = qrCodeController.scanQRCode(imageData);
-        return searchFuelTransactionByVehicleQr();
+
+        if (scannedVehicleNumber == null || scannedVehicleNumber.trim().isEmpty() || scannedVehicleNumber.equals("Error")) {
+            JsfUtil.addErrorMessage("QR Code scanning failed. Please try again.");
+            scannedVehicleNumber = null;
+        } else {
+            JsfUtil.addSuccessMessage("QR Code scanned successfully: " + scannedVehicleNumber);
+        }
     }
 
     /**
