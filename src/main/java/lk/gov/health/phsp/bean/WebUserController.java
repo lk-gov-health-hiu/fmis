@@ -326,6 +326,44 @@ public class WebUserController implements Serializable {
         return false;
     }
 
+    public boolean isCpcFuelDispensor() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        return loggedUser.getWebUserRole() == WebUserRole.CPC_FUEL_DISPENSOR;
+    }
+
+    public boolean isReportsMenuAvailable() {
+        if (isCpcFuelDispensor()) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isAdministrationMenuAvailable() {
+        if (isCpcFuelDispensor()) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isSettingsMenuItemAvailable() {
+        if (isCpcFuelDispensor()) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isDashboardAvailable() {
+        if (isCpcFuelDispensor()) {
+            return false;
+        }
+        return true;
+    }
+
     public void onResize(ColumnResizeEvent event) {
         String viewId = event.getFacesContext().getViewRoot().getViewId();
         String columnId = event.getColumn().getClientId();
