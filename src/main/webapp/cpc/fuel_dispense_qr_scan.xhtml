@@ -35,11 +35,12 @@
 
                                             <h:form id="qrForm">
                                                 <p:growl id="growl" showDetail="true" sticky="false" life="5000"/>
+                                                <p:messages id="messages" showDetail="true" closable="true"/>
 
                                                 <div class="my-4">
                                                     <p:photoCam widgetVar="pc"
                                                                 listener="#{fuelDispenseController.onCaptureOfVehicleQr}"
-                                                                update="qrForm:growl qrForm:scannedInfo qrForm:processBtn"
+                                                                update="qrForm:growl qrForm:messages qrForm:scannedInfo qrForm:processBtn"
                                                                 process="@this" />
                                                 </div>
                                                 <div class="my-3">
@@ -64,7 +65,14 @@
                                                                          ajax="false"
                                                                          action="#{fuelDispenseController.searchFuelTransactionByVehicleQr()}"
                                                                          icon="pi pi-arrow-right"
-                                                                         class="btn btn-primary btn-lg" />
+                                                                         class="btn btn-primary btn-lg me-2" />
+
+                                                        <p:commandButton value="Debug: Check Transactions"
+                                                                         ajax="true"
+                                                                         actionListener="#{fuelDispenseController.debugCheckTransactions()}"
+                                                                         update="qrForm:messages qrForm:growl"
+                                                                         icon="pi pi-search"
+                                                                         class="btn btn-warning btn-sm" />
                                                     </h:panelGroup>
                                                 </div>
 
