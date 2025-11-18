@@ -2,6 +2,7 @@ package lk.gov.health.phsp.bean;
 
 import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.entity.Institution;
+import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
 import lk.gov.health.phsp.bean.util.JsfUtil;
@@ -18,6 +19,7 @@ import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.persistence.TemporalType;
+import org.primefaces.event.CaptureEvent;
 
 /**
  * Controller for managing fuel dispensing operations
@@ -34,11 +36,16 @@ public class FuelDispenseController implements Serializable {
 
     @Inject
     private WebUserController webUserController;
+    @Inject
+    private VehicleController vehicleController;
+    @Inject
+    private QRCodeController qrCodeController;
 
     private List<FuelTransaction> transactions;
     private FuelTransaction selected;
     private Date fromDate;
     private Date toDate;
+    private String scannedVehicleNumber;
 
     public FuelDispenseController() {
     }
@@ -165,6 +172,81 @@ public class FuelDispenseController implements Serializable {
     }
 
     /**
+     * Navigate to QR code scanning page
+     */
+    public String navigateToQrScan() {
+        scannedVehicleNumber = null;
+        selected = null;
+        return "/cpc/fuel_dispense_qr_scan?faces-redirect=true";
+    }
+
+    /**
+     * Handle QR code capture event
+     */
+    public String onCaptureOfVehicleQr(CaptureEvent captureEvent) {
+        byte[] imageData = captureEvent.getData();
+        scannedVehicleNumber = qrCodeController.scanQRCode(imageData);
+        return searchFuelTransactionByVehicleQr();
+    }
+
+    /**
+     * Search for fuel transaction by scanned vehicle QR code
+     */
+    public String searchFuelTransactionByVehicleQr() {
+        if (scannedVehicleNumber == null || scannedVehicleNumber.trim().isEmpty()) {
+            JsfUtil.addErrorMessage("Vehicle QR code not scanned properly. Please try again.");
+            return "";
+        }
+
+        // Search for the vehicle
+        List<Vehicle> vehicles = vehicleController.searchVehicles(scannedVehicleNumber);
+        if (vehicles == null || vehicles.isEmpty()) {
+            JsfUtil.addErrorMessage("No vehicle found with number: " + scannedVehicleNumber);
+            return "";
+        }
+
+        Vehicle vehicle = vehicles.get(0);
+
+        // Search for the last fuel transaction for this vehicle that is issued but not dispensed
+        String jpql = "SELECT f FROM FuelTransaction f "
+                + "WHERE f.retired = false "
+                + "AND f.cancelled = false "
+                + "AND f.rejected = false "
+                + "AND f.issued = true "
+                + "AND f.dispensed = false "
+                + "AND f.vehicle = :vehicle "
+                + "AND f.issuedInstitution = :institution "
+                + "ORDER BY f.issuedDate DESC, f.issuedAt DESC";
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("vehicle", vehicle);
+        parameters.put("institution", webUserController.getLoggedInstitution());
+
+        List<FuelTransaction> results = fuelTransactionFacade.findByJpql(jpql, parameters);
+
+        if (results == null || results.isEmpty()) {
+            JsfUtil.addErrorMessage("No pending fuel transactions found for vehicle: " + scannedVehicleNumber);
+            return "";
+        }
+
+        // Get the most recent transaction
+        selected = results.get(0);
+
+        // Initialize dispensed fields
+        if (selected.getDispensedQuantity() == null) {
+            selected.setDispensedQuantity(selected.getIssuedQuantity());
+        }
+        if (selected.getDispensedDate() == null) {
+            selected.setDispensedDate(new Date());
+        }
+
+        JsfUtil.addSuccessMessage("Transaction found for vehicle: " + scannedVehicleNumber);
+
+        // Navigate to the dispense page
+        return "/cpc/fuel_dispense_mark?faces-redirect=true";
+    }
+
+    /**
      * Get default from date (beginning of current month)
      */
     private Date getDefaultFromDate() {
@@ -214,5 +296,13 @@ public class FuelDispenseController implements Serializable {
 
     public void setToDate(Date toDate) {
         this.toDate = toDate;
+    }
+
+    public String getScannedVehicleNumber() {
+        return scannedVehicleNumber;
+    }
+
+    public void setScannedVehicleNumber(String scannedVehicleNumber) {
+        this.scannedVehicleNumber = scannedVehicleNumber;
     }
 }
