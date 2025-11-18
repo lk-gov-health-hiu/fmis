@@ -12,7 +12,7 @@
                 id="main-menu" 
                 autoDisplay="false"
                 class="navbar navbar-expand-lg navbar-dark bg-primary W-100" style="border: none;">
-                <p:menuitem class="text-white" ajax="false" value="Home" icon="ui-icon-home" action="#{menuController.toIndex()}" />
+                <p:menuitem class="text-white" ajax="false" value="Home" icon="ui-icon-home" rendered="#{webUserController.dashboardAvailable}" action="#{menuController.toIndex()}" />
                 <p:submenu
                     class="submenu"
                     label="Diesel Orders"
@@ -79,18 +79,19 @@
                     class="text-white"
                     ajax="false"
                     value="Reports"
+                    rendered="#{webUserController.reportsMenuAvailable}"
                     action="#{reportController.navigateToReportsIndex}" />
-                <p:submenu label="Administration">
+                <p:submenu label="Administration" rendered="#{webUserController.administrationMenuAvailable}">
                     <p:menuitem value="Administration Home" action="#{menuController.toAdministrationIndex()}" ajax="false" />
                     <p:separator />
                     <p:menuitem value="Migrate Bill Items" action="#{fuelRequestAndIssueController.navigateToMigrateBillItems()}" ajax="false" />
                 </p:submenu>
                 <p:submenu label="Settings">
                     <p:menuitem value="Change My Password" action="#{webUserController.toChangeMyPassword()}" ajax="false" />
-                    <p:menuitem value="Change My Details" action="#{webUserController.toChangeMyDetails()}" ajax="false" />
-                    <p:menuitem value="Change My Institution Details" action="#{webUserController.toChangeMyInstitutionDetails()}" rendered="#{webUserController.hasPrivilege('Institution_Administration')}" ajax="false" />
-                    <p:menuitem value="Change My Username" action="#{webUserController.toChangeMyUsername()}" ajax="false" />
-                    <p:menuitem value="API Keys" action="#{apiKeyController.toManageMyApiKeys()}" ajax="false" />
+                    <p:menuitem value="Change My Details" action="#{webUserController.toChangeMyDetails()}" rendered="#{webUserController.settingsMenuItemAvailable}" ajax="false" />
+                    <p:menuitem value="Change My Institution Details" action="#{webUserController.toChangeMyInstitutionDetails()}" rendered="#{webUserController.hasPrivilege('Institution_Administration') and webUserController.settingsMenuItemAvailable}" ajax="false" />
+                    <p:menuitem value="Change My Username" action="#{webUserController.toChangeMyUsername()}" rendered="#{webUserController.settingsMenuItemAvailable}" ajax="false" />
+                    <p:menuitem value="API Keys" action="#{apiKeyController.toManageMyApiKeys()}" rendered="#{webUserController.settingsMenuItemAvailable}" ajax="false" />
                     <p:separator />
                     <p:menuitem value="Logout" action="#{webUserController.logOut()}" ajax="false" />
                 </p:submenu>

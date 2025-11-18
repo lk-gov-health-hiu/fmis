@@ -77,6 +77,10 @@ public class MenuController implements Serializable {
     }
 
     public String toIndex() {
+        if (webUserController.isCpcFuelDispensor()) {
+            JsfUtil.addErrorMessage("Dashboard is not available for your role.");
+            return "";
+        }
         dashboardController.prepareDashboard();
         return "/index?faces-redirect=true";
     }
