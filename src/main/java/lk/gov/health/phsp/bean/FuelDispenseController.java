@@ -85,9 +85,9 @@ public class FuelDispenseController implements Serializable {
                 + "WHERE f.retired = false "
                 + "AND f.cancelled = false "
                 + "AND f.rejected = false "
-                + "AND f.issued = true "
+                + "AND f.issued = false "
                 + "AND f.dispensed = false "
-                + "AND f.issuedInstitution = :institution "
+                + "AND f.toInstitution = :institution "
                 + "AND f.issuedDate BETWEEN :fromDate AND :toDate "
                 + "ORDER BY f.id DESC";
 
@@ -488,14 +488,16 @@ public class FuelDispenseController implements Serializable {
 
         // First, try to find transactions for this vehicle at the current institution
         // ORDER BY f.id DESC ensures we get the LATEST transaction (highest ID = most recent)
+        // issued = false because "issued" means confirmed AFTER dispensing
+        // toInstitution = fuel shed (the institution being requested FROM)
         String jpql = "SELECT f FROM FuelTransaction f "
                 + "WHERE f.retired = false "
                 + "AND f.cancelled = false "
                 + "AND f.rejected = false "
-                + "AND f.issued = true "
+                + "AND f.issued = false "
                 + "AND f.dispensed = false "
                 + "AND f.vehicle = :vehicle "
-                + "AND f.issuedInstitution = :institution "
+                + "AND f.toInstitution = :institution "
                 + "ORDER BY f.id DESC";
 
         Map<String, Object> parameters = new HashMap<>();
@@ -518,7 +520,7 @@ public class FuelDispenseController implements Serializable {
                     + "WHERE f.retired = false "
                     + "AND f.cancelled = false "
                     + "AND f.rejected = false "
-                    + "AND f.issued = true "
+                    + "AND f.issued = false "
                     + "AND f.dispensed = false "
                     + "AND f.vehicle = :vehicle "
                     + "ORDER BY f.id DESC";
@@ -535,15 +537,15 @@ public class FuelDispenseController implements Serializable {
             if (results == null || results.isEmpty()) {
                 System.out.println("ERROR: No transactions found anywhere for this vehicle");
                 JsfUtil.addErrorMessage("No pending fuel transactions found for vehicle: " + scannedVehicleNumber +
-                        ". Please ensure fuel has been issued for this vehicle.");
+                        ". Please ensure fuel has been requested for this vehicle.");
                 return "";
             } else {
                 // Found transactions but at a different institution
                 System.out.println("ERROR: Found " + results.size() + " transaction(s) at different institution");
-                System.out.println("Transaction issued at: " + (results.get(0).getIssuedInstitution() != null ? results.get(0).getIssuedInstitution().getName() : "null"));
-                JsfUtil.addErrorMessage("Found transaction at " +
-                        (results.get(0).getIssuedInstitution() != null ? results.get(0).getIssuedInstitution().getName() : "another location") +
-                        ". You can only dispense fuel issued at your institution: " +
+                System.out.println("Transaction requested at: " + (results.get(0).getToInstitution() != null ? results.get(0).getToInstitution().getName() : "null"));
+                JsfUtil.addErrorMessage("Found transaction requested from " +
+                        (results.get(0).getToInstitution() != null ? results.get(0).getToInstitution().getName() : "another location") +
+                        ". You can only dispense fuel requested from your institution: " +
                         webUserController.getLoggedInstitution().getName());
                 return "";
             }
