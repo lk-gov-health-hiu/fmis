@@ -1,12 +1,17 @@
 package lk.gov.health.phsp.bean;
 
 import lk.gov.health.phsp.entity.FuelTransaction;
+import lk.gov.health.phsp.entity.FuelTransactionImage;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
+import lk.gov.health.phsp.facade.FuelTransactionImageFacade;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,7 +26,11 @@ import javax.inject.Inject;
 import javax.persistence.TemporalType;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import org.apache.commons.io.IOUtils;
 import org.primefaces.event.CaptureEvent;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
+import org.primefaces.model.file.UploadedFile;
 
 /**
  * Controller for managing fuel dispensing operations
@@ -35,6 +44,8 @@ public class FuelDispenseController implements Serializable {
 
     @EJB
     private FuelTransactionFacade fuelTransactionFacade;
+    @EJB
+    private FuelTransactionImageFacade fuelTransactionImageFacade;
 
     @Inject
     private WebUserController webUserController;
@@ -50,6 +61,9 @@ public class FuelDispenseController implements Serializable {
     private String scannedVehicleNumber;
     private Long scannedVehicleId;
     private String redirectUrl;  // For automatic navigation after QR scan
+    private UploadedFile uploadedImage;  // For file upload
+    private StreamedContent transactionImage;  // For displaying image
+    private byte[] capturedImageData;  // For webcam captured image
 
     public FuelDispenseController() {
     }
@@ -160,6 +174,17 @@ public class FuelDispenseController implements Serializable {
             }
         }
 
+        // Save captured image if available (optional)
+        if (capturedImageData != null && capturedImageData.length > 0) {
+            try {
+                saveCapturedImage();
+            } catch (Exception e) {
+                // Log error but don't fail the transaction
+                System.err.println("Error saving image: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
         // Set dispensed details
         selected.setDispensed(true);
         selected.setDispensedAt(new Date());
@@ -170,6 +195,9 @@ public class FuelDispenseController implements Serializable {
         fuelTransactionFacade.edit(selected);
 
         JsfUtil.addSuccessMessage("Fuel dispensed successfully");
+
+        // Clear image data
+        capturedImageData = null;
 
         // Clear data and navigate to QR scan page
         return navigateToQrScan();
@@ -516,6 +544,199 @@ public class FuelDispenseController implements Serializable {
         return cal.getTime();
     }
 
+    /**
+     * Upload image for the selected fuel transaction
+     */
+    public void uploadTransactionImage() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("No transaction selected");
+            return;
+        }
+
+        if (uploadedImage == null) {
+            JsfUtil.addErrorMessage("Please select an image file");
+            return;
+        }
+
+        try {
+            // Validate file is an image
+            String contentType = uploadedImage.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                JsfUtil.addErrorMessage("Please upload a valid image file");
+                return;
+            }
+
+            // Check if image already exists for this transaction
+            FuelTransactionImage existingImage = fuelTransactionImageFacade.findByFuelTransaction(selected);
+
+            if (existingImage != null) {
+                // Update existing image
+                InputStream inputStream = uploadedImage.getInputStream();
+                byte[] imageData = IOUtils.toByteArray(inputStream);
+
+                existingImage.setImageData(imageData);
+                existingImage.setFileName(uploadedImage.getFileName());
+                existingImage.setContentType(contentType);
+                existingImage.setFileSize((long) imageData.length);
+                existingImage.setUploadedAt(new Date());
+                existingImage.setUploadedBy(webUserController.getLoggedUser());
+
+                fuelTransactionImageFacade.edit(existingImage);
+                JsfUtil.addSuccessMessage("Image updated successfully");
+            } else {
+                // Create new image record
+                FuelTransactionImage newImage = new FuelTransactionImage();
+                newImage.setFuelTransaction(selected);
+
+                InputStream inputStream = uploadedImage.getInputStream();
+                byte[] imageData = IOUtils.toByteArray(inputStream);
+
+                newImage.setImageData(imageData);
+                newImage.setFileName(uploadedImage.getFileName());
+                newImage.setContentType(contentType);
+                newImage.setFileSize((long) imageData.length);
+                newImage.setUploadedAt(new Date());
+                newImage.setUploadedBy(webUserController.getLoggedUser());
+
+                fuelTransactionImageFacade.create(newImage);
+                JsfUtil.addSuccessMessage("Image uploaded successfully");
+            }
+
+            // Clear the uploaded file
+            uploadedImage = null;
+
+        } catch (IOException e) {
+            JsfUtil.addErrorMessage("Error uploading image: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            JsfUtil.addErrorMessage("Unexpected error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Handle webcam image capture event
+     */
+    public void onCaptureTransactionImage(CaptureEvent captureEvent) {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("No transaction selected");
+            return;
+        }
+
+        try {
+            capturedImageData = captureEvent.getData();
+            JsfUtil.addSuccessMessage("Image captured successfully. Click 'Confirm Dispense' to save.");
+        } catch (Exception e) {
+            JsfUtil.addErrorMessage("Error capturing image: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Save the captured image to database
+     */
+    private void saveCapturedImage() throws Exception {
+        if (selected == null || capturedImageData == null) {
+            return;
+        }
+
+        // Check if image already exists for this transaction
+        FuelTransactionImage existingImage = fuelTransactionImageFacade.findByFuelTransaction(selected);
+
+        if (existingImage != null) {
+            // Update existing image
+            existingImage.setImageData(capturedImageData);
+            existingImage.setFileName("dispense_image_" + selected.getId() + ".png");
+            existingImage.setContentType("image/png");
+            existingImage.setFileSize((long) capturedImageData.length);
+            existingImage.setUploadedAt(new Date());
+            existingImage.setUploadedBy(webUserController.getLoggedUser());
+
+            fuelTransactionImageFacade.edit(existingImage);
+        } else {
+            // Create new image record
+            FuelTransactionImage newImage = new FuelTransactionImage();
+            newImage.setFuelTransaction(selected);
+            newImage.setImageData(capturedImageData);
+            newImage.setFileName("dispense_image_" + selected.getId() + ".png");
+            newImage.setContentType("image/png");
+            newImage.setFileSize((long) capturedImageData.length);
+            newImage.setUploadedAt(new Date());
+            newImage.setUploadedBy(webUserController.getLoggedUser());
+
+            fuelTransactionImageFacade.create(newImage);
+        }
+    }
+
+    /**
+     * Clear captured image data
+     */
+    public void clearCapturedImage() {
+        capturedImageData = null;
+        JsfUtil.addSuccessMessage("Captured image cleared");
+    }
+
+    /**
+     * Get the image for the selected fuel transaction
+     */
+    public StreamedContent getTransactionImage() {
+        if (selected == null) {
+            return getDefaultImage();
+        }
+
+        FuelTransactionImage image = fuelTransactionImageFacade.findByFuelTransaction(selected);
+        if (image == null || image.getImageData() == null) {
+            return getDefaultImage();
+        }
+
+        DefaultStreamedContent.Builder builder = DefaultStreamedContent.builder();
+        return builder.stream(() -> new ByteArrayInputStream(image.getImageData()))
+                .contentType(image.getContentType() != null ? image.getContentType() : "image/png")
+                .name(image.getFileName() != null ? image.getFileName() : "transaction_image.png")
+                .build();
+    }
+
+    /**
+     * Check if the selected transaction has an image
+     */
+    public boolean hasTransactionImage() {
+        if (selected == null) {
+            return false;
+        }
+
+        FuelTransactionImage image = fuelTransactionImageFacade.findByFuelTransaction(selected);
+        return image != null && image.getImageData() != null;
+    }
+
+    /**
+     * Delete the image for the selected fuel transaction
+     */
+    public void deleteTransactionImage() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("No transaction selected");
+            return;
+        }
+
+        FuelTransactionImage image = fuelTransactionImageFacade.findByFuelTransaction(selected);
+        if (image != null) {
+            fuelTransactionImageFacade.remove(image);
+            JsfUtil.addSuccessMessage("Image deleted successfully");
+        } else {
+            JsfUtil.addErrorMessage("No image found for this transaction");
+        }
+    }
+
+    /**
+     * Get a default placeholder image
+     */
+    private StreamedContent getDefaultImage() {
+        // Return an empty PNG image as default
+        DefaultStreamedContent.Builder builder = DefaultStreamedContent.builder();
+        return builder.stream(() -> new ByteArrayInputStream(new byte[0]))
+                .contentType("image/png")
+                .build();
+    }
+
     // Getters and Setters
     public List<FuelTransaction> getTransactions() {
         return transactions;
@@ -569,6 +790,14 @@ public class FuelDispenseController implements Serializable {
 
     public void setRedirectUrl(String redirectUrl) {
         this.redirectUrl = redirectUrl;
+    }
+
+    public UploadedFile getUploadedImage() {
+        return uploadedImage;
+    }
+
+    public void setUploadedImage(UploadedFile uploadedImage) {
+        this.uploadedImage = uploadedImage;
     }
 
     /**

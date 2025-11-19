@@ -1,0 +1,171 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <f:view contentType="text/html">
+        <h:head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+            <!-- Bootstrap 5 CSS -->
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+                  rel="stylesheet"
+                  integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+                  crossorigin="anonymous"/>
+
+            <!-- PrimeIcons -->
+            <link rel="stylesheet" href="https://unpkg.com/primeicons/primeicons.css"/>
+
+            <link rel="shortcut icon" href="#{resource['image/favicon.ico']}" type="image/x-icon" />
+
+            <style>
+                html, body {
+                    height: 100%;
+                    margin: 0;
+                    padding: 0;
+                    overflow-x: hidden;
+                }
+
+                body {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                }
+
+                .minimal-container {
+                    min-height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 1rem;
+                }
+
+                .content-card {
+                    width: 100%;
+                    max-width: 800px;
+                    background: white;
+                    border-radius: 20px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    overflow: hidden;
+                }
+
+                .card-header-minimal {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 1.5rem;
+                    text-align: center;
+                    border: none;
+                }
+
+                .card-header-minimal h2 {
+                    margin: 0;
+                    font-size: 1.75rem;
+                    font-weight: 600;
+                }
+
+                .card-body-minimal {
+                    padding: 2rem 1rem;
+                }
+
+                /* Mobile optimizations */
+                @media (max-width: 768px) {
+                    .minimal-container {
+                        padding: 0.5rem;
+                    }
+
+                    .content-card {
+                        border-radius: 15px;
+                    }
+
+                    .card-header-minimal {
+                        padding: 1rem;
+                    }
+
+                    .card-header-minimal h2 {
+                        font-size: 1.5rem;
+                    }
+
+                    .card-body-minimal {
+                        padding: 1rem 0.5rem;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .minimal-container {
+                        padding: 0;
+                        justify-content: flex-start;
+                    }
+
+                    .content-card {
+                        border-radius: 0;
+                        min-height: 100vh;
+                    }
+
+                    .card-header-minimal h2 {
+                        font-size: 1.25rem;
+                    }
+                }
+
+                /* QR Scanner specific styles */
+                #qr-reader {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    border-radius: 10px;
+                    overflow: hidden;
+                }
+
+                #qr-reader video {
+                    width: 100% !important;
+                    height: auto !important;
+                    border-radius: 10px;
+                }
+
+                /* Button styles */
+                .ui-button {
+                    border-radius: 8px;
+                    padding: 0.75rem 1.5rem;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                }
+
+                .ui-button:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                }
+            </style>
+
+            <title>
+                <ui:insert name="title">
+                    Scan QR - Fuel Management
+                </ui:insert>
+            </title>
+        </h:head>
+
+        <h:body>
+            <div class="minimal-container">
+                <div class="content-card">
+                    <div class="card-header-minimal">
+                        <h2>
+                            <ui:insert name="header">
+                                Scan QR
+                            </ui:insert>
+                        </h2>
+                    </div>
+                    <div class="card-body-minimal">
+                        <ui:insert name="content">
+                            Content goes here
+                        </ui:insert>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bootstrap 5 JS -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+                    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+                    crossorigin="anonymous"></script>
+        </h:body>
+    </f:view>
+</html>

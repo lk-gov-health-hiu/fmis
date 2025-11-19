@@ -8,133 +8,193 @@
 
     <h:body>
 
-        <ui:composition template="/template.xhtml">
+        <ui:composition template="/template_minimal.xhtml">
 
             <ui:define name="title">
-                Mark Fuel as Dispensed
+                Dispense Fuel
+            </ui:define>
+
+            <ui:define name="header">
+                Dispense Fuel
             </ui:define>
 
             <ui:define name="content">
 
-                <div class="container-fluid p-2 w-100" >
-                    <h:form >
-                        <div class="row" >
+                <h:form>
+                    <p:messages showDetail="true" closable="true"/>
 
-                            <div class="col-12" >
-                                <div class="card" >
-                                    <div class="card-header" >
-                                        <div class="row" >
-                                            <h2><h:outputText value="Mark Fuel as Dispensed"></h:outputText></h2>
-                                        </div>
+                    <!-- Request Details Section -->
+                    <div class="mb-4">
+                        <h5 class="text-center mb-3 text-primary fw-bold">Transaction Details</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold" style="width: 40%;">Vehicle</td>
+                                        <td class="fs-5 fw-bold text-success">
+                                            <i class="pi pi-car me-2"></i>
+                                            <h:outputText value="#{fuelDispenseController.selected.vehicle.vehicleNumber}" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Requested By</td>
+                                        <td><h:outputText value="#{fuelDispenseController.selected.fromInstitution.name}" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Requested From</td>
+                                        <td><h:outputText value="#{fuelDispenseController.selected.toInstitution.name}" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Request Quantity</td>
+                                        <td>
+                                            <span class="badge bg-info fs-6">
+                                                <h:outputText value="#{fuelDispenseController.selected.requestQuantity}" /> L
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Reference No.</td>
+                                        <td><h:outputText value="#{fuelDispenseController.selected.requestReferenceNumber}" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
+                    <!-- Optional Image Capture Section -->
+                    <div class="mb-4">
+                        <p:panel header="Capture Image (Optional)" toggleable="true" collapsed="true"
+                                 styleClass="mb-3" toggleSpeed="500">
+                            <div class="text-center">
+                                <p:photoCam widgetVar="photoCam"
+                                           listener="#{fuelDispenseController.onCaptureTransactionImage}"
+                                           update="@form"
+                                           styleClass="mb-3"/>
 
-                                    </div>
-                                    <div class="card-body" >
+                                <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                                    <p:commandButton value="Capture Photo"
+                                                     type="button"
+                                                     onclick="PF('photoCam').capture()"
+                                                     icon="pi pi-camera"
+                                                     styleClass="ui-button-info"/>
 
-
-                                        <div class="card-body">
-
-                                            <!-- Dispensing Form -->
-                                            <div class="container">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <p:panelGrid columns="2" layout="tabular"  class="w-100 p-3 m-3">
-
-                                                            <p:outputLabel value="Dispensed Quantity"
-                                                                           for="qty">
-                                                            </p:outputLabel>
-                                                            <p:inputText
-                                                                id="qty"
-                                                                class="form-control"
-                                                                required="true"
-                                                                requiredMessage="Enter the Dispensed Quantity"
-                                                                value="#{fuelDispenseController.selected.dispensedQuantity}" ></p:inputText>
-
-                                                           
-
-                                                            <p:commandButton  value="OK"
-                                                                              ajax="false"
-                                                                              class="btn btn-success w-75 m-2 p-2"
-                                                                              action="#{fuelDispenseController.markAsDispensed()}" >
-                                                                <p:confirm header="Confirm Dispensing"
-                                                                           message="Are you sure you want to mark this fuel as dispensed?"
-                                                                           icon="pi pi-exclamation-triangle" />
-                                                            </p:commandButton>
-
-                                                            <p:commandButton  value="Back to Home"
-                                                                              ajax="false"
-                                                                              class="btn btn-secondary w-75 m-2 p-2"
-                                                                              action="#{fuelDispenseController.navigateToHome()}"
-                                                                              immediate="true" >
-                                                            </p:commandButton>
-
-                                                        </p:panelGrid>
-
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <!-- Request Details -->
-                                                        <table class="table">
-                                                            <tr>
-                                                                <th colspan="2" class="text-center bg-primary text-white">
-                                                                    Request Details
-                                                                </th>
-                                                            </tr>
-                                                           
-                                                            <tr>
-                                                                <td><b>Requested by:</b></td>
-                                                                <td><h:outputText value="#{fuelDispenseController.selected.fromInstitution.name}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Requested From:</b></td>
-                                                                <td><h:outputText value="#{fuelDispenseController.selected.toInstitution.name}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Vehicle:</b></td>
-                                                                <td><h:outputText value="#{fuelDispenseController.selected.vehicle.vehicleNumber}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Request Quantity:</b></td>
-                                                                <td><h:outputText value="#{fuelDispenseController.selected.requestQuantity}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Request Reference No.:</b></td>
-                                                                <td><h:outputText value="#{fuelDispenseController.selected.requestReferenceNumber}" /></td>
-                                                            </tr>
-                                                        </table>
-
-                                                   
-
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-
-
-
-                                        </div>
-
-
-
-
-                                    </div>
+                                    <p:commandButton value="Clear Photo"
+                                                     actionListener="#{fuelDispenseController.clearCapturedImage()}"
+                                                     update="@form"
+                                                     icon="pi pi-times"
+                                                     styleClass="ui-button-warning"/>
                                 </div>
+
+                                <p class="text-muted mt-2 small">
+                                    <i class="pi pi-info-circle"></i>
+                                    The captured image will be saved when you confirm dispense.
+                                </p>
                             </div>
+                        </p:panel>
+                    </div>
 
+                    <!-- Dispensing Form Section -->
+                    <div class="mb-4">
+                        <h5 class="text-center mb-3 text-primary fw-bold">Dispense Quantity</h5>
 
+                        <div class="mb-3">
+                            <label for="qty" class="form-label fw-bold">Dispensed Quantity (Liters)</label>
+                            <p:inputText
+                                id="qty"
+                                styleClass="form-control form-control-lg text-center"
+                                required="true"
+                                requiredMessage="Enter the Dispensed Quantity"
+                                value="#{fuelDispenseController.selected.dispensedQuantity}"
+                                placeholder="Enter quantity in liters">
+                            </p:inputText>
                         </div>
 
-                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
-                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes btn btn-success m-1" />
-                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no btn btn-secondary m-1" />
-                        </p:confirmDialog>
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-3 mt-4">
+                            <p:commandButton value="Confirm Dispense"
+                                             ajax="false"
+                                             styleClass="ui-button-success ui-button-lg"
+                                             icon="pi pi-check"
+                                             action="#{fuelDispenseController.markAsDispensed()}">
+                                <p:confirm header="Confirm Dispensing"
+                                           message="Are you sure you want to mark this fuel as dispensed?"
+                                           icon="pi pi-exclamation-triangle" />
+                            </p:commandButton>
 
-                    </h:form>
-                </div>
+                            <p:commandButton value="Back to Home"
+                                             ajax="false"
+                                             styleClass="ui-button-secondary"
+                                             icon="pi pi-home"
+                                             action="#{fuelDispenseController.navigateToHome()}"
+                                             immediate="true">
+                            </p:commandButton>
+                        </div>
+                    </div>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes ui-button-success" icon="pi pi-check" />
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+                    </p:confirmDialog>
+
+                </h:form>
+
+                <style>
+                    /* Additional mobile optimizations */
+                    @media (max-width: 576px) {
+                        .table td {
+                            font-size: 0.9rem;
+                            padding: 0.5rem;
+                        }
+
+                        .badge {
+                            font-size: 0.85rem !important;
+                        }
+                    }
+
+                    /* Improve input visibility */
+                    #qty {
+                        font-size: 1.5rem;
+                        font-weight: bold;
+                        color: #0d6efd;
+                    }
+
+                    /* Better table styling */
+                    .table-bordered td {
+                        vertical-align: middle;
+                    }
+
+                    /* Button improvements */
+                    .ui-button {
+                        font-size: 1.1rem;
+                        padding: 0.75rem 1.5rem;
+                    }
+
+                    /* PhotoCam styling */
+                    .ui-photocam {
+                        max-width: 100%;
+                        width: 100%;
+                    }
+
+                    .ui-photocam video {
+                        max-width: 100%;
+                        width: 100%;
+                        border-radius: 8px;
+                        border: 2px solid #ddd;
+                    }
+
+                    @media (max-width: 576px) {
+                        .ui-photocam video {
+                            max-height: 300px;
+                        }
+                    }
+
+                    /* Panel styling */
+                    .ui-panel .ui-panel-content {
+                        padding: 1rem;
+                    }
+                </style>
 
             </ui:define>
-
-
 
         </ui:composition>
 
