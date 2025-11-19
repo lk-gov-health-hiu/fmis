@@ -8,92 +8,62 @@
 
     <h:body>
 
-        <ui:composition template="/template.xhtml">
+        <ui:composition template="/template_minimal.xhtml">
 
             <ui:define name="title">
-                Scan Vehicle QR Code
+                Scan QR - Fuel Management
+            </ui:define>
+
+            <ui:define name="header">
+                Scan QR
             </ui:define>
 
             <ui:define name="content">
 
-                <div class="container-fluid p-2 w-100">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header bg-primary text-white">
-                                    <h2>Scan Vehicle QR Code for Fuel Dispensing</h2>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row justify-content-center">
-                                        <div class="col-md-8 text-center">
-                                            <div class="alert alert-info">
-                                                <h4>Instructions:</h4>
-                                                <p>1. Position the vehicle QR code in front of your camera</p>
-                                                <p>2. The scanner will automatically detect and process the QR code</p>
-                                                <p>3. Keep the QR code steady until it's detected (indicated by a green border)</p>
-                                            </div>
+                <h:form id="qrForm">
+                    <p:growl id="growl" showDetail="true" sticky="true"/>
+                    <p:messages id="messages" showDetail="true" closable="true"/>
+                    <h:messages id="jsfMessages" showDetail="true"/>
 
-                                            <h:form id="qrForm">
-                                                <p:growl id="growl" showDetail="true" sticky="true"/>
-                                                <p:messages id="messages" showDetail="true" closable="true"/>
-                                                <h:messages id="jsfMessages" showDetail="true"/>
+                    <!-- Hidden input to store scanned QR value -->
+                    <h:inputHidden id="hiddenQrValue" value="#{fuelDispenseController.scannedVehicleNumber}" />
+                    <h:inputHidden id="redirectUrlValue" value="#{fuelDispenseController.redirectUrl}" />
 
-                                                <!-- Hidden input to store scanned QR value -->
-                                                <h:inputHidden id="hiddenQrValue" value="#{fuelDispenseController.scannedVehicleNumber}" />
-                                                <h:inputHidden id="redirectUrlValue" value="#{fuelDispenseController.redirectUrl}" />
+                    <!-- Remote command to trigger backend processing -->
+                    <p:remoteCommand name="processQrCode"
+                                     actionListener="#{fuelDispenseController.processScannedQr()}"
+                                     update="redirectUrlValue qrForm:messages"
+                                     process="@this hiddenQrValue"
+                                     oncomplete="handleQrProcessingComplete()" />
 
-                                                <!-- Remote command to trigger backend processing -->
-                                                <p:remoteCommand name="processQrCode"
-                                                                 actionListener="#{fuelDispenseController.processScannedQr()}"
-                                                                 update="redirectUrlValue qrForm:messages"
-                                                                 process="@this hiddenQrValue"
-                                                                 oncomplete="handleQrProcessingComplete()" />
-
-                                                <!-- QR Scanner Container -->
-                                                <div class="my-4">
-                                                    <div id="qr-reader" style="width: 100%; max-width: 600px; margin: 0 auto; border: 3px solid #ddd; border-radius: 10px;"></div>
-                                                </div>
-
-                                                <div class="my-3 text-center">
-                                                    <p:commandButton type="button"
-                                                                     value="Stop Scanner"
-                                                                     onclick="stopScanning()"
-                                                                     icon="pi pi-times"
-                                                                     styleClass="ui-button-danger"
-                                                                     style="margin-right: 10px;" />
-                                                    <p:commandButton type="button"
-                                                                     value="Restart Scanner"
-                                                                     onclick="startScanning()"
-                                                                     icon="pi pi-refresh"
-                                                                     styleClass="ui-button-info" />
-                                                </div>
-
-                                                <h:panelGroup id="scannedInfo">
-                                                    <!-- Debug info removed - automatic scanning handles everything -->
-                                                </h:panelGroup>
-
-                                                <h:panelGroup id="processBtn" layout="block" class="my-3">
-                                                    <!-- Process button removed - automatic scanning handles everything -->
-                                                </h:panelGroup>
-
-                                                <div class="my-3">
-                                                    <p:commandButton value="Back to List"
-                                                                     ajax="false"
-                                                                     action="#{fuelDispenseController.navigateToListTransactionsToDispense()}"
-                                                                     icon="pi pi-arrow-left"
-                                                                     class="btn btn-secondary"
-                                                                     immediate="true" />
-                                                </div>
-
-                                            </h:form>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- QR Scanner Container -->
+                    <div class="text-center mb-4">
+                        <div id="qr-reader" style="border: 3px solid #ddd; border-radius: 10px;"></div>
                     </div>
-                </div>
+
+                    <!-- Scanner Control Buttons -->
+                    <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                        <p:commandButton type="button"
+                                         value="Stop"
+                                         onclick="stopScanning()"
+                                         icon="pi pi-times"
+                                         styleClass="ui-button-danger" />
+                        <p:commandButton type="button"
+                                         value="Restart"
+                                         onclick="startScanning()"
+                                         icon="pi pi-refresh"
+                                         styleClass="ui-button-info" />
+                    </div>
+
+                    <h:panelGroup id="scannedInfo">
+                        <!-- Debug info removed - automatic scanning handles everything -->
+                    </h:panelGroup>
+
+                    <h:panelGroup id="processBtn" layout="block" class="my-3">
+                        <!-- Process button removed - automatic scanning handles everything -->
+                    </h:panelGroup>
+
+                </h:form>
 
                 <!-- Include html5-qrcode library -->
                 <h:outputScript>
@@ -170,10 +140,23 @@
                             html5QrCode = new Html5Qrcode("qr-reader");
                         }
 
+                        // Responsive QR box size based on screen width
+                        const screenWidth = window.innerWidth;
+                        let qrboxSize = 250; // Default for desktop
+
+                        if (screenWidth < 480) {
+                            qrboxSize = Math.min(screenWidth - 80, 250); // Small phones
+                        } else if (screenWidth < 768) {
+                            qrboxSize = Math.min(screenWidth - 100, 300); // Tablets
+                        } else if (screenWidth < 1024) {
+                            qrboxSize = 300; // Medium screens
+                        }
+
                         const config = {
                             fps: 10,    // Scans per second
-                            qrbox: { width: 250, height: 250 },  // Scanning box size
-                            aspectRatio: 1.0
+                            qrbox: { width: qrboxSize, height: qrboxSize },  // Responsive scanning box
+                            aspectRatio: 1.0,
+                            formatsToSupport: [ 'QR_CODE' ]  // Only scan QR codes
                         };
 
                         html5QrCode.start(
@@ -183,7 +166,7 @@
                             onScanFailure
                         ).then(() => {
                             isScanning = true;
-                            console.log('QR Code scanner started successfully');
+                            console.log('QR Code scanner started successfully with qrbox size: ' + qrboxSize);
                         }).catch((err) => {
                             console.error('Unable to start scanner:', err);
                             alert('Failed to start camera: ' + err);
@@ -213,6 +196,19 @@
                                 setTimeout(startScanning, 500);
                             }
                         }, 100);
+                    });
+
+                    // Handle orientation changes on mobile devices
+                    let resizeTimer;
+                    window.addEventListener('resize', function() {
+                        clearTimeout(resizeTimer);
+                        resizeTimer = setTimeout(function() {
+                            if (isScanning) {
+                                console.log('Screen resized - restarting scanner');
+                                stopScanning();
+                                setTimeout(startScanning, 500);
+                            }
+                        }, 500);
                     });
 
                     // Cleanup on page unload
