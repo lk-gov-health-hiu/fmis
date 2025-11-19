@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,6 +65,7 @@ public class FuelDispenseController implements Serializable {
     private UploadedFile uploadedImage;  // For file upload
     private StreamedContent transactionImage;  // For displaying image
     private byte[] capturedImageData;  // For webcam captured image
+    private String capturedImageBase64;  // For base64 encoded image from JavaScript
 
     public FuelDispenseController() {
     }
@@ -87,7 +89,7 @@ public class FuelDispenseController implements Serializable {
                 + "AND f.dispensed = false "
                 + "AND f.issuedInstitution = :institution "
                 + "AND f.issuedDate BETWEEN :fromDate AND :toDate "
-                + "ORDER BY f.issuedDate DESC";
+                + "ORDER BY f.id DESC";
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("institution", webUserController.getLoggedInstitution());
@@ -174,6 +176,17 @@ public class FuelDispenseController implements Serializable {
             }
         }
 
+        // Convert base64 image to byte array if provided
+        if (capturedImageBase64 != null && !capturedImageBase64.trim().isEmpty()) {
+            try {
+                capturedImageData = Base64.getDecoder().decode(capturedImageBase64);
+            } catch (Exception e) {
+                System.err.println("Error decoding base64 image: " + e.getMessage());
+                e.printStackTrace();
+                capturedImageData = null;
+            }
+        }
+
         // Save captured image if available (optional)
         if (capturedImageData != null && capturedImageData.length > 0) {
             try {
@@ -191,15 +204,32 @@ public class FuelDispenseController implements Serializable {
         selected.setDispensedBy(webUserController.getLoggedUser());
         selected.setDispensedInstitution(webUserController.getLoggedInstitution());
 
-        // Save the transaction
-        fuelTransactionFacade.edit(selected);
+        // Debug logging
+        System.out.println("=== Marking transaction as dispensed ===");
+        System.out.println("Transaction ID: " + selected.getId());
+        System.out.println("Dispensed: " + selected.isDispensed());
+        System.out.println("Dispensed At: " + selected.getDispensedAt());
+        System.out.println("Dispensed By: " + (selected.getDispensedBy() != null ? selected.getDispensedBy().getWebUserPerson() : "null"));
+        System.out.println("Dispensed Quantity: " + selected.getDispensedQuantity());
+        System.out.println("Dispensed Date: " + selected.getDispensedDate());
 
-        JsfUtil.addSuccessMessage("Fuel dispensed successfully");
+        // Save the transaction and clear cache so other controllers can see the update
+        try {
+            fuelTransactionFacade.editAndClearCache(selected);
+            System.out.println("Transaction saved successfully and cache cleared");
+        } catch (Exception e) {
+            System.err.println("ERROR saving transaction: " + e.getMessage());
+            e.printStackTrace();
+            JsfUtil.addErrorMessage("Error saving transaction: " + e.getMessage());
+            return "";
+        }
 
         // Clear image data
         capturedImageData = null;
+        capturedImageBase64 = null;
 
         // Clear data and navigate to QR scan page
+        // Note: Success message is not added here because redirect will clear it anyway
         return navigateToQrScan();
     }
 
@@ -457,6 +487,7 @@ public class FuelDispenseController implements Serializable {
         System.out.println("Vehicle ID: " + vehicle.getId() + ", Number: " + vehicle.getVehicleNumber());
 
         // First, try to find transactions for this vehicle at the current institution
+        // ORDER BY f.id DESC ensures we get the LATEST transaction (highest ID = most recent)
         String jpql = "SELECT f FROM FuelTransaction f "
                 + "WHERE f.retired = false "
                 + "AND f.cancelled = false "
@@ -465,7 +496,7 @@ public class FuelDispenseController implements Serializable {
                 + "AND f.dispensed = false "
                 + "AND f.vehicle = :vehicle "
                 + "AND f.issuedInstitution = :institution "
-                + "ORDER BY f.issuedDate DESC, f.issuedAt DESC";
+                + "ORDER BY f.id DESC";
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("vehicle", vehicle);
@@ -476,6 +507,9 @@ public class FuelDispenseController implements Serializable {
 
         List<FuelTransaction> results = fuelTransactionFacade.findByJpql(jpql, parameters);
         System.out.println("Results with institution filter: " + (results != null ? results.size() : "null"));
+        if (results != null && !results.isEmpty()) {
+            System.out.println("First result (latest) ID: " + results.get(0).getId());
+        }
 
         // If no results at this institution, try searching without institution filter
         if (results == null || results.isEmpty()) {
@@ -487,13 +521,16 @@ public class FuelDispenseController implements Serializable {
                     + "AND f.issued = true "
                     + "AND f.dispensed = false "
                     + "AND f.vehicle = :vehicle "
-                    + "ORDER BY f.issuedDate DESC, f.issuedAt DESC";
+                    + "ORDER BY f.id DESC";
 
             Map<String, Object> paramsBroad = new HashMap<>();
             paramsBroad.put("vehicle", vehicle);
 
             results = fuelTransactionFacade.findByJpql(jpqlBroad, paramsBroad);
             System.out.println("Results without institution filter: " + (results != null ? results.size() : "null"));
+            if (results != null && !results.isEmpty()) {
+                System.out.println("First result (latest) ID: " + results.get(0).getId());
+            }
 
             if (results == null || results.isEmpty()) {
                 System.out.println("ERROR: No transactions found anywhere for this vehicle");
@@ -646,8 +683,8 @@ public class FuelDispenseController implements Serializable {
         if (existingImage != null) {
             // Update existing image
             existingImage.setImageData(capturedImageData);
-            existingImage.setFileName("dispense_image_" + selected.getId() + ".png");
-            existingImage.setContentType("image/png");
+            existingImage.setFileName("dispense_image_" + selected.getId() + ".jpg");
+            existingImage.setContentType("image/jpeg");
             existingImage.setFileSize((long) capturedImageData.length);
             existingImage.setUploadedAt(new Date());
             existingImage.setUploadedBy(webUserController.getLoggedUser());
@@ -658,8 +695,8 @@ public class FuelDispenseController implements Serializable {
             FuelTransactionImage newImage = new FuelTransactionImage();
             newImage.setFuelTransaction(selected);
             newImage.setImageData(capturedImageData);
-            newImage.setFileName("dispense_image_" + selected.getId() + ".png");
-            newImage.setContentType("image/png");
+            newImage.setFileName("dispense_image_" + selected.getId() + ".jpg");
+            newImage.setContentType("image/jpeg");
             newImage.setFileSize((long) capturedImageData.length);
             newImage.setUploadedAt(new Date());
             newImage.setUploadedBy(webUserController.getLoggedUser());
@@ -673,6 +710,7 @@ public class FuelDispenseController implements Serializable {
      */
     public void clearCapturedImage() {
         capturedImageData = null;
+        capturedImageBase64 = null;
         JsfUtil.addSuccessMessage("Captured image cleared");
     }
 
@@ -691,8 +729,8 @@ public class FuelDispenseController implements Serializable {
 
         DefaultStreamedContent.Builder builder = DefaultStreamedContent.builder();
         return builder.stream(() -> new ByteArrayInputStream(image.getImageData()))
-                .contentType(image.getContentType() != null ? image.getContentType() : "image/png")
-                .name(image.getFileName() != null ? image.getFileName() : "transaction_image.png")
+                .contentType(image.getContentType() != null ? image.getContentType() : "image/jpeg")
+                .name(image.getFileName() != null ? image.getFileName() : "transaction_image.jpg")
                 .build();
     }
 
@@ -730,10 +768,10 @@ public class FuelDispenseController implements Serializable {
      * Get a default placeholder image
      */
     private StreamedContent getDefaultImage() {
-        // Return an empty PNG image as default
+        // Return an empty JPEG image as default
         DefaultStreamedContent.Builder builder = DefaultStreamedContent.builder();
         return builder.stream(() -> new ByteArrayInputStream(new byte[0]))
-                .contentType("image/png")
+                .contentType("image/jpeg")
                 .build();
     }
 
@@ -798,6 +836,14 @@ public class FuelDispenseController implements Serializable {
 
     public void setUploadedImage(UploadedFile uploadedImage) {
         this.uploadedImage = uploadedImage;
+    }
+
+    public String getCapturedImageBase64() {
+        return capturedImageBase64;
+    }
+
+    public void setCapturedImageBase64(String capturedImageBase64) {
+        this.capturedImageBase64 = capturedImageBase64;
     }
 
     /**
