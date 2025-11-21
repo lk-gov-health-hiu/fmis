@@ -178,18 +178,18 @@
                                                                 <td><h:outputText value="#{reportController.fuelTransaction.dispensedBy.person.name}" /></td>
                                                             </tr>
                                                             <tr>
-                                                                <td><b>Dispensed At:</b></td>
+                                                                <td><b>Dispense Date:</b></td>
                                                                 <td>
-                                                                    <h:outputText value="#{reportController.fuelTransaction.dispensedDate}">
+                                                                    <h:outputText value="#{reportController.fuelTransaction.dispensedAt}">
                                                                         <f:convertDateTime pattern="dd MMMM yyyy"></f:convertDateTime>
                                                                     </h:outputText>
                                                                 </td>
                                                             </tr>
                                                             <tr>
-                                                                <td><b>Dispensing Recorded At:</b></td>
+                                                                <td><b>Dispense Time:</b></td>
                                                                 <td>
                                                                     <h:outputText value="#{reportController.fuelTransaction.dispensedAt}">
-                                                                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"></f:convertDateTime>
+                                                                        <f:convertDateTime pattern="hh:mm a"></f:convertDateTime>
                                                                     </h:outputText>
                                                                 </td>
                                                             </tr>
@@ -201,14 +201,16 @@
                                                                 <td><b>Dispensed From:</b></td>
                                                                 <td><h:outputText value="#{reportController.fuelTransaction.dispensedInstitution.name}" /></td>
                                                             </tr>
-                                                            <tr>
-                                                                <td><b>Dispensing Reference No.:</b></td>
-                                                                <td><h:outputText value="#{reportController.fuelTransaction.dispensedReferenceNumber}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Dispensing Comments:</b></td>
-                                                                <td><h:outputText value="#{reportController.fuelTransaction.dispensedComments}" /></td>
-                                                            </tr>
+                                                            <ui:fragment rendered="#{reportController.hasFuelTransactionImage()}">
+                                                                <tr>
+                                                                    <td><b>Dispense Image:</b></td>
+                                                                    <td>
+                                                                        <p:graphicImage value="#{reportController.fuelTransactionImage}"
+                                                                                        style="max-width: 300px; max-height: 300px;"
+                                                                                        alt="Dispense Image" />
+                                                                    </td>
+                                                                </tr>
+                                                            </ui:fragment>
                                                         </table>
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{!reportController.fuelTransaction.dispensed}">

@@ -63,7 +63,9 @@ import lk.gov.health.phsp.enums.WebUserRole;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
+import lk.gov.health.phsp.facade.FuelTransactionImageFacade;
 import lk.gov.health.phsp.facade.UploadFacade;
+import lk.gov.health.phsp.entity.FuelTransactionImage;
 import lk.gov.health.phsp.pojcs.AreaCount;
 import lk.gov.health.phsp.pojcs.FuelIssuedSummary;
 import lk.gov.health.phsp.pojcs.FuelTransactionLight;
@@ -99,6 +101,8 @@ public class ReportController implements Serializable {
     private UploadFacade uploadFacade;
     @EJB
     private FuelTransactionFacade fuelTransactionFacade;
+    @EJB
+    private FuelTransactionImageFacade fuelTransactionImageFacade;
     // </editor-fold>  
 
     // <editor-fold defaultstate="collapsed" desc="Controllers">
@@ -353,7 +357,7 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("Error");
             return "";
         }
-        fuelTransaction = fuelTransactionFacade.find(fuelTransactionLight.getId());
+        fuelTransaction = fuelTransactionFacade.findFresh(fuelTransactionLight.getId());
         if (fuelTransaction == null) {
             JsfUtil.addErrorMessage("Error");
             return "";
@@ -370,7 +374,7 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("Error");
             return "";
         }
-        fuelTransaction = fuelTransactionFacade.find(fuelTransactionLight.getId());
+        fuelTransaction = fuelTransactionFacade.findFresh(fuelTransactionLight.getId());
         if (fuelTransaction == null) {
             JsfUtil.addErrorMessage("Error");
             return "";
@@ -387,7 +391,7 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("Error");
             return "";
         }
-        fuelTransaction = fuelTransactionFacade.find(fuelTransactionLight.getId());
+        fuelTransaction = fuelTransactionFacade.findFresh(fuelTransactionLight.getId());
         if (fuelTransaction == null) {
             JsfUtil.addErrorMessage("Error");
             return "";
@@ -1517,6 +1521,29 @@ public class ReportController implements Serializable {
 
     public void setFuelTransaction(FuelTransaction fuelTransaction) {
         this.fuelTransaction = fuelTransaction;
+    }
+
+    public StreamedContent getFuelTransactionImage() {
+        if (fuelTransaction == null) {
+            return null;
+        }
+        FuelTransactionImage image = fuelTransactionImageFacade.findByFuelTransaction(fuelTransaction);
+        if (image == null || image.getImageData() == null) {
+            return null;
+        }
+        return DefaultStreamedContent.builder()
+                .stream(() -> new java.io.ByteArrayInputStream(image.getImageData()))
+                .contentType(image.getContentType() != null ? image.getContentType() : "image/jpeg")
+                .name(image.getFileName() != null ? image.getFileName() : "dispense_image.jpg")
+                .build();
+    }
+
+    public boolean hasFuelTransactionImage() {
+        if (fuelTransaction == null) {
+            return false;
+        }
+        FuelTransactionImage image = fuelTransactionImageFacade.findByFuelTransaction(fuelTransaction);
+        return image != null && image.getImageData() != null;
     }
 
     public FuelTransactionLight getFuelTransactionLight() {
