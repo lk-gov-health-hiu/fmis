@@ -76,18 +76,22 @@
                                                 <h:outputText value="#{transaction.requestQuantity}" />
                                             </p:column>
 
-                                            <p:column headerText="Referance" 
-                                                      sortBy="#{transaction.requestReferenceNumber}" 
+                                            <p:column headerText="Referance"
+                                                      sortBy="#{transaction.requestReferenceNumber}"
                                                       filterBy="#{transaction.requestReferenceNumber}">
                                                 <h:outputText value="#{transaction.requestReferenceNumber}">
                                                 </h:outputText>
                                             </p:column>
 
-
+                                            <p:column headerText="Status">
+                                                <h:outputText value="Dispensed" rendered="#{transaction.dispensed}" />
+                                                <h:outputText value="Confirmed" rendered="#{not transaction.dispensed and transaction.issued}" />
+                                                <h:outputText value="Ordered" rendered="#{not transaction.dispensed and not transaction.issued}" />
+                                            </p:column>
 
                                             <p:column headerText="Actions">
                                                 <p:commandButton ajax="false"
-                                                                 value="View" 
+                                                                 value="View"
                                                                  class="btn btn-primary m-2 p-1"
                                                                  action="#{fuelRequestAndIssueController.navigateToViewInstitutionFuelRequestToSltbDepot()}" >
                                                     <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
@@ -96,6 +100,12 @@
                                                                  ajax="false"
                                                                  class="btn btn-primary m-2 p-1"
                                                                  action="#{fuelRequestAndIssueController.navigateToMarkVehicleFuelRequest()}" >
+                                                    <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
+                                                </p:commandButton>
+                                                <p:commandButton value="To Mark as Dispensed"
+                                                                 ajax="false"
+                                                                 class="btn btn-success m-2 p-1"
+                                                                 action="#{fuelRequestAndIssueController.navigateToDispenseVehicleFuelRequest()}" >
                                                     <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
                                                 </p:commandButton>
                                             </p:column>

@@ -1,49 +1,50 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:ez="http://xmlns.jcp.org/jsf/composite/ezcomp"
-      xmlns:p="http://primefaces.org/ui">
-    <h:head >
-        <ui:define name="title" >
-            <title >The Fuel Management Information System</title>
-        </ui:define>
-    </h:head>
-    <h:body>
-        <ui:composition template="./template.xhtml">
-            <ui:define name="content" >
-                <!-- Fuel Dispenser Dashboard - Only QR Code Scanner -->
-                <h:form>
-                    <div class="container-fluid">
-                        <div class="row justify-content-center mt-5">
-                            <div class="col-md-6">
-                                <div class="row justify-content-center">
-                                    <!-- QR Scan Option -->
-                                    <div class="col-md-12">
-                                                <div class="card border-success mb-3">
-                                                    <div class="card-header bg-success text-white">
-                                                        <h5>Quick Dispense with QR Code</h5>
-                                                    </div>
-                                                    <div class="card-body text-center">
-                                                        <i class="pi pi-qrcode" style="font-size: 3rem; color: #28a745;"></i>
-                                                        <p class="mt-3">Scan vehicle QR code to quickly find and dispense fuel</p>
-                                                        <p:commandButton value="Scan QR Code"
-                                                                         ajax="false"
-                                                                         action="#{fuelDispenseController.navigateToQrScan()}"
-                                                                         icon="pi pi-camera"
-                                                                         class="btn btn-success btn-lg mt-2" />
-                                                    </div>
-                                                </div>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:ez="http://xmlns.jcp.org/jsf/composite/ezcomp"
+    xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <ui:define name="title">
+        <title>The Fuel Management Information System</title>
+    </ui:define>
+</h:head>
+<h:body>
+    <ui:composition template="./template.xhtml">
+        <ui:define name="content">
+            <!-- Fuel Dispenser Dashboard - Only QR Code Scanner -->
+            <h:form>
+                <div class="container-fluid">
+                    <div class="row justify-content-center mt-5">
+                        <div class="col-md-8 col-lg-6">
+                            <div class="dashboard-card card border-0 h-100">
+                                <div class="card-header bg-white border-bottom-0 pt-4 pb-0 text-center">
+                                    <h5 class="text-uppercase text-muted mb-0"
+                                        style="letter-spacing: 1px; font-size: 0.9rem;">Quick Action</h5>
+                                    <h3 class="mt-2" style="color: #2d3748; font-weight: 700;">Fuel Dispense</h3>
+                                </div>
+                                <div class="card-body text-center p-5">
+                                    <div class="mb-4">
+                                        <i class="pi pi-qrcode" style="font-size: 4rem; color: #667eea;"></i>
                                     </div>
+                                    <p class="text-muted mb-4" style="font-size: 1.1rem;">
+                                        Scan the vehicle's QR code to instantly access fuel dispensing details and
+                                        authorize transactions.
+                                    </p>
+                                    <p:commandButton value="Scan QR Code" ajax="false"
+                                        action="#{fuelDispenseController.navigateToQrScan()}" icon="pi pi-camera"
+                                        styleClass="btn-login w-auto px-5 py-3"
+                                        style="background: linear-gradient(to right, #667eea, #764ba2); border: none;" />
                                 </div>
                             </div>
                         </div>
                     </div>
-                </h:form>
+                </div>
+            </h:form>
 
-            </ui:define>
-        </ui:composition>
-        
-    </h:body>
+        </ui:define>
+    </ui:composition>
+
+</h:body>
+
 </html>

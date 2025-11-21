@@ -307,6 +307,24 @@ public class FuelRequestAndIssueController implements Serializable {
         return "/requests/mark?faces-redirect=true";
     }
 
+    public String navigateToDispenseVehicleFuelRequest() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return "";
+        }
+        if (!selected.isIssued()) {
+            JsfUtil.addErrorMessage("This request has not been confirmed yet. Please mark as confirmed first.");
+            return "";
+        }
+        if (selected.isDispensed()) {
+            JsfUtil.addErrorMessage("This request has already been dispensed.");
+            return "";
+        }
+        selected.setDispensedQuantity(selected.getIssuedQuantity());
+        selected.setDispensedInstitution(selected.getIssuedInstitution());
+        return "/requests/dispense?faces-redirect=true";
+    }
+
     public String navigateToViewIssuedVehicleFuelRequest() {
         return "/issues/issued?faces-redirect=true";
     }
@@ -652,6 +670,78 @@ public class FuelRequestAndIssueController implements Serializable {
 //        selected.setStockAfterTheTransaction(institutionApplicationController.deductFromStock(webUserController.getLoggedInstitution(), selected.getIssuedQuantity()));
         save(selected);
         JsfUtil.addSuccessMessage("Successfully Issued");
+        listInstitutionRequestsToMark();
+        return navigateToListInstitutionRequestsToMark();
+    }
+
+    public String submitDispenseVehicleFuelRequest() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return "";
+        }
+        if (selected.getTransactionType() == null) {
+            JsfUtil.addErrorMessage("Transaction Type is not set.");
+            return "";
+        }
+        if (selected.getTransactionType() != FuelTransactionType.VehicleFuelRequest && selected.getTransactionType() != FuelTransactionType.SpecialVehicleFuelRequest) {
+            JsfUtil.addErrorMessage("Wrong Transaction Type");
+            return "";
+        }
+        if (!selected.isIssued()) {
+            JsfUtil.addErrorMessage("This request has not been confirmed yet.");
+            return "";
+        }
+        if (selected.isDispensed()) {
+            JsfUtil.addErrorMessage("This request has already been dispensed.");
+            return "";
+        }
+        if (selected.getDispensedQuantity() == null) {
+            JsfUtil.addErrorMessage("Please enter dispensed quantity");
+            return "";
+        }
+        if (selected.getDispensedQuantity() < 1.0) {
+            JsfUtil.addErrorMessage("Dispensed quantity must be at least 1");
+            return "";
+        }
+        if (selected.getDispensedQuantity() > selected.getIssuedQuantity()) {
+            JsfUtil.addErrorMessage("Dispensed quantity cannot exceed confirmed quantity");
+            return "";
+        }
+        if (selected.getDispensedDate() == null) {
+            JsfUtil.addErrorMessage("Please enter dispensed date");
+            return "";
+        }
+
+        // Validation: Check if dispensed date is not before issued date
+        if (selected.getDispensedDate() != null && selected.getIssuedDate() != null) {
+            java.util.Calendar dispensedCal = java.util.Calendar.getInstance();
+            dispensedCal.setTime(selected.getDispensedDate());
+            dispensedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            dispensedCal.set(java.util.Calendar.MINUTE, 0);
+            dispensedCal.set(java.util.Calendar.SECOND, 0);
+            dispensedCal.set(java.util.Calendar.MILLISECOND, 0);
+
+            java.util.Calendar issuedCal = java.util.Calendar.getInstance();
+            issuedCal.setTime(selected.getIssuedDate());
+            issuedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            issuedCal.set(java.util.Calendar.MINUTE, 0);
+            issuedCal.set(java.util.Calendar.SECOND, 0);
+            issuedCal.set(java.util.Calendar.MILLISECOND, 0);
+
+            if (dispensedCal.before(issuedCal)) {
+                JsfUtil.addErrorMessage("Dispensed Date cannot be before Confirmed Date");
+                return "";
+            }
+        }
+
+        selected.setDispensed(true);
+        selected.setDispensedAt(new Date());
+        selected.setDispensedBy(webUserController.getLoggedUser());
+        if (selected.getDispensedInstitution() == null) {
+            selected.setDispensedInstitution(selected.getIssuedInstitution());
+        }
+        save(selected);
+        JsfUtil.addSuccessMessage("Successfully Dispensed");
         listInstitutionRequestsToMark();
         return navigateToListInstitutionRequestsToMark();
     }

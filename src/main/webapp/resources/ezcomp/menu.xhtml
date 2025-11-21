@@ -3,112 +3,275 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:cc="http://xmlns.jcp.org/jsf/composite"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
     <cc:interface>
     </cc:interface>
     <cc:implementation>
-        <h:form>
-            <p:menubar 
-                id="main-menu" 
-                autoDisplay="false"
-                class="navbar navbar-expand-lg navbar-dark bg-primary W-100" style="border: none;">
-                <p:menuitem class="text-white" ajax="false" value="Home" icon="ui-icon-home" rendered="#{webUserController.dashboardAvailable}" action="#{menuController.toIndex()}" />
-                <p:submenu
-                    class="submenu"
-                    label="Diesel Orders"
-                    rendered="#{webUserController.dieselMenuAvailable}" >
-                    <p:menuitem
-                        class="submenu-item"
-                        ajax="false"
-                        value="Create Order"
-                        rendered="#{webUserController.dieselFuelRequestMenuAvailable}"
-                        action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}" />
-                    <p:menuitem
-                        class="submenu-item"
-                        ajax="false"
-                        value="Create Special Order"
-                        rendered="#{webUserController.dieselSpecialFuelRequestMenuAvailable}"
-                        action="#{fuelRequestAndIssueController.navigateToAddSpecialVehicleFuelRequest()}" />
-                    <p:menuitem
-                        class="submenu-item"
-                        ajax="false"
-                        value="Mark Received Orders"
-                        rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}"
-                        action="#{fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="View Orders"
-                                action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Make Payment Orders"
-                                rendered="#{webUserController.institutionPaymentManagementMenuAvailable or webUserController.systemAdminPaymentManagementMenuAvailable}" 
-                                action="#{fuelRequestAndIssueController.navigateToMakePayment()}" />
-                    <p:menuitem class="submenu-item" ajax="false"
-                                rendered="#{webUserController.institutionPaymentManagementMenuAvailable or webUserController.systemAdminPaymentManagementMenuAvailable}" 
-                                value="Previously Completed Payment Orders"
-                                action="#{fuelRequestAndIssueController.navigateToPaymentsMade()}" />
+        <!-- Mobile Toggle Button -->
+        <button class="navbar-toggler custom-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#mainNavMenu"
+                aria-controls="mainNavMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-list"></i>
+        </button>
 
-                </p:submenu>
+        <!-- Collapsible Menu -->
+        <div class="collapse navbar-collapse" id="mainNavMenu">
+            <ul class="navbar-nav ms-auto">
+                <h:form id="menuForm" styleClass="d-contents">
 
-                <p:submenu
-                    class="submenu"
-                    label="Payment Management"
-                    rendered="#{webUserController.institutionPaymentManagementMenuAvailable or webUserController.systemAdminPaymentManagementMenuAvailable}" >
-                    <p:menuitem class="submenu-item" ajax="false" value="Payment Bills"
-                                action="#{fuelRequestAndIssueController.navigateToListPaymentBills()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Payments to Accept at CPC"
-                                action="#{fuelRequestAndIssueController.navigateToListBillsToAcceptAtCpc()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Payments Accepted by CPC"
-                                action="#{fuelRequestAndIssueController.navigateToListBillsAcceptedByCpc()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Payments Rejected by CPC"
-                                action="#{fuelRequestAndIssueController.navigateToListBillsRejectedByCpc()}" />
-                </p:submenu>
+                    <!-- Home -->
+                    <ui:fragment rendered="#{webUserController.dashboardAvailable}">
+                        <li class="nav-item">
+                            <h:commandLink styleClass="nav-link" action="#{menuController.toIndex()}">
+                                <i class="bi bi-house-door me-1"></i> Home
+                            </h:commandLink>
+                        </li>
+                    </ui:fragment>
 
-                <p:submenu
-                    class="submenu"
-                    label="CPC Payment Management"
-                    rendered="#{webUserController.cpcPaymentManagementMenuAvailable}" >
-                    <p:menuitem class="submenu-item" ajax="false" value="Payment Bills"
-                                action="#{fuelRequestAndIssueController.navigateToCpcListPaymentBills()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Payments to Accept"
-                                action="#{fuelRequestAndIssueController.navigateToCpcListBillsToAccept()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Payments Accepted"
-                                action="#{fuelRequestAndIssueController.navigateToCpcListBillsAccepted()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="Payments Rejected"
-                                action="#{fuelRequestAndIssueController.navigateToCpcListBillsRejected()}" />
-                </p:submenu>
+                    <!-- Diesel Orders Dropdown -->
+                    <ui:fragment rendered="#{webUserController.dieselMenuAvailable}">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-fuel-pump me-1"></i> Diesel Orders
+                            </a>
+                            <ul class="dropdown-menu">
+                                <ui:fragment rendered="#{webUserController.dieselFuelRequestMenuAvailable}">
+                                    <li>
+                                        <h:commandLink styleClass="dropdown-item"
+                                                       action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}">
+                                            Create Order
+                                        </h:commandLink>
+                                    </li>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{webUserController.dieselSpecialFuelRequestMenuAvailable}">
+                                    <li>
+                                        <h:commandLink styleClass="dropdown-item"
+                                                       action="#{fuelRequestAndIssueController.navigateToAddSpecialVehicleFuelRequest()}">
+                                            Create Special Order
+                                        </h:commandLink>
+                                    </li>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}">
+                                    <li>
+                                        <h:commandLink styleClass="dropdown-item"
+                                                       action="#{fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark()}">
+                                            Mark Received Orders
+                                        </h:commandLink>
+                                    </li>
+                                </ui:fragment>
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}">
+                                        View Orders
+                                    </h:commandLink>
+                                </li>
+                                <ui:fragment rendered="#{webUserController.institutionPaymentManagementMenuAvailable or webUserController.systemAdminPaymentManagementMenuAvailable}">
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <h:commandLink styleClass="dropdown-item"
+                                                       action="#{fuelRequestAndIssueController.navigateToMakePayment()}">
+                                            Make Payment Orders
+                                        </h:commandLink>
+                                    </li>
+                                    <li>
+                                        <h:commandLink styleClass="dropdown-item"
+                                                       action="#{fuelRequestAndIssueController.navigateToPaymentsMade()}">
+                                            Previously Completed Payments
+                                        </h:commandLink>
+                                    </li>
+                                </ui:fragment>
+                            </ul>
+                        </li>
+                    </ui:fragment>
 
-                <p:menuitem
-                    class="text-white"
-                    ajax="false"
-                    value="Reports"
-                    rendered="#{webUserController.reportsMenuAvailable}"
-                    action="#{reportController.navigateToReportsIndex}" />
-                <p:submenu label="Administration" rendered="#{webUserController.administrationMenuAvailable}">
-                    <p:menuitem value="Administration Home" action="#{menuController.toAdministrationIndex()}" ajax="false" />
-                    <p:separator />
-                    <p:menuitem value="Migrate Bill Items" action="#{fuelRequestAndIssueController.navigateToMigrateBillItems()}" ajax="false" />
-                </p:submenu>
-                <p:submenu label="Settings">
-                    <p:menuitem value="Change My Password" action="#{webUserController.toChangeMyPassword()}" ajax="false" />
-                    <p:menuitem value="Change My Details" action="#{webUserController.toChangeMyDetails()}" rendered="#{webUserController.settingsMenuItemAvailable}" ajax="false" />
-                    <p:menuitem value="Change My Institution Details" action="#{webUserController.toChangeMyInstitutionDetails()}" rendered="#{webUserController.hasPrivilege('Institution_Administration') and webUserController.settingsMenuItemAvailable}" ajax="false" />
-                    <p:menuitem value="Change My Username" action="#{webUserController.toChangeMyUsername()}" rendered="#{webUserController.settingsMenuItemAvailable}" ajax="false" />
-                    <p:menuitem value="API Keys" action="#{apiKeyController.toManageMyApiKeys()}" rendered="#{webUserController.settingsMenuItemAvailable}" ajax="false" />
-                    <p:separator />
-                </p:submenu>
+                    <!-- Payment Management Dropdown -->
+                    <ui:fragment rendered="#{webUserController.institutionPaymentManagementMenuAvailable or webUserController.systemAdminPaymentManagementMenuAvailable}">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-credit-card me-1"></i> Payments
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{fuelRequestAndIssueController.navigateToListPaymentBills()}">
+                                        Payment Bills
+                                    </h:commandLink>
+                                </li>
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{fuelRequestAndIssueController.navigateToListBillsToAcceptAtCpc()}">
+                                        Payments to Accept at CPC
+                                    </h:commandLink>
+                                </li>
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{fuelRequestAndIssueController.navigateToListBillsAcceptedByCpc()}">
+                                        Payments Accepted by CPC
+                                    </h:commandLink>
+                                </li>
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{fuelRequestAndIssueController.navigateToListBillsRejectedByCpc()}">
+                                        Payments Rejected by CPC
+                                    </h:commandLink>
+                                </li>
+                            </ul>
+                        </li>
+                    </ui:fragment>
 
-                <p:submenu class="submenu mx-2" label="Help" >
-                    <p:menuitem value="User Manual" url="https://github.com/lk-gov-health-hiu/fmis/wiki" target="_blank" />
-                    <p:menuitem value="Issue Tracking"   url="https://github.com/lk-gov-health-hiu/fmis/issues" target="_blank"   />
-                    <p:menuitem value="About" action="/about_us"   ajax="false" />
-                </p:submenu>
+                    <!-- CPC Payment Management Dropdown -->
+                    <ui:fragment rendered="#{webUserController.cpcPaymentManagementMenuAvailable}">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bank me-1"></i> CPC Payments
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{fuelRequestAndIssueController.navigateToCpcListPaymentBills()}">
+                                        Payment Bills
+                                    </h:commandLink>
+                                </li>
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{fuelRequestAndIssueController.navigateToCpcListBillsToAccept()}">
+                                        Payments to Accept
+                                    </h:commandLink>
+                                </li>
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{fuelRequestAndIssueController.navigateToCpcListBillsAccepted()}">
+                                        Payments Accepted
+                                    </h:commandLink>
+                                </li>
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{fuelRequestAndIssueController.navigateToCpcListBillsRejected()}">
+                                        Payments Rejected
+                                    </h:commandLink>
+                                </li>
+                            </ul>
+                        </li>
+                    </ui:fragment>
 
-                <p:menuitem
-                    class="text-white"
-                    ajax="false"
-                    value="Logout"
-                    icon="ui-icon-power"
-                    action="#{webUserController.logOut()}" />
+                    <!-- Reports -->
+                    <ui:fragment rendered="#{webUserController.reportsMenuAvailable}">
+                        <li class="nav-item">
+                            <h:commandLink styleClass="nav-link" action="#{reportController.navigateToReportsIndex}">
+                                <i class="bi bi-bar-chart me-1"></i> Reports
+                            </h:commandLink>
+                        </li>
+                    </ui:fragment>
 
-            </p:menubar>
-        </h:form>
+                    <!-- Administration Dropdown -->
+                    <ui:fragment rendered="#{webUserController.administrationMenuAvailable}">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-gear me-1"></i> Admin
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{menuController.toAdministrationIndex()}">
+                                        Administration Home
+                                    </h:commandLink>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{fuelRequestAndIssueController.navigateToMigrateBillItems()}">
+                                        Migrate Bill Items
+                                    </h:commandLink>
+                                </li>
+                            </ul>
+                        </li>
+                    </ui:fragment>
+
+                    <!-- Settings Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-sliders me-1"></i> Settings
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <h:commandLink styleClass="dropdown-item"
+                                               action="#{webUserController.toChangeMyPassword()}">
+                                    Change My Password
+                                </h:commandLink>
+                            </li>
+                            <ui:fragment rendered="#{webUserController.settingsMenuItemAvailable}">
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{webUserController.toChangeMyDetails()}">
+                                        Change My Details
+                                    </h:commandLink>
+                                </li>
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{webUserController.toChangeMyUsername()}">
+                                        Change My Username
+                                    </h:commandLink>
+                                </li>
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{apiKeyController.toManageMyApiKeys()}">
+                                        API Keys
+                                    </h:commandLink>
+                                </li>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{webUserController.hasPrivilege('Institution_Administration') and webUserController.settingsMenuItemAvailable}">
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <h:commandLink styleClass="dropdown-item"
+                                                   action="#{webUserController.toChangeMyInstitutionDetails()}">
+                                        Change Institution Details
+                                    </h:commandLink>
+                                </li>
+                            </ui:fragment>
+                        </ul>
+                    </li>
+
+                    <!-- Help Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-question-circle me-1"></i> Help
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="https://github.com/lk-gov-health-hiu/fmis/wiki" target="_blank">
+                                    <i class="bi bi-book me-2"></i> User Manual
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="https://github.com/lk-gov-health-hiu/fmis/issues" target="_blank">
+                                    <i class="bi bi-bug me-2"></i> Issue Tracking
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <h:commandLink styleClass="dropdown-item" action="/about_us">
+                                    <i class="bi bi-info-circle me-2"></i> About
+                                </h:commandLink>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Logout -->
+                    <li class="nav-item">
+                        <h:commandLink styleClass="nav-link btn-logout" action="#{webUserController.logOut()}">
+                            <i class="bi bi-box-arrow-right me-1"></i> Logout
+                        </h:commandLink>
+                    </li>
+
+                </h:form>
+            </ul>
+        </div>
     </cc:implementation>
 </html>
