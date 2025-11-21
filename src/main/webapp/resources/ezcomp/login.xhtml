@@ -2,72 +2,59 @@
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:cc="http://xmlns.jcp.org/jsf/composite"
-      xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:p="http://primefaces.org/ui" xmlns:f="http://xmlns.jcp.org/jsf/core">
-    <cc:interface>
-    </cc:interface>
-    <cc:implementation>
-        <h:form>
-            <p:focus for="username"></p:focus>
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-4 col-md-3 col-sm-1 p-4  text-center">
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 col-sm-10 p-4  text-center">
-                        <div class="my-2 d-flex justify-content-center">
-                            <div class="shadow p-3">
-                                <h:graphicImage style="height: 6em; margin-right: 1em;" library="image" name="jf.png"></h:graphicImage>
-                            </div>
-                            <div class="shadow p-3">
-                                <h:graphicImage style="height: 6em;" library="image" name="slf.png"></h:graphicImage>
-                            </div>
-                        </div>
-
-
-
-
-                        <h4 class="fw-bold">Fuel Management Information System</h4>
-                        <div class="my-2">
-                            <p:inputText id="username" placeholder="Username" required="true" requiredMessage="Username is required." autocomplete="off"
-                                         value="#{webUserController.userName}" class="form-control">
-                            </p:inputText>
-                        </div>
-                        <div class="my-2">
-                            <p:password id="password" placeholder="Password" required="true" requiredMessage="Password is required." autocomplete="off"
-                                        value="#{webUserController.password}" class="form-control" toggleMask="true"></p:password>
-                        </div>
-                        <div class="d-grid">
-                            <h:commandButton class="btn fw-bold btn-primary" value="Login"
-                                             action="#{webUserController.login()}"></h:commandButton>
-                        </div>
-
-                        <div class="my-2">
-                            <p:messages></p:messages>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-3 col-sm-1 p-4  text-center">
-                    </div>
+    xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:p="http://primefaces.org/ui" xmlns:f="http://xmlns.jcp.org/jsf/core">
+<cc:interface>
+</cc:interface>
+<cc:implementation>
+    <h:form>
+        <p:focus for="username"></p:focus>
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-logo-container">
+                    <h:graphicImage class="login-logo" library="image" name="jf.png" alt="Logo 1"></h:graphicImage>
+                    <h:graphicImage class="login-logo" library="image" name="slf.png" alt="Logo 2"></h:graphicImage>
                 </div>
-                <div class="row">
-                    <div class="my-2 d-flex justify-content-around">
-                        <h:graphicImage style="height: 5em;" library="image" name="cpc.png"></h:graphicImage>
-                        <h:graphicImage style="height: 5em; width:130px;" library="image"  name="jics.svg"></h:graphicImage>
-                        <h:graphicImage style="height: 5em;" class="bg-light" library="image" name="sl.png"></h:graphicImage>
-                        <!--<h:graphicImage style="height: 5em;" library="image" name="sltb-logo.png"></h:graphicImage>-->
-                    </div>
+
+                <h4 class="brand-title">Fuel Management Information System</h4>
+
+                <div class="mb-3">
+                    <p:inputText id="username" placeholder="Username" required="true"
+                        requiredMessage="Username is required." autocomplete="off" value="#{webUserController.userName}"
+                        class="form-control">
+                    </p:inputText>
                 </div>
-                <div class="row">
-                    <div class="row">
-                        <div class="col-12 my-4 text-center">
-                            &copy; Health Information Unit, Ministry of Health
-                            <h:outputText value="#{session.lastAccessedTime}">
-                                <f:convertDateTime pattern="yyyy" type="date" />
-                            </h:outputText>
-                        </div>
+                <div class="mb-3">
+                    <p:password id="password" placeholder="Password" required="true"
+                        requiredMessage="Password is required." autocomplete="off" value="#{webUserController.password}"
+                        class="form-control" toggleMask="true"></p:password>
+                </div>
+
+                <div class="d-grid">
+                    <h:commandButton class="btn-login" value="Login" action="#{webUserController.login()}">
+                    </h:commandButton>
+                </div>
+
+                <div class="my-3">
+                    <p:messages showDetail="false" closable="true"></p:messages>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <div class="d-flex justify-content-center gap-3 mb-3">
+                        <h:graphicImage style="height: 40px;" library="image" name="cpc.png" alt="CPC"></h:graphicImage>
+                        <h:graphicImage style="height: 40px;" library="image" name="jics.svg" alt="JICS">
+                        </h:graphicImage>
+                        <h:graphicImage style="height: 40px;" library="image" name="sl.png" alt="SL"></h:graphicImage>
                     </div>
+                    <p class="text-muted small mb-0">
+                        &copy; Health Information Unit, Ministry of Health<br />
+                        <h:outputText value="#{session.lastAccessedTime}">
+                            <f:convertDateTime pattern="yyyy" type="date" />
+                        </h:outputText>
+                    </p>
                 </div>
             </div>
-        </h:form>
-    </cc:implementation>
+        </div>
+    </h:form>
+</cc:implementation>
+
 </html>

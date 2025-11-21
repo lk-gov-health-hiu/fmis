@@ -1,0 +1,194 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/template.xhtml">
+
+            <ui:define name="title">
+                Mark Fuel as Dispensed
+            </ui:define>
+
+            <ui:define name="content">
+
+                <div class="container-fluid p-2 w-100" >
+                    <h:form >
+                        <div class="row" >
+
+                            <div class="col-12" >
+                                <div class="card" >
+                                    <div class="card-header" >
+                                        <div class="row" >
+                                            <h2><h:outputText value="Mark Diesel as Dispensed"></h:outputText></h2>
+                                        </div>
+                                    </div>
+                                    <div class="card-body" >
+
+                                        <div class="card-body">
+
+                                            <!-- Dispense Details -->
+                                            <div class="container">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p:panelGrid columns="2" layout="tabular"  class="w-100 p-3 m-3">
+                                                            <p:outputLabel for="calDate" value="Dispensed Date" />
+                                                            <p:datePicker
+                                                                id="calDate"
+                                                                value="#{fuelRequestAndIssueController.selected.dispensedDate}"
+                                                                pattern="dd MMMM yyyy"
+                                                                >
+                                                            </p:datePicker>
+
+                                                            <p:outputLabel value="Dispensed Quantity"
+                                                                           for="qty">
+                                                            </p:outputLabel>
+                                                            <p:inputText
+                                                                id="qty"
+                                                                class="form-control"
+                                                                required="true"
+                                                                requiredMessage="Enter the Dispensed Quantity"
+                                                                value="#{fuelRequestAndIssueController.selected.dispensedQuantity}" ></p:inputText>
+                                                            <p:outputLabel value="Dispensing Reference Number"
+                                                                           for="ref">
+                                                            </p:outputLabel>
+                                                            <p:inputText
+                                                                id="ref"
+                                                                class="form-control"
+                                                                required="true"
+                                                                requiredMessage="Enter the Reference Number"
+                                                                value="#{fuelRequestAndIssueController.selected.dispensedReferenceNumber}" ></p:inputText>
+                                                            <p:outputLabel value="Comments"
+                                                                           for="comments">
+                                                            </p:outputLabel>
+                                                            <p:inputTextarea
+                                                                id="comments"
+                                                                class="form-control"
+                                                                rows="3"
+                                                                value="#{fuelRequestAndIssueController.selected.dispensedComments}" ></p:inputTextarea>
+
+                                                            <p:commandButton  value="Mark as Dispensed"
+                                                                              ajax="false"
+                                                                              class="btn btn-primary w-75 m-2 p-2"
+                                                                              action="#{fuelRequestAndIssueController.submitDispenseVehicleFuelRequest()}" >
+                                                            </p:commandButton>
+
+                                                        </p:panelGrid>
+
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <table class="table">
+                                                            <tr>
+                                                                <th colspan="2" class="text-center bg-primary text-white">
+                                                                    Request Details
+                                                                </th>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Requested by:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.fromInstitution.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Requested From:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.toInstitution.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Vehicle:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Request Quantity:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>ODO Meter:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.odoMeterReading}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Request Reference No.:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Comments:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.comments}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Requested By:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestedBy.person.name}" /></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Requested At:</b></td>
+                                                                <td>
+                                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.requestedDate}">
+                                                                        <f:convertDateTime pattern="dd MMMM yyyy"></f:convertDateTime>
+                                                                    </h:outputText>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>ID:</b></td>
+                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.id}" /></td>
+                                                            </tr>
+                                                        </table>
+                                                        <!-- Confirmed Details -->
+                                                        <ui:fragment rendered="#{fuelRequestAndIssueController.selected.issued}">
+                                                            <table class="table">
+                                                                <tr>
+                                                                    <th colspan="2" class="text-center bg-primary text-white">
+                                                                        Confirmed Details
+                                                                    </th>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><b>Confirmed by:</b></td>
+                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.fromInstitution.name}" /></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><b>Confirmed At:</b></td>
+                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedDate}" /></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><b>Confirmation Recorded At:</b></td>
+                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedAt}" /></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><b>Confirmed Quantity:</b></td>
+                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedQuantity}" /></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><b>Confirmed From:</b></td>
+                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedInstitution.name}" /></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><b>Issue Reference No.:</b></td>
+                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.issueReferenceNumber}" /></td>
+                                                                </tr>
+                                                            </table>
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{!fuelRequestAndIssueController.selected.issued}">
+                                                            <table class="table">
+                                                                <tr>
+                                                                    <th class="text-center bg-danger text-white">
+                                                                        Not confirmed yet
+                                                                    </th>
+                                                                </tr>
+                                                            </table>
+                                                        </ui:fragment>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+        </ui:composition>
+
+    </h:body>
+</html>
