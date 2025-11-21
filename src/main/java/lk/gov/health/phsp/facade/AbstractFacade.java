@@ -188,9 +188,11 @@ public abstract class AbstractFacade<T> {
         getEntityManager().merge(entity);
     }
 
-    public void editAndClearCache(T entity) {
-        getEntityManager().merge(entity);
+    public T editAndClearCache(T entity) {
+        T merged = getEntityManager().merge(entity);
+        getEntityManager().flush();
         getEntityManager().clear();
+        return merged;
     }
 
     public void batchEdit(List<T> entities) {
@@ -242,6 +244,14 @@ public abstract class AbstractFacade<T> {
 
     public T find(Object id) {
         return getEntityManager().find(entityClass, id);
+    }
+
+    public T findFresh(Object id) {
+        T entity = getEntityManager().find(entityClass, id);
+        if (entity != null) {
+            getEntityManager().refresh(entity);
+        }
+        return entity;
     }
 
     public List<T> findAll(boolean withoutRetired) {

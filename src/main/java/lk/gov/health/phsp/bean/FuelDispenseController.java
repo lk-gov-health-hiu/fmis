@@ -119,9 +119,13 @@ public class FuelDispenseController implements Serializable {
             JsfUtil.addErrorMessage("Please select a transaction");
             return "";
         }
-        // Initialize dispensed fields with default values
+        // Initialize dispensed fields with default values (prefer issuedQuantity, fallback to requestQuantity)
         if (selected.getDispensedQuantity() == null) {
-            selected.setDispensedQuantity(selected.getIssuedQuantity());
+            Double defaultQuantity = selected.getIssuedQuantity();
+            if (defaultQuantity == null) {
+                defaultQuantity = selected.getRequestQuantity();
+            }
+            selected.setDispensedQuantity(defaultQuantity);
         }
         if (selected.getDispensedDate() == null) {
             selected.setDispensedDate(new Date());
@@ -144,8 +148,19 @@ public class FuelDispenseController implements Serializable {
             return "";
         }
 
-        if (selected.getDispensedQuantity() > selected.getIssuedQuantity()) {
-            JsfUtil.addErrorMessage("Dispensed quantity cannot exceed issued quantity");
+        // Get the maximum allowed quantity (prefer issuedQuantity, fallback to requestQuantity)
+        Double maxQuantity = selected.getIssuedQuantity();
+        if (maxQuantity == null) {
+            maxQuantity = selected.getRequestQuantity();
+        }
+
+        if (maxQuantity == null) {
+            JsfUtil.addErrorMessage("Neither issued quantity nor request quantity is set. Please contact administrator.");
+            return "";
+        }
+
+        if (selected.getDispensedQuantity() > maxQuantity) {
+            JsfUtil.addErrorMessage("Dispensed quantity cannot exceed " + (selected.getIssuedQuantity() != null ? "issued" : "requested") + " quantity (" + maxQuantity + " liters)");
             return "";
         }
 
@@ -209,14 +224,26 @@ public class FuelDispenseController implements Serializable {
         System.out.println("Transaction ID: " + selected.getId());
         System.out.println("Dispensed: " + selected.isDispensed());
         System.out.println("Dispensed At: " + selected.getDispensedAt());
-        System.out.println("Dispensed By: " + (selected.getDispensedBy() != null ? selected.getDispensedBy().getWebUserPerson() : "null"));
+        System.out.println("Dispensed By: " + (selected.getDispensedBy() != null ? selected.getDispensedBy().getWebUserPersonName() : "null"));
         System.out.println("Dispensed Quantity: " + selected.getDispensedQuantity());
         System.out.println("Dispensed Date: " + selected.getDispensedDate());
 
         // Save the transaction and clear cache so other controllers can see the update
         try {
+            Long transactionId = selected.getId();
             fuelTransactionFacade.editAndClearCache(selected);
             System.out.println("Transaction saved successfully and cache cleared");
+
+            // Verify the save by re-fetching from database
+            FuelTransaction verified = fuelTransactionFacade.find(transactionId);
+            if (verified != null) {
+                System.out.println("=== Verification after save ===");
+                System.out.println("Verified Dispensed flag: " + verified.isDispensed());
+                System.out.println("Verified Dispensed Quantity: " + verified.getDispensedQuantity());
+                System.out.println("Verified Dispensed By: " + (verified.getDispensedBy() != null ? verified.getDispensedBy().getWebUserPersonName() : "null"));
+            } else {
+                System.out.println("WARNING: Could not verify transaction after save!");
+            }
         } catch (Exception e) {
             System.err.println("ERROR saving transaction: " + e.getMessage());
             e.printStackTrace();
@@ -555,9 +582,13 @@ public class FuelDispenseController implements Serializable {
         selected = results.get(0);
         System.out.println("SUCCESS: Transaction found! ID=" + selected.getId());
 
-        // Initialize dispensed fields
+        // Initialize dispensed fields (prefer issuedQuantity, fallback to requestQuantity)
         if (selected.getDispensedQuantity() == null) {
-            selected.setDispensedQuantity(selected.getIssuedQuantity());
+            Double defaultQuantity = selected.getIssuedQuantity();
+            if (defaultQuantity == null) {
+                defaultQuantity = selected.getRequestQuantity();
+            }
+            selected.setDispensedQuantity(defaultQuantity);
         }
         if (selected.getDispensedDate() == null) {
             selected.setDispensedDate(new Date());

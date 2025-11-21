@@ -425,7 +425,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
         // Validation 4: Check if there's already a pending request for this vehicle
         if (hasPendingRequest(selected.getVehicle())) {
-            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been issued yet. Please wait for that request to be processed first.");
+            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been dispensed yet. Please wait for that request to be dispensed first.");
             return "";
         }
 
@@ -504,7 +504,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
         // Validation 4: Check if there's already a pending request for this vehicle
         if (hasPendingRequest(selected.getVehicle())) {
-            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been issued yet. Please wait for that request to be processed first.");
+            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been dispensed yet. Please wait for that request to be dispensed first.");
             return "";
         }
 
@@ -1605,6 +1605,57 @@ public class FuelRequestAndIssueController implements Serializable {
         return null; // Stay on the same page to show results
     }
 
+    public String markPastTransactionsAsDispensed() {
+        int updatedCount = 0;
+        int errorCount = 0;
+
+        try {
+            // Find all transactions that are issued but not dispensed
+            String jpql = "SELECT ft FROM FuelTransaction ft "
+                    + "WHERE ft.issued = true "
+                    + "AND ft.dispensed = false "
+                    + "AND ft.retired = false "
+                    + "AND ft.cancelled = false "
+                    + "AND ft.rejected = false";
+
+            List<FuelTransaction> transactionsToUpdate = fuelTransactionFacade.findByJpql(jpql);
+
+            if (transactionsToUpdate == null || transactionsToUpdate.isEmpty()) {
+                JsfUtil.addSuccessMessage("No transactions found that need to be marked as dispensed.");
+                return null;
+            }
+
+            Date now = new Date();
+
+            for (FuelTransaction ft : transactionsToUpdate) {
+                try {
+                    ft.setDispensed(true);
+                    ft.setDispensedAt(ft.getIssuedAt() != null ? ft.getIssuedAt() : now);
+                    ft.setDispensedDate(ft.getIssuedDate() != null ? ft.getIssuedDate() : now);
+                    ft.setDispensedQuantity(ft.getIssuedQuantity() != null ? ft.getIssuedQuantity() : ft.getRequestQuantity());
+                    ft.setDispensedBy(ft.getIssuedUser());
+                    ft.setDispensedInstitution(ft.getIssuedInstitution());
+                    ft.setDispensedComments("Auto-marked as dispensed during migration");
+
+                    fuelTransactionFacade.edit(ft);
+                    updatedCount++;
+                } catch (Exception e) {
+                    errorCount++;
+                    Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                            .log(Level.SEVERE, "Error marking transaction " + ft.getId() + " as dispensed", e);
+                }
+            }
+
+            JsfUtil.addSuccessMessage("Migration completed. " + updatedCount + " transactions marked as dispensed. Errors: " + errorCount);
+
+        } catch (Exception e) {
+            JsfUtil.addErrorMessage("Error during migration: " + e.getMessage());
+            Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, "Error marking past transactions as dispensed", e);
+        }
+
+        return null; // Stay on the same page
+    }
+
     public void listInstitutionRequests() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null, null, null, fuelTransactionType);
     }
@@ -2384,7 +2435,7 @@ public class FuelRequestAndIssueController implements Serializable {
         try {
             String jpql = "SELECT COUNT(ft) FROM FuelTransaction ft "
                     + "WHERE ft.vehicle.id = :vehicleId "
-                    + "AND ft.issued = false "
+                    + "AND ft.dispensed = false "
                     + "AND ft.rejected = false "
                     + "AND ft.cancelled = false "
                     + "AND ft.retired = false";
