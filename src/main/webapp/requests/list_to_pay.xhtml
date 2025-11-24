@@ -30,6 +30,8 @@
                                             <label for="fromDate">From Date</label>
                                             <p:datePicker
                                                 id="fromDate"
+                                                inputStyleClass="w-100"
+                                                styleClass="w-100"
                                                 value="#{fuelRequestAndIssueController.fromDate}"
                                                 pattern="dd MMMM yyyy"
                                                 >
@@ -38,6 +40,8 @@
                                             <label for="toDate">To Date</label>
                                             <p:datePicker
                                                 id="toDate"
+                                                inputStyleClass="w-100"
+                                                styleClass="w-100"
                                                 value="#{fuelRequestAndIssueController.toDate}"
                                                 pattern="dd MMMM yyyy"
                                                 >
@@ -47,7 +51,8 @@
                                             <p:selectOneMenu
                                                 id="fuelStation"
                                                 value="#{fuelRequestAndIssueController.fuelStation}"
-                                                class="w-100 m-1"
+                                                class="w-100"
+                                                style="max-width: 100%;"
                                                 filter="true"
                                                 filterMatchMode="contains">
                                                 <f:selectItem itemLabel="All Fuel Stations" itemValue="#{null}" />

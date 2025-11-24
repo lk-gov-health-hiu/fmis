@@ -336,6 +336,16 @@ public class WebUserController implements Serializable {
         return loggedUser.getWebUserRole() == WebUserRole.CPC_FUEL_DISPENSOR;
     }
 
+    public boolean isInstitutionTransportUser() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        return loggedUser.getWebUserRole() == WebUserRole.INSTITUTION_TRANSPORT;
+    }
+
     public boolean isReportsMenuAvailable() {
         if (isCpcFuelDispensor()) {
             return false;

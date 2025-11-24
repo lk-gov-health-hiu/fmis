@@ -9,7 +9,11 @@
       "Bash(mvn compile:compile:*)",
       "Bash(mvn dependency:tree:*)",
       "WebSearch",
-      "WebFetch(domain:mvnrepository.com)"
+      "WebFetch(domain:mvnrepository.com)",
+      "Bash(findstr:*)",
+      "Bash(where:*)",
+      "WebFetch(domain:www.primefaces.org)",
+      "WebFetch(domain:www.concretepage.com)"
     ],
     "deny": [],
     "ask": []

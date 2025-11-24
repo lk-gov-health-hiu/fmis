@@ -411,16 +411,28 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Select Requested Date");
             return "";
         }
+        if (selected.getVehicle() == null) {
+            JsfUtil.addErrorMessage("No Vehicle Selected");
+            return "";
+        }
+        if (selected.getDriver() == null) {
+            JsfUtil.addErrorMessage("No Driver Selected");
+            return "";
+        }
         if (selected.getToInstitution() == null) {
             JsfUtil.addErrorMessage("Select Fuel Station");
             return "";
         }
-        if (selected.getRequestReferenceNumber() == null) {
+        if (selected.getRequestReferenceNumber() == null || selected.getRequestReferenceNumber().trim().isEmpty()) {
             JsfUtil.addErrorMessage("Enter a referance number");
             return "";
         }
-        if (selected.getRequestReferenceNumber().trim().equals("")) {
-            JsfUtil.addErrorMessage("Enter a referance number");
+        if (selected.getOdoMeterReading() == null) {
+            JsfUtil.addErrorMessage("ODO Meter Reading is required");
+            return "";
+        }
+        if (selected.getRequestQuantity() == null) {
+            JsfUtil.addErrorMessage("Request Quantity is required");
             return "";
         }
 

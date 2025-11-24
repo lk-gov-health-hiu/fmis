@@ -55,6 +55,7 @@ public class FuelTransactionLight implements Serializable {
     private boolean retired;
     private boolean issued;
     private boolean dispensed;
+    private boolean dispensedManually;
     private Date submittedToPaymentAt;
     private Date acceptedByCpcAt;
     private Date rejectedByCpcAt;
@@ -379,6 +380,44 @@ public class FuelTransactionLight implements Serializable {
         this.rejectedByCpcAt = rejectedByCpcAt;
     }
 
+    // Constructor with status flags, submitted to payment date, CPC dates, and dispensedManually (22 parameters)
+    public FuelTransactionLight(Long id, Date date, FuelTransactionType transactionType,
+                                String requestReferenceNumber,
+                                String vehicleNumber, Double requestQuantity,
+                                Double issuedQuantity, String issueReferenceNumber,
+                                String fromInstitutionName, String toInstitutionName,
+                                String driverName,
+                                String toInstitutionCode,
+                                Date issuedDate,
+                                boolean cancelled, boolean rejected, boolean retired,
+                                boolean issued, boolean dispensed, boolean dispensedManually,
+                                Date submittedToPaymentAt,
+                                Date acceptedByCpcAt,
+                                Date rejectedByCpcAt) {
+        this.id = id;
+        this.date = date;
+        this.transactionType = transactionType;
+        this.requestReferenceNumber = requestReferenceNumber;
+        this.vehicleNumber = vehicleNumber;
+        this.requestQuantity = requestQuantity;
+        this.issuedQuantity = issuedQuantity;
+        this.issueReferenceNumber = issueReferenceNumber;
+        this.fromInstitutionName = fromInstitutionName;
+        this.toInstitutionName = toInstitutionName;
+        this.driverName = driverName;
+        this.toInstitutionCode = toInstitutionCode;
+        this.issuedDate = issuedDate;
+        this.cancelled = cancelled;
+        this.rejected = rejected;
+        this.retired = retired;
+        this.issued = issued;
+        this.dispensed = dispensed;
+        this.dispensedManually = dispensedManually;
+        this.submittedToPaymentAt = submittedToPaymentAt;
+        this.acceptedByCpcAt = acceptedByCpcAt;
+        this.rejectedByCpcAt = rejectedByCpcAt;
+    }
+
     public String getToInstitutionCode() {
         return toInstitutionCode;
     }
@@ -576,6 +615,14 @@ public class FuelTransactionLight implements Serializable {
 
     public void setDispensed(boolean dispensed) {
         this.dispensed = dispensed;
+    }
+
+    public boolean isDispensedManually() {
+        return dispensedManually;
+    }
+
+    public void setDispensedManually(boolean dispensedManually) {
+        this.dispensedManually = dispensedManually;
     }
 
     public Date getSubmittedToPaymentAt() {

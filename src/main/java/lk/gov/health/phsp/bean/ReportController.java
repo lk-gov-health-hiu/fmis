@@ -169,6 +169,7 @@ public class ReportController implements Serializable {
     Long healthInstitutionId;
     private Date selectedDate; // This represents the date clicked in the comprehensive report
     private boolean filterByIssuedDate; // true = filter by issued date, false = filter by requested date
+    private List<FuelTransactionLight> selectedTransactionsToRetire; // For retiring undispensed fuel orders
 
     // </editor-fold> 
     // <editor-fold defaultstate="collapsed" desc="Constructors">
@@ -189,10 +190,11 @@ public class ReportController implements Serializable {
     public String navigateToListFuelRequests() {
         // Check if user has institutional access level
         if (isInstitutionalUser()) {
-            return navigateToListFuelRequestsInstitutional();
+            fillInstitutionalFuelTransactions();
+            return "/list_transactions?faces-redirect=true;";
         }
         fillAllInstitutionFuelTransactions();
-        return "/reports/list?faces-redirect=true;";
+        return "/list_transactions?faces-redirect=true;";
     }
 
     public String navigateToListFuelRequestsInstitutional() {
@@ -212,6 +214,11 @@ public class ReportController implements Serializable {
     public String navigateToListDeletedFuelRequests() {
         fillAllInstitutionDeletedFuelTransactions();
         return "/reports/list_deleted?faces-redirect=true;";
+    }
+
+    public String navigateToRetireUndispensedFuelOrders() {
+        fillUndispensedFuelOrders();
+        return "/reports/retire_undispensed_fuel_orders?faces-redirect=true;";
     }
 
     public String navigateToDieselDistributionFuelStationSummary() {
@@ -705,6 +712,100 @@ public class ReportController implements Serializable {
         transactionLights = fillDeletedFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType, fuelTransactionType);
     }
 
+    public void fillUndispensedFuelOrders() {
+        if (!isInstitutionalUser()) {
+            JsfUtil.addErrorMessage("Access Denied. Only hospital users can access this page.");
+            return;
+        }
+        Institution userInstitution = webUserController.getLoggedInstitution();
+        transactionLights = fillUndispensedFuelOrdersForInstitution(userInstitution, getFromDate(), getToDate());
+        selectedTransactionsToRetire = new ArrayList<>();
+    }
+
+    public List<FuelTransactionLight> fillUndispensedFuelOrdersForInstitution(
+            Institution institution, Date fd, Date td) {
+
+        StringBuilder jpqlBuilder = new StringBuilder();
+        jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
+                .append("ft.id, ft.requestedDate, ft.transactionType, ")
+                .append("ft.requestReferenceNumber, ")
+                .append("v.vehicleNumber, ft.requestQuantity, ft.issuedQuantity, ")
+                .append("ft.issueReferenceNumber, ")
+                .append("fi.name, ")
+                .append("ti.name, ")
+                .append("COALESCE(d.name, 'No Driver'), ")
+                .append("ti.code, ")
+                .append("ft.issuedDate, ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ft.dispensedManually, ")
+                .append("ft.submittedToPaymentAt, ")
+                .append("ft.acceptedByCpcAt, ")
+                .append("ft.rejectedByCpcAt) FROM FuelTransaction ft ")
+                .append("LEFT JOIN ft.vehicle v ")
+                .append("LEFT JOIN ft.driver d ")
+                .append("LEFT JOIN ft.fromInstitution fi ")
+                .append("LEFT JOIN ft.toInstitution ti ")
+                .append("WHERE ft.retired = false ")
+                .append("AND ft.issued = false ")
+                .append("AND ft.dispensed = false ");
+
+        Map<String, Object> parameters = new HashMap<>();
+
+        if (institution != null) {
+            jpqlBuilder.append("AND ft.fromInstitution = :institution ");
+            parameters.put("institution", institution);
+        }
+        if (fd != null && td != null) {
+            jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            parameters.put("fromDate", fd);
+            parameters.put("toDate", td);
+        }
+
+        jpqlBuilder.append("ORDER BY ft.requestedDate DESC");
+
+        List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
+                jpqlBuilder.toString(), parameters, TemporalType.DATE);
+
+        return resultList;
+    }
+
+    public String retireSelectedFuelOrders() {
+        if (!isInstitutionalUser()) {
+            JsfUtil.addErrorMessage("Access Denied. Only hospital users can retire fuel orders.");
+            return "";
+        }
+
+        if (selectedTransactionsToRetire == null || selectedTransactionsToRetire.isEmpty()) {
+            JsfUtil.addErrorMessage("Please select at least one transaction to retire.");
+            return "";
+        }
+
+        int retiredCount = 0;
+        for (FuelTransactionLight transactionLight : selectedTransactionsToRetire) {
+            try {
+                FuelTransaction ft = fuelTransactionFacade.findFresh(transactionLight.getId());
+                if (ft != null && !ft.isRetired()) {
+                    // Verify the transaction is not issued and not dispensed
+                    if (!ft.isIssued() && !ft.isDispensed()) {
+                        ft.setRetired(true);
+                        ft.setRetiredAt(new Date());
+                        ft.setRetiredBy(webUserController.getLoggedUser());
+                        fuelTransactionFacade.edit(ft);
+                        retiredCount++;
+                    }
+                }
+            } catch (Exception e) {
+                JsfUtil.addErrorMessage("Error retiring transaction: " + transactionLight.getRequestReferenceNumber());
+            }
+        }
+
+        if (retiredCount > 0) {
+            JsfUtil.addSuccessMessage(retiredCount + " fuel order(s) retired successfully.");
+            fillUndispensedFuelOrders(); // Refresh the list
+        }
+
+        return "";
+    }
+
     public void fillAllInstitutionFuelTransactionsForCpcHeadOffice() {
         transactionLights = fillFuelTransactions(fromInstitution,
                 toInstitution,
@@ -754,7 +855,7 @@ public class ReportController implements Serializable {
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
                 .append("ft.issuedDate, ")
-                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ft.dispensedManually, ")
                 .append("ft.submittedToPaymentAt, ")
                 .append("ft.acceptedByCpcAt, ")
                 .append("ft.rejectedByCpcAt) FROM FuelTransaction ft ")
@@ -934,7 +1035,7 @@ public class ReportController implements Serializable {
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
                 .append("ft.issuedDate, ")
-                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ft.dispensedManually, ")
                 .append("ft.submittedToPaymentAt, ")
                 .append("ft.acceptedByCpcAt, ")
                 .append("ft.rejectedByCpcAt) FROM FuelTransaction ft ")
@@ -1007,7 +1108,7 @@ public class ReportController implements Serializable {
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution code
                 .append("ft.issuedDate, ")
-                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ft.dispensedManually, ")
                 .append("ft.submittedToPaymentAt, ")
                 .append("ft.acceptedByCpcAt, ")
                 .append("ft.rejectedByCpcAt) FROM FuelTransaction ft ")
@@ -1832,6 +1933,14 @@ public class ReportController implements Serializable {
         return transactionLights;
     }
 
+    public List<FuelTransactionLight> getSelectedTransactionsToRetire() {
+        return selectedTransactionsToRetire;
+    }
+
+    public void setSelectedTransactionsToRetire(List<FuelTransactionLight> selectedTransactionsToRetire) {
+        this.selectedTransactionsToRetire = selectedTransactionsToRetire;
+    }
+
     // </editor-fold> 
     public List<Institution> getHospitals() {
         return hospitals;
@@ -2278,7 +2387,7 @@ public class ReportController implements Serializable {
                 .append("COALESCE(d.name, 'No Driver'), ")
                 .append("ti.code, ")
                 .append("ft.issuedDate, ")
-                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ")
+                .append("ft.cancelled, ft.rejected, ft.retired, ft.issued, ft.dispensed, ft.dispensedManually, ")
                 .append("ft.submittedToPaymentAt, ")
                 .append("ft.acceptedByCpcAt, ")
                 .append("ft.rejectedByCpcAt) FROM FuelTransaction ft ")
