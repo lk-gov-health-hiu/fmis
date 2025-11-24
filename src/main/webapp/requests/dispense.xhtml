@@ -132,49 +132,6 @@
                                                                 <td><h:outputText value="#{fuelRequestAndIssueController.selected.id}" /></td>
                                                             </tr>
                                                         </table>
-                                                        <!-- Confirmed Details -->
-                                                        <ui:fragment rendered="#{fuelRequestAndIssueController.selected.issued}">
-                                                            <table class="table">
-                                                                <tr>
-                                                                    <th colspan="2" class="text-center bg-primary text-white">
-                                                                        Confirmed Details
-                                                                    </th>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td><b>Confirmed by:</b></td>
-                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.fromInstitution.name}" /></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td><b>Confirmed At:</b></td>
-                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedDate}" /></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td><b>Confirmation Recorded At:</b></td>
-                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedAt}" /></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td><b>Confirmed Quantity:</b></td>
-                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedQuantity}" /></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td><b>Confirmed From:</b></td>
-                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedInstitution.name}" /></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td><b>Issue Reference No.:</b></td>
-                                                                    <td><h:outputText value="#{fuelRequestAndIssueController.selected.issueReferenceNumber}" /></td>
-                                                                </tr>
-                                                            </table>
-                                                        </ui:fragment>
-                                                        <ui:fragment rendered="#{!fuelRequestAndIssueController.selected.issued}">
-                                                            <table class="table">
-                                                                <tr>
-                                                                    <th class="text-center bg-danger text-white">
-                                                                        Not confirmed yet
-                                                                    </th>
-                                                                </tr>
-                                                            </table>
-                                                        </ui:fragment>
                                                     </div>
                                                 </div>
                                             </div>
