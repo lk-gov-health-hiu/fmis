@@ -24,7 +24,7 @@
                                 <div class="card" >
                                     <div class="card-header" >
                                         <div class="row" >
-                                            <h2><h:outputText value="Mark Diesel as Dispensed"></h:outputText></h2>
+                                            <h2><h:outputText value="Mark Diesel as Dispensed Manually"></h:outputText></h2>
                                         </div>
                                     </div>
                                     <div class="card-body" >
@@ -53,18 +53,10 @@
                                                                 required="true"
                                                                 requiredMessage="Enter the Dispensed Quantity"
                                                                 value="#{fuelRequestAndIssueController.selected.dispensedQuantity}" ></p:inputText>
-                                                            <p:outputLabel value="Dispensing Reference Number"
-                                                                           for="ref">
-                                                            </p:outputLabel>
-                                                            <p:inputText
-                                                                id="ref"
-                                                                class="form-control"
-                                                                required="true"
-                                                                requiredMessage="Enter the Reference Number"
-                                                                value="#{fuelRequestAndIssueController.selected.dispensedReferenceNumber}" ></p:inputText>
                                                             <p:outputLabel value="Comments"
                                                                            for="comments">
                                                             </p:outputLabel>
+
                                                             <p:inputTextarea
                                                                 id="comments"
                                                                 class="form-control"
