@@ -25,7 +25,7 @@
                             <div class="card-body" >
 
                                 <div class="row" >
-                                    <div class="col-2" >
+                                    <div class="col-12 col-lg-2" >
                                         <div class="form-group">
                                             <label for="fromDate">From Date</label>
                                             <p:datePicker
@@ -53,14 +53,16 @@
                                         </div>
 
                                     </div>
-                                    <div class="col-10" >
-                                        <p:dataTable id="tbl" value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}" 
+                                    <div class="col-12 col-lg-10" >
+                                        <p:dataTable id="tbl" value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}"
                                                      rows="5"
                                                      paginator="true"
                                                      paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                                      currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
                                                      rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
-                                                     sortMode="multiple">
+                                                     sortMode="multiple"
+                                                     responsiveLayout="scroll"
+                                                     size="small">
 
                                             <p:column headerText="Vehicle" sortBy="#{transaction.vehicle.vehicleNumber}" filterBy="#{transaction.vehicle.vehicleNumber}">
                                                 <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
@@ -84,28 +86,26 @@
                                             </p:column>
 
                                             <p:column headerText="Status">
-                                                <h:outputText value="Dispensed" rendered="#{transaction.dispensed}" />
-                                                <h:outputText value="Confirmed" rendered="#{not transaction.dispensed and transaction.issued}" />
+                                                <h:outputText value="Confirmed" rendered="#{transaction.issued}" />
+                                                <h:outputText value="Dispensed" rendered="#{transaction.dispensed and not transaction.issued}" />
                                                 <h:outputText value="Ordered" rendered="#{not transaction.dispensed and not transaction.issued}" />
                                             </p:column>
 
                                             <p:column headerText="Actions">
-                                                <p:commandButton ajax="false"
-                                                                 value="View"
-                                                                 class="btn btn-primary m-2 p-1"
-                                                                 action="#{fuelRequestAndIssueController.navigateToViewInstitutionFuelRequestToSltbDepot()}" >
+                                                <p:commandButton value="To Mark as Dispensed"
+                                                                 ajax="false"
+                                                                 icon="pi pi-check"
+                                                                 severity="success"
+                                                                 rendered="#{not transaction.dispensed}"
+                                                                 action="#{fuelRequestAndIssueController.navigateToDispenseVehicleFuelRequest()}" >
                                                     <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
                                                 </p:commandButton>
                                                 <p:commandButton value="To Mark as Received"
                                                                  ajax="false"
-                                                                 class="btn btn-primary m-2 p-1"
+                                                                 icon="pi pi-check"
+                                                                 severity="warning"
+                                                                 rendered="#{transaction.dispensed and not transaction.issued}"
                                                                  action="#{fuelRequestAndIssueController.navigateToMarkVehicleFuelRequest()}" >
-                                                    <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
-                                                </p:commandButton>
-                                                <p:commandButton value="To Mark as Dispensed"
-                                                                 ajax="false"
-                                                                 class="btn btn-success m-2 p-1"
-                                                                 action="#{fuelRequestAndIssueController.navigateToDispenseVehicleFuelRequest()}" >
                                                     <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
                                                 </p:commandButton>
                                             </p:column>

@@ -291,6 +291,14 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Nothing selected");
             return "";
         }
+        if (!selected.isDispensed()) {
+            JsfUtil.addErrorMessage("This request has not been dispensed yet. Please mark as dispensed first.");
+            return "";
+        }
+        if (selected.isIssued()) {
+            JsfUtil.addErrorMessage("This request has already been marked as received.");
+            return "";
+        }
         if (selected.getFromInstitution() == null) {
             JsfUtil.addErrorMessage("No from Institution");
             return "";
@@ -302,8 +310,8 @@ public class FuelRequestAndIssueController implements Serializable {
         if (selected.getToInstitution() == null) {
             selected.setToInstitution(selected.getFromInstitution().getSupplyInstitution());
         }
-        selected.setIssuedQuantity(selected.getRequestQuantity());
-        selected.setIssuedInstitution(selected.getToInstitution());
+        selected.setIssuedQuantity(selected.getDispensedQuantity());
+        selected.setIssuedInstitution(selected.getDispensedInstitution());
         return "/requests/mark?faces-redirect=true";
     }
 
@@ -312,16 +320,12 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Nothing selected");
             return "";
         }
-        if (!selected.isIssued()) {
-            JsfUtil.addErrorMessage("This request has not been confirmed yet. Please mark as confirmed first.");
-            return "";
-        }
         if (selected.isDispensed()) {
             JsfUtil.addErrorMessage("This request has already been dispensed.");
             return "";
         }
-        selected.setDispensedQuantity(selected.getIssuedQuantity());
-        selected.setDispensedInstitution(selected.getIssuedInstitution());
+        selected.setDispensedQuantity(selected.getRequestQuantity());
+        selected.setDispensedInstitution(selected.getFromInstitution().getSupplyInstitution());
         return "/requests/dispense?faces-redirect=true";
     }
 
@@ -612,6 +616,14 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Wrong Transaction Type");
             return "";
         }
+        if (!selected.isDispensed()) {
+            JsfUtil.addErrorMessage("This request has not been dispensed yet.");
+            return "";
+        }
+        if (selected.isIssued()) {
+            JsfUtil.addErrorMessage("This request has already been marked as received.");
+            return "";
+        }
         if (selected.getIssuedQuantity() == null) {
             JsfUtil.addErrorMessage("Wrong Qty");
             return "";
@@ -620,8 +632,8 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Wrong Qty");
             return "";
         }
-        if (selected.getIssuedQuantity() > selected.getRequestQuantity()) {
-            JsfUtil.addErrorMessage("Wrong Qty");
+        if (selected.getIssuedQuantity() > selected.getDispensedQuantity()) {
+            JsfUtil.addErrorMessage("Received quantity cannot exceed dispensed quantity");
             return "";
         }
         if (selected.getIssuedDate() == null) {
@@ -637,8 +649,8 @@ public class FuelRequestAndIssueController implements Serializable {
             }
         }
 
-        // Validation: Check if issue date is not before request date
-        if (selected.getIssuedDate() != null && selected.getRequestedDate() != null) {
+        // Validation: Check if received date is not before dispensed date
+        if (selected.getIssuedDate() != null && selected.getDispensedDate() != null) {
             // Reset time to 00:00:00 for date-only comparison
             java.util.Calendar issuedCal = java.util.Calendar.getInstance();
             issuedCal.setTime(selected.getIssuedDate());
@@ -647,15 +659,15 @@ public class FuelRequestAndIssueController implements Serializable {
             issuedCal.set(java.util.Calendar.SECOND, 0);
             issuedCal.set(java.util.Calendar.MILLISECOND, 0);
 
-            java.util.Calendar requestedCal = java.util.Calendar.getInstance();
-            requestedCal.setTime(selected.getRequestedDate());
-            requestedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
-            requestedCal.set(java.util.Calendar.MINUTE, 0);
-            requestedCal.set(java.util.Calendar.SECOND, 0);
-            requestedCal.set(java.util.Calendar.MILLISECOND, 0);
+            java.util.Calendar dispensedCal = java.util.Calendar.getInstance();
+            dispensedCal.setTime(selected.getDispensedDate());
+            dispensedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            dispensedCal.set(java.util.Calendar.MINUTE, 0);
+            dispensedCal.set(java.util.Calendar.SECOND, 0);
+            dispensedCal.set(java.util.Calendar.MILLISECOND, 0);
 
-            if (issuedCal.before(requestedCal)) {
-                JsfUtil.addErrorMessage("Issue Date cannot be before Request Date");
+            if (issuedCal.before(dispensedCal)) {
+                JsfUtil.addErrorMessage("Received Date cannot be before Dispensed Date");
                 return "";
             }
         }
@@ -664,12 +676,12 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setIssuedAt(new Date());
         selected.setIssuedUser(webUserController.getLoggedUser());
         if (selected.getIssuedInstitution() == null) {
-            selected.setIssuedInstitution(selected.getToInstitution());
+            selected.setIssuedInstitution(selected.getDispensedInstitution());
         }
 //        selected.setStockBeforeTheTransaction(institutionApplicationController.getInstitutionStock(webUserController.getLoggedInstitution()));
 //        selected.setStockAfterTheTransaction(institutionApplicationController.deductFromStock(webUserController.getLoggedInstitution(), selected.getIssuedQuantity()));
         save(selected);
-        JsfUtil.addSuccessMessage("Successfully Issued");
+        JsfUtil.addSuccessMessage("Successfully Marked as Received");
         listInstitutionRequestsToMark();
         return navigateToListInstitutionRequestsToMark();
     }
@@ -687,10 +699,6 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Wrong Transaction Type");
             return "";
         }
-        if (!selected.isIssued()) {
-            JsfUtil.addErrorMessage("This request has not been confirmed yet.");
-            return "";
-        }
         if (selected.isDispensed()) {
             JsfUtil.addErrorMessage("This request has already been dispensed.");
             return "";
@@ -703,8 +711,8 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Dispensed quantity must be at least 1");
             return "";
         }
-        if (selected.getDispensedQuantity() > selected.getIssuedQuantity()) {
-            JsfUtil.addErrorMessage("Dispensed quantity cannot exceed confirmed quantity");
+        if (selected.getDispensedQuantity() > selected.getRequestQuantity()) {
+            JsfUtil.addErrorMessage("Dispensed quantity cannot exceed requested quantity");
             return "";
         }
         if (selected.getDispensedDate() == null) {
@@ -712,8 +720,8 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
 
-        // Validation: Check if dispensed date is not before issued date
-        if (selected.getDispensedDate() != null && selected.getIssuedDate() != null) {
+        // Validation: Check if dispensed date is not before request date
+        if (selected.getDispensedDate() != null && selected.getRequestedDate() != null) {
             java.util.Calendar dispensedCal = java.util.Calendar.getInstance();
             dispensedCal.setTime(selected.getDispensedDate());
             dispensedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
@@ -721,15 +729,15 @@ public class FuelRequestAndIssueController implements Serializable {
             dispensedCal.set(java.util.Calendar.SECOND, 0);
             dispensedCal.set(java.util.Calendar.MILLISECOND, 0);
 
-            java.util.Calendar issuedCal = java.util.Calendar.getInstance();
-            issuedCal.setTime(selected.getIssuedDate());
-            issuedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
-            issuedCal.set(java.util.Calendar.MINUTE, 0);
-            issuedCal.set(java.util.Calendar.SECOND, 0);
-            issuedCal.set(java.util.Calendar.MILLISECOND, 0);
+            java.util.Calendar requestedCal = java.util.Calendar.getInstance();
+            requestedCal.setTime(selected.getRequestedDate());
+            requestedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            requestedCal.set(java.util.Calendar.MINUTE, 0);
+            requestedCal.set(java.util.Calendar.SECOND, 0);
+            requestedCal.set(java.util.Calendar.MILLISECOND, 0);
 
-            if (dispensedCal.before(issuedCal)) {
-                JsfUtil.addErrorMessage("Dispensed Date cannot be before Confirmed Date");
+            if (dispensedCal.before(requestedCal)) {
+                JsfUtil.addErrorMessage("Dispensed Date cannot be before Request Date");
                 return "";
             }
         }
@@ -738,7 +746,7 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setDispensedAt(new Date());
         selected.setDispensedBy(webUserController.getLoggedUser());
         if (selected.getDispensedInstitution() == null) {
-            selected.setDispensedInstitution(selected.getIssuedInstitution());
+            selected.setDispensedInstitution(selected.getFromInstitution().getSupplyInstitution());
         }
         save(selected);
         JsfUtil.addSuccessMessage("Successfully Dispensed");
