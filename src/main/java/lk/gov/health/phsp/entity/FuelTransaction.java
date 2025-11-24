@@ -97,6 +97,7 @@ public class FuelTransaction implements Serializable {
     private Date issuedDate;
 
     private boolean dispensed;
+    private boolean dispensedManually;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date dispensedAt;
     @ManyToOne
@@ -665,6 +666,8 @@ public class FuelTransaction implements Serializable {
     public String getDispensedReferenceNumber() {
         return dispensedReferenceNumber;
     }
+    
+    
 
     public void setDispensedReferenceNumber(String dispensedReferenceNumber) {
         this.dispensedReferenceNumber = dispensedReferenceNumber;
@@ -776,6 +779,14 @@ public class FuelTransaction implements Serializable {
 
     public void setTransactionImage(FuelTransactionImage transactionImage) {
         this.transactionImage = transactionImage;
+    }
+
+    public boolean isDispensedManually() {
+        return dispensedManually;
+    }
+
+    public void setDispensedManually(boolean dispensedManually) {
+        this.dispensedManually = dispensedManually;
     }
 
 }

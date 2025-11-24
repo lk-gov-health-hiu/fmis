@@ -743,6 +743,7 @@ public class FuelRequestAndIssueController implements Serializable {
         }
 
         selected.setDispensed(true);
+        selected.setDispensedManually(true);
         selected.setDispensedAt(new Date());
         selected.setDispensedBy(webUserController.getLoggedUser());
         if (selected.getDispensedInstitution() == null) {
