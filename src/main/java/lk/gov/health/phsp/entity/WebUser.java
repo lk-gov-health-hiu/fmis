@@ -500,6 +500,7 @@ public class WebUser implements Serializable, Nameable {
                 case CPC_ADMINISTRATOR:
                 case CPC_SUPER_USER:
                 case CPC_USER:
+                case CPC_FUEL_DISPENSOR:
                     webUserRoleLevel = WebUserRoleLevel.CTB;
                     break;
                 case AUDITOR_ADMINISTRATOR:

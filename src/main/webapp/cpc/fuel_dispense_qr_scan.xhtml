@@ -1,0 +1,230 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/template_minimal.xhtml">
+
+            <ui:define name="title">
+                Scan QR - Fuel Management
+            </ui:define>
+
+            <ui:define name="header">
+                Scan QR
+            </ui:define>
+
+            <ui:define name="content">
+
+                <h:form id="qrForm">
+                    <p:growl id="growl" showDetail="true" sticky="true"/>
+                    <p:messages id="messages" showDetail="true" closable="true"/>
+                    <h:messages id="jsfMessages" showDetail="true"/>
+
+                    <!-- Hidden input to store scanned QR value -->
+                    <h:inputHidden id="hiddenQrValue" value="#{fuelDispenseController.scannedVehicleNumber}" />
+                    <h:inputHidden id="redirectUrlValue" value="#{fuelDispenseController.redirectUrl}" />
+
+                    <!-- Remote command to trigger backend processing -->
+                    <p:remoteCommand name="processQrCode"
+                                     actionListener="#{fuelDispenseController.processScannedQr()}"
+                                     update="redirectUrlValue qrForm:messages"
+                                     process="@this hiddenQrValue"
+                                     oncomplete="handleQrProcessingComplete()" />
+
+                    <!-- QR Scanner Container -->
+                    <div class="text-center mb-4">
+                        <div id="qr-reader" style="border: 3px solid #ddd; border-radius: 10px;"></div>
+                    </div>
+
+                    <!-- Scanner Control Buttons -->
+                    <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                        <p:commandButton type="button"
+                                         value="Stop"
+                                         onclick="stopScanning()"
+                                         icon="pi pi-times"
+                                         styleClass="ui-button-danger" />
+                        <p:commandButton type="button"
+                                         value="Restart"
+                                         onclick="startScanning()"
+                                         icon="pi pi-refresh"
+                                         styleClass="ui-button-info" />
+                    </div>
+
+                    <h:panelGroup id="scannedInfo">
+                        <!-- Debug info removed - automatic scanning handles everything -->
+                    </h:panelGroup>
+
+                    <h:panelGroup id="processBtn" layout="block" class="my-3">
+                        <!-- Process button removed - automatic scanning handles everything -->
+                    </h:panelGroup>
+
+                </h:form>
+
+                <!-- Include html5-qrcode library -->
+                <h:outputScript>
+                    var script = document.createElement('script');
+                    script.src = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
+                    document.head.appendChild(script);
+                </h:outputScript>
+
+                <!-- QR Scanner JavaScript -->
+                <script type="text/javascript">
+                    //<![CDATA[
+                    let html5QrCode;
+                    let isScanning = false;
+                    let lastScannedCode = null;
+                    let scanCooldown = false;
+
+                    // Handle completion of QR processing - redirect immediately if URL is set
+                    function handleQrProcessingComplete() {
+                        var redirectUrlElement = document.getElementById('qrForm:redirectUrlValue');
+                        if (redirectUrlElement && redirectUrlElement.value && redirectUrlElement.value.trim() !== '') {
+                            var url = redirectUrlElement.value.trim();
+                            console.log('QR detected - Redirecting immediately to: ' + url);
+                            // Redirect immediately without delay
+                            window.location.href = url;
+                        }
+                        // If no redirect URL, stay on page (error messages will be displayed)
+                    }
+
+                    function onScanSuccess(decodedText, decodedResult) {
+                        // Prevent multiple scans of the same code
+                        if (scanCooldown || lastScannedCode === decodedText) {
+                            return;
+                        }
+
+                        lastScannedCode = decodedText;
+                        scanCooldown = true;
+
+                        console.log(`QR Code detected: ${decodedText}`);
+
+                        // Minimal visual feedback - just green border (no messages)
+                        document.getElementById('qr-reader').style.border = '3px solid #28a745';
+
+                        // Set the hidden input value
+                        document.getElementById('qrForm:hiddenQrValue').value = decodedText;
+
+                        // Immediately trigger backend processing - will redirect if successful
+                        processQrCode([{name: 'scannedVehicleNumber', value: decodedText}]);
+
+                        // Stop scanning immediately since we're about to redirect
+                        stopScanning();
+
+                        // Reset cooldown after 3 seconds
+                        setTimeout(function() {
+                            scanCooldown = false;
+                            lastScannedCode = null;
+                        }, 3000);
+                    }
+
+                    function onScanFailure(error) {
+                        // Handle scan failure silently (this happens continuously while scanning)
+                        // console.warn(`QR Code scan error: ${error}`);
+                    }
+
+                    function startScanning() {
+                        if (isScanning) {
+                            console.log('Scanner already running');
+                            return;
+                        }
+
+                        // Reset visual feedback
+                        document.getElementById('qr-reader').style.border = '3px solid #ddd';
+
+                        if (!html5QrCode) {
+                            html5QrCode = new Html5Qrcode("qr-reader");
+                        }
+
+                        // Responsive QR box size based on screen width
+                        const screenWidth = window.innerWidth;
+                        let qrboxSize = 250; // Default for desktop
+
+                        if (screenWidth < 480) {
+                            qrboxSize = Math.min(screenWidth - 80, 250); // Small phones
+                        } else if (screenWidth < 768) {
+                            qrboxSize = Math.min(screenWidth - 100, 300); // Tablets
+                        } else if (screenWidth < 1024) {
+                            qrboxSize = 300; // Medium screens
+                        }
+
+                        const config = {
+                            fps: 10,    // Scans per second
+                            qrbox: { width: qrboxSize, height: qrboxSize },  // Responsive scanning box
+                            aspectRatio: 1.0,
+                            formatsToSupport: [ 'QR_CODE' ]  // Only scan QR codes
+                        };
+
+                        html5QrCode.start(
+                            { facingMode: "environment" },  // Use back camera on mobile
+                            config,
+                            onScanSuccess,
+                            onScanFailure
+                        ).then(() => {
+                            isScanning = true;
+                            console.log('QR Code scanner started successfully with qrbox size: ' + qrboxSize);
+                        }).catch((err) => {
+                            console.error('Unable to start scanner:', err);
+                            alert('Failed to start camera: ' + err);
+                        });
+                    }
+
+                    function stopScanning() {
+                        if (!isScanning || !html5QrCode) {
+                            console.log('Scanner not running');
+                            return;
+                        }
+
+                        html5QrCode.stop().then(() => {
+                            isScanning = false;
+                            console.log('QR Code scanner stopped');
+                        }).catch((err) => {
+                            console.error('Error stopping scanner:', err);
+                        });
+                    }
+
+                    // Auto-start scanning when page loads
+                    window.addEventListener('load', function() {
+                        // Wait for html5-qrcode library to load
+                        let checkLibraryLoaded = setInterval(function() {
+                            if (typeof Html5Qrcode !== 'undefined') {
+                                clearInterval(checkLibraryLoaded);
+                                setTimeout(startScanning, 500);
+                            }
+                        }, 100);
+                    });
+
+                    // Handle orientation changes on mobile devices
+                    let resizeTimer;
+                    window.addEventListener('resize', function() {
+                        clearTimeout(resizeTimer);
+                        resizeTimer = setTimeout(function() {
+                            if (isScanning) {
+                                console.log('Screen resized - restarting scanner');
+                                stopScanning();
+                                setTimeout(startScanning, 500);
+                            }
+                        }, 500);
+                    });
+
+                    // Cleanup on page unload
+                    window.addEventListener('beforeunload', function() {
+                        if (isScanning && html5QrCode) {
+                            html5QrCode.stop();
+                        }
+                    });
+                    //]]>
+                </script>
+
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </h:body>
+</html>

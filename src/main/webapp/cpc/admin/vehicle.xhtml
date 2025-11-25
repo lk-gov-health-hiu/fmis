@@ -22,6 +22,14 @@
                                              class="btn btn-success"
                                              action="#{menuController.toListVehicles()}"
                                              value="Back to List"/>
+                            <p:commandButton
+                                type="button"
+                                style="float: right; margin-right: 10px;"
+                                class="btn btn-info"
+                                onclick="window.open('#{request.contextPath}/app/cpc/admin/vehicle_qr_print_popup.xhtml', 'QRCodePrint', 'width=800,height=600,resizable=yes,scrollbars=yes'); return false;"
+                                value="Print QR Code"
+                                icon="pi pi-qrcode"
+                                rendered="#{vehicleController.selected.id != null}"/>
                         </f:facet>
 
                         <h:outputLabel value="Number:" for="number"/>

@@ -63,6 +63,13 @@
                                     action="#{reportController.navigateToComprehensiveDieselIssuanceSummary()}"
                                     ajax="false"></p:commandButton>
 
+                                <p:commandButton
+                                    value="Retire Undispensed Fuel Orders"
+                                    icon="fa fa-recycle"
+                                    class="w-100 m-1"
+                                    action="#{reportController.navigateToRetireUndispensedFuelOrders()}"
+                                    ajax="false"
+                                    rendered="#{reportController.institutionalUser}"></p:commandButton>
 
                                 <p:commandButton
                                     value="List of Deleted Transactions"

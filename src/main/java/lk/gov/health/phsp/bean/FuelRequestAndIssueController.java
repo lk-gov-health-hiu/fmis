@@ -291,6 +291,14 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Nothing selected");
             return "";
         }
+        if (!selected.isDispensed()) {
+            JsfUtil.addErrorMessage("This request has not been dispensed yet. Please mark as dispensed first.");
+            return "";
+        }
+        if (selected.isIssued()) {
+            JsfUtil.addErrorMessage("This request has already been marked as received.");
+            return "";
+        }
         if (selected.getFromInstitution() == null) {
             JsfUtil.addErrorMessage("No from Institution");
             return "";
@@ -302,9 +310,23 @@ public class FuelRequestAndIssueController implements Serializable {
         if (selected.getToInstitution() == null) {
             selected.setToInstitution(selected.getFromInstitution().getSupplyInstitution());
         }
-        selected.setIssuedQuantity(selected.getRequestQuantity());
-        selected.setIssuedInstitution(selected.getToInstitution());
+        selected.setIssuedQuantity(selected.getDispensedQuantity());
+        selected.setIssuedInstitution(selected.getDispensedInstitution());
         return "/requests/mark?faces-redirect=true";
+    }
+
+    public String navigateToDispenseVehicleFuelRequest() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return "";
+        }
+        if (selected.isDispensed()) {
+            JsfUtil.addErrorMessage("This request has already been dispensed.");
+            return "";
+        }
+        selected.setDispensedQuantity(selected.getRequestQuantity());
+        selected.setDispensedInstitution(selected.getFromInstitution().getSupplyInstitution());
+        return "/requests/dispense?faces-redirect=true";
     }
 
     public String navigateToViewIssuedVehicleFuelRequest() {
@@ -389,16 +411,28 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Select Requested Date");
             return "";
         }
+        if (selected.getVehicle() == null) {
+            JsfUtil.addErrorMessage("No Vehicle Selected");
+            return "";
+        }
+        if (selected.getDriver() == null) {
+            JsfUtil.addErrorMessage("No Driver Selected");
+            return "";
+        }
         if (selected.getToInstitution() == null) {
             JsfUtil.addErrorMessage("Select Fuel Station");
             return "";
         }
-        if (selected.getRequestReferenceNumber() == null) {
+        if (selected.getRequestReferenceNumber() == null || selected.getRequestReferenceNumber().trim().isEmpty()) {
             JsfUtil.addErrorMessage("Enter a referance number");
             return "";
         }
-        if (selected.getRequestReferenceNumber().trim().equals("")) {
-            JsfUtil.addErrorMessage("Enter a referance number");
+        if (selected.getOdoMeterReading() == null) {
+            JsfUtil.addErrorMessage("ODO Meter Reading is required");
+            return "";
+        }
+        if (selected.getRequestQuantity() == null) {
+            JsfUtil.addErrorMessage("Request Quantity is required");
             return "";
         }
 
@@ -425,7 +459,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
         // Validation 4: Check if there's already a pending request for this vehicle
         if (hasPendingRequest(selected.getVehicle())) {
-            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been issued yet. Please wait for that request to be processed first.");
+            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been dispensed yet. Please wait for that request to be dispensed first.");
             return "";
         }
 
@@ -504,7 +538,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
         // Validation 4: Check if there's already a pending request for this vehicle
         if (hasPendingRequest(selected.getVehicle())) {
-            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been issued yet. Please wait for that request to be processed first.");
+            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been dispensed yet. Please wait for that request to be dispensed first.");
             return "";
         }
 
@@ -594,6 +628,14 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Wrong Transaction Type");
             return "";
         }
+        if (!selected.isDispensed()) {
+            JsfUtil.addErrorMessage("This request has not been dispensed yet.");
+            return "";
+        }
+        if (selected.isIssued()) {
+            JsfUtil.addErrorMessage("This request has already been marked as received.");
+            return "";
+        }
         if (selected.getIssuedQuantity() == null) {
             JsfUtil.addErrorMessage("Wrong Qty");
             return "";
@@ -602,8 +644,8 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Wrong Qty");
             return "";
         }
-        if (selected.getIssuedQuantity() > selected.getRequestQuantity()) {
-            JsfUtil.addErrorMessage("Wrong Qty");
+        if (selected.getIssuedQuantity() > selected.getDispensedQuantity()) {
+            JsfUtil.addErrorMessage("Received quantity cannot exceed dispensed quantity");
             return "";
         }
         if (selected.getIssuedDate() == null) {
@@ -619,8 +661,8 @@ public class FuelRequestAndIssueController implements Serializable {
             }
         }
 
-        // Validation: Check if issue date is not before request date
-        if (selected.getIssuedDate() != null && selected.getRequestedDate() != null) {
+        // Validation: Check if received date is not before dispensed date
+        if (selected.getIssuedDate() != null && selected.getDispensedDate() != null) {
             // Reset time to 00:00:00 for date-only comparison
             java.util.Calendar issuedCal = java.util.Calendar.getInstance();
             issuedCal.setTime(selected.getIssuedDate());
@@ -629,15 +671,15 @@ public class FuelRequestAndIssueController implements Serializable {
             issuedCal.set(java.util.Calendar.SECOND, 0);
             issuedCal.set(java.util.Calendar.MILLISECOND, 0);
 
-            java.util.Calendar requestedCal = java.util.Calendar.getInstance();
-            requestedCal.setTime(selected.getRequestedDate());
-            requestedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
-            requestedCal.set(java.util.Calendar.MINUTE, 0);
-            requestedCal.set(java.util.Calendar.SECOND, 0);
-            requestedCal.set(java.util.Calendar.MILLISECOND, 0);
+            java.util.Calendar dispensedCal = java.util.Calendar.getInstance();
+            dispensedCal.setTime(selected.getDispensedDate());
+            dispensedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            dispensedCal.set(java.util.Calendar.MINUTE, 0);
+            dispensedCal.set(java.util.Calendar.SECOND, 0);
+            dispensedCal.set(java.util.Calendar.MILLISECOND, 0);
 
-            if (issuedCal.before(requestedCal)) {
-                JsfUtil.addErrorMessage("Issue Date cannot be before Request Date");
+            if (issuedCal.before(dispensedCal)) {
+                JsfUtil.addErrorMessage("Received Date cannot be before Dispensed Date");
                 return "";
             }
         }
@@ -646,12 +688,81 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setIssuedAt(new Date());
         selected.setIssuedUser(webUserController.getLoggedUser());
         if (selected.getIssuedInstitution() == null) {
-            selected.setIssuedInstitution(selected.getToInstitution());
+            selected.setIssuedInstitution(selected.getDispensedInstitution());
         }
 //        selected.setStockBeforeTheTransaction(institutionApplicationController.getInstitutionStock(webUserController.getLoggedInstitution()));
 //        selected.setStockAfterTheTransaction(institutionApplicationController.deductFromStock(webUserController.getLoggedInstitution(), selected.getIssuedQuantity()));
         save(selected);
-        JsfUtil.addSuccessMessage("Successfully Issued");
+        JsfUtil.addSuccessMessage("Successfully Marked as Received");
+        listInstitutionRequestsToMark();
+        return navigateToListInstitutionRequestsToMark();
+    }
+
+    public String submitDispenseVehicleFuelRequest() {
+        if (selected == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return "";
+        }
+        if (selected.getTransactionType() == null) {
+            JsfUtil.addErrorMessage("Transaction Type is not set.");
+            return "";
+        }
+        if (selected.getTransactionType() != FuelTransactionType.VehicleFuelRequest && selected.getTransactionType() != FuelTransactionType.SpecialVehicleFuelRequest) {
+            JsfUtil.addErrorMessage("Wrong Transaction Type");
+            return "";
+        }
+        if (selected.isDispensed()) {
+            JsfUtil.addErrorMessage("This request has already been dispensed.");
+            return "";
+        }
+        if (selected.getDispensedQuantity() == null) {
+            JsfUtil.addErrorMessage("Please enter dispensed quantity");
+            return "";
+        }
+        if (selected.getDispensedQuantity() < 1.0) {
+            JsfUtil.addErrorMessage("Dispensed quantity must be at least 1");
+            return "";
+        }
+        if (selected.getDispensedQuantity() > selected.getRequestQuantity()) {
+            JsfUtil.addErrorMessage("Dispensed quantity cannot exceed requested quantity");
+            return "";
+        }
+        if (selected.getDispensedDate() == null) {
+            JsfUtil.addErrorMessage("Please enter dispensed date");
+            return "";
+        }
+
+        // Validation: Check if dispensed date is not before request date
+        if (selected.getDispensedDate() != null && selected.getRequestedDate() != null) {
+            java.util.Calendar dispensedCal = java.util.Calendar.getInstance();
+            dispensedCal.setTime(selected.getDispensedDate());
+            dispensedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            dispensedCal.set(java.util.Calendar.MINUTE, 0);
+            dispensedCal.set(java.util.Calendar.SECOND, 0);
+            dispensedCal.set(java.util.Calendar.MILLISECOND, 0);
+
+            java.util.Calendar requestedCal = java.util.Calendar.getInstance();
+            requestedCal.setTime(selected.getRequestedDate());
+            requestedCal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            requestedCal.set(java.util.Calendar.MINUTE, 0);
+            requestedCal.set(java.util.Calendar.SECOND, 0);
+            requestedCal.set(java.util.Calendar.MILLISECOND, 0);
+
+            if (dispensedCal.before(requestedCal)) {
+                JsfUtil.addErrorMessage("Dispensed Date cannot be before Request Date");
+                return "";
+            }
+        }
+
+        selected.setDispensed(true);
+        selected.setDispensedManually(true);
+        selected.setDispensedAt(new Date());
+        selected.setDispensedBy(webUserController.getLoggedUser());
+        if (selected.getDispensedInstitution() == null) {
+            selected.setDispensedInstitution(selected.getFromInstitution().getSupplyInstitution());
+        }
+        save(selected);
+        JsfUtil.addSuccessMessage("Successfully Dispensed");
         listInstitutionRequestsToMark();
         return navigateToListInstitutionRequestsToMark();
     }
@@ -1605,6 +1716,57 @@ public class FuelRequestAndIssueController implements Serializable {
         return null; // Stay on the same page to show results
     }
 
+    public String markPastTransactionsAsDispensed() {
+        int updatedCount = 0;
+        int errorCount = 0;
+
+        try {
+            // Find all transactions that are issued but not dispensed
+            String jpql = "SELECT ft FROM FuelTransaction ft "
+                    + "WHERE ft.issued = true "
+                    + "AND ft.dispensed = false "
+                    + "AND ft.retired = false "
+                    + "AND ft.cancelled = false "
+                    + "AND ft.rejected = false";
+
+            List<FuelTransaction> transactionsToUpdate = fuelTransactionFacade.findByJpql(jpql);
+
+            if (transactionsToUpdate == null || transactionsToUpdate.isEmpty()) {
+                JsfUtil.addSuccessMessage("No transactions found that need to be marked as dispensed.");
+                return null;
+            }
+
+            Date now = new Date();
+
+            for (FuelTransaction ft : transactionsToUpdate) {
+                try {
+                    ft.setDispensed(true);
+                    ft.setDispensedAt(ft.getIssuedAt() != null ? ft.getIssuedAt() : now);
+                    ft.setDispensedDate(ft.getIssuedDate() != null ? ft.getIssuedDate() : now);
+                    ft.setDispensedQuantity(ft.getIssuedQuantity() != null ? ft.getIssuedQuantity() : ft.getRequestQuantity());
+                    ft.setDispensedBy(ft.getIssuedUser());
+                    ft.setDispensedInstitution(ft.getIssuedInstitution());
+                    ft.setDispensedComments("Auto-marked as dispensed during migration");
+
+                    fuelTransactionFacade.edit(ft);
+                    updatedCount++;
+                } catch (Exception e) {
+                    errorCount++;
+                    Logger.getLogger(FuelRequestAndIssueController.class.getName())
+                            .log(Level.SEVERE, "Error marking transaction " + ft.getId() + " as dispensed", e);
+                }
+            }
+
+            JsfUtil.addSuccessMessage("Migration completed. " + updatedCount + " transactions marked as dispensed. Errors: " + errorCount);
+
+        } catch (Exception e) {
+            JsfUtil.addErrorMessage("Error during migration: " + e.getMessage());
+            Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, "Error marking past transactions as dispensed", e);
+        }
+
+        return null; // Stay on the same page
+    }
+
     public void listInstitutionRequests() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null, null, null, fuelTransactionType);
     }
@@ -2384,7 +2546,7 @@ public class FuelRequestAndIssueController implements Serializable {
         try {
             String jpql = "SELECT COUNT(ft) FROM FuelTransaction ft "
                     + "WHERE ft.vehicle.id = :vehicleId "
-                    + "AND ft.issued = false "
+                    + "AND ft.dispensed = false "
                     + "AND ft.rejected = false "
                     + "AND ft.cancelled = false "
                     + "AND ft.retired = false";
