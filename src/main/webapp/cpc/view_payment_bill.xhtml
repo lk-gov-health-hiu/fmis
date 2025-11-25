@@ -212,12 +212,12 @@
                                                         </div>
 
                                                         <div class="d-flex justify-content-center gap-1 flex-wrap" role="group">
-                                                            <p:commandButton
-                                                                value="View Receipt"
+                                                            <h:commandLink
                                                                 action="#{fuelRequestAndIssueController.downloadCertifiedReceipt()}"
-                                                                icon="pi pi-eye"
-                                                                ajax="false"
-                                                                styleClass="ui-button-info ui-button-sm" />
+                                                                styleClass="btn btn-info btn-sm"
+                                                                target="_blank">
+                                                                <i class="pi pi-eye"></i> View Receipt
+                                                            </h:commandLink>
                                                         </div>
                                                     </h:panelGroup>
 
