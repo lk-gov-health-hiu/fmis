@@ -16,120 +16,165 @@
 
             <ui:define name="content">
 
-                <div class="container-fluid p-2 w-100" >
-                    <h:form >
-                        <div class="row" >
+                <div class="container p-1">
+                    <h:form>
+                        <div class="row justify-content-md-center">
+                            <div class="col-12 col-lg-10">
 
-                            <div class="col-12" >
-                                <div class="card" >
-                                    <div class="card-header" >
-                                        <div class="row" >
-                                            <h2><h:outputText value="Mark Diesel as Dispensed Manually"></h:outputText></h2>
-                                        </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h2 class="mb-0">Mark Diesel as Dispensed Manually</h2>
                                     </div>
-                                    <div class="card-body" >
+                                    <div class="card-body">
 
-                                        <div class="card-body">
+                                        <!-- Dispense Details Section -->
+                                        <div class="row">
+                                            <!-- Left Column - Form Inputs -->
+                                            <div class="col-12 col-lg-6 mb-3 mb-lg-0">
+                                                <h5 class="mb-3 font-weight-bold">Dispense Information</h5>
 
-                                            <!-- Dispense Details -->
-                                            <div class="container">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <p:panelGrid columns="2" layout="tabular"  class="w-100 p-3 m-3">
-                                                            <p:outputLabel for="calDate" value="Dispensed Date" />
-                                                            <p:datePicker
-                                                                id="calDate"
-                                                                value="#{fuelRequestAndIssueController.selected.dispensedDate}"
-                                                                pattern="dd MMMM yyyy"
-                                                                >
-                                                            </p:datePicker>
-
-                                                            <p:outputLabel value="Dispensed Quantity"
-                                                                           for="qty">
-                                                            </p:outputLabel>
-                                                            <p:inputText
-                                                                id="qty"
-                                                                class="form-control"
-                                                                required="true"
-                                                                requiredMessage="Enter the Dispensed Quantity"
-                                                                value="#{fuelRequestAndIssueController.selected.dispensedQuantity}" ></p:inputText>
-                                                            <p:outputLabel value="Comments"
-                                                                           for="comments">
-                                                            </p:outputLabel>
-
-                                                            <p:inputTextarea
-                                                                id="comments"
-                                                                class="form-control"
-                                                                rows="3"
-                                                                value="#{fuelRequestAndIssueController.selected.dispensedComments}" ></p:inputTextarea>
-
-                                                            <p:commandButton  value="Mark as Dispensed"
-                                                                              ajax="false"
-                                                                              class="btn btn-primary w-75 m-2 p-2"
-                                                                              action="#{fuelRequestAndIssueController.submitDispenseVehicleFuelRequest()}" >
-                                                            </p:commandButton>
-
-                                                        </p:panelGrid>
-
+                                                <div class="row mb-3">
+                                                    <div class="col-12 col-sm-4">
+                                                        <p:outputLabel for="calDate" value="Dispensed Date" styleClass="font-weight-bold"/>
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <table class="table">
-                                                            <tr>
-                                                                <th colspan="2" class="text-center bg-primary text-white">
-                                                                    Request Details
-                                                                </th>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Requested by:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.fromInstitution.name}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Requested From:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.toInstitution.name}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Vehicle:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Request Quantity:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>ODO Meter:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.odoMeterReading}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Request Reference No.:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Comments:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.comments}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Requested By:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestedBy.person.name}" /></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>Requested At:</b></td>
-                                                                <td>
-                                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.requestedDate}">
-                                                                        <f:convertDateTime pattern="dd MMMM yyyy"></f:convertDateTime>
-                                                                    </h:outputText>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><b>ID:</b></td>
-                                                                <td><h:outputText value="#{fuelRequestAndIssueController.selected.id}" /></td>
-                                                            </tr>
-                                                        </table>
+                                                    <div class="col-12 col-sm-8">
+                                                        <p:calendar
+                                                            id="calDate"
+                                                            value="#{fuelRequestAndIssueController.selected.dispensedDate}"
+                                                            pattern="dd MMMM yyyy"
+                                                            inputStyleClass="w-100"
+                                                            styleClass="w-100">
+                                                        </p:calendar>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <div class="col-12 col-sm-4">
+                                                        <p:outputLabel value="Dispensed Quantity (Liters)" for="qty" styleClass="font-weight-bold"/>
+                                                    </div>
+                                                    <div class="col-12 col-sm-8">
+                                                        <p:inputNumber
+                                                            id="qty"
+                                                            minValue="0"
+                                                            decimalPlaces="2"
+                                                            inputStyleClass="form-control"
+                                                            class="w-100"
+                                                            required="true"
+                                                            requiredMessage="Enter the Dispensed Quantity"
+                                                            value="#{fuelRequestAndIssueController.selected.dispensedQuantity}"/>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <div class="col-12 col-sm-4">
+                                                        <p:outputLabel value="Comments" for="comments" styleClass="font-weight-bold"/>
+                                                    </div>
+                                                    <div class="col-12 col-sm-8">
+                                                        <p:inputTextarea
+                                                            id="comments"
+                                                            class="w-100"
+                                                            rows="3"
+                                                            value="#{fuelRequestAndIssueController.selected.dispensedComments}"/>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <!-- Right Column - Request Details -->
+                                            <div class="col-12 col-lg-6">
+                                                <h5 class="mb-3 font-weight-bold">Request Details</h5>
+                                                <div class="card bg-light">
+                                                    <div class="card-body">
+                                                        <div class="row mb-2">
+                                                            <div class="col-5 font-weight-bold">Requested by:</div>
+                                                            <div class="col-7">
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.fromInstitution.name}"/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-2">
+                                                            <div class="col-5 font-weight-bold">Requested From:</div>
+                                                            <div class="col-7">
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.toInstitution.name}"/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-2">
+                                                            <div class="col-5 font-weight-bold">Vehicle:</div>
+                                                            <div class="col-7">
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}"/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-2">
+                                                            <div class="col-5 font-weight-bold">Request Quantity:</div>
+                                                            <div class="col-7">
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}">
+                                                                    <f:convertNumber pattern="#,##0.00"/>
+                                                                </h:outputText> Liters
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-2">
+                                                            <div class="col-5 font-weight-bold">ODO Meter:</div>
+                                                            <div class="col-7">
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.odoMeterReading}"/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-2">
+                                                            <div class="col-5 font-weight-bold">Reference No.:</div>
+                                                            <div class="col-7">
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}"/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-2">
+                                                            <div class="col-5 font-weight-bold">Comments:</div>
+                                                            <div class="col-7">
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.comments}"/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-2">
+                                                            <div class="col-5 font-weight-bold">Requested By:</div>
+                                                            <div class="col-7">
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.requestedBy.person.name}"/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-2">
+                                                            <div class="col-5 font-weight-bold">Requested At:</div>
+                                                            <div class="col-7">
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.requestedDate}">
+                                                                    <f:convertDateTime pattern="dd MMMM yyyy"/>
+                                                                </h:outputText>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-2">
+                                                            <div class="col-5 font-weight-bold">ID:</div>
+                                                            <div class="col-7">
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selected.id}"/>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
+                                    </div>
+                                    <div class="card-footer bg-light">
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <p:commandButton value="Mark as Dispensed"
+                                                             icon="pi pi-check"
+                                                             styleClass="ui-button-success ui-button-lg"
+                                                             ajax="false"
+                                                             action="#{fuelRequestAndIssueController.submitDispenseVehicleFuelRequest()}"/>
+                                        </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </h:form>
