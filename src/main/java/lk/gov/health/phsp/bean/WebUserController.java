@@ -382,7 +382,7 @@ public class WebUserController implements Serializable {
         }
         WebUserRole role = loggedUser.getWebUserRole();
         // Institution administrators and super users
-        if (role == WebUserRole.INSTITUTION_ADMINISTRATOR || role == WebUserRole.INSTITUTION_SUPER_USER) {
+        if (role == WebUserRole.INSTITUTION_ADMINISTRATOR || role == WebUserRole.INSTITUTION_SUPER_USER|| role == WebUserRole.INSTITUTION_ACCOUNTS) {
             return true;
         }
         return false;
