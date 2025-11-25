@@ -27,9 +27,13 @@ public class QRCodeController implements Serializable {
             BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(new BufferedImageLuminanceSource(bufferedImage)));
             Result qrCodeResult = new MultiFormatReader().decode(binaryBitmap);
             qrData = qrCodeResult.getText();
-        } catch (IOException|NotFoundException e) {
+        } catch (NotFoundException e) {
+            // QR code not found in image - this is normal, user needs to retry
+            qrData = "QR_NOT_FOUND";
+        } catch (IOException e) {
+            // Image reading error
             e.printStackTrace();
-            qrData="Error";
+            qrData = "IMAGE_ERROR";
         }
         return qrData;
     }

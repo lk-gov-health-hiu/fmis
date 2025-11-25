@@ -36,6 +36,7 @@ import lk.gov.health.phsp.entity.Driver;
 import lk.gov.health.phsp.entity.Person;
 import lk.gov.health.phsp.entity.UserPrivilege;
 import lk.gov.health.phsp.entity.Vehicle;
+import lk.gov.health.phsp.enums.InstitutionCategory;
 import lk.gov.health.phsp.enums.InstitutionType;
 import lk.gov.health.phsp.enums.Privilege;
 import lk.gov.health.phsp.enums.PrivilegeTreeNode;
@@ -324,6 +325,95 @@ public class WebUserController implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public boolean isCpcFuelDispensor() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        return loggedUser.getWebUserRole() == WebUserRole.CPC_FUEL_DISPENSOR;
+    }
+
+    public boolean isInstitutionTransportUser() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        return loggedUser.getWebUserRole() == WebUserRole.INSTITUTION_TRANSPORT;
+    }
+
+    public boolean isNationalDashboardVisible() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        WebUserRole role = loggedUser.getWebUserRole();
+        // System administrators and super users
+        if (role == WebUserRole.SYSTEM_ADMINISTRATOR || role == WebUserRole.SUPER_USER) {
+            return true;
+        }
+        // CPC users
+        if (role == WebUserRole.CPC_ADMINISTRATOR || role == WebUserRole.CPC_SUPER_USER || role == WebUserRole.CPC_USER) {
+            return true;
+        }
+        // Monitoring and evaluation users (users from institutions with MONITORING_AND_EVALUATION category)
+        if (loggedUser.getInstitution() != null && loggedUser.getInstitution().getInstitutionType() != null) {
+            InstitutionType instType = loggedUser.getInstitution().getInstitutionType();
+            if (instType.getCategory() == InstitutionCategory.MONITORING_AND_EVALUATION) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isInstitutionDashboardVisible() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRole() == null) {
+            return false;
+        }
+        WebUserRole role = loggedUser.getWebUserRole();
+        // Institution administrators and super users
+        if (role == WebUserRole.INSTITUTION_ADMINISTRATOR || role == WebUserRole.INSTITUTION_SUPER_USER|| role == WebUserRole.INSTITUTION_ACCOUNTS) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isReportsMenuAvailable() {
+        if (isCpcFuelDispensor()) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isAdministrationMenuAvailable() {
+        if (isCpcFuelDispensor()) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isSettingsMenuItemAvailable() {
+        if (isCpcFuelDispensor()) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isDashboardAvailable() {
+        if (isCpcFuelDispensor()) {
+            return false;
+        }
+        return true;
     }
 
     public void onResize(ColumnResizeEvent event) {

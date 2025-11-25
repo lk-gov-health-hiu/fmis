@@ -24,6 +24,7 @@ import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.enums.VehicleType;
+import lk.gov.health.phsp.enums.WebUserRole;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.AreaFacade;
 
@@ -464,11 +465,36 @@ public class VehicleController implements Serializable {
         webUserController.setManagableVehicles(items);
     }
 
+    /**
+     * Check if the current logged-in user has permission to add or edit vehicle details
+     * Only SYSTEM_ADMINISTRATOR, SUPER_USER, and USER roles are allowed
+     * @return true if user can edit vehicle details, false otherwise
+     */
+    public boolean isCanEditVehicleDetails() {
+        if (webUserController.getLoggedUser() == null) {
+            return false;
+        }
+        WebUserRole role = webUserController.getLoggedUser().getWebUserRole();
+        if (role == null) {
+            return false;
+        }
+        return role == WebUserRole.SYSTEM_ADMINISTRATOR
+                || role == WebUserRole.SUPER_USER
+                || role == WebUserRole.USER;
+    }
+
     public String saveOrUpdateVehicle() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing to select");
             return null;
         }
+
+        // Check if user has permission to edit vehicle details
+        if (!isCanEditVehicleDetails()) {
+            JsfUtil.addErrorMessage("You do not have permission to add or edit vehicle details");
+            return null;
+        }
+
         if (selected.getVehicleNumber() == null || selected.getVehicleNumber().trim().equals("")) {
             JsfUtil.addErrorMessage("Number is required");
             return null;

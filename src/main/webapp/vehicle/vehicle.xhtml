@@ -16,23 +16,24 @@
                         <h:panelGroup rendered="#{vehicleController.selected != null}">
                             <h:panelGrid columns="2">
                                 <h:outputLabel value="Type:" for="vehicleType" />
-                                <h:selectOneMenu 
+                                <h:selectOneMenu
                                     id="vehicleType"
                                     class="form-control"
-                                    value="#{vehicleController.selected.vehicleType}" 
+                                    disabled="#{!vehicleController.canEditVehicleDetails}"
+                                    value="#{vehicleController.selected.vehicleType}"
                                     title="VehicleType">
-                                    <f:selectItems value="#{applicationController.vehicleTypes}" 
+                                    <f:selectItems value="#{applicationController.vehicleTypes}"
                                                    var="vt"
                                                    itemValue="#{vt}"
                                                    itemLabel="#{vt.label}"/>
                                 </h:selectOneMenu>
 
                                 <h:outputLabel value="Purpose:" for="vehiclePurpose" />
-                                <h:selectOneMenu id="vehiclePurpose" 
+                                <h:selectOneMenu id="vehiclePurpose"
                                                  class="form-control"
-                                                 disabled="false"
+                                                 disabled="#{!vehicleController.canEditVehicleDetails}"
                                                  value="#{vehicleController.selected.vehiclePurpose}" title="VehiclePurpose">
-                                    <f:selectItems value="#{applicationController.vehiclePurposes}" 
+                                    <f:selectItems value="#{applicationController.vehiclePurposes}"
                                                    var="vp"
                                                    itemValue="#{vp}"
                                                    itemLabel="#{vp.label}"/>
@@ -40,14 +41,15 @@
 
 
                                 <h:outputLabel value="Number:" for="number" />
-                                <h:inputText id="number" 
+                                <h:inputText id="number"
                                              autocomplete="off"
                                              class="form-control"
+                                             disabled="#{!vehicleController.canEditVehicleDetails}"
                                              value="#{vehicleController.selected.vehicleNumber}" title="Name" />
 
                                 <h:outputLabel value="Name:" for="name" />
-                                <h:inputText 
-                                    id="name" 
+                                <h:inputText
+                                    id="name"
                                     disabled="true"
                                     autocomplete="off"
                                     class="form-control"
@@ -57,9 +59,18 @@
                         </h:panelGroup>
 
 
-                        <h:commandButton style="margin-left: 1.4em" class="btn btn-success" 
-                                         actionListener="#{vehicleController.saveOrUpdateVehicle()}" 
+                        <h:commandButton style="margin-left: 1.4em" class="btn btn-success"
+                                         actionListener="#{vehicleController.saveOrUpdateVehicle()}"
+                                         disabled="#{!vehicleController.canEditVehicleDetails}"
                                          value="Save"/>
+                        <p:commandButton
+                            type="button"
+                            style="margin-left: 10px;"
+                            styleClass="btn btn-info"
+                            onclick="window.open('#{request.contextPath}/app/vehicle/vehicle_qr_print_popup.xhtml', 'QRCodePrint', 'width=800,height=600,resizable=yes,scrollbars=yes'); return false;"
+                            value="Print QR Code"
+                            icon="pi pi-qrcode"
+                            rendered="#{vehicleController.selected.id != null}"/>
 
                     </h:panelGroup>
                 </h:form>

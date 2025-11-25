@@ -25,6 +25,7 @@ package lk.gov.health.phsp.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -34,6 +35,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import lk.gov.health.phsp.enums.FuelTransactionType;
 
@@ -95,6 +97,7 @@ public class FuelTransaction implements Serializable {
     private Date issuedDate;
 
     private boolean dispensed;
+    private boolean dispensedManually;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date dispensedAt;
     @ManyToOne
@@ -177,6 +180,9 @@ public class FuelTransaction implements Serializable {
     private Date rejectedByCpcAt;
     @ManyToOne
     private WebUser rejectedByCpcBy;
+
+    @OneToOne(mappedBy = "fuelTransaction", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private FuelTransactionImage transactionImage;
 
     public String getIdString() {
         if (id == null) {
@@ -660,6 +666,8 @@ public class FuelTransaction implements Serializable {
     public String getDispensedReferenceNumber() {
         return dispensedReferenceNumber;
     }
+    
+    
 
     public void setDispensedReferenceNumber(String dispensedReferenceNumber) {
         this.dispensedReferenceNumber = dispensedReferenceNumber;
@@ -763,6 +771,22 @@ public class FuelTransaction implements Serializable {
             return "Confirmed";
         }
         return "Requested";
+    }
+
+    public FuelTransactionImage getTransactionImage() {
+        return transactionImage;
+    }
+
+    public void setTransactionImage(FuelTransactionImage transactionImage) {
+        this.transactionImage = transactionImage;
+    }
+
+    public boolean isDispensedManually() {
+        return dispensedManually;
+    }
+
+    public void setDispensedManually(boolean dispensedManually) {
+        this.dispensedManually = dispensedManually;
     }
 
 }

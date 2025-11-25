@@ -1,0 +1,520 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+
+        <ui:composition template="/template_minimal.xhtml">
+
+            <ui:define name="title">
+                Dispense Fuel
+            </ui:define>
+
+            <ui:define name="header">
+                Dispense Fuel
+            </ui:define>
+
+            <ui:define name="content">
+
+                <h:form>
+                    <p:messages showDetail="true" closable="true"/>
+
+                    <!-- Request Details Section -->
+                    <div class="mb-4">
+                        <h5 class="text-center mb-3 text-primary fw-bold">Transaction Details</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold" style="width: 40%;">Vehicle</td>
+                                        <td class="fs-5 fw-bold text-success">
+                                            <i class="pi pi-car me-2"></i>
+                                            <h:outputText value="#{fuelDispenseController.selected.vehicle.vehicleNumber}" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Requested By</td>
+                                        <td><h:outputText value="#{fuelDispenseController.selected.fromInstitution.name}" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Requested From</td>
+                                        <td><h:outputText value="#{fuelDispenseController.selected.toInstitution.name}" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Request Quantity</td>
+                                        <td>
+                                            <span class="badge bg-info fs-6">
+                                                <h:outputText value="#{fuelDispenseController.selected.requestQuantity}" /> L
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Reference No.</td>
+                                        <td><h:outputText value="#{fuelDispenseController.selected.requestReferenceNumber}" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Image Capture Section -->
+                    <div class="mb-4">
+                        <h5 class="text-center mb-3 text-primary fw-bold">Capture Image</h5>
+
+                        <div class="text-center p-3 border rounded">
+                            <!-- Camera Preview Container -->
+                            <div id="camera-container" style="display: none;">
+                                <video id="camera-preview" autoplay="autoplay" playsinline="playsinline"
+                                       style="max-width: 100%; width: 100%; border-radius: 8px; border: 2px solid #ddd;">
+                                </video>
+                            </div>
+
+                            <!-- Captured Image Preview -->
+                            <div id="captured-image-container" style="display: none;">
+                                <img id="captured-image"
+                                     style="max-width: 100%; width: 100%; border-radius: 8px; border: 2px solid #28a745;"
+                                     alt="Captured Image"/>
+                            </div>
+
+                            <!-- Hidden field to store captured image data -->
+                            <h:inputHidden id="capturedImageData" value="#{fuelDispenseController.capturedImageBase64}" />
+
+                                <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                                    <p:commandButton id="startCameraBtn" value="Start Camera"
+                                                     type="button"
+                                                     onclick="startCamera(); return false;"
+                                                     icon="pi pi-video"
+                                                     styleClass="ui-button-success"/>
+
+                                    <p:commandButton id="captureBtn" value="Capture Photo"
+                                                     type="button"
+                                                     onclick="capturePhoto(); return false;"
+                                                     icon="pi pi-camera"
+                                                     styleClass="ui-button-info"
+                                                     style="display: none;"/>
+
+                                    <p:commandButton id="retakeBtn" value="Retake"
+                                                     type="button"
+                                                     onclick="retakePhoto(); return false;"
+                                                     icon="pi pi-refresh"
+                                                     styleClass="ui-button-warning"
+                                                     style="display: none;"/>
+
+                                    <p:commandButton id="stopCameraBtn" value="Stop Camera"
+                                                     type="button"
+                                                     onclick="stopCamera(); return false;"
+                                                     icon="pi pi-times"
+                                                     styleClass="ui-button-danger"
+                                                     style="display: none;"/>
+                                </div>
+
+                            <p class="text-muted mt-2 small">
+                                <i class="pi pi-info-circle"></i>
+                                The captured image will be saved when you confirm dispense.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Dispensing Form Section -->
+                    <div class="mb-4">
+                        <h5 class="text-center mb-3 text-primary fw-bold">Dispense Quantity</h5>
+
+                        <div class="mb-3">
+                            <label for="qty" class="form-label fw-bold">Dispensed Quantity (Liters)</label>
+                            <p:inputText
+                                id="qty"
+                                styleClass="form-control form-control-lg text-center"
+                                required="true"
+                                requiredMessage="Enter the Dispensed Quantity"
+                                value="#{fuelDispenseController.selected.dispensedQuantity}"
+                                placeholder="Enter quantity in liters">
+                            </p:inputText>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-3 mt-4">
+                            <p:commandButton value="Confirm Dispense"
+                                             ajax="false"
+                                             styleClass="ui-button-success ui-button-lg"
+                                             icon="pi pi-check"
+                                             action="#{fuelDispenseController.markAsDispensed()}">
+                                <p:confirm header="Confirm Dispensing"
+                                           message="Are you sure you want to mark this fuel as dispensed?"
+                                           icon="pi pi-exclamation-triangle" />
+                            </p:commandButton>
+
+                            <p:commandButton value="Back to Home"
+                                             ajax="false"
+                                             styleClass="ui-button-secondary"
+                                             icon="pi pi-home"
+                                             action="#{fuelDispenseController.navigateToHome()}"
+                                             immediate="true">
+                            </p:commandButton>
+                        </div>
+                    </div>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="confirm-dialog-top">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes ui-button-success" icon="pi pi-check" />
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+                    </p:confirmDialog>
+
+                </h:form>
+
+                <!-- Camera Capture JavaScript -->
+                <script type="text/javascript">
+                    //<![CDATA[
+                    let cameraStream = null;
+                    let videoElement = null;
+
+                    function startCamera() {
+                        console.log('startCamera() called');
+
+                        // Find elements - account for JSF form ID prefix
+                        const formId = document.querySelector('form').id;
+                        console.log('Form ID:', formId);
+
+                        videoElement = document.getElementById('camera-preview');
+                        const cameraContainer = document.getElementById('camera-container');
+                        const capturedContainer = document.getElementById('captured-image-container');
+
+                        // Try to find buttons with and without form prefix
+                        let startBtn = document.getElementById('startCameraBtn');
+                        let captureBtn = document.getElementById('captureBtn');
+                        let stopBtn = document.getElementById('stopCameraBtn');
+
+                        // If not found, try with form prefix
+                        if (!startBtn && formId) {
+                            startBtn = document.getElementById(formId + ':startCameraBtn');
+                            captureBtn = document.getElementById(formId + ':captureBtn');
+                            stopBtn = document.getElementById(formId + ':stopCameraBtn');
+                        }
+
+                        console.log('Elements found:', {
+                            videoElement: !!videoElement,
+                            cameraContainer: !!cameraContainer,
+                            capturedContainer: !!capturedContainer,
+                            startBtn: !!startBtn,
+                            captureBtn: !!captureBtn,
+                            stopBtn: !!stopBtn
+                        });
+
+                        if (!videoElement || !cameraContainer) {
+                            alert('Error: Camera elements not found in page');
+                            console.error('Missing elements');
+                            return;
+                        }
+
+                        // Show camera container, hide captured image
+                        cameraContainer.style.display = 'block';
+                        capturedContainer.style.display = 'none';
+
+                        // Update button visibility
+                        if (startBtn) startBtn.style.display = 'none';
+                        if (captureBtn) captureBtn.style.display = 'inline-block';
+                        if (stopBtn) stopBtn.style.display = 'inline-block';
+
+                        // Request camera access with moderate resolution for smaller file size
+                        const constraints = {
+                            video: {
+                                facingMode: 'environment', // Use back camera on mobile
+                                width: { ideal: 1280, max: 1920 },
+                                height: { ideal: 720, max: 1080 }
+                            }
+                        };
+
+                        console.log('Requesting camera access...');
+                        navigator.mediaDevices.getUserMedia(constraints)
+                            .then(function(stream) {
+                                cameraStream = stream;
+                                videoElement.srcObject = stream;
+                                console.log('Camera started successfully');
+                                console.log('Video element:', videoElement);
+                            })
+                            .catch(function(error) {
+                                console.error('Error accessing camera:', error);
+                                alert('Failed to access camera: ' + error.message + '\n\nPlease ensure:\n1. You have granted camera permissions\n2. Your browser supports camera access\n3. You are using HTTPS');
+
+                                // Reset button visibility on error
+                                if (startBtn) startBtn.style.display = 'inline-block';
+                                if (captureBtn) captureBtn.style.display = 'none';
+                                if (stopBtn) stopBtn.style.display = 'none';
+                                cameraContainer.style.display = 'none';
+                            });
+                    }
+
+                    function capturePhoto() {
+                        console.log('capturePhoto() called');
+
+                        if (!videoElement || !cameraStream) {
+                            alert('Camera is not running');
+                            return;
+                        }
+
+                        // Create canvas to capture the image with reduced resolution
+                        const canvas = document.createElement('canvas');
+
+                        // Limit image size to reduce POST data size
+                        const maxWidth = 1280;
+                        const maxHeight = 720;
+
+                        let width = videoElement.videoWidth;
+                        let height = videoElement.videoHeight;
+
+                        // Calculate scaling to fit within max dimensions while maintaining aspect ratio
+                        if (width > maxWidth || height > maxHeight) {
+                            const ratio = Math.min(maxWidth / width, maxHeight / height);
+                            width = Math.floor(width * ratio);
+                            height = Math.floor(height * ratio);
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        console.log('Capturing image at resolution:', width, 'x', height);
+
+                        const context = canvas.getContext('2d');
+                        context.drawImage(videoElement, 0, 0, width, height);
+
+                        // Convert to JPEG with quality 0.7 for better compression (smaller file size)
+                        const imageData = canvas.toDataURL('image/jpeg', 0.7);
+
+                        // Store in hidden field (remove the data:image/jpeg;base64, prefix for backend)
+                        const base64Data = imageData.split(',')[1];
+
+                        // Find the hidden field with or without form prefix
+                        const formId = document.querySelector('form').id;
+                        let hiddenField = document.getElementById('capturedImageData');
+                        if (!hiddenField && formId) {
+                            hiddenField = document.getElementById(formId + ':capturedImageData');
+                        }
+                        if (hiddenField) {
+                            hiddenField.value = base64Data;
+                            const fileSizeKB = Math.round(base64Data.length / 1024);
+                            console.log('Image data stored - Base64 length:', base64Data.length, '(~' + fileSizeKB + ' KB)');
+                        }
+
+                        // Display captured image
+                        const capturedImage = document.getElementById('captured-image');
+                        if (capturedImage) {
+                            capturedImage.src = imageData;
+                        }
+
+                        // Stop camera and show captured image
+                        stopCameraStream();
+
+                        const cameraContainer = document.getElementById('camera-container');
+                        const capturedContainer = document.getElementById('captured-image-container');
+
+                        let captureBtn = document.getElementById('captureBtn');
+                        let stopBtn = document.getElementById('stopCameraBtn');
+                        let retakeBtn = document.getElementById('retakeBtn');
+
+                        if (!captureBtn && formId) {
+                            captureBtn = document.getElementById(formId + ':captureBtn');
+                            stopBtn = document.getElementById(formId + ':stopCameraBtn');
+                            retakeBtn = document.getElementById(formId + ':retakeBtn');
+                        }
+
+                        if (cameraContainer) cameraContainer.style.display = 'none';
+                        if (capturedContainer) capturedContainer.style.display = 'block';
+                        if (captureBtn) captureBtn.style.display = 'none';
+                        if (stopBtn) stopBtn.style.display = 'none';
+                        if (retakeBtn) retakeBtn.style.display = 'inline-block';
+
+                        console.log('Photo captured successfully');
+                    }
+
+                    function retakePhoto() {
+                        console.log('retakePhoto() called');
+
+                        // Find the hidden field with or without form prefix
+                        const formId = document.querySelector('form').id;
+                        let hiddenField = document.getElementById('capturedImageData');
+                        if (!hiddenField && formId) {
+                            hiddenField = document.getElementById(formId + ':capturedImageData');
+                        }
+                        if (hiddenField) {
+                            hiddenField.value = '';
+                        }
+
+                        const capturedImage = document.getElementById('captured-image');
+                        if (capturedImage) {
+                            capturedImage.src = '';
+                        }
+
+                        const capturedContainer = document.getElementById('captured-image-container');
+
+                        let retakeBtn = document.getElementById('retakeBtn');
+                        let startBtn = document.getElementById('startCameraBtn');
+
+                        if (!retakeBtn && formId) {
+                            retakeBtn = document.getElementById(formId + ':retakeBtn');
+                            startBtn = document.getElementById(formId + ':startCameraBtn');
+                        }
+
+                        if (capturedContainer) capturedContainer.style.display = 'none';
+                        if (retakeBtn) retakeBtn.style.display = 'none';
+                        if (startBtn) startBtn.style.display = 'inline-block';
+
+                        console.log('Image cleared, ready to retake');
+                    }
+
+                    function stopCamera() {
+                        console.log('stopCamera() called');
+                        stopCameraStream();
+
+                        const cameraContainer = document.getElementById('camera-container');
+                        const capturedContainer = document.getElementById('captured-image-container');
+
+                        const formId = document.querySelector('form').id;
+                        let startBtn = document.getElementById('startCameraBtn');
+                        let captureBtn = document.getElementById('captureBtn');
+                        let stopBtn = document.getElementById('stopCameraBtn');
+                        let hiddenField = document.getElementById('capturedImageData');
+
+                        if (!startBtn && formId) {
+                            startBtn = document.getElementById(formId + ':startCameraBtn');
+                            captureBtn = document.getElementById(formId + ':captureBtn');
+                            stopBtn = document.getElementById(formId + ':stopCameraBtn');
+                            hiddenField = document.getElementById(formId + ':capturedImageData');
+                        }
+
+                        if (cameraContainer) cameraContainer.style.display = 'none';
+
+                        // Only show start button if no image is captured
+                        if (hiddenField && !hiddenField.value) {
+                            if (startBtn) startBtn.style.display = 'inline-block';
+                            if (capturedContainer) capturedContainer.style.display = 'none';
+                        }
+
+                        if (captureBtn) captureBtn.style.display = 'none';
+                        if (stopBtn) stopBtn.style.display = 'none';
+                    }
+
+                    function stopCameraStream() {
+                        if (cameraStream) {
+                            cameraStream.getTracks().forEach(track => track.stop());
+                            cameraStream = null;
+                            if (videoElement) {
+                                videoElement.srcObject = null;
+                            }
+                            console.log('Camera stopped');
+                        }
+                    }
+
+                    // Cleanup on page unload
+                    window.addEventListener('beforeunload', function() {
+                        stopCameraStream();
+                    });
+                    //]]>
+                </script>
+
+                <style>
+                    /* Additional mobile optimizations */
+                    @media (max-width: 576px) {
+                        .table td {
+                            font-size: 0.9rem;
+                            padding: 0.5rem;
+                        }
+
+                        .badge {
+                            font-size: 0.85rem !important;
+                        }
+                    }
+
+                    /* Improve input visibility */
+                    #qty {
+                        font-size: 1.5rem;
+                        font-weight: bold;
+                        color: #0d6efd;
+                    }
+
+                    /* Better table styling */
+                    .table-bordered td {
+                        vertical-align: middle;
+                    }
+
+                    /* Button improvements */
+                    .ui-button {
+                        font-size: 1.1rem;
+                        padding: 0.75rem 1.5rem;
+                    }
+
+                    /* PhotoCam styling */
+                    .ui-photocam {
+                        max-width: 100%;
+                        width: 100%;
+                    }
+
+                    .ui-photocam video {
+                        max-width: 100%;
+                        width: 100%;
+                        border-radius: 8px;
+                        border: 2px solid #ddd;
+                    }
+
+                    @media (max-width: 576px) {
+                        .ui-photocam video {
+                            max-height: 300px;
+                        }
+                    }
+
+                    /* Panel styling */
+                    .ui-panel .ui-panel-content {
+                        padding: 1rem;
+                    }
+
+                    /* Fix confirm dialog z-index and transparency */
+                    .ui-confirm-dialog,
+                    .ui-dialog.ui-confirm-dialog,
+                    .confirm-dialog-top {
+                        z-index: 9999 !important;
+                    }
+
+                    .ui-dialog {
+                        background-color: #ffffff !important;
+                        border: 1px solid #dee2e6 !important;
+                        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+                    }
+
+                    .ui-dialog .ui-dialog-content {
+                        background-color: #ffffff !important;
+                        color: #212529 !important;
+                        padding: 1.5rem !important;
+                    }
+
+                    .ui-dialog .ui-dialog-titlebar {
+                        background-color: #f8f9fa !important;
+                        color: #212529 !important;
+                        border-bottom: 1px solid #dee2e6 !important;
+                        padding: 1rem 1.5rem !important;
+                        font-weight: bold !important;
+                    }
+
+                    .ui-dialog-mask {
+                        z-index: 9998 !important;
+                        background-color: rgba(0, 0, 0, 0.5) !important;
+                    }
+
+                    /* Confirm dialog button styling */
+                    .ui-confirmdialog .ui-dialog-buttonpane {
+                        background-color: #f8f9fa !important;
+                        padding: 1rem 1.5rem !important;
+                        text-align: center !important;
+                    }
+
+                    .ui-confirmdialog-yes {
+                        margin-right: 0.5rem !important;
+                    }
+                </style>
+
+            </ui:define>
+
+        </ui:composition>
+
+    </h:body>
+</html>

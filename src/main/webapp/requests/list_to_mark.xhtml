@@ -15,95 +15,256 @@
             </ui:define>
 
             <ui:define name="content">
-                <div class="container-fluid p-2" >
-                    <h:form >
+                <style>
+                    .fuel-request-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        background: white;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                        border-radius: 8px;
+                        overflow: hidden;
+                    }
 
-                        <div class="card" >
-                            <div class="card-header" >
-                                <h2><h:outputText value="Search Fuel Requests"></h:outputText></h2>
-                            </div>
-                            <div class="card-body" >
+                    .fuel-request-table thead {
+                        background: #007bff;
+                        color: white;
+                    }
 
-                                <div class="row" >
-                                    <div class="col-2" >
-                                        <div class="form-group">
-                                            <label for="fromDate">From Date</label>
-                                            <p:datePicker
-                                                id="fromDate"
-                                                value="#{fuelRequestAndIssueController.fromDate}"
-                                                pattern="dd MMMM yyyy"
-                                                >
-                                            </p:datePicker>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="toDate">To Date</label>
-                                            <p:datePicker
-                                                id="toDate"
-                                                value="#{fuelRequestAndIssueController.toDate}"
-                                                pattern="dd MMMM yyyy"
-                                                >
-                                            </p:datePicker>
-                                        </div>
-                                        <div class="form-group d-flex justify-content-center">
-                                            <p:commandButton value="List Requests"
-                                                             ajax="false"
-                                                             action="#{fuelRequestAndIssueController.listInstitutionRequestsToMark}"
-                                                             icon="pi pi-check"
-                                                             class="btn btn-primary w-100 my-2" />
-                                        </div>
+                    .fuel-request-table th {
+                        padding: 12px 15px;
+                        text-align: left;
+                        font-weight: 600;
+                        font-size: 14px;
+                    }
 
-                                    </div>
-                                    <div class="col-10" >
-                                        <p:dataTable id="tbl" value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}" 
-                                                     rows="5"
-                                                     paginator="true"
-                                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                                     currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
-                                                     rowsPerPageTemplate="5,10,20,50,{ShowAll|'All'}"
-                                                     sortMode="multiple">
+                    .fuel-request-table tbody tr {
+                        border-bottom: 1px solid #e9ecef;
+                        transition: background-color 0.2s;
+                    }
 
-                                            <p:column headerText="Vehicle" sortBy="#{transaction.vehicle.vehicleNumber}" filterBy="#{transaction.vehicle.vehicleNumber}">
-                                                <h:outputText value="#{transaction.vehicle.vehicleNumber}" />
-                                            </p:column>
+                    .fuel-request-table tbody tr:hover {
+                        background-color: #f8f9fa;
+                    }
 
-                                            <p:column headerText="Requested At" sortBy="#{transaction.requestedDate}" filterBy="#{transaction.requestedDate}">
-                                                <h:outputText value="#{transaction.requestedDate}">
-                                                    <f:convertDateTime pattern="dd MMMM yyyy" />
-                                                </h:outputText>
-                                            </p:column>
+                    .fuel-request-table td {
+                        padding: 12px 15px;
+                        font-size: 14px;
+                    }
 
-                                            <p:column headerText="Requested Quantity" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}">
-                                                <h:outputText value="#{transaction.requestQuantity}" />
-                                            </p:column>
+                    .status-badge {
+                        display: inline-block;
+                        padding: 4px 12px;
+                        border-radius: 12px;
+                        font-size: 12px;
+                        font-weight: 600;
+                    }
 
-                                            <p:column headerText="Referance" 
-                                                      sortBy="#{transaction.requestReferenceNumber}" 
-                                                      filterBy="#{transaction.requestReferenceNumber}">
-                                                <h:outputText value="#{transaction.requestReferenceNumber}">
-                                                </h:outputText>
-                                            </p:column>
+                    .status-confirmed {
+                        background-color: #d4edda;
+                        color: #155724;
+                    }
 
+                    .status-dispensed {
+                        background-color: #fff3cd;
+                        color: #856404;
+                    }
 
+                    .status-ordered {
+                        background-color: #cce5ff;
+                        color: #004085;
+                    }
 
-                                            <p:column headerText="Actions">
-                                                <p:commandButton ajax="false"
-                                                                 value="View" 
-                                                                 class="btn btn-primary m-2 p-1"
-                                                                 action="#{fuelRequestAndIssueController.navigateToViewInstitutionFuelRequestToSltbDepot()}" >
-                                                    <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
-                                                </p:commandButton>
-                                                <p:commandButton value="To Mark as Received"
-                                                                 ajax="false"
-                                                                 class="btn btn-primary m-2 p-1"
-                                                                 action="#{fuelRequestAndIssueController.navigateToMarkVehicleFuelRequest()}" >
-                                                    <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}" ></f:setPropertyActionListener>
-                                                </p:commandButton>
-                                            </p:column>
+                    .filter-section {
+                        background: white;
+                        border-radius: 8px;
+                        padding: 20px;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                        margin-bottom: 20px;
+                    }
 
-                                        </p:dataTable>
+                    .filter-section h2 {
+                        font-size: 1.5rem;
+                        margin-bottom: 20px;
+                        color: #333;
+                    }
 
+                    @media screen and (max-width: 768px) {
+                        .fuel-request-table thead {
+                            display: none;
+                        }
+
+                        .fuel-request-table tbody tr {
+                            display: block;
+                            margin-bottom: 15px;
+                            border: 1px solid #dee2e6;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        }
+
+                        .fuel-request-table td {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 10px 15px;
+                            border-bottom: 1px solid #f1f3f5;
+                        }
+
+                        .fuel-request-table td:last-child {
+                            border-bottom: none;
+                        }
+
+                        .fuel-request-table td:before {
+                            content: attr(data-label);
+                            font-weight: 600;
+                            color: #495057;
+                        }
+
+                        .fuel-request-table td .btn {
+                            margin-top: 5px;
+                        }
+
+                        .filter-section .row {
+                            margin-bottom: 0;
+                        }
+                    }
+
+                    .table-wrapper {
+                        overflow-x: auto;
+                        -webkit-overflow-scrolling: touch;
+                    }
+
+                    .empty-state {
+                        text-align: center;
+                        padding: 40px 20px;
+                        color: #6c757d;
+                    }
+
+                    .empty-state i {
+                        font-size: 48px;
+                        margin-bottom: 15px;
+                        opacity: 0.5;
+                    }
+                </style>
+
+                <div class="container-fluid p-2">
+                    <h:form>
+                        <!-- Filter Section -->
+                        <div class="filter-section">
+                            <h2>Search Fuel Requests</h2>
+                            <div class="row">
+                                <div class="col-12 col-md-4 col-lg-3 mb-3">
+                                    <div class="form-group">
+                                        <label for="fromDate">From Date</label>
+                                        <p:datePicker
+                                            id="fromDate"
+                                            inputStyleClass="w-100"
+                                            value="#{fuelRequestAndIssueController.fromDate}"
+                                            pattern="dd MMMM yyyy"
+                                            styleClass="w-100"/>
                                     </div>
                                 </div>
+                                <div class="col-12 col-md-4 col-lg-3 mb-3">
+                                    <div class="form-group">
+                                        <label for="toDate">To Date</label>
+                                        <p:datePicker
+                                            id="toDate"
+                                            value="#{fuelRequestAndIssueController.toDate}"
+                                            pattern="dd MMMM yyyy"
+                                            inputStyleClass="w-100"
+                                            styleClass="w-100"/>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4 col-lg-3 mb-3">
+                                    <div class="form-group">
+                                        <label class="d-block" style="visibility: hidden;">Action</label>
+                                        <p:commandButton
+                                            value="List Requests"
+                                            ajax="false"
+                                            action="#{fuelRequestAndIssueController.listInstitutionRequestsToMark}"
+                                            icon="pi pi-search"
+                                            class="ui-button-success w-100"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table Section -->
+                        <div class="card">
+                            <div class="card-body p-0">
+                                <h:panelGroup rendered="#{fuelRequestAndIssueController.transactions != null and fuelRequestAndIssueController.transactions.size() > 0}">
+                                    <div class="table-wrapper">
+                                        <table class="fuel-request-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Vehicle</th>
+                                                    <th>Requested At</th>
+                                                    <th>Requested Quantity</th>
+                                                    <th>Reference</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <ui:repeat value="#{fuelRequestAndIssueController.transactions}" var="transaction">
+                                                    <tr>
+                                                        <td data-label="Vehicle">
+                                                            <h:outputText value="#{transaction.vehicle.vehicleNumber}"/>
+                                                        </td>
+                                                        <td data-label="Requested At">
+                                                            <h:outputText value="#{transaction.requestedDate}">
+                                                                <f:convertDateTime pattern="dd MMMM yyyy"/>
+                                                            </h:outputText>
+                                                        </td>
+                                                        <td data-label="Requested Quantity">
+                                                            <h:outputText value="#{transaction.requestQuantity}"/>
+                                                        </td>
+                                                        <td data-label="Reference">
+                                                            <h:outputText value="#{transaction.requestReferenceNumber}"/>
+                                                        </td>
+                                                        <td data-label="Status">
+                                                            <h:panelGroup rendered="#{transaction.issued}">
+                                                                <span class="status-badge status-confirmed">Confirmed</span>
+                                                            </h:panelGroup>
+                                                            <h:panelGroup rendered="#{transaction.dispensed and not transaction.issued}">
+                                                                <span class="status-badge status-dispensed">Dispensed</span>
+                                                            </h:panelGroup>
+                                                            <h:panelGroup rendered="#{not transaction.dispensed and not transaction.issued}">
+                                                                <span class="status-badge status-ordered">Ordered</span>
+                                                            </h:panelGroup>
+                                                        </td>
+                                                        <td data-label="Actions">
+                                                            <p:commandButton value="To Mark as Dispensed"
+                                                                             ajax="false"
+                                                                             icon="pi pi-send"
+                                                                             styleClass="ui-button-warning"
+                                                                             style="width: 100%; max-width: 200px;"
+                                                                             rendered="#{not transaction.dispensed}"
+                                                                             action="#{fuelRequestAndIssueController.navigateToDispenseVehicleFuelRequest()}">
+                                                                <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}"/>
+                                                            </p:commandButton>
+                                                            <p:commandButton value="To Mark as Received"
+                                                                             ajax="false"
+                                                                             icon="pi pi-check-circle"
+                                                                             styleClass="ui-button-success"
+                                                                             style="width: 100%; max-width: 200px;"
+                                                                             rendered="#{transaction.dispensed and not transaction.issued}"
+                                                                             action="#{fuelRequestAndIssueController.navigateToMarkVehicleFuelRequest()}">
+                                                                <f:setPropertyActionListener value="#{transaction}" target="#{fuelRequestAndIssueController.selected}"/>
+                                                            </p:commandButton>
+                                                        </td>
+                                                    </tr>
+                                                </ui:repeat>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{fuelRequestAndIssueController.transactions == null or fuelRequestAndIssueController.transactions.size() == 0}">
+                                    <div class="empty-state">
+                                        <i class="pi pi-inbox"></i>
+                                        <h4>No Fuel Requests Found</h4>
+                                        <p>Select a date range and click "List Requests" to view fuel requests.</p>
+                                    </div>
+                                </h:panelGroup>
                             </div>
                         </div>
                     </h:form>

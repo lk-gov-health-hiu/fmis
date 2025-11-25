@@ -153,47 +153,54 @@
                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                  rowsPerPageTemplate="10,25,100,{ShowAll|'All'}"
                                  currentPageReportTemplate="Showing {startRecord} to {endRecord} of {totalRecords} entries"
-                                 widgetVar="transactionTable">
+                                 widgetVar="transactionTable"
+                                 scrollable="true"
+                                 scrollWidth="100%">
 
+                        <f:facet name="header">
+                            <div style="text-align:right">
+                                <p:commandButton id="toggler" type="button" value="Select Columns" icon="pi pi-align-justify"/>
+                                <p:columnToggler datasource="tbl" trigger="toggler" />
+                            </div>
+                        </f:facet>
 
-
-                        <p:column headerText="Ordered Date" sortBy="#{transaction.date}" filterBy="#{transaction.date}" filterMatchMode="contains">
+                        <p:column headerText="Ordered Date" sortBy="#{transaction.date}" filterBy="#{transaction.date}" filterMatchMode="contains" width="150" toggleable="true">
                             <h:outputText value="#{transaction.formattedDate}">
                             </h:outputText>
                         </p:column>
 
-                        <p:column rendered="false"  headerText="Month" sortBy="#{transaction.date}" filterBy="#{transaction.date}" filterMatchMode="contains">
+                        <p:column rendered="false"  headerText="Month" sortBy="#{transaction.date}" filterBy="#{transaction.date}" filterMatchMode="contains" width="120" toggleable="true">
                             <h:outputText value="#{transaction.date}">
                                 <f:convertDateTime pattern="MMMM" ></f:convertDateTime>
                             </h:outputText>
                         </p:column>
 
-                        <p:column headerText="WEEK" rendered="false" sortBy="#{transaction.date}" filterBy="#{transaction.date}" filterMatchMode="contains">
+                        <p:column headerText="WEEK" rendered="false" sortBy="#{transaction.date}" filterBy="#{transaction.date}" filterMatchMode="contains" width="100" toggleable="true">
                             <h:outputText value="#{transaction.weekOfTheYear}">
                             </h:outputText>
                         </p:column>
 
-                        <p:column headerText="Transaction Type" sortBy="#{transaction.transactionTypeLabel}" filterBy="#{transaction.transactionTypeLabel}" filterMatchMode="contains">
+                        <p:column headerText="Transaction Type" sortBy="#{transaction.transactionTypeLabel}" filterBy="#{transaction.transactionTypeLabel}" filterMatchMode="contains" width="180" toggleable="true">
                             <h:outputText value="#{transaction.transactionTypeLabel}" />
                         </p:column>
 
-                        <p:column headerText="Status" sortBy="#{transaction.status}" filterBy="#{transaction.status}" filterMatchMode="contains">
+                        <p:column headerText="Status" sortBy="#{transaction.status}" filterBy="#{transaction.status}" filterMatchMode="contains" width="150" toggleable="true">
                             <h:outputText value="#{transaction.status}" />
                         </p:column>
 
-                        <p:column headerText="Institution" sortBy="#{transaction.fromInstitutionName}" filterBy="#{transaction.fromInstitutionName}" filterMatchMode="contains">
+                        <p:column headerText="Institution" sortBy="#{transaction.fromInstitutionName}" filterBy="#{transaction.fromInstitutionName}" filterMatchMode="contains" width="250" toggleable="true">
                             <h:outputText value="#{transaction.fromInstitutionName}" />
                         </p:column>
 
-                        <p:column headerText="Fuel Station" sortBy="#{transaction.toInstitutionName}" filterBy="#{transaction.toInstitutionName}" filterMatchMode="contains">
+                        <p:column headerText="Fuel Station" sortBy="#{transaction.toInstitutionName}" filterBy="#{transaction.toInstitutionName}" filterMatchMode="contains" width="250" toggleable="true">
                             <h:outputText value="#{transaction.toInstitutionName}" />
                         </p:column>
 
-                        <p:column headerText="Dealer Number" sortBy="#{transaction.toInstitutionCode}" filterBy="#{transaction.toInstitutionCode}" filterMatchMode="contains">
+                        <p:column headerText="Dealer Number" sortBy="#{transaction.toInstitutionCode}" filterBy="#{transaction.toInstitutionCode}" filterMatchMode="contains" width="150" toggleable="true">
                             <h:outputText value="#{transaction.toInstitutionCode}" />
                         </p:column>
 
-                        <p:column headerText="Requested Reference No" sortBy="#{transaction.requestReferenceNumber}" filterBy="#{transaction.requestReferenceNumber}" filterMatchMode="contains">
+                        <p:column headerText="Requested Reference No" sortBy="#{transaction.requestReferenceNumber}" filterBy="#{transaction.requestReferenceNumber}" filterMatchMode="contains" width="200" toggleable="true">
                             <p:commandLink
                                 ajax="false"
                                 value="#{transaction.requestReferenceNumber}"
@@ -203,42 +210,46 @@
                             </p:commandLink>
                         </p:column>
 
-                        <p:column headerText="Vehicle Number" sortBy="#{transaction.vehicleNumber}" filterBy="#{transaction.vehicleNumber}" filterMatchMode="contains">
+                        <p:column headerText="Vehicle Number" sortBy="#{transaction.vehicleNumber}" filterBy="#{transaction.vehicleNumber}" filterMatchMode="contains" width="150" toggleable="true">
                             <h:outputText value="#{transaction.vehicleNumber}" />
                         </p:column>
 
-                        <p:column headerText="Driver Name" sortBy="#{transaction.driverName}" filterBy="#{transaction.driverName}" filterMatchMode="contains">
+                        <p:column headerText="Driver Name" sortBy="#{transaction.driverName}" filterBy="#{transaction.driverName}" filterMatchMode="contains" width="200" toggleable="true">
                             <h:outputText value="#{transaction.driverName}" />
                         </p:column>
 
-                        <p:column headerText="Requested Qty" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}" >
+                        <p:column headerText="Requested Qty" sortBy="#{transaction.requestQuantity}" filterBy="#{transaction.requestQuantity}" width="130" toggleable="true">
                             <h:outputText value="#{transaction.requestQuantity}" />
                         </p:column>
 
-                        <p:column headerText="Confirmed Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}" >
+                        <p:column headerText="Confirmed Qty" sortBy="#{transaction.issuedQuantity}" filterBy="#{transaction.issuedQuantity}" width="130" toggleable="true">
                             <h:outputText value="#{transaction.issuedQuantity}" />
                         </p:column>
 
-                        <p:column headerText="Confirmed Date" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}" >
+                        <p:column headerText="Confirmed Date" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}" width="180" toggleable="true">
                             <h:outputText value="#{transaction.issuedDate}" >
                                 <f:convertDateTime pattern="yyyy MMMM dd" ></f:convertDateTime>
                             </h:outputText>
                         </p:column>
 
-                        <p:column headerText="Confirmation Ref No" sortBy="#{transaction.issueReferenceNumber}" filterBy="#{transaction.issueReferenceNumber}" filterMatchMode="contains">
+                        <p:column headerText="Confirmation Ref No" sortBy="#{transaction.issueReferenceNumber}" filterBy="#{transaction.issueReferenceNumber}" filterMatchMode="contains" width="200" toggleable="true">
                             <h:outputText value="#{transaction.issueReferenceNumber}" />
                         </p:column>
 
-                        <p:column headerText="Submitted to Payment At" sortBy="#{transaction.submittedToPaymentAt}" filterBy="#{transaction.submittedToPaymentAt}" filterMatchMode="contains">
+                        <p:column headerText="Submitted to Payment At" sortBy="#{transaction.submittedToPaymentAt}" filterBy="#{transaction.submittedToPaymentAt}" filterMatchMode="contains" width="200" toggleable="true">
                             <h:outputText value="#{transaction.submittedToPaymentAt}" >
                                 <f:convertDateTime pattern="yyyy MMMM dd" ></f:convertDateTime>
                             </h:outputText>
                         </p:column>
 
-                        <p:column headerText="CPC Approved" sortBy="#{transaction.acceptedByCpcAt}" filterBy="#{transaction.acceptedByCpcAt}" filterMatchMode="contains">
+                        <p:column headerText="CPC Approved" sortBy="#{transaction.acceptedByCpcAt}" filterBy="#{transaction.acceptedByCpcAt}" filterMatchMode="contains" width="180" toggleable="true">
                             <h:outputText value="#{transaction.acceptedByCpcAt}" >
                                 <f:convertDateTime pattern="yyyy MMMM" ></f:convertDateTime>
                             </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Dispensed Manually" sortBy="#{transaction.dispensedManually}" filterBy="#{transaction.dispensedManually}" filterMatchMode="contains" width="180" toggleable="true">
+                            <h:outputText value="#{transaction.dispensedManually ? 'Manually' : 'by Fuel Dispensor'}" />
                         </p:column>
 
                         <p:column width="150" headerText="Actions">

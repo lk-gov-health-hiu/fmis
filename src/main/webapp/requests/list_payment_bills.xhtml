@@ -24,35 +24,37 @@
                             </div>
                             <div class="card-body" >
 
-                                <div class="row" >
-                                    <div class="col-2 p-2" >
-                                        <h:panelGrid columns="2" class="w-100" >
-                                            <label for="fromDate">From Date</label>
-                                            <p:datePicker
-                                                id="fromDate"
-                                                value="#{fuelRequestAndIssueController.fromDate}"
-                                                pattern="dd MMMM yyyy"
-                                                >
-                                            </p:datePicker>
+                                <p:messages ></p:messages>
 
-                                            <label for="toDate">To Date</label>
-                                            <p:datePicker
-                                                id="toDate"
-                                                value="#{fuelRequestAndIssueController.toDate}"
-                                                pattern="dd MMMM yyyy"
-                                                >
-                                            </p:datePicker>
-                                        </h:panelGrid>
-                                        <h:panelGrid columns="1" class="w-100" >
-                                            <p:commandButton value="List Bills"
-                                                             action="#{fuelRequestAndIssueController.listPaymentBillsForInstitutions()}"
-                                                             icon="pi pi-list"
-                                                             ajax="false"
-                                                             class="btn btn-primary w-100 my-2" />
-                                        </h:panelGrid>
-                                        <p:messages ></p:messages>
-                                    </div>
-                                    <div class="col-10 p-2" >
+                                <p:panelGrid layout="tabular" columns="2" class="w-100 mb-3" >
+                                    <p:outputLabel value="From Date" for="fromDate" />
+                                    <p:datePicker
+                                        id="fromDate"
+                                        value="#{fuelRequestAndIssueController.fromDate}"
+                                        pattern="dd MMMM yyyy"
+                                        class="w-100">
+                                    </p:datePicker>
+
+                                    <p:outputLabel value="To Date" for="toDate" />
+                                    <p:datePicker
+                                        id="toDate"
+                                        value="#{fuelRequestAndIssueController.toDate}"
+                                        pattern="dd MMMM yyyy"
+                                        class="w-100">
+                                    </p:datePicker>
+
+                                    <p:outputLabel value="" />
+                                    <p:commandButton
+                                        value="List Bills"
+                                        action="#{fuelRequestAndIssueController.listPaymentBillsForInstitutions()}"
+                                        icon="pi pi-list"
+                                        ajax="false"
+                                        styleClass="ui-button-success"
+                                        class="w-100" />
+                                </p:panelGrid>
+
+                                <div class="row" >
+                                    <div class="col-12 p-2" >
                                         <p:dataTable
                                             id="tblBills"
                                             value="#{fuelRequestAndIssueController.bills}" var="bill" rowKey="#{bill.id}"
