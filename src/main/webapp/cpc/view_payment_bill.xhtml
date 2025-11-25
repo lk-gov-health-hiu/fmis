@@ -25,162 +25,218 @@
                             display: block !important;
                         }
                     }
+                    .compact-card .card-header {
+                        padding: 0.5rem 1rem;
+                    }
+                    .compact-card .card-body {
+                        padding: 1rem;
+                    }
+                    .compact-panelgrid .ui-panelgrid td {
+                        padding: 0.25rem 0.5rem;
+                    }
                 </style>
                 <div class="container-fluid p-2" >
                     <h:form id="billForm">
 
-                        <div class="card mb-3" >
-                            <div class="card-header bg-primary text-white" >
-                                <h2><h:outputText value="CPC - Payment Bill Details"></h:outputText></h2>
+                        <div class="card mb-2 compact-card" >
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" >
+                                <h4 class="mb-0"><h:outputText value="CPC - Payment Bill Details"></h:outputText></h4>
+                                <div>
+                                    <p:commandButton
+                                        value="Back"
+                                        action="#{fuelRequestAndIssueController.navigateToCpcListPaymentBills()}"
+                                        icon="pi pi-arrow-left"
+                                        ajax="false"
+                                        styleClass="ui-button-secondary ui-button-sm mr-1" />
+
+                                    <p:commandButton
+                                        value="Print"
+                                        ajax="false"
+                                        icon="pi pi-print"
+                                        styleClass="ui-button-info ui-button-sm"
+                                        rendered="#{fuelRequestAndIssueController.selectedBill != null}">
+                                        <p:printer target="billForm:panelBillPrint"/>
+                                    </p:commandButton>
+                                </div>
                             </div>
                             <div class="card-body" >
-                                <p:commandButton
-                                    value="Back to Bills List"
-                                    action="#{fuelRequestAndIssueController.navigateToCpcListPaymentBills()}"
-                                    icon="pi pi-arrow-left"
-                                    ajax="false"
-                                    class="ui-button-secondary mb-3 mr-2" />
 
-                                <p:commandButton
-                                    value="Print Bill"
-                                    ajax="false"
-                                    icon="pi pi-print"
-                                    styleClass="ui-button-info mb-3"
-                                    rendered="#{fuelRequestAndIssueController.selectedBill != null}">
-                                    <p:printer target="billForm:panelBillPrint"/>
-                                </p:commandButton>
-
-                                <p:messages ></p:messages>
+                                <p:messages id="messages" />
 
                                 <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill == null}">
-                                    <div class="alert alert-warning" role="alert">
-                                        <i class="pi pi-exclamation-triangle"></i> No bill selected. Please go back and select a bill.
+                                    <div class="alert alert-warning py-2" role="alert">
+                                        <i class="pi pi-exclamation-triangle"></i> No bill selected.
                                     </div>
                                 </h:panelGroup>
 
                                 <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill != null}">
-                                    <!-- Bill Header Information -->
-                                    <div class="card mb-3">
-                                        <div class="card-header bg-info text-white">
-                                            <h4>Bill Information</h4>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p:panelGrid layout="tabular" columns="2" class="w-100">
-                                                        <h:outputLabel value="Bill No:" styleClass="font-weight-bold"/>
-                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billNo}" />
-
-                                                        <h:outputLabel value="Monthly Number:" styleClass="font-weight-bold"/>
-                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.monthlyNumber}" />
-
-                                                        <h:outputLabel value="Bill Date:" styleClass="font-weight-bold"/>
-                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billDate}">
-                                                            <f:convertDateTime pattern="dd MMMM yyyy" />
-                                                        </h:outputText>
-
-                                                        <h:outputLabel value="Bill Type:" styleClass="font-weight-bold"/>
-                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billType}" />
-
-                                                        <h:outputLabel value="Created By:" styleClass="font-weight-bold"/>
-                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billUser.name}" />
-
-                                                        <h:outputLabel value="Created At:" styleClass="font-weight-bold"/>
-                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billTime}">
-                                                            <f:convertDateTime pattern="dd MMMM yyyy HH:mm:ss" />
-                                                        </h:outputText>
-                                                    </p:panelGrid>
+                                    <div class="row">
+                                        <!-- Left Column: Bill Info, CPC Status -->
+                                        <div class="col-lg-8">
+                                            <!-- Bill Header Information -->
+                                            <div class="card mb-2 compact-card">
+                                                <div class="card-header bg-info text-white">
+                                                    <h5 class="mb-0">Bill Information</h5>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <p:panelGrid layout="tabular" columns="2" class="w-100">
-                                                        <h:outputLabel value="From Institution:" styleClass="font-weight-bold"/>
-                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.fromInstitution.name}" />
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p:panelGrid layout="tabular" columns="2" styleClass="w-100 compact-panelgrid">
+                                                                <h:outputLabel value="Bill No:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billNo}" styleClass="font-weight-bold" />
 
-                                                        <h:outputLabel value="To Institution (Fuel Station):" styleClass="font-weight-bold"/>
-                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.toInstitution.name}" />
+                                                                <h:outputLabel value="Bill Date:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billDate}">
+                                                                    <f:convertDateTime pattern="dd MMM yyyy" />
+                                                                </h:outputText>
 
-                                                        <h:outputLabel value="Dealer Number:" styleClass="font-weight-bold"/>
-                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.toInstitution.code}" />
+                                                                <h:outputLabel value="Bill Type:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billType}" />
 
-                                                        <h:outputLabel value="Total Quantity:" styleClass="font-weight-bold"/>
-                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.totalQty}">
-                                                            <f:convertNumber pattern="#,##0.00" />
-                                                        </h:outputText>
-                                                    </p:panelGrid>
+                                                                <h:outputLabel value="Monthly Number:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.monthlyNumber}" />
+
+                                                                <h:outputLabel value="Total Quantity:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.totalQty}">
+                                                                    <f:convertNumber pattern="#,##0.00" />
+                                                                </h:outputText>
+                                                            </p:panelGrid>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p:panelGrid layout="tabular" columns="2" styleClass="w-100 compact-panelgrid">
+                                                                <h:outputLabel value="From Institution:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.fromInstitution.name}" />
+
+                                                                <h:outputLabel value="To Institution:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.toInstitution.name}" />
+
+                                                                <h:outputLabel value="Dealer Number:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.toInstitution.code}" />
+
+                                                                <h:outputLabel value="Created By:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billUser.name}" />
+
+                                                                <h:outputLabel value="Created At:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billTime}">
+                                                                    <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                                                </h:outputText>
+                                                            </p:panelGrid>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- CPC Acceptance/Rejection Status -->
+                                            <div class="card mb-2 compact-card">
+                                                <div class="card-header text-white"
+                                                     style="background-color: #{fuelRequestAndIssueController.selectedBill.acceptedByCpc ? '#28a745' : (fuelRequestAndIssueController.selectedBill.rejectedByCpc ? '#dc3545' : '#ffc107')}">
+                                                    <h5 class="mb-0">CPC Status</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <!-- Accepted Status -->
+                                                    <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill.acceptedByCpc}">
+                                                        <div class="alert alert-success py-2 mb-0">
+                                                            <strong><i class="pi pi-check-circle"></i> Accepted by CPC</strong>
+                                                            <p:panelGrid layout="tabular" columns="2" styleClass="w-100 compact-panelgrid mt-2">
+                                                                <h:outputLabel value="By:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.acceptedByCpcUser.name}" />
+                                                                <h:outputLabel value="At:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.acceptedByCpcAt}">
+                                                                    <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                                                </h:outputText>
+                                                            </p:panelGrid>
+                                                        </div>
+                                                    </h:panelGroup>
+
+                                                    <!-- Rejected Status -->
+                                                    <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill.rejectedByCpc}">
+                                                        <div class="alert alert-danger py-2 mb-2">
+                                                            <strong><i class="pi pi-times-circle"></i> Rejected by CPC</strong>
+                                                            <p:panelGrid layout="tabular" columns="2" styleClass="w-100 compact-panelgrid mt-2">
+                                                                <h:outputLabel value="By:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.rejectedByCpcUser.name}" />
+                                                                <h:outputLabel value="At:" />
+                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.rejectedByCpcAt}">
+                                                                    <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                                                </h:outputText>
+                                                            </p:panelGrid>
+                                                        </div>
+                                                        <div class="p-2" style="background: #fff3cd; border-left: 3px solid #dc3545;">
+                                                            <strong class="text-danger">Reason:</strong>
+                                                            <p class="mb-0 mt-1" style="white-space: pre-wrap;">#{fuelRequestAndIssueController.selectedBill.rejectionComment}</p>
+                                                        </div>
+                                                    </h:panelGroup>
+
+                                                    <!-- Pending Status -->
+                                                    <h:panelGroup rendered="#{!fuelRequestAndIssueController.selectedBill.acceptedByCpc and !fuelRequestAndIssueController.selectedBill.rejectedByCpc}">
+                                                        <div class="alert alert-warning py-2 mb-0">
+                                                            <i class="pi pi-clock"></i> <strong>Pending CPC Review</strong>
+                                                        </div>
+                                                    </h:panelGroup>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column: Certified Receipt Sidebar -->
+                                        <div class="col-lg-4">
+                                            <div class="card mb-2 compact-card" style="position: sticky; top: 10px;">
+                                                <div class="card-header bg-warning text-dark">
+                                                    <h5 class="mb-0"><i class="pi pi-file"></i> Receipt</h5>
+                                                </div>
+                                                <div class="card-body text-center">
+                                                    <!-- Receipt Exists -->
+                                                    <h:panelGroup rendered="#{fuelRequestAndIssueController.hasCertifiedReceipt()}">
+                                                        <!-- Preview -->
+                                                        <h:panelGroup rendered="#{fuelRequestAndIssueController.isReceiptImage()}">
+                                                            <p:graphicImage
+                                                                value="#{fuelRequestAndIssueController.certifiedReceiptPreview}"
+                                                                style="max-width: 100%; height: auto; max-height: 200px; border: 1px solid #ddd; border-radius: 4px; object-fit: contain; background: #f5f5f5;"
+                                                                cache="false" />
+                                                        </h:panelGroup>
+                                                        <h:panelGroup rendered="#{fuelRequestAndIssueController.isReceiptPdf()}">
+                                                            <div style="padding: 20px;">
+                                                                <i class="pi pi-file-pdf" style="font-size: 3rem; color: #dc3545;"></i>
+                                                                <p class="mb-0 mt-2"><small>PDF Document</small></p>
+                                                            </div>
+                                                        </h:panelGroup>
+
+                                                        <div class="mt-2" style="font-size: 0.85rem;">
+                                                            <p class="mb-1"><strong>#{fuelRequestAndIssueController.selectedBill.certifiedReceiptFileName}</strong></p>
+                                                            <p class="mb-1 text-muted">#{fuelRequestAndIssueController.formattedFileSize}</p>
+                                                            <p class="mb-2 text-muted">
+                                                                <small>by #{fuelRequestAndIssueController.selectedBill.certifiedReceiptUploadedBy.name}</small><br/>
+                                                                <small><h:outputText value="#{fuelRequestAndIssueController.selectedBill.certifiedReceiptUploadedAt}">
+                                                                    <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                                                </h:outputText></small>
+                                                            </p>
+                                                        </div>
+
+                                                        <div class="d-flex justify-content-center gap-1 flex-wrap" role="group">
+                                                            <p:commandButton
+                                                                value="View Receipt"
+                                                                action="#{fuelRequestAndIssueController.downloadCertifiedReceipt()}"
+                                                                icon="pi pi-eye"
+                                                                ajax="false"
+                                                                styleClass="ui-button-info ui-button-sm" />
+                                                        </div>
+                                                    </h:panelGroup>
+
+                                                    <!-- No Receipt -->
+                                                    <h:panelGroup rendered="#{!fuelRequestAndIssueController.hasCertifiedReceipt()}">
+                                                        <div class="py-3">
+                                                            <i class="pi pi-file" style="font-size: 2.5rem; color: #999;"></i>
+                                                            <p class="text-muted mt-2 mb-0"><small>No receipt uploaded</small></p>
+                                                        </div>
+                                                    </h:panelGroup>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- CPC Acceptance/Rejection Status -->
-                                    <div class="card mb-3">
-                                        <div class="card-header text-white"
-                                             style="background-color: #{fuelRequestAndIssueController.selectedBill.acceptedByCpc ? '#28a745' : (fuelRequestAndIssueController.selectedBill.rejectedByCpc ? '#dc3545' : '#ffc107')}">
-                                            <h4>CPC Payment Status</h4>
-                                        </div>
-                                        <div class="card-body">
-                                            <!-- Accepted Status -->
-                                            <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill.acceptedByCpc}">
-                                                <div class="alert alert-success">
-                                                    <h5><i class="pi pi-check-circle"></i> Payment Accepted by CPC</h5>
-                                                    <div class="row mt-3">
-                                                        <div class="col-md-6">
-                                                            <p:panelGrid layout="tabular" columns="2" class="w-100">
-                                                                <h:outputLabel value="Accepted By:" styleClass="font-weight-bold"/>
-                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.acceptedByCpcUser.name}" />
-
-                                                                <h:outputLabel value="Accepted At:" styleClass="font-weight-bold"/>
-                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.acceptedByCpcAt}">
-                                                                    <f:convertDateTime pattern="dd MMMM yyyy HH:mm:ss" />
-                                                                </h:outputText>
-                                                            </p:panelGrid>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </h:panelGroup>
-
-                                            <!-- Rejected Status -->
-                                            <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill.rejectedByCpc}">
-                                                <div class="alert alert-danger">
-                                                    <h5><i class="pi pi-times-circle"></i> Payment Rejected by CPC</h5>
-                                                    <div class="row mt-3">
-                                                        <div class="col-md-6">
-                                                            <p:panelGrid layout="tabular" columns="2" class="w-100">
-                                                                <h:outputLabel value="Rejected By:" styleClass="font-weight-bold"/>
-                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.rejectedByCpcUser.name}" />
-
-                                                                <h:outputLabel value="Rejected At:" styleClass="font-weight-bold"/>
-                                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.rejectedByCpcAt}">
-                                                                    <f:convertDateTime pattern="dd MMMM yyyy HH:mm:ss" />
-                                                                </h:outputText>
-                                                            </p:panelGrid>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mt-3">
-                                                        <h:outputLabel value="Rejection Reason:" styleClass="font-weight-bold text-danger"/>
-                                                        <div class="card mt-2" style="border: 2px solid #dc3545;">
-                                                            <div class="card-body">
-                                                                <p style="white-space: pre-wrap; color: #333;">#{fuelRequestAndIssueController.selectedBill.rejectionComment}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </h:panelGroup>
-
-                                            <!-- Pending Status -->
-                                            <h:panelGroup rendered="#{!fuelRequestAndIssueController.selectedBill.acceptedByCpc and !fuelRequestAndIssueController.selectedBill.rejectedByCpc}">
-                                                <div class="alert alert-warning">
-                                                    <h5><i class="pi pi-clock"></i> Pending CPC Review</h5>
-                                                    <p>This payment bill is awaiting review and action by CPC.</p>
-                                                </div>
-                                            </h:panelGroup>
-                                        </div>
-                                    </div>
-
-                                    <!-- Bill Items (Transactions) -->
-                                    <div class="card">
+                                    <!-- Full Width Transactions Section -->
+                                    <div class="card compact-card mt-2">
                                         <div class="card-header bg-success text-white">
-                                            <h4>Transactions in this Bill</h4>
+                                            <h5 class="mb-0">Transactions</h5>
                                         </div>
                                         <div class="card-body">
                                             <p:dataTable
@@ -273,14 +329,12 @@
 
                                             </p:dataTable>
 
-                                            <div class="mt-3 alert alert-info">
-                                                <h5>Summary</h5>
-                                                <p><strong>Total Transactions:</strong> #{fuelRequestAndIssueController.selectedBillTransactions.size()}</p>
-                                                <p><strong>Total Quantity:</strong>
-                                                    <h:outputText value="#{fuelRequestAndIssueController.selectedBill.totalQty}">
-                                                        <f:convertNumber pattern="#,##0.00" />
-                                                    </h:outputText> Liters
-                                                </p>
+                                            <div class="alert alert-info py-2 mb-0 mt-2">
+                                                <strong>Summary:</strong>
+                                                #{fuelRequestAndIssueController.selectedBillTransactions.size()} transactions,
+                                                <h:outputText value="#{fuelRequestAndIssueController.selectedBill.totalQty}">
+                                                    <f:convertNumber pattern="#,##0.00" />
+                                                </h:outputText> Liters
                                             </div>
                                         </div>
                                     </div>
