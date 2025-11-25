@@ -2,102 +2,113 @@
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-    xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:ez="http://xmlns.jcp.org/jsf/composite/ezcomp"
-    xmlns:p="http://primefaces.org/ui">
-<h:head>
-    <ui:define name="title">
-        <title>The Fuel Management Information System</title>
-    </ui:define>
-</h:head>
-<h:body>
-    <ui:composition template="./template.xhtml">
-        <ui:define name="content">
-            <!-- Fuel Dispenser Dashboard - Only for Fuel Dispensors -->
-            <ui:fragment rendered="#{webUserController.cpcFuelDispensor}">
-                <h:form>
-                    <div class="container-fluid">
-                        <div class="row justify-content-center mt-5">
-                            <div class="col-md-8 col-lg-6">
-                                <div class="dashboard-card card border-0 h-100">
-                                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0 text-center">
-                                        <h5 class="text-uppercase text-muted mb-0"
-                                            style="letter-spacing: 1px; font-size: 0.9rem;">Quick Action</h5>
-                                        <h3 class="mt-2" style="color: #2d3748; font-weight: 700;">Fuel Dispense</h3>
-                                    </div>
-                                    <div class="card-body text-center p-5">
-                                        <div class="mb-4">
-                                            <i class="pi pi-qrcode" style="font-size: 4rem; color: #667eea;"></i>
-                                        </div>
-                                        <p class="text-muted mb-4" style="font-size: 1.1rem;">
-                                            Scan the vehicle's QR code to instantly access fuel dispensing details and
-                                            authorize transactions.
-                                        </p>
-                                        <p:commandButton value="Scan QR Code" ajax="false"
-                                            action="#{fuelDispenseController.navigateToQrScan()}" icon="pi pi-camera"
-                                            styleClass="btn-login w-auto px-5 py-3"
-                                            style="background: linear-gradient(to right, #667eea, #764ba2); border: none;" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </h:form>
-            </ui:fragment>
-
-            <!-- Transport Branch Dashboard - Only for Transport Branch Users -->
-            <ui:fragment rendered="#{webUserController.institutionTransportUser}">
-                <h:form>
-                    <div class="container-fluid">
-                        <div class="row justify-content-center mt-5">
-                            <div class="col-md-10 col-lg-8">
-                                <div class="dashboard-card card border-0 h-100">
-                                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0 text-center">
-                                        <h5 class="text-uppercase text-muted mb-0"
-                                            style="letter-spacing: 1px; font-size: 0.9rem;">Quick Actions</h5>
-                                        <h3 class="mt-2" style="color: #2d3748; font-weight: 700;">Fuel Request Management</h3>
-                                    </div>
-                                    <div class="card-body text-center p-5">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <div class="mb-4">
-                                                    <i class="pi pi-file" style="font-size: 3rem; color: #4CAF50;"></i>
-                                                </div>
-                                                <h5 class="mb-3">Create Fuel Order</h5>
-                                                <p class="text-muted mb-4">
-                                                    Create a new fuel request order for your institution's vehicles.
-                                                </p>
-                                                <p:commandButton value="Create Order" ajax="false"
-                                                    action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}"
-                                                    icon="pi pi-plus"
-                                                    styleClass="btn-login w-auto px-4 py-2"
-                                                    style="background: linear-gradient(to right, #4CAF50, #45a049); border: none;" />
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <div class="mb-4">
-                                                    <i class="pi pi-star" style="font-size: 3rem; color: #FF9800;"></i>
-                                                </div>
-                                                <h5 class="mb-3">Create Special Fuel Order</h5>
-                                                <p class="text-muted mb-4">
-                                                    Create a special fuel request order with custom requirements.
-                                                </p>
-                                                <p:commandButton value="Create Special Order" ajax="false"
-                                                    action="#{fuelRequestAndIssueController.navigateToAddSpecialVehicleFuelRequest()}"
-                                                    icon="pi pi-star"
-                                                    styleClass="btn-login w-auto px-4 py-2"
-                                                    style="background: linear-gradient(to right, #FF9800, #F57C00); border: none;" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </h:form>
-            </ui:fragment>
-
+      xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:ez="http://xmlns.jcp.org/jsf/composite/ezcomp"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <ui:define name="title">
+            <title>The Fuel Management Information System</title>
         </ui:define>
-    </ui:composition>
+    </h:head>
+    <h:body>
+        <ui:composition template="./template.xhtml">
+            <ui:define name="content">
+                <!-- Fuel Dispenser Dashboard - Only for Fuel Dispensors -->
+                <ui:fragment rendered="#{webUserController.cpcFuelDispensor}">
+                    <h:form>
+                        <div class="container-fluid">
+                            <div class="row justify-content-center mt-5">
+                                <div class="col-md-8 col-lg-6">
+                                    <div class="dashboard-card card border-0 h-100">
+                                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 text-center">
+                                            <h5 class="text-uppercase text-muted mb-0"
+                                                style="letter-spacing: 1px; font-size: 0.9rem;">Quick Action</h5>
+                                            <h3 class="mt-2" style="color: #2d3748; font-weight: 700;">Fuel Dispense</h3>
+                                        </div>
+                                        <div class="card-body text-center p-5">
+                                            <div class="mb-4">
+                                                <i class="pi pi-qrcode" style="font-size: 4rem; color: #667eea;"></i>
+                                            </div>
+                                            <p class="text-muted mb-4" style="font-size: 1.1rem;">
+                                                Scan the vehicle's QR code to instantly access fuel dispensing details and
+                                                authorize transactions.
+                                            </p>
+                                            <p:commandButton value="Scan QR Code" ajax="false"
+                                                             action="#{fuelDispenseController.navigateToQrScan()}" icon="pi pi-camera"
+                                                             styleClass="btn-login w-auto px-5 py-3"
+                                                             style="background: linear-gradient(to right, #667eea, #764ba2); border: none;" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </h:form>
+                </ui:fragment>
 
-</h:body>
+                <!-- Transport Branch Dashboard - Only for Transport Branch Users -->
+                <ui:fragment rendered="#{webUserController.institutionTransportUser}">
+                    <h:form>
+                        <div class="container-fluid">
+                            <div class="row justify-content-center mt-5">
+                                <div class="col-md-10 col-lg-8">
+                                    <div class="dashboard-card card border-0 h-100">
+                                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 text-center">
+                                            <h5 class="text-uppercase text-muted mb-0"
+                                                style="letter-spacing: 1px; font-size: 0.9rem;">Quick Actions</h5>
+                                            <h3 class="mt-2" style="color: #2d3748; font-weight: 700;">Fuel Request Management</h3>
+                                        </div>
+                                        <div class="card-body text-center p-5">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="mb-4">
+                                                        <i class="pi pi-file" style="font-size: 3rem; color: #4CAF50;"></i>
+                                                    </div>
+                                                    <h5 class="mb-3">Create Fuel Order</h5>
+                                                    <p class="text-muted mb-4">
+                                                        Create a new fuel request order for your institution's vehicles.
+                                                    </p>
+                                                    <p:commandButton value="Create Order" ajax="false"
+                                                                     action="#{fuelRequestAndIssueController.navigateToAddVehicleFuelRequest()}"
+                                                                     icon="pi pi-plus"
+                                                                     styleClass="btn-login w-auto px-4 py-2"
+                                                                     style="background: linear-gradient(to right, #4CAF50, #45a049); border: none;" />
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="mb-4">
+                                                        <i class="pi pi-star" style="font-size: 3rem; color: #FF9800;"></i>
+                                                    </div>
+                                                    <h5 class="mb-3">Create Special Fuel Order</h5>
+                                                    <p class="text-muted mb-4">
+                                                        Create a special fuel request order with custom requirements.
+                                                    </p>
+                                                    <p:commandButton value="Create Special Order" ajax="false"
+                                                                     action="#{fuelRequestAndIssueController.navigateToAddSpecialVehicleFuelRequest()}"
+                                                                     icon="pi pi-star"
+                                                                     styleClass="btn-login w-auto px-4 py-2"
+                                                                     style="background: linear-gradient(to right, #FF9800, #F57C00); border: none;" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </h:form>
+                </ui:fragment>
+
+
+                <!-- Institution Dashboard - Only for Institution Administrators and Super Users -->
+                <ui:fragment rendered="#{webUserController.institutionDashboardVisible}">
+                    <ez:dashboardInstitution ></ez:dashboardInstitution>
+                </ui:fragment>
+
+                <!-- National Dashboard - Only for System Admins, Super Users, M&E Users, and CPC Users -->
+                <ui:fragment rendered="#{webUserController.nationalDashboardVisible}">
+                    <ez:dashboardNational ></ez:dashboardNational>
+                </ui:fragment>
+
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
 
 </html>
