@@ -26,7 +26,7 @@
 
                                 <p:messages ></p:messages>
 
-                                <p:panelGrid layout="tabular" columns="2" class="w-100 mb-3" >
+                                <p:panelGrid layout="tabular" columns="9" class="w-100 mb-3" >
                                     <p:outputLabel value="From Date" for="fromDate" />
                                     <p:datePicker
                                         id="fromDate"
@@ -34,6 +34,7 @@
                                         pattern="dd MMMM yyyy"
                                         class="w-100">
                                     </p:datePicker>
+                                    <p:spacer ></p:spacer>
 
                                     <p:outputLabel value="To Date" for="toDate" />
                                     <p:datePicker
@@ -42,8 +43,8 @@
                                         pattern="dd MMMM yyyy"
                                         class="w-100">
                                     </p:datePicker>
+                                    <p:spacer ></p:spacer>
 
-                                    <p:outputLabel value="" />
                                     <p:commandButton
                                         value="List Bills"
                                         action="#{fuelRequestAndIssueController.listPaymentBillsForInstitutions()}"
@@ -124,8 +125,28 @@
                                                 <p:commandButton value="View"
                                                                  ajax="false"
                                                                  icon="fa fa-eye"
-                                                                 styleClass="ui-button-info"
+                                                                 styleClass="ui-button-info mr-1"
                                                                  action="#{fuelRequestAndIssueController.navigateToViewPaymentBill()}" >
+                                                    <f:setPropertyActionListener value="#{bill}" target="#{fuelRequestAndIssueController.selectedBill}" />
+                                                </p:commandButton>
+
+                                                <!-- Show Upload button only if no receipt exists and user has permission -->
+                                                <p:commandButton value="Upload Receipt"
+                                                                 ajax="false"
+                                                                 icon="pi pi-upload"
+                                                                 styleClass="ui-button-warning"
+                                                                 action="#{fuelRequestAndIssueController.navigateToUploadCertifiedReceipt()}"
+                                                                 rendered="#{!bill.hasReceipt and fuelRequestAndIssueController.canUploadReceipt()}" >
+                                                    <f:setPropertyActionListener value="#{bill}" target="#{fuelRequestAndIssueController.selectedBill}" />
+                                                </p:commandButton>
+
+                                                <!-- Show View Receipt button if receipt exists -->
+                                                <p:commandButton value="View Receipt"
+                                                                 ajax="false"
+                                                                 icon="pi pi-file"
+                                                                 styleClass="ui-button-success"
+                                                                 action="#{fuelRequestAndIssueController.navigateToViewPaymentBill()}"
+                                                                 rendered="#{bill.hasReceipt}" >
                                                     <f:setPropertyActionListener value="#{bill}" target="#{fuelRequestAndIssueController.selectedBill}" />
                                                 </p:commandButton>
                                             </p:column>

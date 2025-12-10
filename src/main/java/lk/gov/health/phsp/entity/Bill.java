@@ -126,6 +126,32 @@ public class Bill implements Serializable {
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BillItem> billItems;
 
+    // Certified Receipt fields
+    @javax.persistence.Lob
+    @javax.persistence.Basic(fetch = FetchType.LAZY)
+    @Column(name = "certified_receipt_file", columnDefinition = "LONGBLOB")
+    private byte[] certifiedReceiptFile;
+
+    @Column(name = "certified_receipt_file_name", length = 255)
+    private String certifiedReceiptFileName;
+
+    @Column(name = "certified_receipt_file_type", length = 100)
+    private String certifiedReceiptFileType;
+
+    @Column(name = "certified_receipt_file_size")
+    private Long certifiedReceiptFileSize;
+
+    @ManyToOne
+    @JoinColumn(name = "certified_receipt_uploaded_by_id")
+    private WebUser certifiedReceiptUploadedBy;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "certified_receipt_uploaded_at")
+    private Date certifiedReceiptUploadedAt;
+
+    @Column(name = "has_receipt")
+    private boolean hasReceipt;
+
     
     
     
@@ -346,6 +372,62 @@ public class Bill implements Serializable {
 
     public void setFuelPrice(FuelPrice fuelPrice) {
         this.fuelPrice = fuelPrice;
+    }
+
+    public byte[] getCertifiedReceiptFile() {
+        return certifiedReceiptFile;
+    }
+
+    public void setCertifiedReceiptFile(byte[] certifiedReceiptFile) {
+        this.certifiedReceiptFile = certifiedReceiptFile;
+    }
+
+    public String getCertifiedReceiptFileName() {
+        return certifiedReceiptFileName;
+    }
+
+    public void setCertifiedReceiptFileName(String certifiedReceiptFileName) {
+        this.certifiedReceiptFileName = certifiedReceiptFileName;
+    }
+
+    public String getCertifiedReceiptFileType() {
+        return certifiedReceiptFileType;
+    }
+
+    public void setCertifiedReceiptFileType(String certifiedReceiptFileType) {
+        this.certifiedReceiptFileType = certifiedReceiptFileType;
+    }
+
+    public Long getCertifiedReceiptFileSize() {
+        return certifiedReceiptFileSize;
+    }
+
+    public void setCertifiedReceiptFileSize(Long certifiedReceiptFileSize) {
+        this.certifiedReceiptFileSize = certifiedReceiptFileSize;
+    }
+
+    public WebUser getCertifiedReceiptUploadedBy() {
+        return certifiedReceiptUploadedBy;
+    }
+
+    public void setCertifiedReceiptUploadedBy(WebUser certifiedReceiptUploadedBy) {
+        this.certifiedReceiptUploadedBy = certifiedReceiptUploadedBy;
+    }
+
+    public Date getCertifiedReceiptUploadedAt() {
+        return certifiedReceiptUploadedAt;
+    }
+
+    public void setCertifiedReceiptUploadedAt(Date certifiedReceiptUploadedAt) {
+        this.certifiedReceiptUploadedAt = certifiedReceiptUploadedAt;
+    }
+
+    public boolean isHasReceipt() {
+        return hasReceipt;
+    }
+
+    public void setHasReceipt(boolean hasReceipt) {
+        this.hasReceipt = hasReceipt;
     }
 
     @Transient
