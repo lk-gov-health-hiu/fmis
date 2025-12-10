@@ -1,0 +1,206 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../template.xhtml">
+
+            <ui:define name="title">
+                Upload Certified Receipt
+            </ui:define>
+
+            <ui:define name="content">
+                <div class="container-fluid p-2" >
+                    <h:form id="uploadForm" enctype="multipart/form-data">
+
+                        <div class="card mb-3" >
+                            <div class="card-header bg-primary text-white" >
+                                <h2><h:outputText value="Upload Certified Receipt"></h:outputText></h2>
+                            </div>
+                            <div class="card-body" >
+
+                                <p:messages id="messages" />
+
+                                <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill == null}">
+                                    <div class="alert alert-warning" role="alert">
+                                        <i class="pi pi-exclamation-triangle"></i> No bill selected. Please go back and select a bill.
+                                    </div>
+                                    <p:commandButton
+                                        value="Back to Bills List"
+                                        action="#{fuelRequestAndIssueController.navigateBackFromUploadReceipt()}"
+                                        icon="pi pi-arrow-left"
+                                        ajax="false"
+                                        styleClass="ui-button-secondary" />
+                                </h:panelGroup>
+
+                                <!-- Check permission -->
+                                <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill != null and !fuelRequestAndIssueController.canUploadReceipt() and !fuelRequestAndIssueController.canReplaceOrDeleteReceipt()}">
+                                    <div class="alert alert-danger" role="alert">
+                                        <i class="pi pi-ban"></i> You do not have permission to upload receipts. This function is restricted to Institution Account Branch Users.
+                                    </div>
+                                    <p:commandButton
+                                        value="Back to Bills List"
+                                        action="#{fuelRequestAndIssueController.navigateBackFromUploadReceipt()}"
+                                        icon="pi pi-arrow-left"
+                                        ajax="false"
+                                        styleClass="ui-button-secondary" />
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{fuelRequestAndIssueController.selectedBill != null and (fuelRequestAndIssueController.canUploadReceipt() or fuelRequestAndIssueController.canReplaceOrDeleteReceipt())}">
+
+                                    <!-- Bill Information Section -->
+                                    <div class="card mb-4">
+                                        <div class="card-header bg-info text-white">
+                                            <h4>Bill Details</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <p:panelGrid layout="tabular" columns="2" class="w-100">
+                                                        <h:outputLabel value="Bill No:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billNo}" />
+
+                                                        <h:outputLabel value="Bill Date:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billDate}">
+                                                            <f:convertDateTime pattern="dd MMMM yyyy" />
+                                                        </h:outputText>
+
+                                                        <h:outputLabel value="Bill Type:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.billType}" />
+
+                                                        <h:outputLabel value="Total Quantity:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.totalQty}">
+                                                            <f:convertNumber pattern="#,##0.00" />
+                                                        </h:outputText>
+                                                    </p:panelGrid>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p:panelGrid layout="tabular" columns="2" class="w-100">
+                                                        <h:outputLabel value="From Institution:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.fromInstitution.name}" />
+
+                                                        <h:outputLabel value="To Institution:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.toInstitution.name}" />
+
+                                                        <h:outputLabel value="Dealer Number:" styleClass="font-weight-bold"/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.selectedBill.toInstitution.code}" />
+                                                    </p:panelGrid>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Current Receipt Information -->
+                                    <h:panelGroup rendered="#{fuelRequestAndIssueController.hasCertifiedReceipt()}">
+                                        <div class="card mb-4 border-warning">
+                                            <div class="card-header bg-warning text-dark">
+                                                <h4><i class="pi pi-info-circle"></i> Current Receipt Information</h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <p:panelGrid layout="tabular" columns="2" class="w-100">
+                                                    <h:outputLabel value="File Name:" styleClass="font-weight-bold"/>
+                                                    <h:outputText value="#{fuelRequestAndIssueController.selectedBill.certifiedReceiptFileName}" />
+
+                                                    <h:outputLabel value="File Size:" styleClass="font-weight-bold"/>
+                                                    <h:outputText value="#{fuelRequestAndIssueController.formattedFileSize}" />
+
+                                                    <h:outputLabel value="Uploaded By:" styleClass="font-weight-bold"/>
+                                                    <h:outputText value="#{fuelRequestAndIssueController.selectedBill.certifiedReceiptUploadedBy.name}" />
+
+                                                    <h:outputLabel value="Uploaded At:" styleClass="font-weight-bold"/>
+                                                    <h:outputText value="#{fuelRequestAndIssueController.selectedBill.certifiedReceiptUploadedAt}">
+                                                        <f:convertDateTime pattern="dd MMMM yyyy HH:mm:ss" />
+                                                    </h:outputText>
+                                                </p:panelGrid>
+                                                <div class="alert alert-info mt-3">
+                                                    <i class="pi pi-info-circle"></i> Uploading a new file will replace the existing receipt.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </h:panelGroup>
+
+                                    <!-- Upload Section -->
+                                    <div class="card mb-4">
+                                        <div class="card-header bg-success text-white">
+                                            <h4>Upload New Receipt</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <h:outputLabel value="Select File (PDF, JPG, PNG, GIF - Max 10MB):" styleClass="font-weight-bold mb-2 d-block"/>
+                                                    <p:fileUpload
+                                                        id="fileUpload"
+                                                        value="#{fuelRequestAndIssueController.certifiedReceiptFile}"
+                                                        mode="simple"
+                                                        skinSimple="true"
+                                                        accept=".pdf,.jpg,.jpeg,.png,.gif,application/pdf,image/jpeg,image/png,image/gif"
+                                                        sizeLimit="10485760"
+                                                        class="w-100 mb-3" />
+
+                                                    <div class="alert alert-info">
+                                                        <h5><i class="pi pi-info-circle"></i> Upload Guidelines:</h5>
+                                                        <ul>
+                                                            <li>Accepted formats: PDF, JPG, PNG, GIF</li>
+                                                            <li>Maximum file size: 10MB</li>
+                                                            <li>The file will be saved with its original name</li>
+                                                            <li>If a receipt already exists, it will be replaced</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="mb-3">
+                                        <p:commandButton
+                                            value="Save Receipt"
+                                            action="#{fuelRequestAndIssueController.uploadCertifiedReceipt()}"
+                                            icon="pi pi-save"
+                                            ajax="false"
+                                            styleClass="ui-button-success mr-2" />
+
+                                        <p:commandButton
+                                            value="Cancel"
+                                            action="#{fuelRequestAndIssueController.navigateBackFromUploadReceipt()}"
+                                            icon="pi pi-times"
+                                            ajax="false"
+                                            styleClass="ui-button-secondary mr-2" />
+
+                                        <p:commandButton
+                                            value="Delete Current Receipt"
+                                            action="#{fuelRequestAndIssueController.deleteCertifiedReceipt()}"
+                                            icon="pi pi-trash"
+                                            update="messages"
+                                            styleClass="ui-button-danger"
+                                            rendered="#{fuelRequestAndIssueController.hasCertifiedReceipt()}">
+                                            <p:confirm header="Confirm Delete"
+                                                       message="Are you sure you want to delete this receipt?"
+                                                       icon="pi pi-exclamation-triangle" />
+                                        </p:commandButton>
+                                    </div>
+
+                                </h:panelGroup>
+
+                            </div>
+                        </div>
+
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+                        </p:confirmDialog>
+
+                    </h:form>
+                </div>
+
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

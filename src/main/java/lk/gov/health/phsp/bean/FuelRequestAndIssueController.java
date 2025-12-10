@@ -118,6 +118,9 @@ public class FuelRequestAndIssueController implements Serializable {
 
     private String searchingFuelRequestVehicleNumber;
 
+    // Certified Receipt Upload
+    private org.primefaces.model.file.UploadedFile certifiedReceiptFile;
+
     // Filter properties for list_bills_to_accept
     private String billNumberFilter;
     private Institution filterFromInstitution;
@@ -2859,6 +2862,282 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setFilterFuelStation(Institution filterFuelStation) {
         this.filterFuelStation = filterFuelStation;
+    }
+
+    // Certified Receipt Methods
+
+    public String navigateToUploadCertifiedReceipt() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return null;
+        }
+        // Check permission
+        if (!canUploadReceipt() && !canReplaceOrDeleteReceipt()) {
+            JsfUtil.addErrorMessage("You do not have permission to upload receipts");
+            return null;
+        }
+        certifiedReceiptFile = null;
+        return "/requests/upload_certified_receipt?faces-redirect=true";
+    }
+
+    public String navigateBackFromUploadReceipt() {
+        return "/requests/list_payment_bills?faces-redirect=true";
+    }
+
+    public String uploadCertifiedReceipt() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return null;
+        }
+
+        // Check permission
+        if (!canUploadReceipt() && !canReplaceOrDeleteReceipt()) {
+            JsfUtil.addErrorMessage("You do not have permission to upload receipts");
+            return null;
+        }
+
+        if (certifiedReceiptFile == null || certifiedReceiptFile.getSize() == 0) {
+            JsfUtil.addErrorMessage("Please select a file to upload");
+            return null;
+        }
+
+        try {
+            String fileName = certifiedReceiptFile.getFileName();
+            String contentType = certifiedReceiptFile.getContentType();
+            long fileSize = certifiedReceiptFile.getSize();
+
+            // Validate file type
+            if (!isValidFileType(contentType, fileName)) {
+                JsfUtil.addErrorMessage("Invalid file type. Please upload a PDF, JPG, PNG, or GIF file.");
+                return null;
+            }
+
+            // Validate file size (10MB = 10 * 1024 * 1024 bytes)
+            if (fileSize > 10 * 1024 * 1024) {
+                JsfUtil.addErrorMessage("File size exceeds 10MB limit. Please upload a smaller file.");
+                return null;
+            }
+
+            // Convert UploadedFile to byte array
+            byte[] fileContent = certifiedReceiptFile.getContent();
+
+            // Update bill with receipt information
+            selectedBill.setCertifiedReceiptFile(fileContent);
+            selectedBill.setCertifiedReceiptFileName(fileName);
+            selectedBill.setCertifiedReceiptFileType(contentType);
+            selectedBill.setCertifiedReceiptFileSize(fileSize);
+            selectedBill.setCertifiedReceiptUploadedBy(webUserController.getLoggedUser());
+            selectedBill.setCertifiedReceiptUploadedAt(new Date());
+            selectedBill.setHasReceipt(true);
+
+            // Save to database
+            billFacade.edit(selectedBill);
+
+            JsfUtil.addSuccessMessage("Certified receipt uploaded successfully");
+            certifiedReceiptFile = null;
+
+            return navigateToViewPaymentBill();
+
+        } catch (Exception e) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Error uploading receipt", e);
+            JsfUtil.addErrorMessage("Failed to upload receipt. Please try again.");
+            return null;
+        }
+    }
+
+    public void deleteCertifiedReceipt() {
+        if (selectedBill == null) {
+            JsfUtil.addErrorMessage("No bill selected");
+            return;
+        }
+
+        // Check permission
+        if (!canReplaceOrDeleteReceipt()) {
+            JsfUtil.addErrorMessage("You do not have permission to delete receipts");
+            return;
+        }
+
+        if (!hasCertifiedReceipt()) {
+            JsfUtil.addErrorMessage("No receipt to delete");
+            return;
+        }
+
+        try {
+            // Clear all receipt fields
+            selectedBill.setCertifiedReceiptFile(null);
+            selectedBill.setCertifiedReceiptFileName(null);
+            selectedBill.setCertifiedReceiptFileType(null);
+            selectedBill.setCertifiedReceiptFileSize(null);
+            selectedBill.setCertifiedReceiptUploadedBy(null);
+            selectedBill.setCertifiedReceiptUploadedAt(null);
+            selectedBill.setHasReceipt(false);
+
+            // Save to database
+            billFacade.edit(selectedBill);
+
+            JsfUtil.addSuccessMessage("Certified receipt deleted successfully");
+
+        } catch (Exception e) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Error deleting receipt", e);
+            JsfUtil.addErrorMessage("Failed to delete receipt. Please try again.");
+        }
+    }
+
+    public void downloadCertifiedReceipt() {
+        if (selectedBill == null || !hasCertifiedReceipt()) {
+            JsfUtil.addErrorMessage("No receipt available");
+            return;
+        }
+
+        try {
+            FacesContext fc = FacesContext.getCurrentInstance();
+            javax.servlet.http.HttpServletResponse response =
+                (javax.servlet.http.HttpServletResponse) fc.getExternalContext().getResponse();
+
+            response.reset();
+            response.setContentType(selectedBill.getCertifiedReceiptFileType());
+            response.setContentLength(selectedBill.getCertifiedReceiptFileSize().intValue());
+
+            // Set inline disposition to open in new tab
+            String headerValue = String.format("inline; filename=\"%s\"", selectedBill.getCertifiedReceiptFileName());
+            response.setHeader("Content-Disposition", headerValue);
+
+            java.io.OutputStream output = response.getOutputStream();
+            output.write(selectedBill.getCertifiedReceiptFile());
+            output.flush();
+            output.close();
+
+            fc.responseComplete();
+
+        } catch (Exception e) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Error downloading receipt", e);
+            JsfUtil.addErrorMessage("Failed to download receipt. Please try again.");
+        }
+    }
+
+    public org.primefaces.model.StreamedContent getCertifiedReceiptPreview() {
+        FacesContext context = FacesContext.getCurrentInstance();
+
+        if (context.getRenderResponse()) {
+            return new org.primefaces.model.DefaultStreamedContent();
+        }
+
+        if (selectedBill == null || !hasCertifiedReceipt()) {
+            return new org.primefaces.model.DefaultStreamedContent();
+        }
+
+        try {
+            byte[] imageData = selectedBill.getCertifiedReceiptFile();
+            if (imageData == null) {
+                return new org.primefaces.model.DefaultStreamedContent();
+            }
+
+            java.io.ByteArrayInputStream inputStream = new java.io.ByteArrayInputStream(imageData);
+
+            return org.primefaces.model.DefaultStreamedContent.builder()
+                    .contentType(selectedBill.getCertifiedReceiptFileType())
+                    .name(selectedBill.getCertifiedReceiptFileName())
+                    .stream(() -> inputStream)
+                    .build();
+
+        } catch (Exception e) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Error loading receipt preview", e);
+            return new org.primefaces.model.DefaultStreamedContent();
+        }
+    }
+
+    public boolean hasCertifiedReceipt() {
+        return selectedBill != null
+                && selectedBill.getCertifiedReceiptFile() != null
+                && selectedBill.getCertifiedReceiptFile().length > 0;
+    }
+
+    public boolean isReceiptImage() {
+        if (!hasCertifiedReceipt()) {
+            return false;
+        }
+        String contentType = selectedBill.getCertifiedReceiptFileType();
+        return contentType != null && contentType.startsWith("image/");
+    }
+
+    public boolean isReceiptPdf() {
+        if (!hasCertifiedReceipt()) {
+            return false;
+        }
+        String contentType = selectedBill.getCertifiedReceiptFileType();
+        return contentType != null && contentType.equals("application/pdf");
+    }
+
+    public String getFormattedFileSize() {
+        if (!hasCertifiedReceipt()) {
+            return "";
+        }
+
+        long size = selectedBill.getCertifiedReceiptFileSize();
+        if (size < 1024) {
+            return size + " B";
+        } else if (size < 1024 * 1024) {
+            return String.format("%.2f KB", size / 1024.0);
+        } else {
+            return String.format("%.2f MB", size / (1024.0 * 1024.0));
+        }
+    }
+
+    private boolean isValidFileType(String contentType, String fileName) {
+        if (contentType == null) {
+            return false;
+        }
+
+        // Check content type
+        if (contentType.equals("application/pdf") ||
+            contentType.equals("image/jpeg") ||
+            contentType.equals("image/jpg") ||
+            contentType.equals("image/png") ||
+            contentType.equals("image/gif")) {
+            return true;
+        }
+
+        // Fallback: check file extension
+        if (fileName != null) {
+            String lowerFileName = fileName.toLowerCase();
+            return lowerFileName.endsWith(".pdf") ||
+                   lowerFileName.endsWith(".jpg") ||
+                   lowerFileName.endsWith(".jpeg") ||
+                   lowerFileName.endsWith(".png") ||
+                   lowerFileName.endsWith(".gif");
+        }
+
+        return false;
+    }
+
+    public org.primefaces.model.file.UploadedFile getCertifiedReceiptFile() {
+        return certifiedReceiptFile;
+    }
+
+    public void setCertifiedReceiptFile(org.primefaces.model.file.UploadedFile certifiedReceiptFile) {
+        this.certifiedReceiptFile = certifiedReceiptFile;
+    }
+
+    // Access control methods for certified receipt
+    public boolean canUploadReceipt() {
+        WebUser user = webUserController.getLoggedUser();
+        if (user == null) {
+            return false;
+        }
+        lk.gov.health.phsp.enums.WebUserRole role = user.getWebUserRole();
+        return role == lk.gov.health.phsp.enums.WebUserRole.INSTITUTION_ACCOUNTS
+                || role == lk.gov.health.phsp.enums.WebUserRole.INSTITUTION_ADMINISTRATOR
+                || role == lk.gov.health.phsp.enums.WebUserRole.INSTITUTION_SUPER_USER;
+    }
+
+    public boolean canReplaceOrDeleteReceipt() {
+        WebUser user = webUserController.getLoggedUser();
+        if (user == null) {
+            return false;
+        }
+        lk.gov.health.phsp.enums.WebUserRole role = user.getWebUserRole();
+        return role == lk.gov.health.phsp.enums.WebUserRole.SYSTEM_ADMINISTRATOR
+                || role == lk.gov.health.phsp.enums.WebUserRole.SUPER_USER;
     }
 
     @FacesConverter(forClass = FuelTransaction.class)
