@@ -191,6 +191,24 @@
                                     </h:commandLink>
                                 </li>
                                 <li><hr class="dropdown-divider" /></li>
+
+                                <!-- System Messaging (Only for System Admin and Super User) -->
+                                <ui:fragment rendered="#{webUserController.loggedUser.systemAdministrator or webUserController.loggedUser.superUser}">
+                                    <li>
+                                        <h:commandLink styleClass="dropdown-item"
+                                                       action="#{systemMessageController.prepareCreateMessage()}">
+                                            <i class="bi bi-envelope-plus me-2"></i> Create System Message
+                                        </h:commandLink>
+                                    </li>
+                                    <li>
+                                        <h:commandLink styleClass="dropdown-item"
+                                                       action="/systemAdmin/view_sent_messages">
+                                            <i class="bi bi-send me-2"></i> View Sent Messages
+                                        </h:commandLink>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                </ui:fragment>
+
                                 <li>
                                     <h:commandLink styleClass="dropdown-item"
                                                    action="#{fuelRequestAndIssueController.navigateToMigrateBillItems()}">
@@ -267,6 +285,84 @@
                             <li>
                                 <h:commandLink styleClass="dropdown-item" action="/about_us">
                                     <i class="bi bi-info-circle me-2"></i> About
+                                </h:commandLink>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Notifications Bell -->
+                    <li class="nav-item dropdown">
+                        #{systemMessageController.refreshUnreadMessages()}
+                        <a class="nav-link position-relative" href="#"
+                           id="notificationDropdown"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="bi bi-bell-fill fs-5"></i>
+                            <h:panelGroup rendered="#{systemMessageController.unreadCount > 0}">
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    #{systemMessageController.unreadCount}
+                                    <span class="visually-hidden">unread messages</span>
+                                </span>
+                            </h:panelGroup>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 400px; max-height: 500px; overflow-y: auto;">
+                            <li class="dropdown-header d-flex justify-content-between align-items-center">
+                                <strong>Notifications</strong>
+                            </li>
+                            <li><hr class="dropdown-divider"/></li>
+
+                            <!-- Unread Messages List -->
+                            <h:panelGroup rendered="#{systemMessageController.unreadCount == 0}">
+                                <li class="dropdown-item text-center text-muted">
+                                    No new notifications
+                                </li>
+                            </h:panelGroup>
+
+                            <ui:repeat value="#{systemMessageController.unreadMessages}"
+                                       var="msgStatus"
+                                       varStatus="status">
+                                <li>
+                                    <h:commandLink action="#{systemMessageController.viewMessage(msgStatus)}"
+                                                   styleClass="dropdown-item py-3">
+                                        <div class="d-flex align-items-start">
+                                            <!-- Icon based on message type -->
+                                            <i class="bi #{msgStatus.systemMessage.messageType.icon} text-#{msgStatus.systemMessage.messageType.colorClass} me-2 fs-5"></i>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between">
+                                                    <strong>#{msgStatus.systemMessage.subject}</strong>
+                                                    <!-- Priority badge -->
+                                                    <span class="badge bg-#{msgStatus.systemMessage.priority.colorClass} ms-2">
+                                                        #{msgStatus.systemMessage.priority.label}
+                                                    </span>
+                                                </div>
+                                                <p class="mb-1 small text-muted">
+                                                    <h:outputText value="#{msgStatus.deliveredAt}">
+                                                        <f:convertDateTime pattern="MMM dd, yyyy HH:mm" />
+                                                    </h:outputText>
+                                                </p>
+                                                <!-- Show if requires acknowledgment -->
+                                                <h:panelGroup rendered="#{msgStatus.systemMessage.requiresAcknowledgment and !msgStatus.acknowledged}">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="bi bi-hand-index"></i> Requires Acknowledgment
+                                                    </span>
+                                                </h:panelGroup>
+                                            </div>
+                                        </div>
+                                    </h:commandLink>
+                                </li>
+                                <h:panelGroup rendered="#{!status.last}">
+                                    <li><hr class="dropdown-divider"/></li>
+                                </h:panelGroup>
+                            </ui:repeat>
+
+                            <li><hr class="dropdown-divider"/></li>
+                            <li>
+                                <h:commandLink value="View All Notifications"
+                                               action="/webUser/view_all_notifications"
+                                               styleClass="dropdown-item text-center text-primary">
+                                    <i class="bi bi-arrow-right-circle"></i>
                                 </h:commandLink>
                             </li>
                         </ul>

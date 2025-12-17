@@ -1,0 +1,228 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="/template.xhtml">
+
+            <ui:define name="content">
+                #{systemMessageController.loadSentMessages()}
+
+                <h:panelGroup rendered="#{!webUserController.loggedUser.systemAdministrator and !webUserController.loggedUser.superUser}">
+                    <div class="alert alert-danger">
+                        <h4><i class="bi bi-shield-exclamation"></i> Unauthorized Access</h4>
+                        <p>Only System Administrators and Super Users can view sent messages.</p>
+                    </div>
+                </h:panelGroup>
+
+                <h:form id="sentMessagesForm" rendered="#{webUserController.loggedUser.systemAdministrator or webUserController.loggedUser.superUser}">
+
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h4><i class="bi bi-send-fill"></i> Sent System Messages</h4>
+                                <h:commandLink value="Create New Message"
+                                               action="#{systemMessageController.prepareCreateMessage}"
+                                               styleClass="btn btn-light btn-sm">
+                                    <i class="bi bi-plus-circle"></i>
+                                </h:commandLink>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <p:messages />
+
+                            <p:dataTable value="#{systemMessageController.sentMessages}"
+                                         var="msg"
+                                         emptyMessage="No messages sent yet"
+                                         paginator="true"
+                                         rows="20"
+                                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                         rowsPerPageTemplate="10,20,50"
+                                         styleClass="table"
+                                         filteredValue="#{systemMessageController.filteredMessages}"
+                                         globalFilterFunction="#{systemMessageController.globalFilter}">
+
+                                <!-- Priority -->
+                                <p:column headerText="Priority" style="width: 80px" sortBy="#{msg.priority.sortOrder}">
+                                    <span class="badge bg-#{msg.priority.colorClass}">
+                                        #{msg.priority.label}
+                                    </span>
+                                </p:column>
+
+                                <!-- Type -->
+                                <p:column headerText="Type" style="width: 150px" filterBy="#{msg.messageType}" filterMatchMode="equals">
+                                    <f:facet name="filter">
+                                        <p:selectOneMenu onchange="PF('sentMessagesTable').filter()" styleClass="form-control">
+                                            <f:selectItem itemLabel="All" itemValue="#{null}" noSelectionOption="true" />
+                                            <f:selectItems value="#{systemMessageController.messageTypes}"
+                                                           var="type"
+                                                           itemLabel="#{type.label}"
+                                                           itemValue="#{type}" />
+                                        </p:selectOneMenu>
+                                    </f:facet>
+                                    <i class="bi #{msg.messageType.icon} text-#{msg.messageType.colorClass}"></i>
+                                    #{msg.messageType.label}
+                                </p:column>
+
+                                <!-- Subject -->
+                                <p:column headerText="Subject" filterBy="#{msg.subject}" filterMatchMode="contains">
+                                    <strong>#{msg.subject}</strong>
+                                    <br/>
+                                    <small class="text-muted">
+                                        Targeted: #{msg.targetRoles}
+                                    </small>
+                                </p:column>
+
+                                <!-- Statistics -->
+                                <p:column headerText="Statistics" style="width: 150px">
+                                    <small>
+                                        <i class="bi bi-people-fill"></i> Recipients: #{msg.totalRecipients}<br/>
+                                        <i class="bi bi-eye-fill"></i> Read: #{msg.readCount}<br/>
+                                        <h:panelGroup rendered="#{msg.requiresAcknowledgment}">
+                                            <i class="bi bi-hand-index"></i> Ack: #{msg.acknowledgedCount}
+                                        </h:panelGroup>
+                                    </small>
+                                </p:column>
+
+                                <!-- Sent Date -->
+                                <p:column headerText="Sent Date" style="width: 150px" sortBy="#{msg.createdAt}">
+                                    <h:outputText value="#{msg.createdAt}">
+                                        <f:convertDateTime pattern="MMM dd, yyyy HH:mm" />
+                                    </h:outputText>
+                                </p:column>
+
+                                <!-- Expiry -->
+                                <p:column headerText="Expires" style="width: 120px">
+                                    <h:panelGroup rendered="#{msg.expiryDate != null}">
+                                        <h:outputText value="#{msg.expiryDate}">
+                                            <f:convertDateTime pattern="MMM dd, yyyy" />
+                                        </h:outputText>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{msg.expiryDate == null}">
+                                        <span class="text-muted">Never</span>
+                                    </h:panelGroup>
+                                </p:column>
+
+                                <!-- Actions -->
+                                <p:column headerText="Actions" style="width: 150px">
+                                    <p:commandButton value="View"
+                                                     icon="pi pi-eye"
+                                                     action="#{systemMessageController.viewSentMessage(msg)}"
+                                                     update=":sentMessagesForm:viewMessageDialog"
+                                                     oncomplete="PF('viewMsgDlg').show()"
+                                                     styleClass="ui-button-info ui-button-sm" />
+
+                                    <p:commandButton value="Retire"
+                                                     icon="pi pi-times"
+                                                     action="#{systemMessageController.retireMessage(msg)}"
+                                                     update="@form"
+                                                     styleClass="ui-button-danger ui-button-sm ms-1">
+                                        <p:confirm header="Confirmation"
+                                                   message="Retire this message? It will no longer be visible to users."
+                                                   icon="pi pi-exclamation-triangle" />
+                                    </p:commandButton>
+                                </p:column>
+
+                            </p:dataTable>
+                        </div>
+                    </div>
+
+                    <!-- View Message Dialog -->
+                    <p:dialog id="viewMessageDialog"
+                              header="#{systemMessageController.selectedMessage.subject}"
+                              widgetVar="viewMsgDlg"
+                              modal="true"
+                              width="800"
+                              responsive="true">
+
+                        <h:panelGroup rendered="#{systemMessageController.selectedMessage != null}">
+                            <!-- Message Details -->
+                            <div class="mb-3">
+                                <p><strong>Type:</strong>
+                                    <i class="bi #{systemMessageController.selectedMessage.messageType.icon}"></i>
+                                    #{systemMessageController.selectedMessage.messageType.label}
+                                </p>
+                                <p><strong>Priority:</strong>
+                                    <span class="badge bg-#{systemMessageController.selectedMessage.priority.colorClass}">
+                                        #{systemMessageController.selectedMessage.priority.label}
+                                    </span>
+                                </p>
+                                <p><strong>Sent Date:</strong>
+                                    <h:outputText value="#{systemMessageController.selectedMessage.createdAt}">
+                                        <f:convertDateTime pattern="MMMM dd, yyyy 'at' HH:mm" />
+                                    </h:outputText>
+                                </p>
+                                <p><strong>Target Roles:</strong> #{systemMessageController.selectedMessage.targetRoles}</p>
+                            </div>
+
+                            <hr/>
+
+                            <!-- English Content -->
+                            <div class="mb-3">
+                                <h6>English Message:</h6>
+                                <h:outputText value="#{systemMessageController.selectedMessage.messageBody}" escape="false" />
+                            </div>
+
+                            <!-- Sinhala Content -->
+                            <h:panelGroup rendered="#{systemMessageController.selectedMessage.messageBodySinhala != null}">
+                                <hr/>
+                                <div class="mb-3">
+                                    <h6>සිංහල පණිවිඩය:</h6>
+                                    <h:outputText value="#{systemMessageController.selectedMessage.messageBodySinhala}" escape="false" />
+                                </div>
+                            </h:panelGroup>
+
+                            <!-- Tamil Content -->
+                            <h:panelGroup rendered="#{systemMessageController.selectedMessage.messageBodyTamil != null}">
+                                <hr/>
+                                <div class="mb-3">
+                                    <h6>தமிழ் செய்தி:</h6>
+                                    <h:outputText value="#{systemMessageController.selectedMessage.messageBodyTamil}" escape="false" />
+                                </div>
+                            </h:panelGroup>
+
+                            <!-- Attachments -->
+                            <h:panelGroup rendered="#{not empty systemMessageController.selectedMessage.attachments}">
+                                <hr/>
+                                <div class="mb-3">
+                                    <h6><i class="bi bi-paperclip"></i> Attachments:</h6>
+                                    <ul class="list-group">
+                                        <ui:repeat value="#{systemMessageController.selectedMessage.attachments}" var="att">
+                                            <li class="list-group-item">
+                                                <i class="bi bi-file-earmark"></i> #{att.fileName}
+                                                <small class="text-muted">(#{att.fileSize / 1024} KB)</small>
+                                            </li>
+                                        </ui:repeat>
+                                    </ul>
+                                </div>
+                            </h:panelGroup>
+
+                            <div class="d-flex justify-content-end mt-3">
+                                <p:commandButton value="Close"
+                                                 icon="pi pi-times"
+                                                 onclick="PF('viewMsgDlg').hide()"
+                                                 type="button"
+                                                 styleClass="ui-button-secondary" />
+                            </div>
+                        </h:panelGroup>
+                    </p:dialog>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Yes" type="button"
+                                         styleClass="ui-confirmdialog-yes" />
+                        <p:commandButton value="No" type="button"
+                                         styleClass="ui-confirmdialog-no" />
+                    </p:confirmDialog>
+
+                </h:form>
+
+            </ui:define>
+        </ui:composition>
+    </body>
+</html>

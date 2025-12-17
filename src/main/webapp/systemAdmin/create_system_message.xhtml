@@ -1,0 +1,297 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="/template.xhtml">
+
+            <ui:define name="content">
+                #{systemMessageController.init()}
+
+                <h:panelGroup rendered="#{!webUserController.loggedUser.systemAdministrator and !webUserController.loggedUser.superUser}">
+                    <div class="alert alert-danger">
+                        <h4><i class="bi bi-shield-exclamation"></i> Unauthorized Access</h4>
+                        <p>Only System Administrators and Super Users can send system messages.</p>
+                    </div>
+                </h:panelGroup>
+
+                <h:form id="messageForm" rendered="#{webUserController.loggedUser.systemAdministrator or webUserController.loggedUser.superUser}">
+
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h4><i class="bi bi-envelope-plus-fill"></i> Create System Message</h4>
+                        </div>
+
+                        <div class="card-body">
+                            <p:messages />
+
+                            <!-- Message Type & Priority -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <strong>Message Type</strong>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <p:selectOneMenu value="#{systemMessageController.currentMessage.messageType}"
+                                                     styleClass="form-control w-100"
+                                                     required="true"
+                                                     requiredMessage="Please select message type">
+                                        <f:selectItems value="#{systemMessageController.messageTypes}"
+                                                       var="type"
+                                                       itemLabel="#{type.label}"
+                                                       itemValue="#{type}" />
+                                    </p:selectOneMenu>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <strong>Priority</strong>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <p:selectOneMenu value="#{systemMessageController.currentMessage.priority}"
+                                                     styleClass="form-control w-100"
+                                                     required="true">
+                                        <f:selectItems value="#{systemMessageController.priorities}"
+                                                       var="priority"
+                                                       itemLabel="#{priority.label}"
+                                                       itemValue="#{priority}" />
+                                    </p:selectOneMenu>
+                                </div>
+                            </div>
+
+                            <!-- Target Roles -->
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <strong>Target User Roles</strong>
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <p:selectCheckboxMenu value="#{systemMessageController.selectedRoles}"
+                                                      multiple="true"
+                                                      filter="true"
+                                                      filterMatchMode="contains"
+                                                      panelStyle="width: 500px"
+                                                      styleClass="w-100">
+                                    <f:selectItems value="#{systemMessageController.availableRoles}"
+                                                   var="role"
+                                                   itemLabel="#{role.label}"
+                                                   itemValue="#{role}" />
+                                </p:selectCheckboxMenu>
+                                <small class="form-text text-muted">
+                                    Select one or more user roles to receive this message
+                                </small>
+                            </div>
+
+                            <!-- Subject -->
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <strong>Subject</strong>
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <p:inputText value="#{systemMessageController.currentMessage.subject}"
+                                             styleClass="form-control"
+                                             maxlength="500"
+                                             required="true"
+                                             requiredMessage="Please enter subject" />
+                            </div>
+
+                            <!-- Multi-language Tabs -->
+                            <p:tabView>
+                                <!-- Sinhala Message -->
+                                <p:tab title="සිංහල පණිවිඩය (Sinhala)">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            <strong>Message Content (Sinhala)</strong>
+                                        </label>
+                                        <p:textEditor value="#{systemMessageController.currentMessage.messageBodySinhala}"
+                                                      height="300"
+                                                      placeholder="සිංහලෙන් පණිවිඩය ඇතුළත් කරන්න...">
+                                            <f:facet name="toolbar">
+                                                <span class="ql-formats">
+                                                    <button class="ql-bold"></button>
+                                                    <button class="ql-italic"></button>
+                                                    <button class="ql-underline"></button>
+                                                </span>
+                                            </f:facet>
+                                        </p:textEditor>
+                                        <small class="form-text text-muted">
+                                            Provide message in at least one language
+                                        </small>
+                                    </div>
+                                </p:tab>
+
+                                <!-- Tamil Message -->
+                                <p:tab title="தமிழ் செய்தி (Tamil)">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            <strong>Message Content (Tamil)</strong>
+                                        </label>
+                                        <p:textEditor value="#{systemMessageController.currentMessage.messageBodyTamil}"
+                                                      height="300"
+                                                      placeholder="தமிழில் செய்தியை உள்ளிடவும்...">
+                                            <f:facet name="toolbar">
+                                                <span class="ql-formats">
+                                                    <button class="ql-bold"></button>
+                                                    <button class="ql-italic"></button>
+                                                    <button class="ql-underline"></button>
+                                                </span>
+                                            </f:facet>
+                                        </p:textEditor>
+                                        <small class="form-text text-muted">
+                                            Provide message in at least one language
+                                        </small>
+                                    </div>
+                                </p:tab>
+
+                                <!-- English Message -->
+                                <p:tab title="English Message">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            <strong>Message Content (English)</strong>
+                                        </label>
+                                        <p:textEditor value="#{systemMessageController.currentMessage.messageBody}"
+                                                      height="300"
+                                                      placeholder="Enter your message here...">
+                                            <f:facet name="toolbar">
+                                                <span class="ql-formats">
+                                                    <button class="ql-bold"></button>
+                                                    <button class="ql-italic"></button>
+                                                    <button class="ql-underline"></button>
+                                                </span>
+                                                <span class="ql-formats">
+                                                    <select class="ql-size"></select>
+                                                </span>
+                                                <span class="ql-formats">
+                                                    <button class="ql-list" value="ordered"></button>
+                                                    <button class="ql-list" value="bullet"></button>
+                                                </span>
+                                                <span class="ql-formats">
+                                                    <button class="ql-link"></button>
+                                                </span>
+                                            </f:facet>
+                                        </p:textEditor>
+                                        <small class="form-text text-muted">
+                                            Provide message in at least one language
+                                        </small>
+                                    </div>
+                                </p:tab>
+                            </p:tabView>
+
+                            <!-- File Attachments -->
+                            <div class="mb-3 mt-3">
+                                <label class="form-label">
+                                    <strong>Attachments</strong>
+                                </label>
+                                <p:fileUpload mode="advanced"
+                                              multiple="true"
+                                              dragDropSupport="true"
+                                              listener="#{systemMessageController.handleFileUpload}"
+                                              update="attachmentList :messageForm:messages"
+                                              allowTypes="/(\.|\/)(pdf|doc|docx|xls|xlsx|jpg|jpeg|png)$/"
+                                              invalidFileMessage="Invalid file type. Allowed: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG"
+                                              fileLimitMessage="Maximum 10 MB file size"
+                                              sizeLimit="10485760"
+                                              label="Choose Files"
+                                              uploadLabel="Upload"
+                                              cancelLabel="Cancel" />
+
+                                <!-- Attachment List -->
+                                <h:panelGroup id="attachmentList">
+                                    <p:dataTable value="#{systemMessageController.tempAttachments}"
+                                                 var="att"
+                                                 rendered="#{not empty systemMessageController.tempAttachments}"
+                                                 styleClass="mt-2">
+                                        <p:column headerText="File Name">
+                                            <i class="bi bi-file-earmark"></i> #{att.fileName}
+                                        </p:column>
+                                        <p:column headerText="Size">
+                                            #{att.fileSize / 1024} KB
+                                        </p:column>
+                                        <p:column headerText="Actions" style="width: 100px">
+                                            <p:commandButton icon="pi pi-trash"
+                                                             styleClass="ui-button-danger"
+                                                             action="#{systemMessageController.removeAttachment(att)}"
+                                                             update="attachmentList">
+                                                <p:confirm header="Confirmation"
+                                                           message="Remove this attachment?"
+                                                           icon="pi pi-exclamation-triangle" />
+                                            </p:commandButton>
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGroup>
+                            </div>
+
+                            <!-- Message Settings -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <p:selectBooleanCheckbox id="requireAck"
+                                                                 value="#{systemMessageController.currentMessage.requiresAcknowledgment}" />
+                                        <label class="form-check-label ms-2" for="requireAck">
+                                            <strong>Requires Acknowledgment</strong>
+                                            <br/>
+                                            <small class="text-muted">
+                                                Users must acknowledge they've read this message
+                                            </small>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <strong>Auto-expire after (days)</strong>
+                                    </label>
+                                    <p:inputNumber value="#{systemMessageController.currentMessage.autoExpireDays}"
+                                                   styleClass="form-control"
+                                                   minValue="1"
+                                                   maxValue="365"
+                                                   decimalPlaces="0" />
+                                    <small class="form-text text-muted">
+                                        Message will be automatically hidden after this many days
+                                    </small>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-end">
+                                <p:commandButton value="Send Message"
+                                                 icon="pi pi-send"
+                                                 action="#{systemMessageController.sendMessage}"
+                                                 update="@form"
+                                                 styleClass="ui-button-success">
+                                    <p:confirm header="Confirmation"
+                                               message="Send this message to selected user roles?"
+                                               icon="pi pi-exclamation-triangle" />
+                                </p:commandButton>
+
+                                <p:commandButton value="Cancel"
+                                                 icon="pi pi-times"
+                                                 action="/index"
+                                                 immediate="true"
+                                                 styleClass="ui-button-secondary ms-2" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confirmation Dialog -->
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Yes" type="button"
+                                         styleClass="ui-confirmdialog-yes"
+                                         icon="pi pi-check" />
+                        <p:commandButton value="No" type="button"
+                                         styleClass="ui-confirmdialog-no"
+                                         icon="pi pi-times" />
+                    </p:confirmDialog>
+
+                </h:form>
+
+            </ui:define>
+        </ui:composition>
+    </body>
+</html>
