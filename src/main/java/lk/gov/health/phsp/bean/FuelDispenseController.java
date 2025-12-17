@@ -408,22 +408,28 @@ public class FuelDispenseController implements Serializable {
      * This method is called via AJAX when the continuous scanner detects a QR code
      */
     public void processScannedQr() {
-        System.out.println("=== processScannedQr called ===");
+        long startTime = System.currentTimeMillis();
+        System.out.println("\n==========================================================");
+        System.out.println("=== processScannedQr called at " + new Date() + " ===");
         System.out.println("Scanned QR data: " + scannedVehicleNumber);
 
         // Reset redirect URL
         redirectUrl = null;
 
         if (scannedVehicleNumber == null || scannedVehicleNumber.trim().isEmpty()) {
+            System.out.println("ERROR: Empty QR data - exiting");
             addAjaxMessage(FacesMessage.SEVERITY_ERROR, "Error", "No QR code data received");
             return;
         }
 
         // Parse the QR code data (handles both plain text and JSON)
+        long parseStart = System.currentTimeMillis();
         String parsedNumber = parseVehicleNumberFromQr(scannedVehicleNumber);
         Long parsedId = parseVehicleIdFromQr(scannedVehicleNumber);
+        System.out.println("TIMING: QR parsing took " + (System.currentTimeMillis() - parseStart) + "ms");
 
         if (parsedNumber == null || parsedNumber.isEmpty()) {
+            System.out.println("ERROR: Failed to parse vehicle number from QR");
             addAjaxMessage(FacesMessage.SEVERITY_ERROR, "Parse Error",
                 "Could not extract vehicle number from QR code: " + scannedVehicleNumber);
             return;
@@ -436,15 +442,19 @@ public class FuelDispenseController implements Serializable {
         System.out.println("Parsed vehicle number: " + parsedNumber);
         if (parsedId != null) {
             System.out.println("Parsed vehicle ID: " + parsedId);
+        } else {
+            System.out.println("WARNING: No vehicle ID in QR code - will search by number");
         }
 
-        // Don't show messages here - just redirect immediately if successful
-        // Messages will be shown on the destination page if there are errors
-
         // Automatically search for the transaction
+        long searchStart = System.currentTimeMillis();
+        System.out.println("Calling searchFuelTransactionByVehicleQr()...");
         String navigationOutcome = searchFuelTransactionByVehicleQr();
+        System.out.println("TIMING: searchFuelTransactionByVehicleQr took " + (System.currentTimeMillis() - searchStart) + "ms");
+        System.out.println("Navigation outcome returned: '" + navigationOutcome + "'");
 
         if (navigationOutcome != null && !navigationOutcome.isEmpty()) {
+            System.out.println("SUCCESS: Have navigation outcome, constructing URL...");
             // Store the URL for JavaScript to navigate to
             FacesContext facesContext = FacesContext.getCurrentInstance();
 
@@ -487,53 +497,83 @@ public class FuelDispenseController implements Serializable {
             System.out.println("Page: " + page);
             System.out.println("Final navigation URL: " + redirectUrl);
             System.out.println("=== End URL Construction ===");
+        } else {
+            System.out.println("ERROR: navigationOutcome is null or empty - NO NAVIGATION WILL HAPPEN");
+            System.out.println("This means searchFuelTransactionByVehicleQr() returned empty string");
         }
+
+        long totalTime = System.currentTimeMillis() - startTime;
+        System.out.println("TIMING: Total processScannedQr took " + totalTime + "ms");
+        System.out.println("=== processScannedQr completed ===");
+        System.out.println("==========================================================\n");
     }
 
     /**
      * Search for fuel transaction by scanned vehicle QR code
      */
     public String searchFuelTransactionByVehicleQr() {
-        System.out.println("=== searchFuelTransactionByVehicleQr called ===");
+        long methodStart = System.currentTimeMillis();
+        System.out.println("\n--- searchFuelTransactionByVehicleQr called ---");
         System.out.println("Scanned vehicle number: " + scannedVehicleNumber);
+        System.out.println("Scanned vehicle ID: " + scannedVehicleId);
 
         if (scannedVehicleNumber == null || scannedVehicleNumber.trim().isEmpty()) {
             JsfUtil.addErrorMessage("Vehicle QR code not scanned properly. Please try again.");
-            System.out.println("ERROR: Empty vehicle number");
+            System.out.println("ERROR: Empty vehicle number - returning empty string");
             return "";
         }
 
         // Search for the vehicle - use direct ID lookup if available (fast), otherwise search by number
         Vehicle vehicle = null;
+        long vehicleLookupStart = System.currentTimeMillis();
 
         if (scannedVehicleId != null) {
             // OPTIMIZED: Direct database lookup by ID (O(1) operation)
-            System.out.println("Using direct vehicle ID lookup: " + scannedVehicleId);
+            System.out.println(">>> STEP 1: Using direct vehicle ID lookup: " + scannedVehicleId);
+            long idLookupStart = System.currentTimeMillis();
             vehicle = vehicleFacade.find(scannedVehicleId);
+            long idLookupTime = System.currentTimeMillis() - idLookupStart;
+            System.out.println("TIMING: Vehicle ID lookup took " + idLookupTime + "ms");
             System.out.println("Vehicle found by ID: " + (vehicle != null));
         }
 
         if (vehicle == null) {
             // Fallback: Search by vehicle number if ID not available or not found
-            System.out.println("Searching by vehicle number: " + scannedVehicleNumber);
+            System.out.println(">>> STEP 1 (fallback): Searching by vehicle number: " + scannedVehicleNumber);
+            long numberSearchStart = System.currentTimeMillis();
             List<Vehicle> vehicles = vehicleController.searchVehicles(scannedVehicleNumber);
+            long numberSearchTime = System.currentTimeMillis() - numberSearchStart;
+            System.out.println("TIMING: Vehicle number search took " + numberSearchTime + "ms");
             System.out.println("Vehicles found: " + (vehicles != null ? vehicles.size() : "null"));
 
             if (vehicles == null || vehicles.isEmpty()) {
                 JsfUtil.addErrorMessage("No vehicle found with number: " + scannedVehicleNumber);
-                System.out.println("ERROR: No vehicle found");
+                System.out.println("ERROR: No vehicle found - returning empty string");
                 return "";
             }
 
             vehicle = vehicles.get(0);
         }
 
-        System.out.println("Vehicle ID: " + vehicle.getId() + ", Number: " + vehicle.getVehicleNumber());
+        long vehicleLookupTime = System.currentTimeMillis() - vehicleLookupStart;
+        System.out.println("TIMING: Total vehicle lookup took " + vehicleLookupTime + "ms");
+        System.out.println("Found Vehicle - ID: " + vehicle.getId() + ", Number: " + vehicle.getVehicleNumber());
+
+        // Check if user has a logged institution
+        System.out.println(">>> STEP 2: Checking logged institution");
+        Institution loggedInstitution = webUserController.getLoggedInstitution();
+        if (loggedInstitution == null) {
+            JsfUtil.addErrorMessage("Unable to determine your institution. Please ensure you are logged in properly.");
+            System.out.println("ERROR: Logged institution is null - returning empty string");
+            return "";
+        }
+        System.out.println("Current institution: " + loggedInstitution.getName() + " (ID: " + loggedInstitution.getId() + ")");
 
         // First, try to find transactions for this vehicle at the current institution
         // ORDER BY f.id DESC ensures we get the LATEST transaction (highest ID = most recent)
         // issued = false because "issued" means confirmed AFTER dispensing
         // toInstitution = fuel shed (the institution being requested FROM)
+        System.out.println(">>> STEP 3: Searching for fuel transactions at current institution");
         String jpql = "SELECT f FROM FuelTransaction f "
                 + "WHERE f.retired = false "
                 + "AND f.cancelled = false "
@@ -546,12 +586,12 @@ public class FuelDispenseController implements Serializable {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("vehicle", vehicle);
-        parameters.put("institution", webUserController.getLoggedInstitution());
+        parameters.put("institution", loggedInstitution);
 
-        System.out.println("Current institution: " + (webUserController.getLoggedInstitution() != null ? webUserController.getLoggedInstitution().getName() : "null"));
-        System.out.println("Searching with institution filter...");
-
+        long query1Start = System.currentTimeMillis();
         List<FuelTransaction> results = fuelTransactionFacade.findByJpql(jpql, parameters);
+        long query1Time = System.currentTimeMillis() - query1Start;
+        System.out.println("TIMING: First transaction query took " + query1Time + "ms");
         System.out.println("Results with institution filter: " + (results != null ? results.size() : "null"));
         if (results != null && !results.isEmpty()) {
             System.out.println("First result (latest) ID: " + results.get(0).getId());
@@ -559,7 +599,7 @@ public class FuelDispenseController implements Serializable {
 
         // If no results at this institution, try searching without institution filter
         if (results == null || results.isEmpty()) {
-            System.out.println("No results at this institution, searching all institutions...");
+            System.out.println(">>> STEP 3b: No results at this institution, searching all institutions...");
             String jpqlBroad = "SELECT f FROM FuelTransaction f "
                     + "WHERE f.retired = false "
                     + "AND f.cancelled = false "
@@ -572,16 +612,22 @@ public class FuelDispenseController implements Serializable {
             Map<String, Object> paramsBroad = new HashMap<>();
             paramsBroad.put("vehicle", vehicle);
 
+            long query2Start = System.currentTimeMillis();
             results = fuelTransactionFacade.findByJpql(jpqlBroad, paramsBroad);
+            long query2Time = System.currentTimeMillis() - query2Start;
+            System.out.println("TIMING: Second transaction query (all institutions) took " + query2Time + "ms");
             System.out.println("Results without institution filter: " + (results != null ? results.size() : "null"));
             if (results != null && !results.isEmpty()) {
                 System.out.println("First result (latest) ID: " + results.get(0).getId());
             }
 
             if (results == null || results.isEmpty()) {
-                System.out.println("ERROR: No transactions found anywhere for this vehicle");
+                System.out.println("ERROR: No transactions found anywhere for this vehicle - returning empty string");
                 JsfUtil.addErrorMessage("No pending fuel transactions found for vehicle: " + scannedVehicleNumber +
                         ". Please ensure fuel has been requested for this vehicle.");
+                long methodTime = System.currentTimeMillis() - methodStart;
+                System.out.println("TIMING: searchFuelTransactionByVehicleQr total took " + methodTime + "ms (failed - no transactions)");
+                System.out.println("--- searchFuelTransactionByVehicleQr completed ---\n");
                 return "";
             } else {
                 // Found transactions but at a different institution
@@ -590,14 +636,21 @@ public class FuelDispenseController implements Serializable {
                 JsfUtil.addErrorMessage("Found transaction requested from " +
                         (results.get(0).getToInstitution() != null ? results.get(0).getToInstitution().getName() : "another location") +
                         ". You can only dispense fuel requested from your institution: " +
-                        webUserController.getLoggedInstitution().getName());
+                        loggedInstitution.getName());
+                long methodTime = System.currentTimeMillis() - methodStart;
+                System.out.println("TIMING: searchFuelTransactionByVehicleQr total took " + methodTime + "ms (failed - wrong institution)");
+                System.out.println("--- searchFuelTransactionByVehicleQr completed ---\n");
                 return "";
             }
         }
 
         // Get the most recent transaction
+        System.out.println(">>> STEP 4: Preparing transaction for dispense");
         selected = results.get(0);
         System.out.println("SUCCESS: Transaction found! ID=" + selected.getId());
+        System.out.println("Transaction details - Request Qty: " + selected.getRequestQuantity() +
+                          ", Issued Qty: " + selected.getIssuedQuantity() +
+                          ", Dispensed Qty: " + selected.getDispensedQuantity());
 
         // Initialize dispensed fields (prefer issuedQuantity, fallback to requestQuantity)
         if (selected.getDispensedQuantity() == null) {
@@ -606,16 +659,22 @@ public class FuelDispenseController implements Serializable {
                 defaultQuantity = selected.getRequestQuantity();
             }
             selected.setDispensedQuantity(defaultQuantity);
+            System.out.println("Set dispensed quantity to: " + defaultQuantity);
         }
         if (selected.getDispensedDate() == null) {
             selected.setDispensedDate(new Date());
+            System.out.println("Set dispensed date to current date");
         }
 
         JsfUtil.addSuccessMessage("Transaction found for vehicle: " + scannedVehicleNumber);
 
-        System.out.println("Navigating to: /cpc/fuel_dispense_mark?faces-redirect=true");
+        String navigationString = "/cpc/fuel_dispense_mark?faces-redirect=true";
+        long methodTime = System.currentTimeMillis() - methodStart;
+        System.out.println("TIMING: searchFuelTransactionByVehicleQr total took " + methodTime + "ms (SUCCESS)");
+        System.out.println("Returning navigation string: '" + navigationString + "'");
+        System.out.println("--- searchFuelTransactionByVehicleQr completed ---\n");
         // Navigate to the dispense page
-        return "/cpc/fuel_dispense_mark?faces-redirect=true";
+        return navigationString;
     }
 
     /**
