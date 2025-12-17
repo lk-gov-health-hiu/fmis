@@ -13,7 +13,8 @@
       "Bash(findstr:*)",
       "Bash(where:*)",
       "WebFetch(domain:www.primefaces.org)",
-      "WebFetch(domain:www.concretepage.com)"
+      "WebFetch(domain:www.concretepage.com)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
