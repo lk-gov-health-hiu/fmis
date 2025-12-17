@@ -114,13 +114,70 @@
                     width: 100% !important;
                     max-width: 100% !important;
                     border-radius: 10px;
-                    overflow: hidden;
+                    overflow: hidden !important;
+                    position: relative;
+                }
+
+                /* Container for video - ensure no weird sizing */
+                #qr-reader > div {
+                    width: 100% !important;
+                    position: relative !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                }
+
+                #qr-reader__scan_region {
+                    width: 100% !important;
+                    position: relative !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    left: 0 !important;
+                    right: 0 !important;
                 }
 
                 #qr-reader video {
                     width: 100% !important;
+                    max-width: 100% !important;
                     height: auto !important;
                     border-radius: 10px;
+                    display: block;
+                    object-fit: contain !important;
+                    position: relative !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                    margin: 0 auto !important;
+                }
+
+                /* Completely remove all canvas overlays and shaded regions */
+                #qr-reader canvas,
+                #qr-reader__scan_region canvas,
+                #qr-reader div[style*="position: absolute"] canvas {
+                    display: none !important;
+                    visibility: hidden !important;
+                }
+
+                /* Hide dashboard and any other UI elements */
+                #qr-reader__dashboard_section_swaplink,
+                #qr-reader__dashboard_section,
+                #qr-shaded-region,
+                div[id*="qr-shaded-region"] {
+                    display: none !important;
+                    visibility: hidden !important;
+                }
+
+                /* Ensure proper layout on mobile */
+                @media (max-width: 768px) {
+                    #qr-reader {
+                        margin: 0 auto;
+                        padding: 0 !important;
+                    }
+
+                    #qr-reader *,
+                    #qr-reader__scan_region * {
+                        box-sizing: border-box !important;
+                    }
                 }
 
                 /* Button styles */
