@@ -7,6 +7,7 @@ import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
 import lk.gov.health.phsp.facade.FuelTransactionImageFacade;
+import lk.gov.health.phsp.facade.VehicleFacade;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 
 import java.io.ByteArrayInputStream;
@@ -47,6 +48,8 @@ public class FuelDispenseController implements Serializable {
     private FuelTransactionFacade fuelTransactionFacade;
     @EJB
     private FuelTransactionImageFacade fuelTransactionImageFacade;
+    @EJB
+    private VehicleFacade vehicleFacade;
 
     @Inject
     private WebUserController webUserController;
@@ -500,17 +503,31 @@ public class FuelDispenseController implements Serializable {
             return "";
         }
 
-        // Search for the vehicle
-        List<Vehicle> vehicles = vehicleController.searchVehicles(scannedVehicleNumber);
-        System.out.println("Vehicles found: " + (vehicles != null ? vehicles.size() : "null"));
+        // Search for the vehicle - use direct ID lookup if available (fast), otherwise search by number
+        Vehicle vehicle = null;
 
-        if (vehicles == null || vehicles.isEmpty()) {
-            JsfUtil.addErrorMessage("No vehicle found with number: " + scannedVehicleNumber);
-            System.out.println("ERROR: No vehicle found");
-            return "";
+        if (scannedVehicleId != null) {
+            // OPTIMIZED: Direct database lookup by ID (O(1) operation)
+            System.out.println("Using direct vehicle ID lookup: " + scannedVehicleId);
+            vehicle = vehicleFacade.find(scannedVehicleId);
+            System.out.println("Vehicle found by ID: " + (vehicle != null));
         }
 
-        Vehicle vehicle = vehicles.get(0);
+        if (vehicle == null) {
+            // Fallback: Search by vehicle number if ID not available or not found
+            System.out.println("Searching by vehicle number: " + scannedVehicleNumber);
+            List<Vehicle> vehicles = vehicleController.searchVehicles(scannedVehicleNumber);
+            System.out.println("Vehicles found: " + (vehicles != null ? vehicles.size() : "null"));
+
+            if (vehicles == null || vehicles.isEmpty()) {
+                JsfUtil.addErrorMessage("No vehicle found with number: " + scannedVehicleNumber);
+                System.out.println("ERROR: No vehicle found");
+                return "";
+            }
+
+            vehicle = vehicles.get(0);
+        }
+
         System.out.println("Vehicle ID: " + vehicle.getId() + ", Number: " + vehicle.getVehicleNumber());
 
         // First, try to find transactions for this vehicle at the current institution

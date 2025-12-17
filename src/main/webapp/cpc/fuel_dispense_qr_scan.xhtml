@@ -38,8 +38,33 @@
 
                     <!-- QR Scanner Container -->
                     <div class="text-center mb-4">
-                        <div id="qr-reader" style="border: 3px solid #ddd; border-radius: 10px;"></div>
+                        <div id="qr-reader" style="border: 3px solid #ddd; border-radius: 10px; background: #000;"></div>
                     </div>
+
+                    <style>
+                        /* Additional mobile fixes for green bar issue */
+                        @media (max-width: 768px) {
+                            #qr-reader {
+                                background: #000 !important;
+                            }
+
+                            #qr-reader video {
+                                transform: translateX(0) !important;
+                                margin-left: 0 !important;
+                                margin-right: 0 !important;
+                            }
+
+                            /* Force all child divs to take full width */
+                            #qr-reader > div,
+                            #qr-reader__scan_region,
+                            #qr-reader__scan_region > div {
+                                width: 100% !important;
+                                max-width: 100% !important;
+                                margin: 0 !important;
+                                padding: 0 !important;
+                            }
+                        }
+                    </style>
 
                     <!-- Scanner Control Buttons -->
                     <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
@@ -156,7 +181,12 @@
                             fps: 10,    // Scans per second
                             qrbox: { width: qrboxSize, height: qrboxSize },  // Responsive scanning box
                             aspectRatio: 1.0,
-                            formatsToSupport: [ 'QR_CODE' ]  // Only scan QR codes
+                            formatsToSupport: [ 'QR_CODE' ],  // Only scan QR codes
+                            disableFlip: false,
+                            videoConstraints: {
+                                facingMode: "environment",
+                                aspectRatio: 1.0
+                            }
                         };
 
                         html5QrCode.start(
@@ -167,6 +197,22 @@
                         ).then(() => {
                             isScanning = true;
                             console.log('QR Code scanner started successfully with qrbox size: ' + qrboxSize);
+
+                            // Remove canvas overlays that cause green bar on mobile
+                            setTimeout(function() {
+                                const canvasElements = document.querySelectorAll('#qr-reader canvas');
+                                canvasElements.forEach(function(canvas) {
+                                    canvas.remove();
+                                });
+
+                                // Also remove any shaded region divs
+                                const shadedRegions = document.querySelectorAll('[id*="qr-shaded-region"]');
+                                shadedRegions.forEach(function(region) {
+                                    region.remove();
+                                });
+
+                                console.log('Removed canvas overlays and shaded regions');
+                            }, 100);
                         }).catch((err) => {
                             console.error('Unable to start scanner:', err);
                             alert('Failed to start camera: ' + err);
