@@ -46,6 +46,71 @@
                         <ez:menu></ez:menu>
                     </div>
                 </nav>
+
+                <!-- Unread Notifications Banner -->
+                #{systemMessageController.refreshUnreadMessages()}
+                <h:panelGroup rendered="#{systemMessageController.unreadCount > 0}">
+                    <div class="container-fluid mt-2">
+                        <div class="alert alert-warning border-warning" role="alert" style="background-color: #fff3cd; color: #000;">
+                            <h5 class="alert-heading" style="color: #000;">
+                                <i class="bi bi-bell-fill text-warning"></i>
+                                You have #{systemMessageController.unreadCount} unread notification#{systemMessageController.unreadCount > 1 ? 's' : ''}
+                            </h5>
+                            <hr style="border-color: #000; opacity: 0.2;"/>
+                            <div class="row">
+                                <ui:repeat value="#{systemMessageController.unreadMessages}" var="msg" varStatus="status">
+                                    <h:panelGroup rendered="#{status.index lt 5}">
+                                        <div class="col-md-12 mb-2">
+                                            <div class="card border-start border-#{msg.systemMessage.priority.colorClass} border-4" style="background-color: #ffffff;">
+                                                <div class="card-body py-2">
+                                                    <div class="d-flex align-items-start">
+                                                        <i class="bi #{msg.systemMessage.messageType.icon} text-#{msg.systemMessage.messageType.colorClass} fs-4 me-3"></i>
+                                                        <div class="flex-grow-1">
+                                                            <h6 class="mb-1" style="color: #000;">
+                                                                #{msg.systemMessage.subject}
+                                                                <span class="badge bg-#{msg.systemMessage.priority.colorClass} ms-2">#{msg.systemMessage.priority.label}</span>
+                                                                <h:panelGroup rendered="#{msg.systemMessage.requiresAcknowledgment}">
+                                                                    <span class="badge bg-warning text-dark ms-1">
+                                                                        <i class="bi bi-hand-index"></i> Requires Ack
+                                                                    </span>
+                                                                </h:panelGroup>
+                                                            </h6>
+                                                            <small class="text-muted" style="color: #6c757d !important;">
+                                                                <i class="bi bi-calendar"></i>
+                                                                <h:outputText value="#{msg.deliveredAt}">
+                                                                    <f:convertDateTime pattern="MMM dd, yyyy HH:mm" />
+                                                                </h:outputText>
+                                                            </small>
+                                                        </div>
+                                                        <h:form styleClass="ms-2">
+                                                            <h:commandLink action="#{systemMessageController.viewMessage(msg)}"
+                                                                           styleClass="btn btn-sm btn-primary">
+                                                                <i class="bi bi-eye-fill"></i> View
+                                                            </h:commandLink>
+                                                        </h:form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </h:panelGroup>
+                                </ui:repeat>
+                            </div>
+                            <h:panelGroup rendered="#{systemMessageController.unreadCount > 5}">
+                                <div class="mt-2">
+                                    <small style="color: #6c757d;">...and #{systemMessageController.unreadCount - 5} more notification(s)</small>
+                                </div>
+                            </h:panelGroup>
+                            <div class="mt-3">
+                                <h:form styleClass="d-inline">
+                                    <h:commandLink action="/webUser/view_all_notifications" styleClass="btn btn-primary btn-sm">
+                                        <i class="bi bi-list-ul"></i> View All Notifications
+                                    </h:commandLink>
+                                </h:form>
+                            </div>
+                        </div>
+                    </div>
+                </h:panelGroup>
+
                 <div class="container-fluid w-100" >
                     <ui:insert name="content">
                         Contents
