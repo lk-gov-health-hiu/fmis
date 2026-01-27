@@ -1,0 +1,285 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="/template.xhtml">
+
+            <ui:define name="content">
+                #{systemMessageController.refreshUnreadMessages()}
+                #{systemMessageController.loadReadMessages()}
+
+                <h:form id="notificationForm">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h4><i class="bi bi-bell-fill"></i> My Notifications</h4>
+
+                                <!-- Language Selector -->
+                                <div class="btn-group" role="group">
+                                    <h:commandLink action="#{systemMessageController.setLanguage('si')}"
+                                                   styleClass="btn btn-sm #{systemMessageController.currentLanguage == 'si' ? 'btn-light' : 'btn-outline-light'}">
+                                        සිංහල
+                                        <f:ajax execute="@this" render="@form" />
+                                    </h:commandLink>
+                                    <h:commandLink action="#{systemMessageController.setLanguage('ta')}"
+                                                   styleClass="btn btn-sm #{systemMessageController.currentLanguage == 'ta' ? 'btn-light' : 'btn-outline-light'}">
+                                        தமிழ்
+                                        <f:ajax execute="@this" render="@form" />
+                                    </h:commandLink>
+                                    <h:commandLink action="#{systemMessageController.setLanguage('en')}"
+                                                   styleClass="btn btn-sm #{systemMessageController.currentLanguage == 'en' ? 'btn-light' : 'btn-outline-light'}">
+                                        English
+                                        <f:ajax execute="@this" render="@form" />
+                                    </h:commandLink>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <p:messages />
+
+                            <p:tabView>
+                                <!-- Unread Tab -->
+                                <p:tab title="Unread (#{systemMessageController.unreadCount})">
+                                    <p:dataTable value="#{systemMessageController.unreadMessages}"
+                                                 var="msgStatus"
+                                                 emptyMessage="No unread notifications"
+                                                 paginator="true"
+                                                 rows="20"
+                                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+                                                 styleClass="table">
+
+                                        <!-- Priority -->
+                                        <p:column headerText="Priority" style="width: 80px">
+                                            <span class="badge bg-#{msgStatus.systemMessage.priority.colorClass}">
+                                                #{msgStatus.systemMessage.priority.label}
+                                            </span>
+                                        </p:column>
+
+                                        <!-- Type Icon -->
+                                        <p:column headerText="Type" style="width: 60px">
+                                            <i class="bi #{msgStatus.systemMessage.messageType.icon} text-#{msgStatus.systemMessage.messageType.colorClass} fs-4"></i>
+                                        </p:column>
+
+                                        <!-- Subject -->
+                                        <p:column headerText="Subject">
+                                            <strong>#{msgStatus.systemMessage.subject}</strong>
+                                            <br/>
+                                            <small class="text-muted">
+                                                #{msgStatus.systemMessage.messageType.label}
+                                            </small>
+                                            <!-- Attachment indicator -->
+                                            <h:panelGroup rendered="#{not empty msgStatus.systemMessage.attachments}">
+                                                <br/>
+                                                <i class="bi bi-paperclip ms-2"></i>
+                                                <small>#{msgStatus.systemMessage.attachments.size()} attachment(s)</small>
+                                            </h:panelGroup>
+                                            <!-- Requires acknowledgment indicator -->
+                                            <h:panelGroup rendered="#{msgStatus.systemMessage.requiresAcknowledgment and !msgStatus.acknowledged}">
+                                                <br/>
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="bi bi-hand-index"></i> Requires Acknowledgment
+                                                </span>
+                                            </h:panelGroup>
+                                        </p:column>
+
+                                        <!-- Date -->
+                                        <p:column headerText="Received" style="width: 150px">
+                                            <h:outputText value="#{msgStatus.deliveredAt}">
+                                                <f:convertDateTime pattern="MMM dd, yyyy HH:mm" />
+                                            </h:outputText>
+                                        </p:column>
+
+                                        <!-- Actions -->
+                                        <p:column headerText="Actions" style="width: 200px">
+                                            <p:commandButton value="View"
+                                                             icon="pi pi-eye"
+                                                             ajax="false"
+                                                             action="#{systemMessageController.viewMessage(msgStatus)}"
+                                                             update=":notificationForm:messageDetailDialog"
+                                                             oncomplete="PF('msgDetailDlg').show()"
+                                                             styleClass="ui-button-info ui-button-sm" />
+
+                                            <p:commandButton value="Dismiss"
+                                                             icon="pi pi-times"
+                                                             action="#{systemMessageController.dismissMessage(msgStatus)}"
+                                                             update="@form"
+                                                             styleClass="ui-button-secondary ui-button-sm ms-1">
+                                                <p:confirm header="Confirmation"
+                                                           message="Dismiss this notification?"
+                                                           icon="pi pi-info-circle" />
+                                            </p:commandButton>
+                                        </p:column>
+                                    </p:dataTable>
+                                </p:tab>
+
+                                <!-- Read Messages Tab -->
+                                <p:tab title="Read Messages">
+                                    <p:dataTable value="#{systemMessageController.readMessages}"
+                                                 var="msgStatus"
+                                                 emptyMessage="No read messages"
+                                                 paginator="true"
+                                                 rows="20"
+                                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+                                                 styleClass="table">
+
+                                        <!-- Priority -->
+                                        <p:column headerText="Priority" style="width: 80px">
+                                            <span class="badge bg-#{msgStatus.systemMessage.priority.colorClass}">
+                                                #{msgStatus.systemMessage.priority.label}
+                                            </span>
+                                        </p:column>
+
+                                        <!-- Type Icon -->
+                                        <p:column headerText="Type" style="width: 60px">
+                                            <i class="bi #{msgStatus.systemMessage.messageType.icon} text-#{msgStatus.systemMessage.messageType.colorClass} fs-4"></i>
+                                        </p:column>
+
+                                        <!-- Subject -->
+                                        <p:column headerText="Subject">
+                                            <strong>#{msgStatus.systemMessage.subject}</strong>
+                                            <br/>
+                                            <small class="text-muted">
+                                                #{msgStatus.systemMessage.messageType.label}
+                                            </small>
+                                        </p:column>
+
+                                        <!-- Read Date -->
+                                        <p:column headerText="Read On" style="width: 150px">
+                                            <h:outputText value="#{msgStatus.readAt}">
+                                                <f:convertDateTime pattern="MMM dd, yyyy HH:mm" />
+                                            </h:outputText>
+                                        </p:column>
+
+                                        <!-- Actions -->
+                                        <p:column headerText="Actions" style="width: 120px">
+                                            <p:commandButton value="View"
+                                                             ajax="false"
+                                                             icon="pi pi-eye"
+                                                             action="#{systemMessageController.viewMessage(msgStatus)}"
+                                                             update=":notificationForm:messageDetailDialog"
+                                                             oncomplete="PF('msgDetailDlg').show()"
+                                                             styleClass="ui-button-info ui-button-sm" />
+                                        </p:column>
+                                    </p:dataTable>
+                                </p:tab>
+                            </p:tabView>
+                        </div>
+                    </div>
+
+                    <!-- Message Detail Dialog -->
+                    <p:dialog id="messageDetailDialog"
+                              header="#{systemMessageController.selectedMessageStatus.systemMessage.subject}"
+                              widgetVar="msgDetailDlg"
+                              modal="true"
+                              width="800"
+                              responsive="true">
+
+                        <h:panelGroup rendered="#{systemMessageController.selectedMessageStatus != null}">
+
+                            <!-- Message Header -->
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi #{systemMessageController.selectedMessageStatus.systemMessage.messageType.icon} text-#{systemMessageController.selectedMessageStatus.systemMessage.messageType.colorClass} fs-3 me-2"></i>
+                                    <div>
+                                        <h5 class="mb-0">
+                                            #{systemMessageController.selectedMessageStatus.systemMessage.subject}
+                                        </h5>
+                                        <small class="text-muted">
+                                            From: #{systemMessageController.selectedMessageStatus.systemMessage.creater.name}
+                                            |
+                                            <h:outputText value="#{systemMessageController.selectedMessageStatus.systemMessage.createdAt}">
+                                                <f:convertDateTime pattern="MMM dd, yyyy HH:mm" />
+                                            </h:outputText>
+                                        </small>
+                                    </div>
+                                </div>
+                                <span class="badge bg-#{systemMessageController.selectedMessageStatus.systemMessage.priority.colorClass}">
+                                    #{systemMessageController.selectedMessageStatus.systemMessage.priority.label} Priority
+                                </span>
+                            </div>
+
+                            <!-- Message Content in Selected Language -->
+                            <div class="mb-3">
+                                <h:outputText value="#{systemMessageController.getMessageContent(systemMessageController.selectedMessageStatus.systemMessage)}"
+                                              escape="false" />
+                            </div>
+
+                            <!-- Attachments -->
+                            <h:panelGroup rendered="#{not empty systemMessageController.selectedMessageStatus.systemMessage.attachments}">
+                                <div class="mb-3">
+                                    <h6><i class="bi bi-paperclip"></i> Attachments:</h6>
+                                    <ul class="list-group">
+                                        <ui:repeat value="#{systemMessageController.selectedMessageStatus.systemMessage.attachments}"
+                                                   var="att">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>
+                                                    <i class="bi bi-file-earmark"></i> #{att.fileName}
+                                                    <small class="text-muted">
+                                                        (#{att.fileSize / 1024} KB)
+                                                    </small>
+                                                </span>
+                                            </li>
+                                        </ui:repeat>
+                                    </ul>
+                                </div>
+                            </h:panelGroup>
+
+                            <!-- Acknowledgment Section -->
+                            <h:panelGroup rendered="#{systemMessageController.selectedMessageStatus.systemMessage.requiresAcknowledgment}">
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-hand-index-thumb-fill"></i>
+                                    <strong>This message requires acknowledgment</strong>
+
+                                    <h:panelGroup rendered="#{systemMessageController.selectedMessageStatus.acknowledged}">
+                                        <div class="mt-2">
+                                            <i class="bi bi-check-circle-fill text-success"></i>
+                                            You acknowledged this message on
+                                            <h:outputText value="#{systemMessageController.selectedMessageStatus.acknowledgedAt}">
+                                                <f:convertDateTime pattern="MMM dd, yyyy HH:mm" />
+                                            </h:outputText>
+                                        </div>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{!systemMessageController.selectedMessageStatus.acknowledged}">
+                                        <div class="mt-2">
+                                            <p:commandButton value="I Acknowledge"
+                                                             icon="pi pi-check"
+                                                             action="#{systemMessageController.acknowledgeMessage(systemMessageController.selectedMessageStatus)}"
+                                                             update="@form"
+                                                             oncomplete="PF('msgDetailDlg').hide()"
+                                                             styleClass="ui-button-success" />
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
+                            </h:panelGroup>
+
+                            <div class="d-flex justify-content-end mt-3">
+                                <p:commandButton value="Close"
+                                                 icon="pi pi-times"
+                                                 onclick="PF('msgDetailDlg').hide()"
+                                                 type="button"
+                                                 styleClass="ui-button-secondary" />
+                            </div>
+                        </h:panelGroup>
+                    </p:dialog>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Yes" type="button"
+                                         styleClass="ui-confirmdialog-yes" />
+                        <p:commandButton value="No" type="button"
+                                         styleClass="ui-confirmdialog-no" />
+                    </p:confirmDialog>
+
+                </h:form>
+
+            </ui:define>
+        </ui:composition>
+    </body>
+</html>
