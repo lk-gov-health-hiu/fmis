@@ -32,14 +32,41 @@
                     <!-- Remote command to trigger backend processing -->
                     <p:remoteCommand name="processQrCode"
                                      actionListener="#{fuelDispenseController.processScannedQr()}"
-                                     update="redirectUrlValue qrForm:messages"
-                                     process="@this hiddenQrValue"
+                                     update="redirectUrlValue"
+                                     process="hiddenQrValue"
+                                     global="true"
+                                     async="true"
                                      oncomplete="handleQrProcessingComplete()" />
 
                     <!-- QR Scanner Container -->
                     <div class="text-center mb-4">
-                        <div id="qr-reader" style="border: 3px solid #ddd; border-radius: 10px;"></div>
+                        <div id="qr-reader" style="border: 3px solid #ddd; border-radius: 10px; background: #000;"></div>
                     </div>
+
+                    <style>
+                        /* Additional mobile fixes for green bar issue */
+                        @media (max-width: 768px) {
+                            #qr-reader {
+                                background: #000 !important;
+                            }
+
+                            #qr-reader video {
+                                transform: translateX(0) !important;
+                                margin-left: 0 !important;
+                                margin-right: 0 !important;
+                            }
+
+                            /* Force all child divs to take full width */
+                            #qr-reader > div,
+                            #qr-reader__scan_region,
+                            #qr-reader__scan_region > div {
+                                width: 100% !important;
+                                max-width: 100% !important;
+                                margin: 0 !important;
+                                padding: 0 !important;
+                            }
+                        }
+                    </style>
 
                     <!-- Scanner Control Buttons -->
                     <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
@@ -80,40 +107,81 @@
                     let lastScannedCode = null;
                     let scanCooldown = false;
 
+                    // Track PrimeFaces AJAX events for performance monitoring
+                    if (typeof PrimeFaces !== 'undefined') {
+                        $(document).on('pfAjaxStart', function() {
+                            console.log('QR SCAN: PrimeFaces AJAX request STARTED (network call beginning)');
+                        });
+                        $(document).on('pfAjaxComplete', function() {
+                            console.log('QR SCAN: PrimeFaces AJAX request COMPLETED (server responded)');
+                        });
+                        $(document).on('pfAjaxError', function(event, xhr, settings, error) {
+                            console.log('QR SCAN: PrimeFaces AJAX ERROR: ' + error);
+                            console.log('QR SCAN: XHR status: ' + xhr.status + ' ' + xhr.statusText);
+                        });
+                    }
+
                     // Handle completion of QR processing - redirect immediately if URL is set
                     function handleQrProcessingComplete() {
+                        console.log('QR SCAN: handleQrProcessingComplete() called - server responded!');
                         var redirectUrlElement = document.getElementById('qrForm:redirectUrlValue');
-                        if (redirectUrlElement && redirectUrlElement.value && redirectUrlElement.value.trim() !== '') {
-                            var url = redirectUrlElement.value.trim();
-                            console.log('QR detected - Redirecting immediately to: ' + url);
-                            // Redirect immediately without delay
-                            window.location.href = url;
+                        console.log('QR SCAN: Checking for redirect URL...');
+
+                        if (redirectUrlElement) {
+                            console.log('QR SCAN: redirectUrlElement found, value = "' + redirectUrlElement.value + '"');
+                            if (redirectUrlElement.value && redirectUrlElement.value.trim() !== '') {
+                                var url = redirectUrlElement.value.trim();
+                                console.log('QR SCAN: SUCCESS - Redirecting to: ' + url);
+                                // Redirect immediately without delay
+                                window.location.href = url;
+                            } else {
+                                console.log('QR SCAN: ERROR - redirectUrl is empty, no navigation will happen');
+                                console.log('QR SCAN: Check server logs to see why navigationOutcome was empty');
+                            }
+                        } else {
+                            console.log('QR SCAN: ERROR - redirectUrlElement not found in DOM');
                         }
+                        console.log('============================================');
                         // If no redirect URL, stay on page (error messages will be displayed)
                     }
 
                     function onScanSuccess(decodedText, decodedResult) {
+                        var startTime = performance.now();
+                        console.log('============================================');
+                        console.log('QR SCAN: onScanSuccess called at ' + new Date().toISOString());
+                        console.log('QR SCAN: Decoded text: ' + decodedText);
+
                         // Prevent multiple scans of the same code
                         if (scanCooldown || lastScannedCode === decodedText) {
+                            console.log('QR SCAN: Blocked by cooldown or duplicate scan');
                             return;
                         }
 
                         lastScannedCode = decodedText;
                         scanCooldown = true;
 
-                        console.log(`QR Code detected: ${decodedText}`);
+                        console.log('QR SCAN: Setting up to process QR code...');
 
                         // Minimal visual feedback - just green border (no messages)
                         document.getElementById('qr-reader').style.border = '3px solid #28a745';
 
                         // Set the hidden input value
+                        var beforeSetValue = performance.now();
                         document.getElementById('qrForm:hiddenQrValue').value = decodedText;
+                        console.log('QR SCAN TIMING: Set hidden input value took ' + (performance.now() - beforeSetValue).toFixed(2) + 'ms');
 
                         // Immediately trigger backend processing - will redirect if successful
+                        var beforeAjax = performance.now();
+                        console.log('QR SCAN: Calling processQrCode() AJAX...');
                         processQrCode([{name: 'scannedVehicleNumber', value: decodedText}]);
+                        console.log('QR SCAN TIMING: processQrCode() invocation took ' + (performance.now() - beforeAjax).toFixed(2) + 'ms');
+                        console.log('QR SCAN: AJAX request sent (waiting for server response...)');
 
                         // Stop scanning immediately since we're about to redirect
                         stopScanning();
+
+                        console.log('QR SCAN TIMING: Total onScanSuccess took ' + (performance.now() - startTime).toFixed(2) + 'ms');
+                        console.log('QR SCAN: Now waiting for server response and oncomplete callback...');
 
                         // Reset cooldown after 3 seconds
                         setTimeout(function() {
@@ -156,7 +224,12 @@
                             fps: 10,    // Scans per second
                             qrbox: { width: qrboxSize, height: qrboxSize },  // Responsive scanning box
                             aspectRatio: 1.0,
-                            formatsToSupport: [ 'QR_CODE' ]  // Only scan QR codes
+                            formatsToSupport: [ 'QR_CODE' ],  // Only scan QR codes
+                            disableFlip: false,
+                            videoConstraints: {
+                                facingMode: "environment",
+                                aspectRatio: 1.0
+                            }
                         };
 
                         html5QrCode.start(
@@ -167,6 +240,22 @@
                         ).then(() => {
                             isScanning = true;
                             console.log('QR Code scanner started successfully with qrbox size: ' + qrboxSize);
+
+                            // Remove canvas overlays that cause green bar on mobile
+                            setTimeout(function() {
+                                const canvasElements = document.querySelectorAll('#qr-reader canvas');
+                                canvasElements.forEach(function(canvas) {
+                                    canvas.remove();
+                                });
+
+                                // Also remove any shaded region divs
+                                const shadedRegions = document.querySelectorAll('[id*="qr-shaded-region"]');
+                                shadedRegions.forEach(function(region) {
+                                    region.remove();
+                                });
+
+                                console.log('Removed canvas overlays and shaded regions');
+                            }, 100);
                         }).catch((err) => {
                             console.error('Unable to start scanner:', err);
                             alert('Failed to start camera: ' + err);
