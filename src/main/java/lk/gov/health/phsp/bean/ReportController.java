@@ -430,6 +430,23 @@ public class ReportController implements Serializable {
         return "/reports/request_view?faces-redirect=true;";
     }
 
+    /**
+     * Refresh the current fuel transaction from database (bypasses cache)
+     * Useful when transaction is updated externally (e.g., via mobile app API)
+     */
+    public void refreshCurrentFuelTransaction() {
+        if (fuelTransaction == null || fuelTransaction.getId() == null) {
+            JsfUtil.addErrorMessage("No transaction to refresh");
+            return;
+        }
+        fuelTransaction = fuelTransactionFacade.findFresh(fuelTransaction.getId());
+        if (fuelTransaction == null) {
+            JsfUtil.addErrorMessage("Transaction not found");
+        } else {
+            JsfUtil.addSuccessMessage("Transaction refreshed successfully");
+        }
+    }
+
     public String navigateToComprehensiveSummaryFromFuelStationSummary() {
         toInstitution = institutionController.getInstitutionById(fuelStationId);
         if (toInstitution == null) {

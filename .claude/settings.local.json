@@ -14,7 +14,11 @@
       "Bash(where:*)",
       "WebFetch(domain:www.primefaces.org)",
       "WebFetch(domain:www.concretepage.com)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(mysql:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -Command \"Get-ChildItem -Path D:\\\\Dev -Directory | Select-Object Name\")",
+      "Bash(powershell -ExecutionPolicy Bypass -Command \"Get-ChildItem -Path d:\\\\Dev\\\\fmis_mobile\\\\lib -Recurse | Where-Object {!$_PSIsContainer} | Select-Object FullName\")",
+      "Bash(ssh:*)"
     ],
     "deny": [],
     "ask": []
