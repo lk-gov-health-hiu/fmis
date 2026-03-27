@@ -18,7 +18,13 @@
       "Bash(mysql:*)",
       "Bash(powershell -ExecutionPolicy Bypass -Command \"Get-ChildItem -Path D:\\\\Dev -Directory | Select-Object Name\")",
       "Bash(powershell -ExecutionPolicy Bypass -Command \"Get-ChildItem -Path d:\\\\Dev\\\\fmis_mobile\\\\lib -Recurse | Where-Object {!$_PSIsContainer} | Select-Object FullName\")",
-      "Bash(ssh:*)"
+      "Bash(ssh:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(cmd /c \"cd /d D:\\\\Dev\\\\fmis_mobile && flutter analyze lib\\\\config\\\\api_config.dart lib\\\\services\\\\qr_service.dart lib\\\\screens\\\\qr_scanner_screen.dart lib\\\\screens\\\\dispense_screen.dart lib\\\\models\\\\qr_data.dart\")",
+      "Bash(cmd /c \"cd /d D:\\\\Dev\\\\fmis_mobile && flutter analyze\")",
+      "Bash(cmd /c \"cd /d D:\\\\Dev\\\\fmis_mobile && flutter analyze 2>&1\")",
+      "Bash(powershell -Command:*)",
+      "Bash(ping -n 2 192.168.1.72)"
     ],
     "deny": [],
     "ask": []
