@@ -378,11 +378,27 @@ public class InstitutionController implements Serializable {
     }
 
     public List<Institution> completeInstitutions(String nameQry) {
-        List<InstitutionType> ts = Arrays.asList(InstitutionType.values());
-        if (ts == null) {
-            ts = new ArrayList<>();
+        List<Institution> resIns = new ArrayList<>();
+        if (nameQry == null) {
+            return resIns;
         }
-        return fillInstitutions(ts, nameQry, null);
+        String q = nameQry.trim().toLowerCase();
+        if (q.isEmpty()) {
+            return resIns;
+        }
+        // Cap the result set to match the autoComplete maxResults so we can
+        // bail out early instead of scanning every cached institution.
+        final int limit = 30;
+        for (Institution i : institutionApplicationController.getInstitutions()) {
+            String name = i.getName();
+            if (name != null && name.toLowerCase().contains(q)) {
+                resIns.add(i);
+                if (resIns.size() >= limit) {
+                    break;
+                }
+            }
+        }
+        return resIns;
     }
 
     public List<Institution> completeHlClinics(String nameQry) {

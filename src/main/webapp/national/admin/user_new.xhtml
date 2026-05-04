@@ -54,14 +54,16 @@
                         <div class="row mb-3">
                             <label for="institution :" class="col-form-label fw-bold col-md-4">#{bundleClinical.EditWebUserLabel_institution} <small>(Required)</small></label>
                             <div class="col-md-8">
-                                <p:autoComplete id="institution" 
+                                <p:autoComplete id="institution"
                                                 value="#{webUserController.selected.institution}"
                                                 completeMethod="#{institutionController.completeInstitutions}"
                                                 var="i" itemLabel="#{i.name}" itemValue="#{i}"
-                                                forceSelection="true" required="true" 
-                                                requiredMessage="The Institution field is required." 
-                                                minQueryLength="3" 
-                                                maxResults="30">
+                                                forceSelection="true" required="true"
+                                                requiredMessage="The Institution field is required."
+                                                minQueryLength="3"
+                                                maxResults="30"
+                                                queryDelay="400"
+                                                cache="true">
                                 </p:autoComplete>
                                 <h:message for="institution" class="text-danger small"></h:message>
                             </div>
