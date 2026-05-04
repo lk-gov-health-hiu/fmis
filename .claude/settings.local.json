@@ -27,7 +27,8 @@
       "Bash(ping -n 2 192.168.1.72)",
       "Bash(pip show:*)",
       "Bash(pip install:*)",
-      "Bash(python -c \"import paramiko; print\\([x for x in dir\\(paramiko\\) if ''''Key'''' in x]\\)\")"
+      "Bash(python -c \"import paramiko; print\\([x for x in dir\\(paramiko\\) if ''''Key'''' in x]\\)\")",
+      "Bash(plink -ssh user@192.168.1.72 -pw NcHiS987650 -batch 'mysql -ucovid -pCovid123@ fmis -e \":*)"
     ],
     "deny": [],
     "ask": []
