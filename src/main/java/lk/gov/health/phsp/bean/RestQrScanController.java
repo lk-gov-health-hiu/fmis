@@ -425,19 +425,25 @@ public class RestQrScanController {
             }
 
             String fileName = fileDetail.getFileName();
-            String contentType = fileDetail.getType();
             long fileSize = fileDetail.getSize();
 
-            System.out.println("Image: " + fileName + " (" + fileSize + " bytes, " + contentType + ")");
-
-            // Validate image format
-            if (contentType == null || (!contentType.toLowerCase().contains("image/jpeg")
-                    && !contentType.toLowerCase().contains("image/jpg")
-                    && !contentType.toLowerCase().contains("image/png"))) {
+            // Derive MIME type from filename extension.
+            // Note: fileDetail.getType() returns the Content-Disposition type ("form-data"),
+            // NOT the part's Content-Type, so it cannot be used for format validation.
+            String lowerName = fileName != null ? fileName.toLowerCase() : "";
+            String contentType;
+            if (lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
+                contentType = "image/jpeg";
+            } else if (lowerName.endsWith(".png")) {
+                contentType = "image/png";
+            } else {
+                System.out.println("Rejected image with unsupported filename: " + fileName);
                 response.put("success", false);
                 response.put("message", "Invalid image format. Only JPEG and PNG are allowed");
                 return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
             }
+
+            System.out.println("Image: " + fileName + " (" + fileSize + " bytes, " + contentType + ")");
 
             // Find transaction
             FuelTransaction transaction = fuelTransactionFacade.find(transactionId);
