@@ -1,7 +1,9 @@
 package lk.gov.health.phsp.bean;
 
 import lk.gov.health.phsp.entity.FuelTransaction;
+import lk.gov.health.phsp.entity.FuelTransactionImage;
 import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
+import lk.gov.health.phsp.facade.FuelTransactionImageFacade;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -73,6 +75,8 @@ public class FuelRequestAndIssueController implements Serializable {
     BillFacade billFacade;
     @EJB
     BillItemFacade billItemFacade;
+    @EJB
+    private FuelTransactionImageFacade fuelTransactionImageFacade;
 
     @Inject
     private WebUserController webUserController;
@@ -3086,6 +3090,33 @@ public class FuelRequestAndIssueController implements Serializable {
             Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Error downloading receipt", e);
             JsfUtil.addErrorMessage("Failed to download receipt. Please try again.");
         }
+    }
+
+    public org.primefaces.model.StreamedContent getFuelTransactionImage() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        if (context.getRenderResponse()) {
+            return new org.primefaces.model.DefaultStreamedContent();
+        }
+        if (selected == null) {
+            return new org.primefaces.model.DefaultStreamedContent();
+        }
+        FuelTransactionImage image = fuelTransactionImageFacade.findByFuelTransaction(selected);
+        if (image == null || image.getImageData() == null) {
+            return new org.primefaces.model.DefaultStreamedContent();
+        }
+        return org.primefaces.model.DefaultStreamedContent.builder()
+                .stream(() -> new java.io.ByteArrayInputStream(image.getImageData()))
+                .contentType(image.getContentType() != null ? image.getContentType() : "image/jpeg")
+                .name(image.getFileName() != null ? image.getFileName() : "dispense_image.jpg")
+                .build();
+    }
+
+    public boolean hasFuelTransactionImage() {
+        if (selected == null) {
+            return false;
+        }
+        FuelTransactionImage image = fuelTransactionImageFacade.findByFuelTransaction(selected);
+        return image != null && image.getImageData() != null;
     }
 
     public org.primefaces.model.StreamedContent getCertifiedReceiptPreview() {
