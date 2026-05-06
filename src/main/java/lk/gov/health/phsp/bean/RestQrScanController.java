@@ -547,6 +547,60 @@ public class RestQrScanController {
     }
 
     /**
+     * Get the last 5 fuel transactions dispensed by the authenticated user.
+     * GET /api/qr/recent-dispensed
+     *
+     * Header: Authorization: Bearer <token>
+     * Response: {"success": true, "transactions": [...]}
+     */
+    @GET
+    @Path("/recent-dispensed")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRecentDispensed(@HeaderParam("Authorization") String authHeader) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            WebUser currentUser = authenticateUser(authHeader);
+            if (currentUser == null) {
+                response.put("success", false);
+                response.put("message", "Authentication required");
+                return Response.status(Response.Status.UNAUTHORIZED).entity(response).build();
+            }
+
+            String jpql = "SELECT t FROM FuelTransaction t "
+                    + "WHERE t.dispensedBy.id = :userId "
+                    + "AND t.retired = false "
+                    + "AND t.dispensed = true "
+                    + "ORDER BY t.dispensedAt DESC";
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("userId", currentUser.getId());
+
+            java.util.List<FuelTransaction> transactions =
+                    fuelTransactionFacade.findByJpql(jpql, params, 5);
+
+            java.util.List<Map<String, Object>> transactionList = new java.util.ArrayList<>();
+            if (transactions != null) {
+                for (FuelTransaction transaction : transactions) {
+                    transactionList.add(buildTransactionResponse(transaction));
+                }
+            }
+
+            response.put("success", true);
+            response.put("transactions", transactionList);
+            return Response.ok(response).build();
+
+        } catch (Exception e) {
+            System.out.println("Recent dispensed error: " + e.getMessage());
+            e.printStackTrace();
+
+            response.put("success", false);
+            response.put("message", "An error occurred while fetching recent transactions");
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(response).build();
+        }
+    }
+
+    /**
      * Get fuel transaction details by ID
      * GET /api/qr/transaction/{id}
      *
