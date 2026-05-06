@@ -22,11 +22,15 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
+import javax.persistence.TemporalType;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.enums.WebUserRole;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.AreaFacade;
+import lk.gov.health.phsp.pojcs.VehicleLightDTO;
 
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
@@ -72,6 +76,8 @@ public class VehicleController implements Serializable {
     private List<Vehicle> items = null;
     private Vehicle selected;
     private Vehicle deleting;
+
+    private List<VehicleLightDTO> lastVehicleLightDtoResults;
 
     private VehicleType vehicleType;
     private Vehicle parent;
@@ -440,6 +446,42 @@ public class VehicleController implements Serializable {
         return resIns;
     }
 
+    /**
+     * DTO-based autocomplete returning every non-retired vehicle in the system.
+     * Used where the caller must be able to pick a vehicle owned by any
+     * institution (e.g. special fuel requests). Loads only the columns needed
+     * for display so the query stays fast even with thousands of vehicles.
+     */
+    public List<VehicleLightDTO> completeAllVehiclesByWordsDto(String nameQry) {
+        if (nameQry == null || nameQry.trim().isEmpty()) {
+            lastVehicleLightDtoResults = new ArrayList<>();
+            return lastVehicleLightDtoResults;
+        }
+
+        String[] words = nameQry.trim().split("\\s+");
+        StringBuilder jpql = new StringBuilder(
+                "SELECT NEW lk.gov.health.phsp.pojcs.VehicleLightDTO("
+                + "v.id, v.vehicleNumber, v.name, v.allocationType, ins.id, ins.name) "
+                + "FROM Vehicle v LEFT JOIN v.institution ins "
+                + "WHERE v.retired = false ");
+
+        Map<String, Object> params = new HashMap<>();
+        for (int i = 0; i < words.length; i++) {
+            String paramName = "q" + i;
+            jpql.append("AND (LOWER(v.vehicleNumber) LIKE :").append(paramName)
+                    .append(" OR LOWER(v.name) LIKE :").append(paramName).append(") ");
+            params.put(paramName, "%" + words[i].toLowerCase() + "%");
+        }
+        jpql.append("ORDER BY v.vehicleNumber");
+
+        @SuppressWarnings("unchecked")
+        List<VehicleLightDTO> results = (List<VehicleLightDTO>) getFacade()
+                .findLightsByJpql(jpql.toString(), params, TemporalType.TIMESTAMP, 20);
+
+        lastVehicleLightDtoResults = results != null ? results : new ArrayList<VehicleLightDTO>();
+        return lastVehicleLightDtoResults;
+    }
+
     public Vehicle prepareCreate() {
         selected = new Vehicle();
         initializeEmbeddableKey();
@@ -715,6 +757,45 @@ public class VehicleController implements Serializable {
 
     public void setStartMessage(String startMessage) {
         this.startMessage = startMessage;
+    }
+
+    @FacesConverter("vehicleLightDtoConverter")
+    public static class VehicleLightDtoConverter implements Converter {
+
+        @Override
+        public Object getAsObject(FacesContext facesContext, UIComponent component, String value) {
+            if (value == null || value.length() == 0) {
+                return null;
+            }
+            Long id;
+            try {
+                id = Long.valueOf(value);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+            VehicleController controller = (VehicleController) facesContext.getApplication().getELResolver()
+                    .getValue(facesContext.getELContext(), null, "vehicleController");
+            if (controller != null && controller.lastVehicleLightDtoResults != null) {
+                for (VehicleLightDTO dto : controller.lastVehicleLightDtoResults) {
+                    if (id.equals(dto.getId())) {
+                        return dto;
+                    }
+                }
+            }
+            return new VehicleLightDTO(id);
+        }
+
+        @Override
+        public String getAsString(FacesContext facesContext, UIComponent component, Object object) {
+            if (object == null) {
+                return "";
+            }
+            if (object instanceof VehicleLightDTO) {
+                Long id = ((VehicleLightDTO) object).getId();
+                return id != null ? id.toString() : "";
+            }
+            return "";
+        }
     }
 
     @FacesConverter(forClass = Vehicle.class)
