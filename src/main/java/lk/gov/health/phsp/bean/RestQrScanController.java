@@ -2,6 +2,7 @@ package lk.gov.health.phsp.bean;
 
 import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.entity.FuelTransactionImage;
+import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.entity.WebUser;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
@@ -116,7 +117,7 @@ public class RestQrScanController {
 
                             if (vehicle != null && !vehicle.isRetired()) {
                                 System.out.println("Vehicle found using JSON ID - ID: " + vehicle.getId() + ", Number: " + vehicle.getVehicleNumber());
-                                response = buildVehicleResponseWithTransactions(vehicle);
+                                response = buildVehicleResponseWithTransactions(vehicle, currentUser);
                                 response.put("success", true);
                                 response.put("type", "vehicle");
                                 return Response.ok(response).build();
@@ -140,7 +141,7 @@ public class RestQrScanController {
 
                         if (vehicle != null) {
                             System.out.println("Vehicle found using JSON vehicle number - ID: " + vehicle.getId() + ", Number: " + vehicle.getVehicleNumber());
-                            response = buildVehicleResponseWithTransactions(vehicle);
+                            response = buildVehicleResponseWithTransactions(vehicle, currentUser);
                             response.put("success", true);
                             response.put("type", "vehicle");
                             return Response.ok(response).build();
@@ -186,7 +187,7 @@ public class RestQrScanController {
 
             if (vehicle != null) {
                 System.out.println("Vehicle found by registration number - ID: " + vehicle.getId() + ", Number: " + vehicle.getVehicleNumber());
-                response = buildVehicleResponseWithTransactions(vehicle);
+                response = buildVehicleResponseWithTransactions(vehicle, currentUser);
                 response.put("success", true);
                 response.put("type", "vehicle");
                 return Response.ok(response).build();
@@ -204,7 +205,7 @@ public class RestQrScanController {
                     System.out.println("Vehicle found - ID: " + vehicle.getId() + ", Retired: " + vehicle.isRetired());
                     if (!vehicle.isRetired()) {
                         System.out.println("Vehicle matched successfully");
-                        response = buildVehicleResponseWithTransactions(vehicle);
+                        response = buildVehicleResponseWithTransactions(vehicle, currentUser);
                         response.put("success", true);
                         response.put("type", "vehicle");
                         return Response.ok(response).build();
@@ -302,6 +303,12 @@ public class RestQrScanController {
                 response.put("success", false);
                 response.put("message", "Transaction already dispensed");
                 return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
+            }
+
+            // Enforce: dispenser must belong to the fuel shed the order was directed to
+            Response institutionError = checkDispenseInstitution(transaction, currentUser);
+            if (institutionError != null) {
+                return institutionError;
             }
 
             // Note: Dispensing happens BEFORE issuing in this workflow
@@ -476,6 +483,12 @@ public class RestQrScanController {
                 response.put("success", false);
                 response.put("message", "Transaction already dispensed");
                 return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
+            }
+
+            // Enforce: dispenser must belong to the fuel shed the order was directed to
+            Response institutionError = checkDispenseInstitution(transaction, currentUser);
+            if (institutionError != null) {
+                return institutionError;
             }
 
             // Read image bytes
@@ -677,6 +690,40 @@ public class RestQrScanController {
         return null;
     }
 
+    /**
+     * Verify that the dispenser's institution matches the fuel shed (toInstitution)
+     * the transaction was ordered from. Strict match — no parent/child fallback.
+     *
+     * @return null if authorized, otherwise a 403 Response with an explanatory message.
+     */
+    private Response checkDispenseInstitution(FuelTransaction transaction, WebUser currentUser) {
+        Map<String, Object> body = new HashMap<>();
+        Institution userInstitution = currentUser.getInstitution();
+        Institution toInstitution = transaction.getToInstitution();
+
+        if (userInstitution == null || userInstitution.getId() == null) {
+            body.put("success", false);
+            body.put("message", "Your account has no institution assigned. Cannot dispense fuel.");
+            return Response.status(Response.Status.FORBIDDEN).entity(body).build();
+        }
+
+        if (toInstitution == null || toInstitution.getId() == null) {
+            body.put("success", false);
+            body.put("message", "This transaction has no fuel shed assigned and cannot be dispensed via the mobile app.");
+            return Response.status(Response.Status.FORBIDDEN).entity(body).build();
+        }
+
+        if (!userInstitution.getId().equals(toInstitution.getId())) {
+            body.put("success", false);
+            body.put("message", "This fuel was ordered from " + toInstitution.getName()
+                    + ". You can only dispense fuel ordered from your institution: "
+                    + userInstitution.getName());
+            return Response.status(Response.Status.FORBIDDEN).entity(body).build();
+        }
+
+        return null;
+    }
+
     private WebUser authenticateUser(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return null;
@@ -760,20 +807,33 @@ public class RestQrScanController {
         return data;
     }
 
-    private Map<String, Object> buildVehicleResponseWithTransactions(Vehicle vehicle) {
+    private Map<String, Object> buildVehicleResponseWithTransactions(Vehicle vehicle, WebUser currentUser) {
         Map<String, Object> data = buildVehicleResponse(vehicle);
 
-        // Find pending transactions for this vehicle (not yet dispensed)
-        System.out.println("Looking up pending transactions for vehicle ID: " + vehicle.getId());
+        // Only show transactions ordered from THIS dispenser's fuel shed.
+        // Strict match against the user's institution; no parent/child fallback,
+        // mirroring FuelDispenseController.searchFuelTransactionByVehicleQr.
+        Institution userInstitution = currentUser != null ? currentUser.getInstitution() : null;
+        if (userInstitution == null || userInstitution.getId() == null) {
+            System.out.println("User has no institution; returning empty pendingTransactions");
+            data.put("pendingTransactions", new java.util.ArrayList<>());
+            return data;
+        }
+
+        // Find pending transactions for this vehicle ordered from the user's fuel shed
+        System.out.println("Looking up pending transactions for vehicle ID: " + vehicle.getId()
+                + " at fuel shed (institution): " + userInstitution.getId());
         String jpql = "SELECT t FROM FuelTransaction t WHERE t.vehicle.id = :vehicleId "
                 + "AND t.retired = false "
                 + "AND t.dispensed = false "
                 + "AND t.cancelled = false "
                 + "AND t.rejected = false "
+                + "AND t.toInstitution.id = :institutionId "
                 + "ORDER BY t.requestedDate DESC";
 
         Map<String, Object> params = new HashMap<>();
         params.put("vehicleId", vehicle.getId());
+        params.put("institutionId", userInstitution.getId());
 
         try {
             java.util.List<FuelTransaction> transactions = fuelTransactionFacade.findByJpql(jpql, params);
