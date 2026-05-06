@@ -8,7 +8,9 @@ import lk.gov.health.phsp.facade.DriverFacade;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,10 +23,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
+import javax.persistence.TemporalType;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.enums.InstitutionCategory;
 import lk.gov.health.phsp.enums.WebUserRoleLevel;
 import lk.gov.health.phsp.facade.AreaFacade;
+import lk.gov.health.phsp.pojcs.DriverLightDTO;
 
 @Named
 @SessionScoped
@@ -51,6 +55,8 @@ public class DriverController implements Serializable {
     private List<Driver> items = null;
     private Driver selected;
     private Driver deleting;
+
+    private List<DriverLightDTO> lastDriverLightDtoResults;
 
     private Driver parent;
 
@@ -229,6 +235,44 @@ public class DriverController implements Serializable {
             }
         }
         return resIns;
+    }
+
+    /**
+     * DTO-based autocomplete that searches every non-retired driver by name,
+     * NIC, or phone. Used where the picker must span all institutions
+     * (e.g. special fuel requests). Each typed word must match at least one
+     * of the three columns; capped at 20 rows.
+     */
+    public List<DriverLightDTO> completeAllDriversByWordsDto(String nameQry) {
+        if (nameQry == null || nameQry.trim().isEmpty()) {
+            lastDriverLightDtoResults = new ArrayList<>();
+            return lastDriverLightDtoResults;
+        }
+
+        String[] words = nameQry.trim().split("\\s+");
+        StringBuilder jpql = new StringBuilder(
+                "SELECT NEW lk.gov.health.phsp.pojcs.DriverLightDTO("
+                + "d.id, d.name, d.nic, d.phone, d.allocationType, ins.id, ins.name) "
+                + "FROM Driver d LEFT JOIN d.institution ins "
+                + "WHERE d.retired = false ");
+
+        Map<String, Object> params = new HashMap<>();
+        for (int i = 0; i < words.length; i++) {
+            String paramName = "q" + i;
+            jpql.append("AND (LOWER(d.name) LIKE :").append(paramName)
+                    .append(" OR LOWER(d.nic) LIKE :").append(paramName)
+                    .append(" OR LOWER(d.phone) LIKE :").append(paramName)
+                    .append(") ");
+            params.put(paramName, "%" + words[i].toLowerCase() + "%");
+        }
+        jpql.append("ORDER BY d.name");
+
+        @SuppressWarnings("unchecked")
+        List<DriverLightDTO> results = (List<DriverLightDTO>) getFacade()
+                .findLightsByJpql(jpql.toString(), params, TemporalType.TIMESTAMP, 20);
+
+        lastDriverLightDtoResults = results != null ? results : new ArrayList<DriverLightDTO>();
+        return lastDriverLightDtoResults;
     }
 
     public Driver prepareCreate() {
@@ -469,6 +513,45 @@ public class DriverController implements Serializable {
 
     public void setStartMessage(String startMessage) {
         this.startMessage = startMessage;
+    }
+
+    @FacesConverter("driverLightDtoConverter")
+    public static class DriverLightDtoConverter implements Converter {
+
+        @Override
+        public Object getAsObject(FacesContext facesContext, UIComponent component, String value) {
+            if (value == null || value.length() == 0) {
+                return null;
+            }
+            Long id;
+            try {
+                id = Long.valueOf(value);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+            DriverController controller = (DriverController) facesContext.getApplication().getELResolver()
+                    .getValue(facesContext.getELContext(), null, "driverController");
+            if (controller != null && controller.lastDriverLightDtoResults != null) {
+                for (DriverLightDTO dto : controller.lastDriverLightDtoResults) {
+                    if (id.equals(dto.getId())) {
+                        return dto;
+                    }
+                }
+            }
+            return new DriverLightDTO(id);
+        }
+
+        @Override
+        public String getAsString(FacesContext facesContext, UIComponent component, Object object) {
+            if (object == null) {
+                return "";
+            }
+            if (object instanceof DriverLightDTO) {
+                Long id = ((DriverLightDTO) object).getId();
+                return id != null ? id.toString() : "";
+            }
+            return "";
+        }
     }
 
     @FacesConverter(forClass = Driver.class)
