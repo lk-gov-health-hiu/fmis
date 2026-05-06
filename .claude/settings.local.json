@@ -14,7 +14,21 @@
       "Bash(where:*)",
       "WebFetch(domain:www.primefaces.org)",
       "WebFetch(domain:www.concretepage.com)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(mysql:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -Command \"Get-ChildItem -Path D:\\\\Dev -Directory | Select-Object Name\")",
+      "Bash(powershell -ExecutionPolicy Bypass -Command \"Get-ChildItem -Path d:\\\\Dev\\\\fmis_mobile\\\\lib -Recurse | Where-Object {!$_PSIsContainer} | Select-Object FullName\")",
+      "Bash(ssh:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(cmd /c \"cd /d D:\\\\Dev\\\\fmis_mobile && flutter analyze lib\\\\config\\\\api_config.dart lib\\\\services\\\\qr_service.dart lib\\\\screens\\\\qr_scanner_screen.dart lib\\\\screens\\\\dispense_screen.dart lib\\\\models\\\\qr_data.dart\")",
+      "Bash(cmd /c \"cd /d D:\\\\Dev\\\\fmis_mobile && flutter analyze\")",
+      "Bash(cmd /c \"cd /d D:\\\\Dev\\\\fmis_mobile && flutter analyze 2>&1\")",
+      "Bash(powershell -Command:*)",
+      "Bash(ping -n 2 192.168.1.72)",
+      "Bash(pip show:*)",
+      "Bash(pip install:*)",
+      "Bash(python -c \"import paramiko; print\\([x for x in dir\\(paramiko\\) if ''''Key'''' in x]\\)\")",
+      "Bash(plink -ssh user@192.168.1.72 -pw NcHiS987650 -batch 'mysql -ucovid -pCovid123@ fmis -e \":*)"
     ],
     "deny": [],
     "ask": []

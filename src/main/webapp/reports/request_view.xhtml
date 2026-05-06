@@ -25,23 +25,31 @@
                                                 <h2><h:outputText value="Fuel Request Details - View"></h:outputText></h2>
                                             </div>
                                             <div class="col-md-4">
+                                                <p:commandButton value="Refresh"
+                                                                 action="#{reportController.refreshCurrentFuelTransaction()}"
+                                                                 icon="fa fa-refresh"
+                                                                 styleClass="ui-button-info ui-button-raised m-2"
+                                                                 update="@form">
+                                                    <p:tooltip for="@this" value="Refresh transaction data from database (use after mobile app dispense)" />
+                                                </p:commandButton>
+
                                                 <p:commandButton value="To Edit" ajax="false"
-                                                                 action="#{reportController.navigateToEditRequestFromView()}" 
-                                                                 icon="fa fa-edit" 
+                                                                 action="#{reportController.navigateToEditRequestFromView()}"
+                                                                 icon="fa fa-edit"
                                                                  styleClass="ui-button-warning ui-button-raised m-2">
                                                 </p:commandButton>
 
                                                 <p:commandButton value="To Delete" ajax="false"
                                                                  rendered="#{not reportController.fuelTransaction.retired}"
-                                                                 action="#{reportController.navigateToDeleteRequestFromView()}" 
-                                                                 icon="fa fa-trash" 
+                                                                 action="#{reportController.navigateToDeleteRequestFromView()}"
+                                                                 icon="fa fa-trash"
                                                                  styleClass="ui-button-danger ui-button-raised m-2">
                                                 </p:commandButton>
 
                                                 <p:commandButton value="To Reverse Deletion" ajax="false"
                                                                  rendered="#{reportController.fuelTransaction.retired}"
-                                                                 action="#{reportController.reverseDeletionSelected()}" 
-                                                                 icon="fa fa-undo" 
+                                                                 action="#{reportController.reverseDeletionSelected()}"
+                                                                 icon="fa fa-undo"
                                                                  styleClass="ui-button-success ui-button-raised m-2">
                                                 </p:commandButton>
                                             </div>

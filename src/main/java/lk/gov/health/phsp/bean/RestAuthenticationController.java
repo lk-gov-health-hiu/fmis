@@ -71,20 +71,22 @@ public class RestAuthenticationController {
             WebUser user = webUserFacade.findFirstByJpql(jpql, params);
 
             if (user == null) {
+                System.out.println("Login failed: User not found for username: " + username);
                 response.put("success", false);
                 response.put("message", "Invalid username or password");
                 return Response.status(Response.Status.UNAUTHORIZED).entity(response).build();
             }
 
-            // Check if user is activated
-            if (!user.isActivated()) {
-                response.put("success", false);
-                response.put("message", "User account is not activated");
-                return Response.status(Response.Status.FORBIDDEN).entity(response).build();
-            }
+            System.out.println("User found: " + user.getName() + ", ID: " + user.getId());
+            System.out.println("Stored password hash: " + user.getWebUserPassword());
+            System.out.println("Attempting to match password: " + password);
 
             // Verify password
-            if (!commonController.matchPassword(password, user.getWebUserPassword())) {
+            boolean passwordMatches = commonController.matchPassword(password, user.getWebUserPassword());
+            System.out.println("Password match result: " + passwordMatches);
+
+            if (!passwordMatches) {
+                System.out.println("Login failed: Password mismatch for user: " + username);
                 response.put("success", false);
                 response.put("message", "Invalid username or password");
                 return Response.status(Response.Status.UNAUTHORIZED).entity(response).build();
@@ -106,7 +108,10 @@ public class RestAuthenticationController {
             userInfo.put("role", user.getWebUserRole() != null ? user.getWebUserRole().toString() : null);
 
             if (user.getPerson() != null) {
+                userInfo.put("name", user.getPerson().getName());
                 userInfo.put("personName", user.getPerson().getName());
+            } else {
+                userInfo.put("name", user.getName());
             }
 
             if (user.getInstitution() != null) {
