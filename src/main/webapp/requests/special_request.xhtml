@@ -46,8 +46,9 @@
                                             <div class="col-12 col-sm-8 col-md-9">
                                                 <p:autoComplete
                                                     id="acVehicle"
-                                                    value="#{fuelRequestAndIssueController.selected.vehicle}"
-                                                    completeMethod="#{vehicleController.completeVehiclesByWords}"
+                                                    value="#{fuelRequestAndIssueController.vehicleDto}"
+                                                    completeMethod="#{vehicleController.completeAllVehiclesByWordsDto}"
+                                                    converter="vehicleLightDtoConverter"
                                                     var="v"
                                                     style="width: 100%"
                                                     inputStyleClass="w-100"
@@ -59,6 +60,12 @@
                                                     requiredMessage="Please select a Vehicle"
                                                     title="Please select a vehicle"
                                                     placeholder="Select a vehicle by typing few letters to search">
+                                                    <p:column headerText="Vehicle">
+                                                        <h:outputText value="#{v.vehicleNumber}" />
+                                                    </p:column>
+                                                    <p:column headerText="Institution">
+                                                        <h:outputText value="#{v.institutionName}" />
+                                                    </p:column>
                                                     <p:ajax process="acVehicle" update="insDropdown acDriver" ></p:ajax>
                                                 </p:autoComplete>
                                             </div>
@@ -95,19 +102,35 @@
                                                 <p:outputLabel for="acDriver" value="Driver" styleClass="font-weight-bold"/>
                                             </div>
                                             <div class="col-12 col-sm-8 col-md-9">
-                                                <p:selectOneMenu
+                                                <p:autoComplete
                                                     id="acDriver"
-                                                    value="#{fuelRequestAndIssueController.selected.driver}"
-                                                    filter="true"
-                                                    filterMatchMode="contains"
+                                                    value="#{fuelRequestAndIssueController.driverDto}"
+                                                    completeMethod="#{driverController.completeAllDriversByWordsDto}"
+                                                    converter="driverLightDtoConverter"
+                                                    var="d"
+                                                    style="width: 100%"
+                                                    inputStyleClass="w-100"
+                                                    forceSelection="true"
+                                                    maxResults="20"
+                                                    itemLabel="#{d.name}#{d.allocationType ne null ? ' ('.concat(d.allocationType.label).concat(')') : ''}"
+                                                    itemValue="#{d}"
                                                     required="true"
                                                     requiredMessage="You must select a driver"
-                                                    style="width: 100%"
-                                                    panelStyle="max-width: 90vw">
-                                                    <f:selectItem itemLabel="Select a driver"  />
-                                                    <f:selectItems value="#{driverController.institutionDrivers(fuelRequestAndIssueController.selected.fromInstitution)}" var="d"
-                                                                   itemLabel="#{d.name}#{d.allocationType ne null ? ' ('.concat(d.allocationType.label).concat(')') : ''}" itemValue="#{d}" />
-                                                </p:selectOneMenu>
+                                                    title="Search by name, NIC, or phone"
+                                                    placeholder="Search by name, NIC, or phone">
+                                                    <p:column headerText="Name">
+                                                        <h:outputText value="#{d.name}" />
+                                                    </p:column>
+                                                    <p:column headerText="NIC">
+                                                        <h:outputText value="#{d.nic}" />
+                                                    </p:column>
+                                                    <p:column headerText="Phone">
+                                                        <h:outputText value="#{d.phone}" />
+                                                    </p:column>
+                                                    <p:column headerText="Institution">
+                                                        <h:outputText value="#{d.institutionName}" />
+                                                    </p:column>
+                                                </p:autoComplete>
                                             </div>
                                         </div>
 

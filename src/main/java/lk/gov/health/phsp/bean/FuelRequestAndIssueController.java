@@ -27,6 +27,7 @@ import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.entity.Bill;
 import lk.gov.health.phsp.entity.BillItem;
 import lk.gov.health.phsp.entity.DataAlterationRequest;
+import lk.gov.health.phsp.entity.Driver;
 import lk.gov.health.phsp.entity.FuelPrice;
 import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
@@ -37,12 +38,15 @@ import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.facade.BillFacade;
 import lk.gov.health.phsp.facade.BillItemFacade;
 import lk.gov.health.phsp.facade.DataAlterationRequestFacade;
+import lk.gov.health.phsp.facade.DriverFacade;
 import lk.gov.health.phsp.facade.FuelPriceFacade;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
 import lk.gov.health.phsp.facade.InstitutionFacade;
 import lk.gov.health.phsp.facade.VehicleFacade;
 import lk.gov.health.phsp.facade.WebUserFacade;
 import lk.gov.health.phsp.pojcs.BillItemMigrationResults;
+import lk.gov.health.phsp.pojcs.DriverLightDTO;
+import lk.gov.health.phsp.pojcs.VehicleLightDTO;
 import org.primefaces.event.CaptureEvent;
 
 @Named
@@ -59,6 +63,8 @@ public class FuelRequestAndIssueController implements Serializable {
     InstitutionFacade institutionFacade;
     @EJB
     VehicleFacade vehicleFacade;
+    @EJB
+    DriverFacade driverFacade;
     @EJB
     WebUserFacade webUserFacade;
     @EJB
@@ -117,6 +123,9 @@ public class FuelRequestAndIssueController implements Serializable {
     private Map<Long, String> billItemComments; // Map of transaction ID to comment
 
     private String searchingFuelRequestVehicleNumber;
+
+    private VehicleLightDTO vehicleDto;
+    private DriverLightDTO driverDto;
 
     // Certified Receipt Upload
     private org.primefaces.model.file.UploadedFile certifiedReceiptFile;
@@ -1004,6 +1013,8 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setFromInstitution(webUserController.getLoggedInstitution());
         selected.setInstitution(webUserController.getLoggedInstitution());
         selected.setToInstitution(webUserController.getLoggedInstitution().getSupplyInstitution());
+        vehicleDto = null;
+        driverDto = null;
         return "/requests/special_request?faces-redirect=true";
     }
 
@@ -2449,6 +2460,68 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setSelected(FuelTransaction selected) {
         this.selected = selected;
+    }
+
+    public VehicleLightDTO getVehicleDto() {
+        if (vehicleDto == null && selected != null && selected.getVehicle() != null
+                && selected.getVehicle().getId() != null) {
+            Vehicle v = selected.getVehicle();
+            Institution ins = v.getInstitution();
+            vehicleDto = new VehicleLightDTO(
+                    v.getId(),
+                    v.getVehicleNumber(),
+                    v.getName(),
+                    v.getAllocationType(),
+                    ins != null ? ins.getId() : null,
+                    ins != null ? ins.getName() : null);
+        }
+        return vehicleDto;
+    }
+
+    public void setVehicleDto(VehicleLightDTO vehicleDto) {
+        this.vehicleDto = vehicleDto;
+        if (selected == null) {
+            return;
+        }
+        if (vehicleDto == null || vehicleDto.getId() == null) {
+            selected.setVehicle(null);
+            return;
+        }
+        Vehicle current = selected.getVehicle();
+        if (current == null || current.getId() == null
+                || !vehicleDto.getId().equals(current.getId())) {
+            selected.setVehicle(vehicleFacade.find(vehicleDto.getId()));
+        }
+    }
+
+    public DriverLightDTO getDriverDto() {
+        if (driverDto == null && selected != null && selected.getDriver() != null
+                && selected.getDriver().getId() != null) {
+            Driver d = selected.getDriver();
+            Institution ins = d.getInstitution();
+            driverDto = new DriverLightDTO(
+                    d.getId(), d.getName(), d.getNic(), d.getPhone(),
+                    d.getAllocationType(),
+                    ins != null ? ins.getId() : null,
+                    ins != null ? ins.getName() : null);
+        }
+        return driverDto;
+    }
+
+    public void setDriverDto(DriverLightDTO driverDto) {
+        this.driverDto = driverDto;
+        if (selected == null) {
+            return;
+        }
+        if (driverDto == null || driverDto.getId() == null) {
+            selected.setDriver(null);
+            return;
+        }
+        Driver current = selected.getDriver();
+        if (current == null || current.getId() == null
+                || !driverDto.getId().equals(current.getId())) {
+            selected.setDriver(driverFacade.find(driverDto.getId()));
+        }
     }
 
     public FuelTransaction find(Object id) {
