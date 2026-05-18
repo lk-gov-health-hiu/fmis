@@ -107,7 +107,7 @@ public class VehicleController implements Serializable {
             qrData.append("}");
 
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
-            BitMatrix bitMatrix = qrCodeWriter.encode(qrData.toString(), BarcodeFormat.QR_CODE, 300, 300);
+            BitMatrix bitMatrix = qrCodeWriter.encode(qrData.toString(), BarcodeFormat.QR_CODE, 600, 600);
 
             BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -525,6 +525,42 @@ public class VehicleController implements Serializable {
                 || role == WebUserRole.USER;
     }
 
+    /**
+     * Normalize a Sri Lankan vehicle number to canonical "LETTERS-DIGITS" form.
+     * Strips spaces, dashes and other separators, uppercases, drops a leading
+     * province code (WP, CP, SP, NP, EP, NW, NC, UV, SG) when followed by a
+     * plate, then re-inserts a single dash between the letter group and the
+     * digit group when the result looks like a standard plate (1-3 letters +
+     * 1-4 digits). Inputs that do not match (military, diplomatic, etc.) are
+     * uppercased and have repeated whitespace collapsed but otherwise left
+     * alone.
+     */
+    public static String normalizeVehicleNumber(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String trimmed = raw.trim().toUpperCase();
+        if (trimmed.isEmpty()) {
+            return trimmed;
+        }
+        String stripped = trimmed.replaceAll("[\\s\\-./_]+", "");
+        // Drop province prefix (e.g. "WPABC1234" -> "ABC1234")
+        if (stripped.matches("^(WP|CP|SP|NP|EP|NW|NC|UV|SG)[A-Z]{2,3}\\d{1,4}$")) {
+            stripped = stripped.substring(2);
+        }
+        if (stripped.matches("^[A-Z]{1,3}\\d{1,4}$")) {
+            int splitIdx = -1;
+            for (int i = 0; i < stripped.length(); i++) {
+                if (Character.isDigit(stripped.charAt(i))) {
+                    splitIdx = i;
+                    break;
+                }
+            }
+            return stripped.substring(0, splitIdx) + "-" + stripped.substring(splitIdx);
+        }
+        return trimmed.replaceAll("\\s+", " ");
+    }
+
     public String saveOrUpdateVehicle() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing to select");
@@ -540,6 +576,19 @@ public class VehicleController implements Serializable {
         if (selected.getVehicleNumber() == null || selected.getVehicleNumber().trim().equals("")) {
             JsfUtil.addErrorMessage("Number is required");
             return null;
+        }
+
+        // Normalize vehicle number to Sri Lankan canonical format (e.g. "ABC-1234").
+        // Skip for non-vehicle items such as generators, incinerators, service stations.
+        if (selected.getVehicleType() != null && selected.getVehicleType().isVehicle()) {
+            String original = selected.getVehicleNumber();
+            String normalized = normalizeVehicleNumber(original);
+            if (normalized != null && !normalized.equals(original)) {
+                selected.setVehicleNumber(normalized);
+                JsfUtil.addErrorMessage("Vehicle number was corrected to standard format: \""
+                        + normalized + "\". Please review and click Save again to confirm.");
+                return null;
+            }
         }
 
         // Check for duplicate vehicle number
