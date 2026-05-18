@@ -240,9 +240,11 @@
                                                                 <tr>
                                                                     <td><b>Dispense Image:</b></td>
                                                                     <td>
-                                                                        <p:graphicImage value="#{fuelRequestAndIssueController.fuelTransactionImage}"
-                                                                                        style="max-width: 300px; max-height: 300px;"
-                                                                                        alt="Dispense Image" />
+                                                                        <p:graphicImage
+                                                                            cache="false"
+                                                                            value="#{fuelRequestAndIssueController.fuelTransactionImage}"
+                                                                            style="max-width: 300px; max-height: 300px;"
+                                                                            alt="Dispense Image" />
                                                                         <br/>
                                                                         <p:commandButton value="View Larger"
                                                                                          icon="fa fa-search-plus"

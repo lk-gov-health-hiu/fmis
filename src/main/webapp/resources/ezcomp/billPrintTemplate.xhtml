@@ -197,6 +197,7 @@
                         <th>Issued Date</th>
                         <th style="text-align: right;">Issued Qty.</th>
                         <th>Issue Ref. No</th>
+                        <th>Dispensed Manually</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -229,6 +230,7 @@
                                 <h:outputText value="-" rendered="#{not transaction.issued}"/>
                             </td>
                             <td><h:outputText value="#{transaction.issueReferenceNumber}"/></td>
+                            <td><h:outputText value="#{transaction.dispensedManually ? 'Manually' : 'by Fuel Dispensor'}"/></td>
                         </tr>
                     </ui:repeat>
                 </tbody>
@@ -247,6 +249,7 @@
                                 <f:convertNumber pattern="#,##0.00"/>
                             </h:outputText>
                         </td>
+                        <td></td>
                         <td></td>
                     </tr>
                 </tfoot>

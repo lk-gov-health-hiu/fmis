@@ -109,7 +109,9 @@
                             <div class="credit-card-print">
                                 <div class="card-border">
                                     <div class="qr-code-container">
-                                        <p:graphicImage value="#{vehicleController.qrCode}"
+                                        <p:graphicImage 
+                                            cache="false"
+                                            value="#{vehicleController.qrCode}"
                                                         styleClass="qr-code-image"/>
                                     </div>
 

@@ -1786,7 +1786,33 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public void listInstitutionRequests() {
-        transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null, null, null, fuelTransactionType);
+        // View Orders lists dispensed transactions by dispensedDate (descending).
+        // We do NOT use issuedDate here — issued is only the confirmation step.
+        StringBuilder j = new StringBuilder();
+        j.append("SELECT ft FROM FuelTransaction ft ")
+                .append(" WHERE ft.retired = false ")
+                .append(" AND ft.dispensed = true ")
+                .append(" AND ft.fromInstitution = :fromInstitution ");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("fromInstitution", webUserController.getLoggedInstitution());
+
+        if (getFromDate() != null) {
+            j.append(" AND ft.dispensedDate >= :fromDate ");
+            params.put("fromDate", getFromDate());
+        }
+        if (getToDate() != null) {
+            j.append(" AND ft.dispensedDate <= :toDate ");
+            params.put("toDate", getToDate());
+        }
+        if (fuelTransactionType != null) {
+            j.append(" AND ft.transactionType = :txType ");
+            params.put("txType", fuelTransactionType);
+        }
+
+        j.append(" ORDER BY ft.dispensedDate DESC, ft.id DESC ");
+
+        transactions = getFacade().findByJpql(j.toString(), params);
     }
 
     boolean paymentRequestStarted = false;
@@ -1814,17 +1840,31 @@ public class FuelRequestAndIssueController implements Serializable {
             return null;
         }
 
-        // Validate that all transactions have a fuel station
+        // Auto-select only confirmed (issued) transactions; unconfirmed ones cannot be paid
+        selectedTransactions = new ArrayList<>();
+        int skippedUnconfirmed = 0;
         for (FuelTransaction ft : transactions) {
+            if (!ft.isIssued()) {
+                skippedUnconfirmed++;
+                continue;
+            }
             if (ft.getToInstitution() == null) {
                 JsfUtil.addErrorMessage("All transactions must have a fuel station assigned. Please check transaction for vehicle: "
                         + (ft.getVehicle() != null ? ft.getVehicle().getVehicleNumber() : "Unknown"));
                 return null;
             }
+            selectedTransactions.add(ft);
         }
 
-        // Auto-select all listed transactions
-        selectedTransactions = new ArrayList<>(transactions);
+        if (selectedTransactions.isEmpty()) {
+            JsfUtil.addErrorMessage("No confirmed transactions available to review. Only confirmed (issued) transactions can be added to a payment request.");
+            return null;
+        }
+
+        if (skippedUnconfirmed > 0) {
+            JsfUtil.addSuccessMessage(skippedUnconfirmed + " unconfirmed transaction(s) were excluded from the payment request.");
+        }
+
         Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
         return "/requests/review_payment?faces-redirect=true";
     }
@@ -2214,23 +2254,35 @@ public class FuelRequestAndIssueController implements Serializable {
         // Clear the fuel stations dropdown to prevent accumulation across different logins
         availableFuelStations = null;
 
-        // Always filter by issued date for payment requests
-        filterByIssuedDate = true;
-        transactions
-                = findFuelTransactions(
-                        null, // institution
-                        webUserController.getLoggedInstitution(), // fromInstitution
-                        fuelStation, // toInstitution - use the selected fuel station filter
-                        null, // vehicles
-                        getFromDate(), // fromDateTime
-                        getToDate(), // toDateTime
-                        null, // issued
-                        null, // cancelled
-                        null, // rejected
-                        false, // submittedToPayment, specifically asking for those not submitted
-                        null, // txTypes
-                        null // type
-                );
+        // Make Payment Orders lists dispensed-but-not-yet-paid transactions
+        // by dispensedDate (descending). issuedDate is the confirmation step
+        // and is not used here.
+        StringBuilder j = new StringBuilder();
+        j.append("SELECT ft FROM FuelTransaction ft ")
+                .append(" WHERE ft.retired = false ")
+                .append(" AND ft.dispensed = true ")
+                .append(" AND ft.submittedToPayment = false ")
+                .append(" AND ft.fromInstitution = :fromInstitution ");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("fromInstitution", webUserController.getLoggedInstitution());
+
+        if (fuelStation != null) {
+            j.append(" AND ft.toInstitution = :toInstitution ");
+            params.put("toInstitution", fuelStation);
+        }
+        if (getFromDate() != null) {
+            j.append(" AND ft.dispensedDate >= :fromDate ");
+            params.put("fromDate", getFromDate());
+        }
+        if (getToDate() != null) {
+            j.append(" AND ft.dispensedDate <= :toDate ");
+            params.put("toDate", getToDate());
+        }
+
+        j.append(" ORDER BY ft.dispensedDate DESC, ft.id DESC ");
+
+        transactions = getFacade().findByJpql(j.toString(), params);
 
         // Add any additional fuel stations from the search results to the dropdown
         if (transactions != null && !transactions.isEmpty()) {
