@@ -51,7 +51,9 @@
       "Bash(echo \"--exit:$?\")",
       "Bash(git fsck *)",
       "Bash(git restore *)",
-      "WebFetch(domain:en.wikipedia.org)"
+      "WebFetch(domain:en.wikipedia.org)",
+      "Bash(git -P diff src/main/webapp/institution/admin/vehicle_list.xhtml)",
+      "Bash(git *)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,227 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <cc:interface>
+        <cc:attribute name="institution" required="true"/>
+        <cc:attribute name="vehicles" required="true"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <style>
+            @page {
+                size: A4;
+                margin: 10mm;
+            }
+
+            .a4-page {
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0 auto;
+                padding: 15mm;
+                background: white;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            @media print {
+                .a4-page {
+                    box-shadow: none;
+                    margin: 0;
+                    page-break-after: always;
+                }
+
+                .no-print {
+                    display: none !important;
+                }
+            }
+
+            .vlp-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 15px 0;
+                font-size: 11px;
+            }
+
+            .vlp-table th {
+                background-color: #f8f9fa;
+                border: 1px solid #333;
+                padding: 6px;
+                text-align: left;
+                font-weight: bold;
+            }
+
+            .vlp-table td {
+                border: 1px solid #333;
+                padding: 5px 6px;
+                vertical-align: top;
+            }
+
+            .vlp-info-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 15px 0;
+            }
+
+            .vlp-info-table td {
+                padding: 5px;
+                border: 1px solid #333;
+            }
+
+            .vlp-info-table td:first-child {
+                font-weight: bold;
+                width: 30%;
+                background-color: #f8f9fa;
+            }
+
+            .vlp-header {
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 10px;
+            }
+
+            .vlp-signature-section {
+                margin-top: 50px;
+                display: table;
+                width: 100%;
+            }
+
+            .vlp-signature-box {
+                display: table-cell;
+                width: 50%;
+                padding: 10px;
+                vertical-align: top;
+            }
+
+            .vlp-signature-line {
+                margin-top: 35px;
+                padding-top: 5px;
+            }
+
+            .vlp-signature-label {
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+
+            .vlp-logo-section {
+                text-align: center;
+                margin-bottom: 15px;
+            }
+        </style>
+
+        <div class="a4-page" id="vehicleListPanel">
+            <div class="vlp-logo-section">
+                <div style="display: inline-block; margin: 0 10px;">
+                    <h:graphicImage style="height: 5em;" library="image" name="jf.png"/>
+                </div>
+                <div style="display: inline-block; margin: 0 10px;">
+                    <h:graphicImage style="height: 5em;" library="image" name="slf.png"/>
+                </div>
+                <div style="display: inline-block; margin: 0 10px;">
+                    <h:graphicImage style="height: 5em;" library="image" name="sl.png"/>
+                </div>
+            </div>
+
+            <div class="vlp-header">
+                <h2 style="margin: 10px 0;">VEHICLE REGISTER</h2>
+            </div>
+
+            <table class="vlp-info-table">
+                <tr>
+                    <td>Institution:</td>
+                    <td><h:outputText value="#{cc.attrs.institution.name}"/></td>
+                </tr>
+                <tr>
+                    <td>Institution Code:</td>
+                    <td><h:outputText value="#{cc.attrs.institution.code}"/></td>
+                </tr>
+                <tr>
+                    <td>Main Fuel Station:</td>
+                    <td><h:outputText value="#{cc.attrs.institution.supplyInstitution.name}"/></td>
+                </tr>
+                <tr>
+                    <td>Alternative Fuel Station:</td>
+                    <td><h:outputText value="#{cc.attrs.institution.alternativeSupplyInstitution.name}"/></td>
+                </tr>
+                <tr>
+                    <td>Total Vehicles:</td>
+                    <td><h:outputText value="#{cc.attrs.vehicles.size()}"/></td>
+                </tr>
+            </table>
+
+            <h3 style="margin-top: 20px; margin-bottom: 10px;">Vehicle Details</h3>
+            <table class="vlp-table">
+                <thead>
+                    <tr>
+                        <th style="width: 30px; text-align: center;">No.</th>
+                        <th>Vehicle Number</th>
+                        <th>Type</th>
+                        <th>Purpose</th>
+                        <th>Make</th>
+                        <th style="text-align: right;">Tank Capacity (L)</th>
+                        <th style="text-align: right;">Avg. Consumption (km/L)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ui:repeat value="#{cc.attrs.vehicles}" var="vehicle" varStatus="status">
+                        <tr>
+                            <td style="text-align: center;">#{status.index + 1}</td>
+                            <td><h:outputText value="#{vehicle.vehicleNumber}"/></td>
+                            <td><h:outputText value="#{vehicle.vehicleType.label}"/></td>
+                            <td><h:outputText value="#{vehicle.vehiclePurpose.label}"/></td>
+                            <td>
+                                <h:outputText value="#{vehicle.make.name}" rendered="#{vehicle.make != null}"/>
+                                <h:outputText value="#{vehicle.vehicleMake}" rendered="#{vehicle.make == null}"/>
+                            </td>
+                            <td style="text-align: right;">
+                                <h:outputText value="#{vehicle.fuelCapacity}" rendered="#{vehicle.fuelCapacity != null}">
+                                    <f:convertNumber pattern="#,##0.##"/>
+                                </h:outputText>
+                            </td>
+                            <td style="text-align: right;">
+                                <h:outputText value="#{vehicle.vehicleAverageFuelConsumption}" rendered="#{vehicle.vehicleAverageFuelConsumption != null}">
+                                    <f:convertNumber pattern="#,##0.##"/>
+                                </h:outputText>
+                            </td>
+                        </tr>
+                    </ui:repeat>
+                </tbody>
+            </table>
+
+            <p style="margin-top: 15px; font-size: 11px;">
+                I certify that the above list of vehicles belonging to this institution is correct
+                as of the date printed above.
+            </p>
+
+            <div class="vlp-signature-section">
+                <div class="vlp-signature-box">
+                    <div class="vlp-signature-label">Prepared By:</div>
+                    <div>Name: ...................................</div>
+                    <div>Designation: ........................</div>
+                    <div class="vlp-signature-line">
+                        Signature: ..............................
+                    </div>
+                    <div>Date: ...................................</div>
+                </div>
+
+                <div class="vlp-signature-box">
+                    <div class="vlp-signature-label">Head of the Institution:</div>
+                    <div>Name: ...................................</div>
+                    <div>Designation: ........................</div>
+                    <div class="vlp-signature-line">
+                        Signature &amp; Official Seal: .........
+                    </div>
+                    <div>Date: ...................................</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; padding: 10px; border-top: 1px solid #333; font-size: 10px; text-align: center; color: #666;">
+                This is an official document generated by the Fuel Management Information System (FMIS)
+            </div>
+        </div>
+    </cc:implementation>
+</html>

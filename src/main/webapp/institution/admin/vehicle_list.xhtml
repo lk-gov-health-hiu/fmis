@@ -4,17 +4,26 @@
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ez="http://xmlns.jcp.org/jsf/composite/ezcomp">
 
     <h:body>
         <ui:composition template="/institution/admin/index.xhtml">
             <ui:define name="admin">
-                <h:form>    
+                <h:form id="vehicleListForm">
 
                     <h:panelGrid columns="1" >
-                        <h:commandButton value="Download as Excel" class="btn btn-primary" >
-                            <p:dataExporter fileName="Vehicle List" target="tbl" type="xlsx" ></p:dataExporter>
-                        </h:commandButton>
+                        <h:panelGroup>
+                            <h:commandButton value="Download as Excel" class="btn btn-primary m-1" >
+                                <p:dataExporter fileName="Vehicle List" target="tbl" type="xlsx" ></p:dataExporter>
+                            </h:commandButton>
+                            <p:commandButton value="Print List"
+                                             icon="pi pi-print"
+                                             ajax="false"
+                                             styleClass="btn btn-info m-1">
+                                <p:printer target="vehicleListForm:vehicleListPrintPanel"/>
+                            </p:commandButton>
+                        </h:panelGroup>
                         <p:dataTable 
                             class="w-100"
                             resizableColumns="true" multiViewState="true" resizeMode="expand" 
@@ -92,6 +101,13 @@
                             </p:column>
                         </p:dataTable>
                     </h:panelGrid>
+
+                    <h3 class="mt-4 mb-2">Print Preview</h3>
+                    <h:panelGroup id="vehicleListPrintPanel" layout="block">
+                        <ez:vehicleListPrintTemplate
+                            institution="#{webUserController.loggedInstitution}"
+                            vehicles="#{webUserController.managableVehicles}"/>
+                    </h:panelGroup>
 
 
 
