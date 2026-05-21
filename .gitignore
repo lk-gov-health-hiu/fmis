@@ -44,3 +44,6 @@ package-lock.json
 .idea
 .metadata
 .vscode
+
+# scratch / working files - may contain credentials, do not commit
+tmp/
