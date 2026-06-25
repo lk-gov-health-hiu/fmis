@@ -1293,6 +1293,12 @@ public class FuelRequestAndIssueController implements Serializable {
                         null, // txTypes
                         null // type
                 );
+        // Sort by issued date (most recently issued first), not by the ordered/requested date.
+        // Not-yet-issued requests (null issued date) are listed last.
+        if (transactions != null) {
+            transactions.sort(Comparator.comparing(FuelTransaction::getIssuedDate,
+                    Comparator.nullsLast(Comparator.reverseOrder())));
+        }
     }
 
     public void listInstitutionRequestsPaid() {
