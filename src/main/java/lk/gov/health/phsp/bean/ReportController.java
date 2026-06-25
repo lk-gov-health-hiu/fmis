@@ -2062,9 +2062,10 @@ public class ReportController implements Serializable {
             }
         }
 
-        // Validation 4: Check if request quantity exceeds vehicle fuel capacity
-        if (!isRequestQuantityWithinCapacity(fuelTransaction.getVehicle(), fuelTransaction.getRequestQuantity())) {
-            JsfUtil.addErrorMessage("Requested quantity (" + fuelTransaction.getRequestQuantity() + " liters) exceeds the vehicle's fuel tank capacity (" + fuelTransaction.getVehicle().getFuelCapacity() + " liters)");
+        // Validation 4: Check if request quantity exceeds the vehicle type's maximum
+        if (!isRequestQuantityWithinTypeLimit(fuelTransaction.getVehicle(), fuelTransaction.getRequestQuantity())) {
+            VehicleType vt = fuelTransaction.getVehicle().getVehicleType();
+            JsfUtil.addErrorMessage("Requested quantity (" + fuelTransaction.getRequestQuantity() + " liters) exceeds the maximum allowed for vehicle type " + vt.getLabel() + " (" + vt.getMaxRequestQuantity() + " liters)");
             return;
         }
 
@@ -2145,19 +2146,21 @@ public class ReportController implements Serializable {
         return true;
     }
 
-    private boolean isRequestQuantityWithinCapacity(Vehicle vehicle, Double requestQuantity) {
+    private boolean isRequestQuantityWithinTypeLimit(Vehicle vehicle, Double requestQuantity) {
         // Skip validation if vehicle or request quantity is null
         if (vehicle == null || requestQuantity == null) {
             return true;
         }
 
-        // Skip validation if fuel capacity is not set for the vehicle
-        if (vehicle.getFuelCapacity() == null) {
+        VehicleType vehicleType = vehicle.getVehicleType();
+
+        // Skip validation if no type, or the type has no configured limit (null = no limit)
+        if (vehicleType == null || vehicleType.getMaxRequestQuantity() == null) {
             return true;
         }
 
-        // Check if request quantity exceeds fuel capacity
-        return requestQuantity <= vehicle.getFuelCapacity();
+        // Check if request quantity exceeds the maximum allowed for this vehicle type
+        return requestQuantity <= vehicleType.getMaxRequestQuantity();
     }
 
     private Double getPreviousOdoReading(Vehicle vehicle, Long currentTransactionId) {

@@ -37,6 +37,7 @@ import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.entity.WebUser;
 import lk.gov.health.phsp.enums.DataAlterationRequestType;
 import lk.gov.health.phsp.enums.FuelTransactionType;
+import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.facade.BillFacade;
 import lk.gov.health.phsp.facade.BillItemFacade;
 import lk.gov.health.phsp.facade.DataAlterationRequestFacade;
@@ -479,9 +480,10 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
 
-        // Validation 5: Check if request quantity exceeds vehicle fuel capacity
-        if (!isRequestQuantityWithinCapacity(selected.getVehicle(), selected.getRequestQuantity())) {
-            JsfUtil.addErrorMessage("Requested quantity (" + selected.getRequestQuantity() + " liters) exceeds the vehicle's fuel tank capacity (" + selected.getVehicle().getFuelCapacity() + " liters)");
+        // Validation 5: Check if request quantity exceeds the vehicle type's maximum
+        if (!isRequestQuantityWithinTypeLimit(selected.getVehicle(), selected.getRequestQuantity())) {
+            VehicleType vt = selected.getVehicle().getVehicleType();
+            JsfUtil.addErrorMessage("Requested quantity (" + selected.getRequestQuantity() + " liters) exceeds the maximum allowed for vehicle type " + vt.getLabel() + " (" + vt.getMaxRequestQuantity() + " liters)");
             return "";
         }
 
@@ -558,9 +560,10 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
 
-        // Validation 5: Check if request quantity exceeds vehicle fuel capacity
-        if (!isRequestQuantityWithinCapacity(selected.getVehicle(), selected.getRequestQuantity())) {
-            JsfUtil.addErrorMessage("Requested quantity (" + selected.getRequestQuantity() + " liters) exceeds the vehicle's fuel tank capacity (" + selected.getVehicle().getFuelCapacity() + " liters)");
+        // Validation 5: Check if request quantity exceeds the vehicle type's maximum
+        if (!isRequestQuantityWithinTypeLimit(selected.getVehicle(), selected.getRequestQuantity())) {
+            VehicleType vt = selected.getVehicle().getVehicleType();
+            JsfUtil.addErrorMessage("Requested quantity (" + selected.getRequestQuantity() + " liters) exceeds the maximum allowed for vehicle type " + vt.getLabel() + " (" + vt.getMaxRequestQuantity() + " liters)");
             return "";
         }
 
@@ -2694,19 +2697,21 @@ public class FuelRequestAndIssueController implements Serializable {
         }
     }
 
-    private boolean isRequestQuantityWithinCapacity(Vehicle vehicle, Double requestQuantity) {
+    private boolean isRequestQuantityWithinTypeLimit(Vehicle vehicle, Double requestQuantity) {
         // Skip validation if vehicle or request quantity is null
         if (vehicle == null || requestQuantity == null) {
             return true;
         }
 
-        // Skip validation if fuel capacity is not set for the vehicle
-        if (vehicle.getFuelCapacity() == null) {
+        VehicleType vehicleType = vehicle.getVehicleType();
+
+        // Skip validation if no type, or the type has no configured limit (null = no limit)
+        if (vehicleType == null || vehicleType.getMaxRequestQuantity() == null) {
             return true;
         }
 
-        // Check if request quantity exceeds fuel capacity
-        return requestQuantity <= vehicle.getFuelCapacity();
+        // Check if request quantity exceeds the maximum allowed for this vehicle type
+        return requestQuantity <= vehicleType.getMaxRequestQuantity();
     }
 
     private boolean areDatesInSameMonth(Date fromDate, Date toDate) {
