@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.entity.WebUser;
 import lk.gov.health.phsp.enums.DataAlterationRequestType;
 import lk.gov.health.phsp.enums.FuelTransactionType;
+import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.facade.BillFacade;
 import lk.gov.health.phsp.facade.DataAlterationRequestFacade;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
@@ -376,9 +378,52 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Enter a referance number");
             return "";
         }
+        if (selected.getOdoMeterReading() == null) {
+            JsfUtil.addErrorMessage("ODO Meter Reading is required");
+            return "";
+        }
+        if (selected.getRequestQuantity() == null) {
+            JsfUtil.addErrorMessage("Request Quantity is required");
+            return "";
+        }
+
+        // Validation 1: Reference number must be unique within the same month for this institution
+        if (!isReferenceNumberUnique(selected.getRequestReferenceNumber(), webUserController.getLoggedInstitution(), selected.getRequestedDate())) {
+            JsfUtil.addErrorMessage("Reference number '" + selected.getRequestReferenceNumber() + "' has already been used this month for this institution");
+            return "";
+        }
+
+        // Validation 2: Reference number, ODO meter and request quantity must be different numbers
+        if (!areFieldValuesDistinct(selected.getRequestReferenceNumber(), selected.getOdoMeterReading(), selected.getRequestQuantity())) {
+            JsfUtil.addErrorMessage("Request Reference Number, ODO Meter Reading and Request Quantity must be different numbers");
+            return "";
+        }
+
+        // Validation 3: ODO reading must be greater than the previous reading
+        Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
+        if (previousOdoReading != null && selected.getOdoMeterReading() != null) {
+            if (selected.getOdoMeterReading() <= previousOdoReading) {
+                JsfUtil.addErrorMessage("ODO Meter Reading (" + selected.getOdoMeterReading() + ") must be greater than the previous reading (" + previousOdoReading + ")");
+                return "";
+            }
+        }
+
+        // Validation 4: Only one pending (not yet issued) fuel request per vehicle
+        if (hasPendingRequest(selected.getVehicle())) {
+            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been issued yet. Please wait for that request to be issued first.");
+            return "";
+        }
+
+        // Validation 5: Request quantity must not exceed the vehicle type's maximum
+        if (!isRequestQuantityWithinTypeLimit(selected.getVehicle(), selected.getRequestQuantity())) {
+            VehicleType vt = selected.getVehicle().getVehicleType();
+            JsfUtil.addErrorMessage("Requested quantity (" + selected.getRequestQuantity() + " liters) exceeds the maximum allowed for vehicle type " + vt.getLabel() + " (" + vt.getMaxRequestQuantity() + " liters)");
+            return "";
+        }
+
         selected.setRequestAt(new Date());
         save(selected);
-        JsfUtil.addSuccessMessage("Request Submitted");
+        JsfUtil.addSuccessMessage("Fuel request submitted successfully. Reference number: " + selected.getRequestReferenceNumber());
         return navigateToViewInstitutionFuelRequestToSltbDepot();
     }
 
@@ -407,6 +452,53 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Enter Requested Date");
             return "";
         }
+        if (selected.getRequestReferenceNumber() == null || selected.getRequestReferenceNumber().trim().equals("")) {
+            JsfUtil.addErrorMessage("Enter a referance number");
+            return "";
+        }
+        if (selected.getOdoMeterReading() == null) {
+            JsfUtil.addErrorMessage("ODO Meter Reading is required");
+            return "";
+        }
+        if (selected.getRequestQuantity() == null) {
+            JsfUtil.addErrorMessage("Request Quantity is required");
+            return "";
+        }
+
+        // Validation 1: Reference number must be unique within the same month for this institution
+        if (!isReferenceNumberUnique(selected.getRequestReferenceNumber(), selected.getVehicle().getInstitution(), selected.getRequestedDate())) {
+            JsfUtil.addErrorMessage("Reference number '" + selected.getRequestReferenceNumber() + "' has already been used this month for this institution");
+            return "";
+        }
+
+        // Validation 2: Reference number, ODO meter and request quantity must be different numbers
+        if (!areFieldValuesDistinct(selected.getRequestReferenceNumber(), selected.getOdoMeterReading(), selected.getRequestQuantity())) {
+            JsfUtil.addErrorMessage("Request Reference Number, ODO Meter Reading and Request Quantity must be different numbers");
+            return "";
+        }
+
+        // Validation 3: ODO reading must be greater than the previous reading
+        Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
+        if (previousOdoReading != null && selected.getOdoMeterReading() != null) {
+            if (selected.getOdoMeterReading() <= previousOdoReading) {
+                JsfUtil.addErrorMessage("ODO Meter Reading (" + selected.getOdoMeterReading() + ") must be greater than the previous reading (" + previousOdoReading + ")");
+                return "";
+            }
+        }
+
+        // Validation 4: Only one pending (not yet issued) fuel request per vehicle
+        if (hasPendingRequest(selected.getVehicle())) {
+            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been issued yet. Please wait for that request to be issued first.");
+            return "";
+        }
+
+        // Validation 5: Request quantity must not exceed the vehicle type's maximum
+        if (!isRequestQuantityWithinTypeLimit(selected.getVehicle(), selected.getRequestQuantity())) {
+            VehicleType vt = selected.getVehicle().getVehicleType();
+            JsfUtil.addErrorMessage("Requested quantity (" + selected.getRequestQuantity() + " liters) exceeds the maximum allowed for vehicle type " + vt.getLabel() + " (" + vt.getMaxRequestQuantity() + " liters)");
+            return "";
+        }
+
         selected.setInstitution(selected.getVehicle().getInstitution());
         if (selected.getTxDate() == null) {
             selected.setTxDate(new Date());
@@ -416,8 +508,136 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         selected.setRequestAt(new Date());
         save(selected);
-        JsfUtil.addSuccessMessage("Special Fuel Request Submitted");
+        JsfUtil.addSuccessMessage("Special fuel request submitted successfully. Reference number: " + selected.getRequestReferenceNumber());
         return navigateToViewInstitutionFuelRequestToSltbDepot();
+    }
+
+    // ===== Fuel order validation helpers =====
+
+    private boolean isReferenceNumberUnique(String referenceNumber, Institution institution, Date referenceDate) {
+        if (referenceNumber == null || referenceNumber.trim().isEmpty() || institution == null) {
+            return true;
+        }
+
+        // Determine the calendar month of the order (start inclusive, next month start exclusive)
+        Date basisDate = (referenceDate != null) ? referenceDate : new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(basisDate);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date monthStart = cal.getTime();
+        cal.add(Calendar.MONTH, 1);
+        Date nextMonthStart = cal.getTime();
+
+        // Count orders with the same reference number in the same calendar month for this
+        // institution, including active AND inactive (retired/cancelled/rejected) orders.
+        String jpql = "SELECT COUNT(ft) FROM FuelTransaction ft "
+                + "WHERE ft.requestReferenceNumber = :refNum "
+                + "AND ft.fromInstitution = :institution "
+                + "AND ft.requestedDate >= :monthStart "
+                + "AND ft.requestedDate < :nextMonthStart";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("refNum", referenceNumber.trim());
+        params.put("institution", institution);
+        params.put("monthStart", monthStart);
+        params.put("nextMonthStart", nextMonthStart);
+
+        Long count = fuelTransactionFacade.countByJpql(jpql, params);
+        return count == null || count == 0;
+    }
+
+    private boolean areFieldValuesDistinct(String referenceNumber, Double odoReading, Double requestQuantity) {
+        if (referenceNumber == null || odoReading == null || requestQuantity == null) {
+            return true; // Skip validation if any value is null
+        }
+
+        try {
+            Double refNumAsDouble = Double.parseDouble(referenceNumber.trim());
+            // Check if reference number equals request quantity or ODO reading
+            if (refNumAsDouble.equals(requestQuantity) || refNumAsDouble.equals(odoReading)) {
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            // Reference number is not numeric, which is fine
+        }
+
+        // Check if ODO reading equals request quantity
+        if (odoReading.equals(requestQuantity)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private Double getPreviousOdoReading(Vehicle vehicle) {
+        if (vehicle == null || vehicle.getId() == null) {
+            return null;
+        }
+
+        try {
+            String jpql = "SELECT ft FROM FuelTransaction ft "
+                    + "WHERE ft.vehicle.id = :vehicleId "
+                    + "AND ft.retired = false "
+                    + "AND ft.odoMeterReading IS NOT NULL "
+                    + "ORDER BY ft.requestedDate DESC";
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("vehicleId", vehicle.getId());
+
+            List<FuelTransaction> results = fuelTransactionFacade.findByJpql(jpql, params, 1);
+            if (results != null && !results.isEmpty()) {
+                return results.get(0).getOdoMeterReading();
+            }
+        } catch (Exception e) {
+            Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, "Error getting previous ODO reading for vehicle: " + vehicle.getId(), e);
+        }
+        return null;
+    }
+
+    private boolean hasPendingRequest(Vehicle vehicle) {
+        if (vehicle == null || vehicle.getId() == null) {
+            return false;
+        }
+
+        try {
+            // A request is "pending" until it is issued (production has no separate dispensed step)
+            String jpql = "SELECT COUNT(ft) FROM FuelTransaction ft "
+                    + "WHERE ft.vehicle.id = :vehicleId "
+                    + "AND ft.issued = false "
+                    + "AND ft.rejected = false "
+                    + "AND ft.cancelled = false "
+                    + "AND ft.retired = false";
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("vehicleId", vehicle.getId());
+
+            Long count = fuelTransactionFacade.countByJpql(jpql, params);
+            return count != null && count > 0;
+        } catch (Exception e) {
+            Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, "Error checking pending request for vehicle: " + vehicle.getId(), e);
+            return false;
+        }
+    }
+
+    private boolean isRequestQuantityWithinTypeLimit(Vehicle vehicle, Double requestQuantity) {
+        // Skip validation if vehicle or request quantity is null
+        if (vehicle == null || requestQuantity == null) {
+            return true;
+        }
+
+        VehicleType vehicleType = vehicle.getVehicleType();
+
+        // Skip validation if no type, or the type has no configured limit (null = no limit)
+        if (vehicleType == null || vehicleType.getMaxRequestQuantity() == null) {
+            return true;
+        }
+
+        // Check if request quantity exceeds the maximum allowed for this vehicle type
+        return requestQuantity <= vehicleType.getMaxRequestQuantity();
     }
 
     public String submitSltbFuelRequestFromCpc() {
