@@ -15,16 +15,16 @@
         <ui:composition template="/template.xhtml">
             <ui:define name="content">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h:outputLabel value="Reports" ></h:outputLabel>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                onclick="toggleReportsNav(); return false;">
+                            <i class="fa fa-bars"></i> <span id="reportsNavToggleLabel">Collapse Panel</span>
+                        </button>
                     </div>
                     <div class="row">
                         <div id="reportsNavCol" class="col-md-2">
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-secondary w-100 mb-2"
-                                    onclick="toggleReportsNav(); return false;">
-                                <i class="fa fa-bars"></i> <span id="reportsNavToggleLabel">Collapse</span>
-                            </button>
                             <h:form class="form" id="reportsNavBody">
 
 
@@ -96,17 +96,15 @@
                 <script>
                     function toggleReportsNav() {
                         var navCol = document.getElementById('reportsNavCol');
-                        var navBody = document.getElementById('reportsNavBody');
                         var contentCol = document.getElementById('reportsContentCol');
                         var toggleLabel = document.getElementById('reportsNavToggleLabel');
                         var collapsed = navCol.classList.toggle('reports-nav-collapsed');
 
-                        navBody.style.display = collapsed ? 'none' : '';
+                        navCol.style.display = collapsed ? 'none' : '';
                         navCol.classList.toggle('col-md-2', !collapsed);
-                        navCol.classList.toggle('col-md-1', collapsed);
                         contentCol.classList.toggle('col-md-10', !collapsed);
-                        contentCol.classList.toggle('col-md-11', collapsed);
-                        toggleLabel.textContent = collapsed ? 'Expand' : 'Collapse';
+                        contentCol.classList.toggle('col-md-12', collapsed);
+                        toggleLabel.textContent = collapsed ? 'Expand Panel' : 'Collapse Panel';
                     }
                 </script>
             </ui:define>
