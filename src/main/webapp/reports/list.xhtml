@@ -177,38 +177,20 @@
                             <h:outputText value="#{transaction.issueReferenceNumber}" />
                         </p:column>
 
-                        <p:column headerText="Payment Status" sortBy="#{transaction.paid}" filterBy="#{transaction.paid}">
-                            <h:outputText value="Paid" styleClass="badge bg-success" rendered="#{transaction.paid}" />
-                            <h:outputText value="Not Paid" styleClass="badge bg-secondary" rendered="#{!transaction.paid}" />
+                        <p:column headerText="Payment Submission" sortBy="#{transaction.submittedForPayment}" filterBy="#{transaction.submittedForPayment}">
+                            <p:commandLink
+                                ajax="false"
+                                action="#{reportController.navigateToViewRequest()}"
+                                title="View request">
+                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
+                                </f:setPropertyActionListener>
+                                <h:outputText value="Submitted for Payment" styleClass="badge bg-success text-wrap" rendered="#{transaction.submittedForPayment}" />
+                                <h:outputText value="Not Submitted" styleClass="badge bg-secondary text-wrap" rendered="#{!transaction.submittedForPayment}" />
+                            </p:commandLink>
                         </p:column>
 
-                        <p:column width="150" headerText="Actions">
-                            <p:commandButton 
-                                ajax="false" 
-                                action="#{reportController.navigateToViewRequest()}"
-                                icon="fa fa-eye" 
-                                styleClass="ui-button-info m-1">
-                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
-                                </f:setPropertyActionListener>
-                            </p:commandButton>
-
-                            <p:commandButton 
-                                ajax="false" 
-                                action="#{reportController.navigateToEditRequest()}"
-                                icon="fa fa-edit" 
-                                styleClass="ui-button-warning m-1">
-                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
-                                </f:setPropertyActionListener>
-                            </p:commandButton>
-
-                            <p:commandButton 
-                                ajax="false" 
-                                action="#{reportController.navigateToDeleteRequest()}"
-                                icon="fa fa-trash" 
-                                styleClass="ui-button-danger m-1">
-                                <f:setPropertyActionListener value="#{transaction}" target="#{reportController.fuelTransactionLight}" >
-                                </f:setPropertyActionListener>
-                            </p:commandButton>
+                        <p:column headerText="Submitted On" sortBy="#{transaction.submittedToPaymentAt}" filterBy="#{transaction.submittedToPaymentAt}" filterMatchMode="numeric">
+                            <h:outputText value="#{transaction.formattedSubmittedToPaymentAt}" />
                         </p:column>
 
 

@@ -1,0 +1,10 @@
+/*
+ * App-wide density override.
+ * Bootstrap and the PrimeFaces theme (theme.css) size fonts, buttons, inputs,
+ * and spacing in rem units relative to the root font-size. Scaling the root
+ * here shrinks all of those proportionally across every page without having
+ * to touch the vendored theme.css or restyle each component individually.
+ */
+html {
+    font-size: 14px;
+}

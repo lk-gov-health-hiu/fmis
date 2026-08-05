@@ -500,7 +500,7 @@ public class ReportController implements Serializable {
         Sheet sheet = workbook.createSheet("Transactions");
 
         Row headerRow = sheet.createRow(0);
-        String[] columnHeaders = {"Date", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No"};
+        String[] columnHeaders = {"Date", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No", "Payment Submission", "Submitted On"};
         for (int i = 0; i < columnHeaders.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(columnHeaders[i]);
@@ -523,6 +523,10 @@ public class ReportController implements Serializable {
             }
             if (transaction.getIssueReferenceNumber() != null) {
                 row.createCell(9).setCellValue(transaction.getIssueReferenceNumber());
+            }
+            row.createCell(10).setCellValue(transaction.isSubmittedForPayment() ? "Submitted for Payment" : "Not Submitted");
+            if (transaction.getSubmittedToPaymentAt() != null) {
+                row.createCell(11).setCellValue(transaction.getFormattedSubmittedToPaymentAt());
             }
         }
 
@@ -718,7 +722,8 @@ public class ReportController implements Serializable {
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution name
                 .append("ft.issuedDate, ")
-                .append("ft.submittedToPayment) FROM FuelTransaction ft ")
+                .append("ft.submittedToPayment, ")
+                .append("ft.submittedToPaymentAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
