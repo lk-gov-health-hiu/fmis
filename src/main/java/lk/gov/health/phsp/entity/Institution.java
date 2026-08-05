@@ -88,7 +88,7 @@ public class Institution implements Serializable, Nameable {
     @Column(name = "WEB", length = 100)
     private String web;
 
-    @Column(name = "CITYNAME", nullable = false, length = 100)
+    @Column(name = "CITYNAME", length = 100)
     private String cityName;
 
     @Column(name = "POINUMBER", length = 50)
