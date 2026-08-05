@@ -315,7 +315,7 @@ public class ReportController implements Serializable {
             case CPC_HEAD_OFFICE:
                 return "/reports/cpc_head_office/index";
             case FUEL_RECEIVER:
-                return "/reports/index?faces-redirect=true;";
+                return "/reports/index";
             case MONITORING_AND_EVALUATION:
             case OTHER:
                 return "/institution/reports/index";
