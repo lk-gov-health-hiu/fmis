@@ -177,6 +177,11 @@
                             <h:outputText value="#{transaction.issueReferenceNumber}" />
                         </p:column>
 
+                        <p:column headerText="Payment Status" sortBy="#{transaction.paid}" filterBy="#{transaction.paid}">
+                            <h:outputText value="Paid" styleClass="badge bg-success" rendered="#{transaction.paid}" />
+                            <h:outputText value="Not Paid" styleClass="badge bg-secondary" rendered="#{!transaction.paid}" />
+                        </p:column>
+
                         <p:column width="150" headerText="Actions">
                             <p:commandButton 
                                 ajax="false" 
