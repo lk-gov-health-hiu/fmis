@@ -366,6 +366,10 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Select Requested Date");
             return "";
         }
+        if (!isDateNotInFuture(selected.getRequestedDate())) {
+            JsfUtil.addErrorMessage("Requested Date cannot be a future date");
+            return "";
+        }
         if (selected.getToInstitution() == null) {
             JsfUtil.addErrorMessage("Select Fuel Station");
             return "";
@@ -408,13 +412,7 @@ public class FuelRequestAndIssueController implements Serializable {
             }
         }
 
-        // Validation 4: Only one pending (not yet issued) fuel request per vehicle
-        if (hasPendingRequest(selected.getVehicle())) {
-            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been issued yet. Please wait for that request to be issued first.");
-            return "";
-        }
-
-        // Validation 5: Request quantity must not exceed the vehicle type's maximum
+        // Validation 4: Request quantity must not exceed the vehicle type's maximum
         if (!isRequestQuantityWithinTypeLimit(selected.getVehicle(), selected.getRequestQuantity())) {
             VehicleType vt = selected.getVehicle().getVehicleType();
             JsfUtil.addErrorMessage("Requested quantity (" + selected.getRequestQuantity() + " liters) exceeds the maximum allowed for vehicle type " + vt.getLabel() + " (" + vt.getMaxRequestQuantity() + " liters)");
@@ -452,6 +450,10 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Enter Requested Date");
             return "";
         }
+        if (!isDateNotInFuture(selected.getRequestedDate())) {
+            JsfUtil.addErrorMessage("Requested Date cannot be a future date");
+            return "";
+        }
         if (selected.getRequestReferenceNumber() == null || selected.getRequestReferenceNumber().trim().equals("")) {
             JsfUtil.addErrorMessage("Enter a referance number");
             return "";
@@ -486,13 +488,7 @@ public class FuelRequestAndIssueController implements Serializable {
             }
         }
 
-        // Validation 4: Only one pending (not yet issued) fuel request per vehicle
-        if (hasPendingRequest(selected.getVehicle())) {
-            JsfUtil.addErrorMessage("This vehicle already has a pending fuel request that has not been issued yet. Please wait for that request to be issued first.");
-            return "";
-        }
-
-        // Validation 5: Request quantity must not exceed the vehicle type's maximum
+        // Validation 4: Request quantity must not exceed the vehicle type's maximum
         if (!isRequestQuantityWithinTypeLimit(selected.getVehicle(), selected.getRequestQuantity())) {
             VehicleType vt = selected.getVehicle().getVehicleType();
             JsfUtil.addErrorMessage("Requested quantity (" + selected.getRequestQuantity() + " liters) exceeds the maximum allowed for vehicle type " + vt.getLabel() + " (" + vt.getMaxRequestQuantity() + " liters)");
@@ -550,6 +546,20 @@ public class FuelRequestAndIssueController implements Serializable {
         return count == null || count == 0;
     }
 
+    private boolean isDateNotInFuture(Date date) {
+        if (date == null) {
+            return true;
+        }
+
+        Calendar endOfToday = Calendar.getInstance();
+        endOfToday.set(Calendar.HOUR_OF_DAY, 23);
+        endOfToday.set(Calendar.MINUTE, 59);
+        endOfToday.set(Calendar.SECOND, 59);
+        endOfToday.set(Calendar.MILLISECOND, 999);
+
+        return !date.after(endOfToday.getTime());
+    }
+
     private boolean areFieldValuesDistinct(String referenceNumber, Double odoReading, Double requestQuantity) {
         if (referenceNumber == null || odoReading == null || requestQuantity == null) {
             return true; // Skip validation if any value is null
@@ -596,31 +606,6 @@ public class FuelRequestAndIssueController implements Serializable {
             Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, "Error getting previous ODO reading for vehicle: " + vehicle.getId(), e);
         }
         return null;
-    }
-
-    private boolean hasPendingRequest(Vehicle vehicle) {
-        if (vehicle == null || vehicle.getId() == null) {
-            return false;
-        }
-
-        try {
-            // A request is "pending" until it is issued (production has no separate dispensed step)
-            String jpql = "SELECT COUNT(ft) FROM FuelTransaction ft "
-                    + "WHERE ft.vehicle.id = :vehicleId "
-                    + "AND ft.issued = false "
-                    + "AND ft.rejected = false "
-                    + "AND ft.cancelled = false "
-                    + "AND ft.retired = false";
-
-            Map<String, Object> params = new HashMap<>();
-            params.put("vehicleId", vehicle.getId());
-
-            Long count = fuelTransactionFacade.countByJpql(jpql, params);
-            return count != null && count > 0;
-        } catch (Exception e) {
-            Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, "Error checking pending request for vehicle: " + vehicle.getId(), e);
-            return false;
-        }
     }
 
     private boolean isRequestQuantityWithinTypeLimit(Vehicle vehicle, Double requestQuantity) {
@@ -721,6 +706,15 @@ public class FuelRequestAndIssueController implements Serializable {
         }
         if (selected.getIssuedDate() == null) {
             JsfUtil.addErrorMessage("Need Issued Date");
+            return "";
+        }
+        if (selected.getRequestedDate() != null && selected.getIssuedDate().before(selected.getRequestedDate())) {
+            JsfUtil.addErrorMessage("Issued Date cannot be before the Requested Date");
+            return "";
+        }
+        if (selected.getIssueReferenceNumber() != null && selected.getRequestReferenceNumber() != null
+                && selected.getIssueReferenceNumber().trim().equalsIgnoreCase(selected.getRequestReferenceNumber().trim())) {
+            JsfUtil.addErrorMessage("Issue Reference Number (Invoice Number) cannot be the same as the Request Reference Number. They are two separate numbers.");
             return "";
         }
         selected.setIssued(true);
@@ -1291,7 +1285,8 @@ public class FuelRequestAndIssueController implements Serializable {
                         null, // rejected
                         false, // submittedToPayment, specifically asking for those not submitted
                         null, // txTypes
-                        null // type
+                        null, // type
+                        true // filterByIssuedDate: From/To Date filters apply to the issued date, not the requested date
                 );
         // Sort by issued date (most recently issued first), not by the ordered/requested date.
         // Not-yet-issued requests (null issued date) are listed last.
@@ -1416,10 +1411,24 @@ public class FuelRequestAndIssueController implements Serializable {
             Boolean submittedToPayment, // New boolean parameter
             List<FuelTransactionType> txTypes,
             FuelTransactionType type) {
+        return findFuelTransactions(institution, fromInstitution, toInstitution, vehicles, fromDateTime, toDateTime,
+                issued, cancelled, rejected, submittedToPayment, txTypes, type, false);
+    }
+
+    public List<FuelTransaction> findFuelTransactions(Institution institution, Institution fromInstitution, Institution toInstitution,
+            List<Vehicle> vehicles, Date fromDateTime, Date toDateTime,
+            Boolean issued,
+            Boolean cancelled,
+            Boolean rejected,
+            Boolean submittedToPayment, // New boolean parameter
+            List<FuelTransactionType> txTypes,
+            FuelTransactionType type,
+            boolean filterByIssuedDate) { // when true, fromDateTime/toDateTime filter on issuedDate instead of requestedDate
         String j = "SELECT ft "
                 + " FROM FuelTransaction ft "
                 + " WHERE ft.retired = false";
         Map<String, Object> params = new HashMap<>();
+        String dateField = filterByIssuedDate ? "ft.issuedDate" : "ft.requestedDate";
 
         if (institution != null) {
             j += " AND ft.institution = :institution";
@@ -1438,11 +1447,11 @@ public class FuelRequestAndIssueController implements Serializable {
             params.put("vehicles", vehicles);
         }
         if (fromDateTime != null) {
-            j += " AND ft.requestedDate >= :fromDateTime";
+            j += " AND " + dateField + " >= :fromDateTime";
             params.put("fromDateTime", fromDateTime);
         }
         if (toDateTime != null) {
-            j += " AND ft.requestedDate <= :toDateTime";
+            j += " AND " + dateField + " <= :toDateTime";
             params.put("toDateTime", toDateTime);
         }
         if (issued != null) {
