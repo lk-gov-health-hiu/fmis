@@ -41,8 +41,10 @@
                     <p:menuitem class="submenu-item" ajax="false" value="Previously Completed Payment Orders" 
                                 rendered="#{webUserController.dieselFuelRequestMarkAsReceivedMenuAvailable}"
                                 action="#{fuelRequestAndIssueController.navigateToPaymentsMade()}" />
-                    <p:menuitem class="submenu-item" ajax="false" value="View Orders" 
-                                action="#{fuelRequestAndIssueController.navigateToListInstitutionRequests()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="View Orders"
+                                action="#{reportController.navigateToListFuelRequests()}" />
+                    <p:menuitem class="submenu-item" ajax="false" value="List of Payments"
+                                action="#{reportController.navigateToListPayments()}" />
                 </p:submenu>
 
                 <p:menuitem 

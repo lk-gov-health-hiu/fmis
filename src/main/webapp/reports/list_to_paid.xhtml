@@ -27,41 +27,49 @@
                                 <div class="row" >
                                     <div class="col-2" >
                                         <div class="form-group">
-                                            <label for="fromDate">From Date</label>
+                                            <label for="fromDate" class="d-block">From Date</label>
                                             <p:calendar 
                                                 id="fromDate" 
                                                 value="#{fuelRequestAndIssueController.fromDate}"
                                                 showButtonPanel="true"
-                                                class="w-100 m-1" 
+                                                class="w-100 m-1 d-block"
+                                                inputStyleClass="w-100"
                                                 pattern="dd MMMM yyyy"/>
                                         </div>
                                         <div class="form-group">
-                                            <label for="toDate">To Date</label>
+                                            <label for="toDate" class="d-block">To Date</label>
                                             <p:calendar 
                                                 id="toDate" 
                                                 value="#{fuelRequestAndIssueController.toDate}" 
                                                 showButtonPanel="true"
                                                 pattern="dd MMMM yyyy"
-                                                class="w-100 m-1" />
+                                                class="w-100 m-1 d-block"
+                                                inputStyleClass="w-100" />
                                         </div>
-                                        <p:outputLabel value="Requested for Institution" >
-                                        </p:outputLabel>
-                                        <p:autoComplete 
-                                            value="#{fuelRequestAndIssueController.institution}"
-                                            completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
-                                            var="fi"
-                                            itemLabel="#{fi.name}"
-                                            itemValue="#{fi}"></p:autoComplete>
-
-                                        <p:outputLabel value="Requested from Fuel Station" >
-                                        </p:outputLabel>
-                                        <p:autoComplete 
-                                            value="#{fuelRequestAndIssueController.fuelStation}" 
-                                            completeMethod="#{institutionController.completeFuelStations}"
-                                            var="fs"
-                                            itemLabel="#{fs.name}"
-                                            itemValue="#{fs}"
-                                            ></p:autoComplete>
+                                        <div class="form-group">
+                                            <label for="reqInstitution" class="d-block">Requested for Institution</label>
+                                            <p:autoComplete
+                                                id="reqInstitution"
+                                                value="#{fuelRequestAndIssueController.institution}"
+                                                completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
+                                                var="fi"
+                                                itemLabel="#{fi.name}"
+                                                itemValue="#{fi}"
+                                                class="w-100 m-1"
+                                                inputStyleClass="w-100"></p:autoComplete>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="reqFuelStation" class="d-block">Requested from Fuel Station</label>
+                                            <p:autoComplete
+                                                id="reqFuelStation"
+                                                value="#{fuelRequestAndIssueController.fuelStation}"
+                                                completeMethod="#{institutionController.completeFuelStations}"
+                                                var="fs"
+                                                itemLabel="#{fs.name}"
+                                                itemValue="#{fs}"
+                                                class="w-100 m-1"
+                                                inputStyleClass="w-100"></p:autoComplete>
+                                        </div>
                                         <div class="form-group d-flex justify-content-center">
                                             <p:commandButton value="List Requests"
                                                              action="#{fuelRequestAndIssueController.listPaymentBillsForNationalLevel()}"

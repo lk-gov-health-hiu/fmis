@@ -1181,6 +1181,11 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     boolean paymentRequestStarted = false;
+    private boolean paymentRequestReprint = false;
+
+    public boolean isPaymentRequestReprint() {
+        return paymentRequestReprint;
+    }
 
     public String makePaymentRequest() {
         if (paymentRequestStarted) {
@@ -1259,6 +1264,7 @@ public class FuelRequestAndIssueController implements Serializable {
         fuelPaymentRequestBill.setTotalQty(qty);
         billFacade.edit(fuelPaymentRequestBill);
         paymentRequestStarted = false;
+        paymentRequestReprint = false;
 
         Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
 
@@ -1280,10 +1286,11 @@ public class FuelRequestAndIssueController implements Serializable {
         m.put("pb", fuelPaymentRequestBill);
 
         selectedTransactions = getFacade().findByJpql(jpql, m);
-        
+
         Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
 
-        
+        paymentRequestReprint = true;
+
         return "/requests/list_payment?faces-redirect=true";
 
     }
