@@ -111,6 +111,11 @@
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
                                             </p:column>
 
+                                            <p:column headerText="Payment Submission" >
+                                                <h:outputText value="Submitted" style="color: green;" rendered="#{transaction.submittedToPayment}" />
+                                                <h:outputText value="Not Submitted" style="color: red;" rendered="#{not transaction.submittedToPayment}" />
+                                            </p:column>
+
                                             <p:column headerText="Actions" exportable="false" rendered="false" >
                                                 <p:commandButton value="View"
                                                                  ajax="false"

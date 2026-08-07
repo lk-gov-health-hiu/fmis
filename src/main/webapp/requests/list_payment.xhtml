@@ -16,7 +16,7 @@
 
             .a4-page {
                 width: 210mm;
-                height: 297mm;
+                min-height: 297mm;
                 margin: 0 auto;
                 padding: 10mm;
                 background: white;
@@ -29,6 +29,29 @@
                     margin: 0;
                     page-break-after: always;
                 }
+            }
+
+            .signature-section {
+                margin-top: 50px;
+                display: table;
+                width: 100%;
+            }
+
+            .signature-box {
+                display: table-cell;
+                width: 33%;
+                padding: 10px;
+                vertical-align: top;
+            }
+
+            .signature-line {
+                margin-top: 35px;
+                padding-top: 5px;
+            }
+
+            .signature-label {
+                font-weight: bold;
+                margin-bottom: 5px;
             }
         </style>
     </head>
@@ -96,6 +119,16 @@
                                                     <h:outputText value="Total Quantity:"/>
                                                     <h:outputText
                                                         value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}"/>
+                                                    <h:outputText value="Requested Date &amp; Time:"/>
+                                                    <h:panelGroup>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billDate}">
+                                                            <f:convertDateTime pattern="dd MMM yyyy"/>
+                                                        </h:outputText>
+                                                        <h:outputText value=" "/>
+                                                        <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billTime}">
+                                                            <f:convertDateTime pattern="HH:mm:ss"/>
+                                                        </h:outputText>
+                                                    </h:panelGroup>
                                                 </p:panelGrid>
 
                                                 <!-- Transactions Table -->
@@ -135,18 +168,40 @@
                                                 <!-- Footer Information Table -->
                                                 <p:panelGrid columns="2" styleClass="table table-bordered"
                                                              columnClasses="font-weight-bold,">
-                                                    <h:outputText value="Request Date:"/>
-                                                    <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billDate}">
-                                                        <f:convertDateTime pattern="dd MMM yyyy"/>
-                                                    </h:outputText>
-                                                    <h:outputText value="Request Time:"/>
-                                                    <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billTime}">
-                                                        <f:convertDateTime pattern="HH:mm:ss"/>
-                                                    </h:outputText>
                                                     <h:outputText value="User:"/>
                                                     <h:outputText
                                                         value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.nameWithTitle}"/>
                                                 </p:panelGrid>
+
+                                                <!-- Signature Section -->
+                                                <div class="signature-section">
+                                                    <div class="signature-box">
+                                                        <div class="signature-label">Prepared By:</div>
+                                                        <div>Name: ...................................</div>
+                                                        <div class="signature-line">
+                                                            Signature: ..............................
+                                                        </div>
+                                                        <div>Date: ...................................</div>
+                                                    </div>
+
+                                                    <div class="signature-box">
+                                                        <div class="signature-label">Checked By:</div>
+                                                        <div>Name: ...................................</div>
+                                                        <div class="signature-line">
+                                                            Signature: ..............................
+                                                        </div>
+                                                        <div>Date: ...................................</div>
+                                                    </div>
+
+                                                    <div class="signature-box">
+                                                        <div class="signature-label">Approved By:</div>
+                                                        <div>Name: ...................................</div>
+                                                        <div class="signature-line">
+                                                            Signature: ..............................
+                                                        </div>
+                                                        <div>Date: ...................................</div>
+                                                    </div>
+                                                </div>
 
                                             </h:panelGroup>
                                         </div>
