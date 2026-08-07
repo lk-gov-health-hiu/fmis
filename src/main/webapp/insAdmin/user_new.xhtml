@@ -14,6 +14,7 @@
                             <div class="card-header bg-success text-white">
                                 <p:outputLabel class="fs-5 fw-bold my-2" value="Add New User" ></p:outputLabel>
                             </div>
+                            <h:messages class="alert alert-danger ps-5"></h:messages>
                             <div class="card-body my-2">
                                 <div class="row">
                                     <div class="col-md-6">
@@ -71,9 +72,9 @@
                                             </div>
                                         </div>
                                         <div class="form-group row">
-                                            <h:outputLabel class="fs-6 fw-bold col-md-4" value="Telephone Number.:" for="telNo" />
+                                            <h:outputLabel class="fs-6 fw-bold col-md-4" value="User's Phone Number (not the institution's):" for="telNo" />
                                             <div class="col-md-8 mb-4">
-                                                <h:inputText id="telNo" class="form-control" value="#{webUserController.selected.telNo}" autocomplete="false" title="#{bundleClinical.EditWebUserTitle_telNo}" />
+                                                <h:inputText id="telNo" class="form-control" value="#{webUserController.selected.telNo}" autocomplete="false" title="#{bundleClinical.EditWebUserTitle_telNo}" required="true" requiredMessage="The user's phone number is required." />
                                             </div>
                                         </div>
                                         <div class="form-group row">
@@ -92,12 +93,6 @@
                                     </div>
                                     <div class="col-md-1"></div>
                                     <div class="col-md-5">
-                                        <!-- Display any error message when Save -->
-                                        <div class="row">
-                                            <div class="col-lg-12">
-                                                <h:messages class="alert alert-danger ps-5"></h:messages>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>

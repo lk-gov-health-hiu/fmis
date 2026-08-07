@@ -14,6 +14,7 @@
                             <p:outputLabel value="Add New User" ></p:outputLabel>
 
                         </div>
+                        <p:messages></p:messages>
                         <div class="card-body bg-white">
 
                             <div class="form-group row my-2">
@@ -117,9 +118,9 @@
                                 </div>
                             </div>
                             <div class="form-group row mb-2">
-                                <label class="col-md-4 fs-6 fw-bold col-form-label" for="telNo">Telephone Number</label>
+                                <label class="col-md-4 fs-6 fw-bold col-form-label" for="telNo">User's Phone Number (not the institution's)<small>(Required)</small></label>
                                 <div class="col-md-8">
-                                    <p:inputText id="telNo" class="form-control w-100" value="#{webUserController.selected.telNo}" autocomplete="false" title="#{bundleClinical.EditWebUserTitle_telNo}" />
+                                    <p:inputText id="telNo" class="form-control w-100" value="#{webUserController.selected.telNo}" autocomplete="false" title="#{bundleClinical.EditWebUserTitle_telNo}" required="true" requiredMessage="The user's phone number is required." />
                                 </div>
                             </div>
                             <div class="form-group row mb-2">
@@ -144,8 +145,7 @@
                                              value="#{bundleClinical.Save}" /> 
                         </div>
                     </div>
-                    <p:messages></p:messages>
-                </h:form>   
+                </h:form>
             </ui:define>
         </ui:composition>
     </h:body>

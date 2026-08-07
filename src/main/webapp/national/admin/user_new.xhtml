@@ -12,6 +12,7 @@
                 <h:form >
                     <div class="div bg-white px-4 py-3">
                         <h3 class="fw-bold mb-3">Add New User</h3>
+                        <p:messages></p:messages>
                         <div class="row mb-3">
                             <label for="name" class="col-md-4 col-form-label fw-bold">
                                 Name : <small>(Required)</small>
@@ -73,9 +74,10 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label for="telNo" class="col-form-label fw-bold col-md-4">Telephone Number :</label>
+                            <label for="telNo" class="col-form-label fw-bold col-md-4">User's Phone Number (not the institution's) : <small>(Required)</small></label>
                             <div class="col-md-8">
-                                <h:inputText id="telNo" autocomplete="false" class="form-control" value="#{webUserController.selected.telNo}" title="#{bundleClinical.EditWebUserTitle_telNo}" />
+                                <h:inputText id="telNo" autocomplete="false" class="form-control" value="#{webUserController.selected.telNo}" title="#{bundleClinical.EditWebUserTitle_telNo}" required="true" requiredMessage="The user's phone number is required." />
+                                <h:message class="small text-danger" for="telNo"></h:message>
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -101,9 +103,6 @@
                                 </p:selectOneMenu>
                                 <h:message class="text-danger small" for="webUserRole"></h:message>
                             </div>
-                        </div>
-                        <div class="row mb-3">
-                            <p:messages></p:messages>
                         </div>
                         <div class="buttons">
                             <h:commandButton class="btn btn-success fw-bold" action="#{webUserController.saveNewWebUser()}" value="Save User"/>
