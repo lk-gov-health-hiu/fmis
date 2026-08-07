@@ -215,6 +215,20 @@ public class WebUserController implements Serializable {
         }
         return true;
     }
+
+    /**
+     * True for institution-level users (institution user/super user/administrator/transport/accounts)
+     * whose visibility should be restricted to their own institution and its child institutions.
+     */
+    public boolean isInstitutionLevelUser() {
+        if (loggedUser == null) {
+            return false;
+        }
+        if (loggedUser.getWebUserRoleLevel() == null) {
+            return false;
+        }
+        return loggedUser.getWebUserRoleLevel() == WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION;
+    }
     
     public boolean isDieselFuelRequestMenuAvailable() {
         if (loggedUser == null) {

@@ -1095,6 +1095,26 @@ public class FuelRequestAndIssueController implements Serializable {
         bills = tmpBills;
     }
 
+    public void listPaymentBillsForInstitutionLevel() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.fromInstitution IN :institutions "
+                + " AND b.billDate BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("institutions", webUserController.findAutherizedInstitutions());
+        if (fuelStation != null) {
+            j += " AND b.toInstitution=:fs ";
+            params.put("fs", fuelStation);
+        }
+        params.put("fromDate", fromDate); // fromDate should be set beforehand
+        params.put("toDate", toDate);     // toDate should be set beforehand
+
+        List<Bill> tmpBills = billFacade.findByJpql(j, params);
+        bills = tmpBills;
+    }
+
     public void listPaymentBillsForNationalLevel() {
         String j = "SELECT b "
                 + " FROM Bill b "
