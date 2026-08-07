@@ -8,3 +8,150 @@
 html {
     font-size: 14px;
 }
+
+/*
+ * Recolors the Bootswatch "Minty" primary (teal, #78c2ad) to a "Clinical Blue"
+ * (#2c6e9c) suited to a health application, without forking the CDN-vendored
+ * bootstrap.min.css. .bg-primary/.text-primary/.link-primary already read
+ * --bs-primary-rgb, so overriding it here is enough for those; the rest of
+ * Bootstrap's primary-derived rules bake the teal in as static hex per
+ * selector, so those are restated with recomputed shades below.
+ */
+:root {
+    --bs-primary: #2c6e9c;
+    --bs-primary-rgb: 44, 110, 156;
+}
+
+a {
+    color: #2c6e9c;
+}
+a:hover {
+    color: #1f4e70;
+}
+
+.btn-primary {
+    background-color: #2c6e9c;
+    border-color: #2c6e9c;
+}
+.btn-primary:hover {
+    background-color: #255e85;
+    border-color: #23587d;
+}
+.btn-check:focus + .btn-primary,
+.btn-primary:focus {
+    background-color: #255e85;
+    border-color: #23587d;
+    box-shadow: 0 0 0 .25rem rgba(76, 132, 171, .5);
+}
+.btn-primary.disabled,
+.btn-primary:disabled {
+    background-color: #2c6e9c;
+    border-color: #2c6e9c;
+}
+
+.btn-outline-primary {
+    color: #2c6e9c;
+    border-color: #2c6e9c;
+}
+.btn-outline-primary:hover {
+    background-color: #2c6e9c;
+    border-color: #2c6e9c;
+}
+.btn-check:focus + .btn-outline-primary,
+.btn-outline-primary:focus {
+    box-shadow: 0 0 0 .25rem rgba(44, 110, 156, .5);
+}
+.btn-outline-primary.disabled,
+.btn-outline-primary:disabled {
+    color: #2c6e9c;
+}
+
+.border-primary {
+    border-color: #2c6e9c !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    border-color: #96b7ce;
+    box-shadow: 0 0 0 .25rem rgba(44, 110, 156, .25);
+}
+.form-check-input:checked {
+    background-color: #2c6e9c;
+    border-color: #2c6e9c;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    background-color: #2c6e9c;
+}
+
+.page-link {
+    color: #fff;
+    background-color: #2c6e9c;
+    border-color: #2c6e9c;
+}
+.page-link:focus {
+    color: #23587d;
+    box-shadow: 0 0 0 .25rem rgba(44, 110, 156, .25);
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: #2c6e9c;
+}
+
+.list-group-item.active {
+    background-color: #2c6e9c;
+    border-color: #2c6e9c;
+}
+
+.progress-bar {
+    background-color: #2c6e9c;
+}
+
+.alert-primary {
+    background-color: #2c6e9c;
+    border-color: #c0d4e1;
+}
+
+.table-primary {
+    --bs-table-bg: #2c6e9c;
+    --bs-table-striped-bg: #3775a1;
+    --bs-table-active-bg: #417da6;
+    --bs-table-hover-bg: #3c79a3;
+    border-color: #417da6;
+}
+
+/*
+ * The top navbar is a PrimeFaces p:menubar with Bootstrap's bg-primary/navbar-dark
+ * classes layered on top (see menu.xhtml). theme.css sets each item's text/icon
+ * color to a hardcoded #333 directly on the inner span, which wins over the
+ * inherited Bootstrap text color regardless of !important (inheritance always
+ * loses to a rule that directly matches the element). Restated here as white so
+ * top-level labels stay readable against the darker Clinical Blue background.
+ * Scoped to direct children of the menubar's own list so the white dropdown
+ * panels underneath keep their original dark-on-light text. theme.css's
+ * hover/active selectors (.ui-state-hover / .ui-menuitem-active) turn the
+ * item's own background light gray, and have the same specificity as the
+ * rules below with no source-order edge since both live in this cascade
+ * position — so hover/active text is restated dark further down to stay
+ * readable against that light-gray highlight.
+ */
+body .ui-menu.ui-menubar > .ui-menu-list > .ui-menuitem > .ui-menuitem-link .ui-menuitem-text,
+body .ui-menu.ui-menubar > .ui-menu-list > .ui-menuitem > .ui-menuitem-link .ui-menuitem-icon,
+body .ui-menu.ui-menubar > .ui-menu-list > .ui-menuitem > .ui-menuitem-link .ui-icon-triangle-1-s:last-child,
+body .ui-menu.ui-menubar > .ui-menu-list > .ui-menuitem > .ui-menuitem-link .ui-icon-triangle-1-e:last-child {
+    color: #fff;
+}
+
+body .ui-menu.ui-menubar > .ui-menu-list > .ui-menuitem > .ui-menuitem-link.ui-state-hover .ui-menuitem-text,
+body .ui-menu.ui-menubar > .ui-menu-list > .ui-menuitem > .ui-menuitem-link.ui-state-hover .ui-menuitem-icon,
+body .ui-menu.ui-menubar > .ui-menu-list > .ui-menuitem.ui-state-hover > .ui-menuitem-link .ui-menuitem-text,
+body .ui-menu.ui-menubar > .ui-menu-list > .ui-menuitem.ui-state-hover > .ui-menuitem-link .ui-menuitem-icon,
+body .ui-menu.ui-menubar > .ui-menu-list > .ui-menuitem.ui-menuitem-active > .ui-menuitem-link .ui-menuitem-text,
+body .ui-menu.ui-menubar > .ui-menu-list > .ui-menuitem.ui-menuitem-active > .ui-menuitem-link .ui-menuitem-icon,
+body .ui-menu.ui-menubar > .ui-menu-list > .ui-menuitem > .ui-menuitem-link.ui-state-hover .ui-icon-triangle-1-s:last-child,
+body .ui-menu.ui-menubar > .ui-menu-list > .ui-menuitem.ui-menuitem-active > .ui-menuitem-link .ui-icon-triangle-1-s:last-child {
+    color: #333;
+}
