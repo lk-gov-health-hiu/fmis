@@ -560,6 +560,18 @@ public class FuelRequestAndIssueController implements Serializable {
         return !date.after(endOfToday.getTime());
     }
 
+    private boolean isSameMonth(Date d1, Date d2) {
+        if (d1 == null || d2 == null) {
+            return true;
+        }
+        Calendar c1 = Calendar.getInstance();
+        c1.setTime(d1);
+        Calendar c2 = Calendar.getInstance();
+        c2.setTime(d2);
+        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
+                && c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH);
+    }
+
     private boolean areFieldValuesDistinct(String referenceNumber, Double odoReading, Double requestQuantity) {
         if (referenceNumber == null || odoReading == null || requestQuantity == null) {
             return true; // Skip validation if any value is null
@@ -1169,6 +1181,11 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     boolean paymentRequestStarted = false;
+    private boolean paymentRequestReprint = false;
+
+    public boolean isPaymentRequestReprint() {
+        return paymentRequestReprint;
+    }
 
     public String makePaymentRequest() {
         if (paymentRequestStarted) {
@@ -1176,6 +1193,11 @@ public class FuelRequestAndIssueController implements Serializable {
             return null;
         }
         paymentRequestStarted = true;
+        if (!isSameMonth(getFromDate(), getToDate())) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            paymentRequestStarted = false;
+            return null;
+        }
         if (selectedTransactions == null || selectedTransactions.isEmpty()) {
             JsfUtil.addErrorMessage("Nothing Selected");
             paymentRequestStarted = false;
@@ -1242,6 +1264,7 @@ public class FuelRequestAndIssueController implements Serializable {
         fuelPaymentRequestBill.setTotalQty(qty);
         billFacade.edit(fuelPaymentRequestBill);
         paymentRequestStarted = false;
+        paymentRequestReprint = false;
 
         Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
 
@@ -1263,15 +1286,20 @@ public class FuelRequestAndIssueController implements Serializable {
         m.put("pb", fuelPaymentRequestBill);
 
         selectedTransactions = getFacade().findByJpql(jpql, m);
-        
+
         Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
 
-        
+        paymentRequestReprint = true;
+
         return "/requests/list_payment?faces-redirect=true";
 
     }
 
     public void listInstitutionRequestsToPay() {
+        if (!isSameMonth(getFromDate(), getToDate())) {
+            JsfUtil.addErrorMessage("From Date and To Date must be within the same month");
+            return;
+        }
         transactions
                 = findFuelTransactions(
                         null, // institution
