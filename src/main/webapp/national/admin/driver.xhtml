@@ -33,27 +33,30 @@
 
 
 
-                            <h:outputLabel value="Name:" for="name" />
-                            <h:inputText id="name" 
+                            <h:outputLabel value="Name: *" for="name" />
+                            <h:inputText id="name"
                                          autocomplete="off"
                                          class="form-control"
-                                         value="#{driverController.selected.name}" title="Name" />
+                                         value="#{driverController.selected.name}" title="Name"
+                                         required="true" requiredMessage="Driver's name is required." />
 
 
-                            <h:outputLabel value="NIC:" for="nic" />
-                            <h:inputText id="nic" 
+                            <h:outputLabel value="NIC: *" for="nic" />
+                            <h:inputText id="nic"
                                          autocomplete="off"
                                          class="form-control"
-                                         value="#{driverController.selected.nic}" 
-                                         title="NIC" />
+                                         value="#{driverController.selected.nic}"
+                                         title="NIC"
+                                         required="true" requiredMessage="Driver's NIC is required." />
 
 
-                            <h:outputLabel value="Phone:" for="phone" />
-                            <h:inputText id="phone" 
+                            <h:outputLabel value="Phone: *" for="phone" />
+                            <h:inputText id="phone"
                                          autocomplete="off"
                                          class="form-control"
-                                         value="#{driverController.selected.phone}" 
-                                         title="phone" />
+                                         value="#{driverController.selected.phone}"
+                                         title="phone"
+                                         required="true" requiredMessage="Driver's phone number is required." />
 
 
                             <h:outputLabel value="Address:" for="address" />
