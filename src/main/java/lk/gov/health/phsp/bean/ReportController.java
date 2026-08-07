@@ -172,11 +172,18 @@ public class ReportController implements Serializable {
     // </editor-fold> 
     // <editor-fold defaultstate="collapsed" desc="Navigational Methods">
     public String navigateToListFuelRequests() {
+        if (webUserController.isInstitutionLevelUser()) {
+            fillInstitutionFuelTransactions();
+            return "/reports/list_institution?faces-redirect=true;";
+        }
         fillAllInstitutionFuelTransactions();
         return "/reports/list?faces-redirect=true;";
     }
-    
+
     public String navigateToListPayments() {
+        if (webUserController.isInstitutionLevelUser()) {
+            return "/reports/list_to_paid_institution?faces-redirect=true;";
+        }
         return "/reports/list_to_paid?faces-redirect=true;";
     }
 
@@ -489,6 +496,20 @@ public class ReportController implements Serializable {
     // <editor-fold defaultstate="collapsed" desc="Functional Methods">
     public void fillAllInstitutionFuelTransactions() {
         transactionLights = fillFuelTransactions(fromInstitution, toInstitution, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
+    }
+
+    /**
+     * Restricts the transaction list to the logged user's own institution and its child institutions,
+     * for institution-level users (institution user/super user/administrator/transport/accounts).
+     */
+    public void fillInstitutionFuelTransactions() {
+        List<Institution> allowedInstitutions = webUserController.findAutherizedInstitutions();
+        if (allowedInstitutions == null || allowedInstitutions.isEmpty()) {
+            transactionLights = new ArrayList<>();
+            return;
+        }
+        List<Institution> fuelStations = toInstitution != null ? Arrays.asList(toInstitution) : null;
+        transactionLights = fillFuelTransactions(allowedInstitutions, fuelStations, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
     }
 
     public void fillAllInstitutionFuelTransactionsDetailes() {
@@ -934,8 +955,11 @@ public class ReportController implements Serializable {
                 .append("ft.issueReferenceNumber, ")
                 .append("fi.name, ") // fromInstitution name
                 .append("ti.name, ") // toInstitution name
-                .append("COALESCE(d.name, 'No Driver')") // driver name or 'No Driver' if null
-                .append(") FROM FuelTransaction ft ")
+                .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
+                .append("ti.code, ") // toInstitution code
+                .append("ft.issuedDate, ")
+                .append("ft.submittedToPayment, ")
+                .append("ft.submittedToPaymentAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
