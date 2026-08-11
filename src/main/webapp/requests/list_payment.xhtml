@@ -168,6 +168,8 @@
                                                             <f:convertDateTime pattern="HH:mm:ss"/>
                                                         </h:outputText>
                                                     </h:panelGroup>
+                                                    <h:outputText value="Reason for Reprint:" rendered="#{fuelRequestAndIssueController.paymentRequestReprint}"/>
+                                                    <h:outputText value="" rendered="#{fuelRequestAndIssueController.paymentRequestReprint}"/>
                                                 </p:panelGrid>
 
                                                 <!-- Transactions Table -->
