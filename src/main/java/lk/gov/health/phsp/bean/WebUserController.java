@@ -111,7 +111,9 @@ public class WebUserController implements Serializable {
     private List<WebUser> managableUsers;
     private List<Institution> loggableInstitutions;
     private List<Vehicle> managableVehicles;
+    private List<Vehicle> institutionVehicles;
     private List<Driver> managableDrivers;
+    private List<Driver> institutionDrivers;
 
     private WebUserRole userRole;
 
@@ -713,7 +715,9 @@ public class WebUserController implements Serializable {
     public String login() {
         loggableInstitutions = null;
         managableVehicles = null;
+        institutionVehicles = null;
         managableDrivers = null;
+        institutionDrivers = null;
         if (userName == null || userName.trim().equals("")) {
             JsfUtil.addErrorMessage("Please enter a Username");
             return "";
@@ -741,7 +745,9 @@ public class WebUserController implements Serializable {
         loggableInstitutions = institutionApplicationController.findChildrenInstitutions(loggedInstitution);
         loggableInstitutions.add(loggedInstitution);
         managableVehicles = vehicleApplicationController.findVehiclesByInstitutions(loggableInstitutions);
+        institutionVehicles = vehicleApplicationController.findVehiclesByInstitution(loggedInstitution);
         managableDrivers = driverApplicationController.findDriversByInstitutions(loggableInstitutions);
+        institutionDrivers = driverApplicationController.findDriversByInstitution(loggedInstitution);
         managableUsers = findManagableUsers();
 
         Calendar c = Calendar.getInstance();
@@ -2063,6 +2069,13 @@ public class WebUserController implements Serializable {
         return loggableInstitutions;
     }
 
+    public boolean isHasChildInstitutions() {
+        if (loggedInstitution == null) {
+            return false;
+        }
+        return !institutionApplicationController.findChildrenInstitutions(loggedInstitution).isEmpty();
+    }
+
     public void setLoggableInstitutions(List<Institution> loggableInstitutions) {
         this.loggableInstitutions = loggableInstitutions;
     }
@@ -2241,12 +2254,34 @@ public class WebUserController implements Serializable {
         this.managableVehicles = managableVehicles;
     }
 
+    public List<Vehicle> getInstitutionVehicles() {
+        if (institutionVehicles == null) {
+            institutionVehicles = new ArrayList<>();
+        }
+        return institutionVehicles;
+    }
+
+    public void setInstitutionVehicles(List<Vehicle> institutionVehicles) {
+        this.institutionVehicles = institutionVehicles;
+    }
+
     public List<Driver> getManagableDrivers() {
         return managableDrivers;
     }
 
     public void setManagableDrivers(List<Driver> managableDrivers) {
         this.managableDrivers = managableDrivers;
+    }
+
+    public List<Driver> getInstitutionDrivers() {
+        if (institutionDrivers == null) {
+            institutionDrivers = new ArrayList<>();
+        }
+        return institutionDrivers;
+    }
+
+    public void setInstitutionDrivers(List<Driver> institutionDrivers) {
+        this.institutionDrivers = institutionDrivers;
     }
 
     @FacesConverter(forClass = WebUser.class)

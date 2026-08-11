@@ -84,6 +84,8 @@ public class FuelRequestAndIssueController implements Serializable {
     private List<Bill> bills;
     private List<FuelTransaction> selectedTransactions = null;
     private FuelTransaction selected;
+    private String odoWarningMessage;
+    private boolean odoWarningAcknowledged;
 
     private FuelTransactionHistory selectedTransactionHistory;
     private List<FuelTransactionHistory> selectedTransactionHistories;
@@ -91,6 +93,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
     private Institution institution;
     private Institution fuelStation;
+    private List<Institution> selectedInstitutions;
     private Vehicle vehicle;
     private WebUser webUser;
     private Date fromDate;
@@ -403,14 +406,15 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
 
-        // Validation 3: ODO reading must be greater than the previous reading
+        // Validation 3: ODO reading must be greater than the previous reading.
+        // Not blocked outright - the user is warned and can confirm to proceed anyway.
         Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
-        if (previousOdoReading != null && selected.getOdoMeterReading() != null) {
-            if (selected.getOdoMeterReading() <= previousOdoReading) {
-                JsfUtil.addErrorMessage("ODO Meter Reading (" + selected.getOdoMeterReading() + ") must be greater than the previous reading (" + previousOdoReading + ")");
-                return "";
-            }
+        if (previousOdoReading != null && selected.getOdoMeterReading() != null
+                && selected.getOdoMeterReading() <= previousOdoReading && !odoWarningAcknowledged) {
+            odoWarningMessage = "ODO Meter Reading (" + selected.getOdoMeterReading() + ") is not greater than the previous reading (" + previousOdoReading + "). Do you want to continue anyway?";
+            return "";
         }
+        odoWarningMessage = null;
 
         // Validation 4: Request quantity must not exceed the vehicle type's maximum
         if (!isRequestQuantityWithinTypeLimit(selected.getVehicle(), selected.getRequestQuantity())) {
@@ -479,14 +483,15 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
 
-        // Validation 3: ODO reading must be greater than the previous reading
+        // Validation 3: ODO reading must be greater than the previous reading.
+        // Not blocked outright - the user is warned and can confirm to proceed anyway.
         Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
-        if (previousOdoReading != null && selected.getOdoMeterReading() != null) {
-            if (selected.getOdoMeterReading() <= previousOdoReading) {
-                JsfUtil.addErrorMessage("ODO Meter Reading (" + selected.getOdoMeterReading() + ") must be greater than the previous reading (" + previousOdoReading + ")");
-                return "";
-            }
+        if (previousOdoReading != null && selected.getOdoMeterReading() != null
+                && selected.getOdoMeterReading() <= previousOdoReading && !odoWarningAcknowledged) {
+            odoWarningMessage = "ODO Meter Reading (" + selected.getOdoMeterReading() + ") is not greater than the previous reading (" + previousOdoReading + "). Do you want to continue anyway?";
+            return "";
         }
+        odoWarningMessage = null;
 
         // Validation 4: Request quantity must not exceed the vehicle type's maximum
         if (!isRequestQuantityWithinTypeLimit(selected.getVehicle(), selected.getRequestQuantity())) {
@@ -506,6 +511,30 @@ public class FuelRequestAndIssueController implements Serializable {
         save(selected);
         JsfUtil.addSuccessMessage("Special fuel request submitted successfully. Reference number: " + selected.getRequestReferenceNumber());
         return navigateToViewInstitutionFuelRequestToSltbDepot();
+    }
+
+    public String acknowledgeOdoWarningAndSubmitVehicleFuelRequest() {
+        odoWarningAcknowledged = true;
+        return submitVehicleFuelRequest();
+    }
+
+    public String acknowledgeOdoWarningAndSubmitSpecialVehicleFuelRequest() {
+        odoWarningAcknowledged = true;
+        return submitSpecialVehicleFuelRequest();
+    }
+
+    public String cancelOdoWarning() {
+        odoWarningMessage = null;
+        odoWarningAcknowledged = false;
+        return "";
+    }
+
+    public String getOdoWarningMessage() {
+        return odoWarningMessage;
+    }
+
+    public boolean isOdoWarningPending() {
+        return odoWarningMessage != null;
     }
 
     // ===== Fuel order validation helpers =====
@@ -833,6 +862,8 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToAddVehicleFuelRequest() {
+        odoWarningMessage = null;
+        odoWarningAcknowledged = false;
         selected = new FuelTransaction();
         selected.setRequestAt(new Date());
         selected.setTransactionType(FuelTransactionType.VehicleFuelRequest);
@@ -841,11 +872,11 @@ public class FuelRequestAndIssueController implements Serializable {
         selected.setFromInstitution(webUserController.getLoggedInstitution());
         selected.setInstitution(webUserController.getLoggedInstitution());
         selected.setToInstitution(webUserController.getLoggedInstitution().getSupplyInstitution());
-        if (webUserController.getManagableVehicles().size() == 1) {
-            selected.setVehicle(webUserController.getManagableVehicles().get(0));
+        if (webUserController.getInstitutionVehicles().size() == 1) {
+            selected.setVehicle(webUserController.getInstitutionVehicles().get(0));
         }
-        if (webUserController.getManagableDrivers().size() == 1) {
-            selected.setDriver(webUserController.getManagableDrivers().get(0));
+        if (webUserController.getInstitutionDrivers().size() == 1) {
+            selected.setDriver(webUserController.getInstitutionDrivers().get(0));
         }
         return "/requests/request";
     }
@@ -969,6 +1000,8 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToAddSpecialVehicleFuelRequest() {
+        odoWarningMessage = null;
+        odoWarningAcknowledged = false;
         selected = new FuelTransaction();
         selected.setRequestAt(new Date());
         selected.setTransactionType(FuelTransactionType.SpecialVehicleFuelRequest);
@@ -1102,8 +1135,17 @@ public class FuelRequestAndIssueController implements Serializable {
                 + " AND b.fromInstitution IN :institutions "
                 + " AND b.billDate BETWEEN :fromDate AND :toDate";
 
+        List<Institution> allowedInstitutions = webUserController.findAutherizedInstitutions();
+        List<Institution> requestingInstitutions;
+        if (selectedInstitutions == null || selectedInstitutions.isEmpty()) {
+            requestingInstitutions = allowedInstitutions;
+        } else {
+            requestingInstitutions = new ArrayList<>(selectedInstitutions);
+            requestingInstitutions.retainAll(allowedInstitutions);
+        }
+
         Map<String, Object> params = new HashMap<>();
-        params.put("institutions", webUserController.findAutherizedInstitutions());
+        params.put("institutions", requestingInstitutions);
         if (fuelStation != null) {
             j += " AND b.toInstitution=:fs ";
             params.put("fs", fuelStation);
@@ -1719,6 +1761,17 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setFuelStation(Institution fuelStation) {
         this.fuelStation = fuelStation;
+    }
+
+    public List<Institution> getSelectedInstitutions() {
+        if (selectedInstitutions == null) {
+            selectedInstitutions = new ArrayList<>(webUserController.findAutherizedInstitutions());
+        }
+        return selectedInstitutions;
+    }
+
+    public void setSelectedInstitutions(List<Institution> selectedInstitutions) {
+        this.selectedInstitutions = selectedInstitutions;
     }
 
     @FacesConverter(forClass = FuelTransaction.class)

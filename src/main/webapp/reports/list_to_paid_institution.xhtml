@@ -59,6 +59,23 @@
                                                 class="w-100 m-1"
                                                 inputStyleClass="w-100"></p:autoComplete>
                                         </div>
+                                        <div class="form-group" rendered="#{webUserController.hasChildInstitutions}">
+                                            <label for="selInstitutions" class="d-block">Institution</label>
+                                            <p:selectCheckboxMenu
+                                                id="selInstitutions"
+                                                value="#{fuelRequestAndIssueController.selectedInstitutions}"
+                                                label="Institutions"
+                                                filter="true"
+                                                filterMatchMode="contains"
+                                                multiple="true"
+                                                class="w-100 m-1" >
+                                                <f:selectItems value="#{webUserController.loggableInstitutions}" var="ins" itemLabel="#{ins.name}" itemValue="#{ins}" />
+                                            </p:selectCheckboxMenu>
+                                        </div>
+                                        <div class="form-group" rendered="#{!webUserController.hasChildInstitutions}">
+                                            <label class="d-block">Institution</label>
+                                            <p:outputLabel value="#{webUserController.loggedInstitution.name}" />
+                                        </div>
                                         <div class="form-group d-flex justify-content-center">
                                             <p:commandButton value="List Requests"
                                                              action="#{fuelRequestAndIssueController.listPaymentBillsForInstitutionLevel()}"

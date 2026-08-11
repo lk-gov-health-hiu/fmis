@@ -40,14 +40,14 @@
                                         class="w-100"
                                         id="acVehicle" value="#{fuelRequestAndIssueController.selected.vehicle}" filter="true" rendered="#{fuelRequestAndIssueController.selected.vehicle eq null}" filterMatchMode="contains" required="true" requiredMessage="You must select a vehicle" styleClass="w-100">
                                         <f:selectItem itemLabel="Select a vehicle" noSelectionOption="true" />
-                                        <f:selectItems value="#{webUserController.managableVehicles}" var="v" itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
+                                        <f:selectItems value="#{webUserController.institutionVehicles}" var="v" itemLabel="#{v.vehicleNumber}" itemValue="#{v}" />
                                     </p:selectOneMenu>
 
                                     <p:outputLabel for="acDriver" value="Driver" />
                                     <p:inputText readonly="true" class="w-100" value="#{fuelRequestAndIssueController.selected.driver.name}" rendered="#{fuelRequestAndIssueController.selected.driver ne null}" />
                                     <p:selectOneMenu id="acDriver" value="#{fuelRequestAndIssueController.selected.driver}" filter="true" rendered="#{fuelRequestAndIssueController.selected.driver eq null}" filterMatchMode="contains" required="true" requiredMessage="You must select a driver" styleClass="w-100">
                                         <f:selectItem itemLabel="Select a driver" noSelectionOption="true" />
-                                        <f:selectItems value="#{webUserController.managableDrivers}" var="d" itemLabel="#{d.name}" itemValue="#{d}" />
+                                        <f:selectItems value="#{webUserController.institutionDrivers}" var="d" itemLabel="#{d.name}" itemValue="#{d}" />
                                     </p:selectOneMenu>
 
                                     <p:outputLabel value="Depot / Fuel Station" />
@@ -102,6 +102,32 @@
                                         value="#{fuelRequestAndIssueController.selected.comments}" />
                                 </p:panelGrid>
 
+                                <!-- ODO warning dialog: shown instead of blocking submission outright -->
+                                <p:dialog header="ODO Meter Reading Warning"
+                                          widgetVar="odoWarningDialog"
+                                          modal="true"
+                                          closable="false"
+                                          responsive="true"
+                                          visible="#{fuelRequestAndIssueController.odoWarningPending}">
+                                    <div class="p-3">
+                                        <p class="text-danger">
+                                            <i class="pi pi-exclamation-triangle" />
+                                            <h:outputText value=" #{fuelRequestAndIssueController.odoWarningMessage}" />
+                                        </p>
+                                    </div>
+                                    <div class="text-center mt-3 mb-3">
+                                        <p:commandButton value="Continue Anyway"
+                                                         icon="pi pi-check"
+                                                         styleClass="ui-button-raised ui-button-warning mx-1"
+                                                         action="#{fuelRequestAndIssueController.acknowledgeOdoWarningAndSubmitVehicleFuelRequest}"
+                                                         ajax="false" />
+                                        <p:commandButton value="Go Back and Edit"
+                                                         icon="pi pi-times"
+                                                         styleClass="ui-button-raised ui-button-secondary mx-1"
+                                                         action="#{fuelRequestAndIssueController.cancelOdoWarning}"
+                                                         ajax="false" />
+                                    </div>
+                                </p:dialog>
 
                             </div>
                         </div>
