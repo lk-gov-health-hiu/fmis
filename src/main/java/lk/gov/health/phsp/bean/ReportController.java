@@ -125,7 +125,7 @@ public class ReportController implements Serializable {
     private Institution institution;
     private Institution fromInstitution;
     private Institution toInstitution;
-    private List<Institution> selectedInstitutions;
+    private Institution selectedInstitution;
     private Bill bill;
     private List<FuelTransaction> billTransactions;
     private Area area;
@@ -510,11 +510,10 @@ public class ReportController implements Serializable {
             return;
         }
         List<Institution> requestingInstitutions;
-        if (selectedInstitutions == null || selectedInstitutions.isEmpty()) {
+        if (selectedInstitution == null || !allowedInstitutions.contains(selectedInstitution)) {
             requestingInstitutions = allowedInstitutions;
         } else {
-            requestingInstitutions = new ArrayList<>(selectedInstitutions);
-            requestingInstitutions.retainAll(allowedInstitutions);
+            requestingInstitutions = Arrays.asList(selectedInstitution);
         }
         List<Institution> fuelStations = toInstitution != null ? Arrays.asList(toInstitution) : null;
         transactionLights = fillFuelTransactions(requestingInstitutions, fuelStations, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
@@ -1756,15 +1755,12 @@ public class ReportController implements Serializable {
         this.toInstitution = toInstitution;
     }
 
-    public List<Institution> getSelectedInstitutions() {
-        if (selectedInstitutions == null) {
-            selectedInstitutions = new ArrayList<>(webUserController.findAutherizedInstitutions());
-        }
-        return selectedInstitutions;
+    public Institution getSelectedInstitution() {
+        return selectedInstitution;
     }
 
-    public void setSelectedInstitutions(List<Institution> selectedInstitutions) {
-        this.selectedInstitutions = selectedInstitutions;
+    public void setSelectedInstitution(Institution selectedInstitution) {
+        this.selectedInstitution = selectedInstitution;
     }
 
     public List<FuelTransactionLight> getTransactionLights() {

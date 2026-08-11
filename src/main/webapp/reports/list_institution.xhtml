@@ -38,15 +38,14 @@
                                 ></p:autoComplete>
 
                             <p:outputLabel value="Institution" rendered="#{webUserController.hasChildInstitutions}" />
-                            <p:selectCheckboxMenu
-                                value="#{reportController.selectedInstitutions}"
-                                label="Institutions"
+                            <p:selectOneMenu
+                                value="#{reportController.selectedInstitution}"
                                 filter="true"
                                 filterMatchMode="contains"
-                                multiple="true"
                                 rendered="#{webUserController.hasChildInstitutions}" >
+                                <f:selectItem itemLabel="-- Own Institution and All Child Institutions --" noSelectionOption="true" />
                                 <f:selectItems value="#{webUserController.loggableInstitutions}" var="ins" itemLabel="#{ins.name}" itemValue="#{ins}" />
-                            </p:selectCheckboxMenu>
+                            </p:selectOneMenu>
 
                             <p:outputLabel value="Institution" rendered="#{!webUserController.hasChildInstitutions}" />
                             <p:outputLabel value="#{webUserController.loggedInstitution.name}" rendered="#{!webUserController.hasChildInstitutions}" />

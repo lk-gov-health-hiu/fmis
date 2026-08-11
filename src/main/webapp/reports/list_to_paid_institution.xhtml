@@ -61,16 +61,15 @@
                                         </div>
                                         <div class="form-group" rendered="#{webUserController.hasChildInstitutions}">
                                             <label for="selInstitutions" class="d-block">Institution</label>
-                                            <p:selectCheckboxMenu
+                                            <p:selectOneMenu
                                                 id="selInstitutions"
-                                                value="#{fuelRequestAndIssueController.selectedInstitutions}"
-                                                label="Institutions"
+                                                value="#{fuelRequestAndIssueController.selectedInstitution}"
                                                 filter="true"
                                                 filterMatchMode="contains"
-                                                multiple="true"
                                                 class="w-100 m-1" >
+                                                <f:selectItem itemLabel="-- Own Institution and All Child Institutions --" noSelectionOption="true" />
                                                 <f:selectItems value="#{webUserController.loggableInstitutions}" var="ins" itemLabel="#{ins.name}" itemValue="#{ins}" />
-                                            </p:selectCheckboxMenu>
+                                            </p:selectOneMenu>
                                         </div>
                                         <div class="form-group" rendered="#{!webUserController.hasChildInstitutions}">
                                             <label class="d-block">Institution</label>
