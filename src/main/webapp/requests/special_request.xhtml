@@ -87,7 +87,7 @@
                                         requiredMessage="You must select a driver"
                                         styleClass="form-control w-100">
                                         <f:selectItem itemLabel="Select a driver"  />
-                                        <f:selectItems value="#{driverController.institutionDrivers(fuelRequestAndIssueController.selected.vehicle.institution)}" var="d"
+                                        <f:selectItems value="#{driverController.institutionAndLoggedInstitutionDrivers(fuelRequestAndIssueController.selected.vehicle.institution)}" var="d"
                                                        itemLabel="#{d.name}" itemValue="#{d}" />
                                     </p:selectOneMenu>
 
