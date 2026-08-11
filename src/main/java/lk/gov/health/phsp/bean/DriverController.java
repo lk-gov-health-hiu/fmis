@@ -270,6 +270,26 @@ public class DriverController implements Serializable {
         return insDrivers;
     }
 
+    /**
+     * Drivers of the given (e.g. special request vehicle's) institution, plus drivers of the
+     * logged-in user's own institution - since a special vehicle can be driven by a driver from
+     * the requesting institution rather than the vehicle's home institution.
+     */
+    public List<Driver> institutionAndLoggedInstitutionDrivers(Institution vehicleInstitution) {
+        List<Institution> institutions = new ArrayList<>();
+        if (vehicleInstitution != null) {
+            institutions.add(vehicleInstitution);
+        }
+        Institution loggedInstitution = webUserController.getLoggedInstitution();
+        if (loggedInstitution != null && !institutions.contains(loggedInstitution)) {
+            institutions.add(loggedInstitution);
+        }
+        if (institutions.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return driverApplicationController.findDriversByInstitutions(institutions);
+    }
+
     public String saveOrUpdateDriver() {
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing to select");
