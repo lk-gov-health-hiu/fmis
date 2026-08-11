@@ -5,6 +5,7 @@ import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Calendar;
@@ -93,7 +94,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
     private Institution institution;
     private Institution fuelStation;
-    private List<Institution> selectedInstitutions;
+    private Institution selectedInstitution;
     private Vehicle vehicle;
     private WebUser webUser;
     private Date fromDate;
@@ -385,6 +386,7 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Enter a referance number");
             return "";
         }
+        selected.setRequestReferenceNumber(selected.getRequestReferenceNumber().trim().toUpperCase());
         if (selected.getOdoMeterReading() == null) {
             JsfUtil.addErrorMessage("ODO Meter Reading is required");
             return "";
@@ -462,6 +464,7 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Enter a referance number");
             return "";
         }
+        selected.setRequestReferenceNumber(selected.getRequestReferenceNumber().trim().toUpperCase());
         if (selected.getOdoMeterReading() == null) {
             JsfUtil.addErrorMessage("ODO Meter Reading is required");
             return "";
@@ -1137,11 +1140,10 @@ public class FuelRequestAndIssueController implements Serializable {
 
         List<Institution> allowedInstitutions = webUserController.findAutherizedInstitutions();
         List<Institution> requestingInstitutions;
-        if (selectedInstitutions == null || selectedInstitutions.isEmpty()) {
+        if (selectedInstitution == null || !allowedInstitutions.contains(selectedInstitution)) {
             requestingInstitutions = allowedInstitutions;
         } else {
-            requestingInstitutions = new ArrayList<>(selectedInstitutions);
-            requestingInstitutions.retainAll(allowedInstitutions);
+            requestingInstitutions = Arrays.asList(selectedInstitution);
         }
 
         Map<String, Object> params = new HashMap<>();
@@ -1763,15 +1765,12 @@ public class FuelRequestAndIssueController implements Serializable {
         this.fuelStation = fuelStation;
     }
 
-    public List<Institution> getSelectedInstitutions() {
-        if (selectedInstitutions == null) {
-            selectedInstitutions = new ArrayList<>(webUserController.findAutherizedInstitutions());
-        }
-        return selectedInstitutions;
+    public Institution getSelectedInstitution() {
+        return selectedInstitution;
     }
 
-    public void setSelectedInstitutions(List<Institution> selectedInstitutions) {
-        this.selectedInstitutions = selectedInstitutions;
+    public void setSelectedInstitution(Institution selectedInstitution) {
+        this.selectedInstitution = selectedInstitution;
     }
 
     @FacesConverter(forClass = FuelTransaction.class)
