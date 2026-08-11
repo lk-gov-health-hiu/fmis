@@ -125,6 +125,7 @@ public class ReportController implements Serializable {
     private Institution institution;
     private Institution fromInstitution;
     private Institution toInstitution;
+    private List<Institution> selectedInstitutions;
     private Bill bill;
     private List<FuelTransaction> billTransactions;
     private Area area;
@@ -508,8 +509,15 @@ public class ReportController implements Serializable {
             transactionLights = new ArrayList<>();
             return;
         }
+        List<Institution> requestingInstitutions;
+        if (selectedInstitutions == null || selectedInstitutions.isEmpty()) {
+            requestingInstitutions = allowedInstitutions;
+        } else {
+            requestingInstitutions = new ArrayList<>(selectedInstitutions);
+            requestingInstitutions.retainAll(allowedInstitutions);
+        }
         List<Institution> fuelStations = toInstitution != null ? Arrays.asList(toInstitution) : null;
-        transactionLights = fillFuelTransactions(allowedInstitutions, fuelStations, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
+        transactionLights = fillFuelTransactions(requestingInstitutions, fuelStations, getFromDate(), getToDate(), vehicleType, vehiclePurpose, driver, institutionType);
     }
 
     public void fillAllInstitutionFuelTransactionsDetailes() {
@@ -1746,6 +1754,17 @@ public class ReportController implements Serializable {
 
     public void setToInstitution(Institution toInstitution) {
         this.toInstitution = toInstitution;
+    }
+
+    public List<Institution> getSelectedInstitutions() {
+        if (selectedInstitutions == null) {
+            selectedInstitutions = new ArrayList<>(webUserController.findAutherizedInstitutions());
+        }
+        return selectedInstitutions;
+    }
+
+    public void setSelectedInstitutions(List<Institution> selectedInstitutions) {
+        this.selectedInstitutions = selectedInstitutions;
     }
 
     public List<FuelTransactionLight> getTransactionLights() {

@@ -36,6 +36,20 @@
                                 itemLabel="#{fs.name}"
                                 itemValue="#{fs}"
                                 ></p:autoComplete>
+
+                            <p:outputLabel value="Institution" rendered="#{webUserController.hasChildInstitutions}" />
+                            <p:selectCheckboxMenu
+                                value="#{reportController.selectedInstitutions}"
+                                label="Institutions"
+                                filter="true"
+                                filterMatchMode="contains"
+                                multiple="true"
+                                rendered="#{webUserController.hasChildInstitutions}" >
+                                <f:selectItems value="#{webUserController.loggableInstitutions}" var="ins" itemLabel="#{ins.name}" itemValue="#{ins}" />
+                            </p:selectCheckboxMenu>
+
+                            <p:outputLabel value="Institution" rendered="#{!webUserController.hasChildInstitutions}" />
+                            <p:outputLabel value="#{webUserController.loggedInstitution.name}" rendered="#{!webUserController.hasChildInstitutions}" />
                         </p:panelGrid>
                         <p:panelGrid columns="2" >
                             <h:outputLabel value="Type:" for="vehicleType" />
