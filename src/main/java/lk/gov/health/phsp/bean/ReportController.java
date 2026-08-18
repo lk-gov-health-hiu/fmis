@@ -722,7 +722,8 @@ public class ReportController implements Serializable {
                     null,
                     null,
                     null,
-                    null);
+                    null,
+                    true);
         } else {
             transactionLights = fillFuelTransactions(null,
                     toInstitution,
@@ -731,7 +732,8 @@ public class ReportController implements Serializable {
                     null,
                     null,
                     null,
-                    null);
+                    null,
+                    true);
         }
 
     }
@@ -739,6 +741,15 @@ public class ReportController implements Serializable {
     public List<FuelTransactionLight> fillFuelTransactions(
             Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
             VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType) {
+        return fillFuelTransactions(requestingInstitution, fuelStation, fd, td,
+                vehicleType, vehiclePurpose, driver, institutionType, false);
+    }
+
+    public List<FuelTransactionLight> fillFuelTransactions(
+            Institution requestingInstitution, Institution fuelStation, Date fd, Date td,
+            VehicleType vehicleType, VehiclePurpose vehiclePurpose, Driver driver, InstitutionType institutionType,
+            boolean filterByIssuedDate) {
+        String dateColumn = filterByIssuedDate ? "ft.issuedDate" : "ft.requestedDate";
 
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelTransactionLight(")
@@ -786,7 +797,7 @@ public class ReportController implements Serializable {
             tdCal.set(Calendar.MILLISECOND, 999);
             td = tdCal.getTime(); // End of the toDate
 
-            jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            jpqlBuilder.append("AND ").append(dateColumn).append(" BETWEEN :fromDate AND :toDate ");
             parameters.put("fromDate", fd);
             parameters.put("toDate", td);
         }
@@ -807,7 +818,7 @@ public class ReportController implements Serializable {
             parameters.put("instType", institutionType);
         }
 
-        jpqlBuilder.append("ORDER BY ft.requestedDate");
+        jpqlBuilder.append("ORDER BY ").append(dateColumn);
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);
@@ -953,6 +964,15 @@ public class ReportController implements Serializable {
             List<Institution> requestingInstitutions, List<Institution> fuelStations,
             Date fd, Date td, VehicleType vehicleType, VehiclePurpose vehiclePurpose,
             Driver driver, InstitutionType institutionType) {
+        return fillFuelTransactions(requestingInstitutions, fuelStations, fd, td,
+                vehicleType, vehiclePurpose, driver, institutionType, false);
+    }
+
+    public List<FuelTransactionLight> fillFuelTransactions(
+            List<Institution> requestingInstitutions, List<Institution> fuelStations,
+            Date fd, Date td, VehicleType vehicleType, VehiclePurpose vehiclePurpose,
+            Driver driver, InstitutionType institutionType, boolean filterByIssuedDate) {
+        String dateColumn = filterByIssuedDate ? "ft.issuedDate" : "ft.requestedDate";
 
         StringBuilder jpqlBuilder = new StringBuilder();
 
@@ -987,7 +1007,7 @@ public class ReportController implements Serializable {
         }
 
         if (fd != null && td != null) {
-            jpqlBuilder.append("AND ft.requestedDate BETWEEN :fromDate AND :toDate ");
+            jpqlBuilder.append("AND ").append(dateColumn).append(" BETWEEN :fromDate AND :toDate ");
             parameters.put("fromDate", fd);
             parameters.put("toDate", td);
         }
@@ -1012,7 +1032,7 @@ public class ReportController implements Serializable {
             parameters.put("instType", institutionType);
         }
 
-        jpqlBuilder.append("ORDER BY ft.requestedDate");
+        jpqlBuilder.append("ORDER BY ").append(dateColumn);
 
         List<FuelTransactionLight> resultList = (List<FuelTransactionLight>) fuelTransactionFacade.findLightsByJpql(
                 jpqlBuilder.toString(), parameters, TemporalType.DATE);

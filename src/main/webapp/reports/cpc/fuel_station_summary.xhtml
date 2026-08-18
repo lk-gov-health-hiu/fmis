@@ -25,10 +25,17 @@
                                          ajax="false"
                                          action="#{reportController.fillDieselDistributionFuelStationSummaryForCPCRegionalOffice()}" />
 
+                        <p:commandButton value="Download Excel"
+                                         ajax="false"
+                                         icon="pi pi-file-excel">
+                            <p:dataExporter type="xlsx" target="tbl" fileName="Fuel Station Summary" />
+                        </p:commandButton>
+
                     </p:panelGrid>
 
                     <!-- Data Table -->
-                    <p:dataTable var="summary"
+                    <p:dataTable id="tbl"
+                                 var="summary"
                                  value="#{reportController.issuedSummaries}"
                                  paginator="true"
                                  rows="10"
@@ -52,7 +59,7 @@
                             </h:outputText>
                         </p:column>
 
-                        <p:column headerText="Action">
+                        <p:column headerText="Action" exportable="false">
                             <p:commandButton value="View Details" action="#{reportController.navigateToComprehensiveSummaryFromFuelStationSummaryForCpcRegionalOffice()}" ajax="false">
                                 <f:setPropertyActionListener value="#{summary.fuelStation}" target="#{reportController.toInstitution}" />
                             </p:commandButton>
