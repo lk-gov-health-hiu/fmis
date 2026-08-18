@@ -1,0 +1,37 @@
+name: Deploy to production
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: fmis-production-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, fmis-prod]
+    steps:
+      - name: Fast-forward production checkout to origin/main
+        run: |
+          set -e
+          cd /home/buddhika/NetBeansProjects/dev/fmis
+          git fetch origin main
+          git merge --ff-only origin/main
+
+      - name: Build (mvn package, in place)
+        run: |
+          set -e
+          cd /home/buddhika/NetBeansProjects/dev/fmis
+          export JAVA_HOME=/home/buddhika/jdk11
+          export PATH="$JAVA_HOME/bin:$PATH"
+          /home/buddhika/netbeans-12.4/netbeans/java/maven/bin/mvn -B package
+
+      - name: Redeploy to Payara
+        run: |
+          set -e
+          /home/buddhika/payara5/bin/asadmin deploy --force=true --name fmis --contextroot fmis /home/buddhika/NetBeansProjects/dev/fmis/target/fmis-0.1
