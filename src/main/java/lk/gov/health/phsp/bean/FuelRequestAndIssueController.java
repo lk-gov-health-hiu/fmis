@@ -561,12 +561,14 @@ public class FuelRequestAndIssueController implements Serializable {
         Date nextMonthStart = cal.getTime();
 
         // Count orders with the same reference number in the same calendar month for this
-        // institution, including active AND inactive (retired/cancelled/rejected) orders.
+        // institution, excluding retired (deleted) orders so a reference number freed up
+        // by deleting a request can be reused.
         String jpql = "SELECT COUNT(ft) FROM FuelTransaction ft "
                 + "WHERE ft.requestReferenceNumber = :refNum "
                 + "AND ft.fromInstitution = :institution "
                 + "AND ft.requestedDate >= :monthStart "
-                + "AND ft.requestedDate < :nextMonthStart";
+                + "AND ft.requestedDate < :nextMonthStart "
+                + "AND ft.retired = false";
 
         Map<String, Object> params = new HashMap<>();
         params.put("refNum", referenceNumber.trim());
