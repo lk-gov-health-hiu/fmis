@@ -60,6 +60,34 @@
                             box-shadow: none !important;
                             padding: 0 !important;
                         }
+
+                        .my-2 {
+                            margin: 0 !important;
+                        }
+                    }
+
+                    .deleted-transaction-text {
+                        text-decoration: line-through;
+                    }
+
+                    .deleted-transaction-label {
+                        color: #c00;
+                        font-weight: bold;
+                    }
+
+                    .reprint-reason-section {
+                        margin-top: 20px;
+                    }
+
+                    .reprint-reason-label {
+                        font-weight: bold;
+                        margin-bottom: 10px;
+                    }
+
+                    .reprint-reason-line {
+                        border-bottom: 1px dotted #000;
+                        height: 35px;
+                        margin-bottom: 10px;
                     }
 
                     .signature-section {
@@ -168,8 +196,6 @@
                                                             <f:convertDateTime pattern="HH:mm:ss"/>
                                                         </h:outputText>
                                                     </h:panelGroup>
-                                                    <h:outputText value="Reason for Reprint:" rendered="#{fuelRequestAndIssueController.paymentRequestReprint}"/>
-                                                    <h:outputText value="" rendered="#{fuelRequestAndIssueController.paymentRequestReprint}"/>
                                                 </p:panelGrid>
 
                                                 <!-- Transactions Table -->
@@ -177,18 +203,22 @@
                                                              value="#{fuelRequestAndIssueController.selectedTransactions}"
                                                              styleClass="table">
                                                     <p:column headerText="Vehicle">
-                                                        <h:outputText value="#{transaction.vehicle.vehicleNumber}"/>
+                                                        <h:outputText value="#{transaction.vehicle.vehicleNumber}"
+                                                                      styleClass="#{transaction.retired ? 'deleted-transaction-text' : ''}"/>
                                                     </p:column>
                                                     <p:column headerText="Reference No">
-                                                        <h:outputText value="#{transaction.requestReferenceNumber}"/>
+                                                        <h:outputText value="#{transaction.requestReferenceNumber}"
+                                                                      styleClass="#{transaction.retired ? 'deleted-transaction-text' : ''}"/>
                                                     </p:column>
                                                     <p:column headerText="Requested Date" sortBy="#{transaction.requestedDate}">
-                                                        <h:outputText value="#{transaction.requestedDate}">
+                                                        <h:outputText value="#{transaction.requestedDate}"
+                                                                      styleClass="#{transaction.retired ? 'deleted-transaction-text' : ''}">
                                                             <f:convertDateTime pattern="dd MMM yyyy"/>
                                                         </h:outputText>
                                                     </p:column>
                                                     <p:column headerText="Requested Qty.">
-                                                        <h:outputText value="#{transaction.requestQuantity}"/>
+                                                        <h:outputText value="#{transaction.requestQuantity}"
+                                                                      styleClass="#{transaction.retired ? 'deleted-transaction-text' : ''}"/>
                                                     </p:column>
                                                     <p:column headerText="Issued Date">
                                                         <h:outputText value="#{transaction.issuedDate}">
@@ -198,11 +228,17 @@
                                                                       rendered="#{not transaction.issued}"/>
                                                     </p:column>
                                                     <p:column headerText="Issued Qty">
+                                                        <h:outputText value="Deleted" styleClass="deleted-transaction-label"
+                                                                      rendered="#{transaction.retired}"/>
                                                         <h:outputText
-                                                            value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}"/>
+                                                            value="#{transaction.issued ? transaction.issuedQuantity : 'Not Issued'}"
+                                                            rendered="#{not transaction.retired}"/>
                                                     </p:column>
                             <p:column headerText="Issue Referance No">
-                                <h:outputText value="#{transaction.issueReferenceNumber}" />
+                                <h:outputText value="Deleted" styleClass="deleted-transaction-label"
+                                              rendered="#{transaction.retired}"/>
+                                <h:outputText value="#{transaction.issueReferenceNumber}"
+                                              rendered="#{not transaction.retired}" />
                             </p:column>
                                                 </p:dataTable>
 
@@ -213,6 +249,14 @@
                                                     <h:outputText
                                                         value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.nameWithTitle}"/>
                                                 </p:panelGrid>
+
+                                                <!-- Reason for Reprint -->
+                                                <h:panelGroup layout="block" styleClass="reprint-reason-section"
+                                                              rendered="#{fuelRequestAndIssueController.paymentRequestReprint}">
+                                                    <div class="reprint-reason-label">Reason for Reprint:</div>
+                                                    <div class="reprint-reason-line"></div>
+                                                    <div class="reprint-reason-line"></div>
+                                                </h:panelGroup>
 
                                                 <!-- Signature Section -->
                                                 <div class="signature-section">
