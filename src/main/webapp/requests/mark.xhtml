@@ -272,6 +272,50 @@
                                 </div>
                             </div>
 
+                            <!-- Issued Date warning dialog: shown instead of blocking submission outright -->
+                            <p:dialog header="Issued Date Warning"
+                                      widgetVar="issuedDateWarningDialog"
+                                      modal="true"
+                                      closable="false"
+                                      responsive="true"
+                                      visible="#{fuelRequestAndIssueController.issuedDateWarningPending}">
+                                <div class="p-3">
+                                    <p class="text-danger">
+                                        <i class="pi pi-exclamation-triangle" />
+                                        <h:outputText value=" #{fuelRequestAndIssueController.issuedDateWarningMessage}" />
+                                    </p>
+                                    <table class="table mt-2">
+                                        <tr>
+                                            <td><b>Requested At:</b></td>
+                                            <td>
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.requestedDate}">
+                                                    <f:convertDateTime pattern="dd MMMM yyyy"></f:convertDateTime>
+                                                </h:outputText>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Issued Date:</b></td>
+                                            <td>
+                                                <h:outputText value="#{fuelRequestAndIssueController.selected.issuedDate}">
+                                                    <f:convertDateTime pattern="dd MMMM yyyy"></f:convertDateTime>
+                                                </h:outputText>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="text-center mt-3 mb-3">
+                                    <p:commandButton value="Mark as Issued Anyway"
+                                                     icon="pi pi-check"
+                                                     styleClass="ui-button-raised ui-button-warning mx-1"
+                                                     action="#{fuelRequestAndIssueController.acknowledgeIssuedDateWarningAndSubmitMark}"
+                                                     ajax="false" />
+                                    <p:commandButton value="Go Back and Edit"
+                                                     icon="pi pi-times"
+                                                     styleClass="ui-button-raised ui-button-secondary mx-1"
+                                                     action="#{fuelRequestAndIssueController.cancelIssuedDateWarning}"
+                                                     ajax="false" />
+                                </div>
+                            </p:dialog>
 
                         </div>
                     </h:form>
