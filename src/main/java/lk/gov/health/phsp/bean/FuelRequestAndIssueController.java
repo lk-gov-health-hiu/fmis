@@ -4,6 +4,7 @@ import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -87,6 +88,8 @@ public class FuelRequestAndIssueController implements Serializable {
     private FuelTransaction selected;
     private String odoWarningMessage;
     private boolean odoWarningAcknowledged;
+    private String issuedDateWarningMessage;
+    private boolean issuedDateWarningAcknowledged;
 
     private FuelTransactionHistory selectedTransactionHistory;
     private List<FuelTransactionHistory> selectedTransactionHistories;
@@ -268,6 +271,8 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     public String navigateToMarkVehicleFuelRequest() {
+        issuedDateWarningMessage = null;
+        issuedDateWarningAcknowledged = false;
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
             return "";
@@ -540,6 +545,25 @@ public class FuelRequestAndIssueController implements Serializable {
         return odoWarningMessage != null;
     }
 
+    public String acknowledgeIssuedDateWarningAndSubmitMark() {
+        issuedDateWarningAcknowledged = true;
+        return submitMarkVehicleFuelRequestIssue();
+    }
+
+    public String cancelIssuedDateWarning() {
+        issuedDateWarningMessage = null;
+        issuedDateWarningAcknowledged = false;
+        return "";
+    }
+
+    public String getIssuedDateWarningMessage() {
+        return issuedDateWarningMessage;
+    }
+
+    public boolean isIssuedDateWarningPending() {
+        return issuedDateWarningMessage != null;
+    }
+
     // ===== Fuel order validation helpers =====
 
     private boolean isReferenceNumberUnique(String referenceNumber, Institution institution, Date referenceDate) {
@@ -604,6 +628,11 @@ public class FuelRequestAndIssueController implements Serializable {
         c2.setTime(d2);
         return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
                 && c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH);
+    }
+
+    private long getDifferenceInDays(Date d1, Date d2) {
+        long diffMillis = Math.abs(d2.getTime() - d1.getTime());
+        return diffMillis / (1000 * 60 * 60 * 24);
     }
 
     private boolean areFieldValuesDistinct(String referenceNumber, Double odoReading, Double requestQuantity) {
@@ -758,6 +787,22 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Issued Date cannot be before the Requested Date");
             return "";
         }
+
+        // Validation: Issued Date should not be far from the Requested Date.
+        // Not blocked outright - the user is warned and can confirm to proceed anyway.
+        if (selected.getRequestedDate() != null && !issuedDateWarningAcknowledged) {
+            long daysDiff = getDifferenceInDays(selected.getIssuedDate(), selected.getRequestedDate());
+            if (daysDiff > 3) {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy");
+                issuedDateWarningMessage = "The Issued Date and Requested Date differ by " + daysDiff
+                        + " days. Requested At: " + sdf.format(selected.getRequestedDate())
+                        + " — Issued Date: " + sdf.format(selected.getIssuedDate())
+                        + ". Do you want to continue anyway?";
+                return "";
+            }
+        }
+        issuedDateWarningAcknowledged = false;
+
         if (selected.getIssueReferenceNumber() != null && selected.getRequestReferenceNumber() != null
                 && selected.getIssueReferenceNumber().trim().equalsIgnoreCase(selected.getRequestReferenceNumber().trim())) {
             JsfUtil.addErrorMessage("Issue Reference Number (Invoice Number) cannot be the same as the Request Reference Number. They are two separate numbers.");
