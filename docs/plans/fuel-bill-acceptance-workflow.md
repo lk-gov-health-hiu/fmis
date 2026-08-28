@@ -116,14 +116,15 @@ concept of CPC acceptance — it's just printed. We need:
 
 - [x] Phase 0 — Investigate current model, discuss & confirm design, write
       this plan, create feature branch.
-- [ ] Phase 1 — Entities: `BillAcceptanceStatus` enum, `Bill` fields +
+- [x] Phase 1 — Entities: `BillAcceptanceStatus` enum, `Bill` fields +
       `@Version`, `BillAcceptanceHistory` entity + facade, `FuelTransaction`
-      mirror fields.
-- [ ] Phase 2 — Controller logic: accept/requestResubmit/cancelAcceptance/
-      resubmitBillByAdmin, authorization helper, optimistic-lock handling,
-      makePaymentRequest re-check guard.
-- [ ] Phase 3 — Edit-lock enforcement in `ReportController`
-      (saveSelected/deleteSelected/reverseDeletionSelected).
+      mirror fields. Compiles clean.
+- [x] Phase 2 — Controller logic: accept/requestResubmit/cancelAcceptance/
+      resubmitBillByAdmin, authorization helper (regional/head office only,
+      never the fuel station itself), optimistic-lock handling,
+      makePaymentRequest re-check guard. Compiles clean.
+- [x] Phase 3 — Edit-lock enforcement in `ReportController`
+      (saveSelected/deleteSelected/reverseDeletionSelected). Compiles clean.
 - [ ] Phase 4 — UI: bill-list status columns, `list_payment.xhtml` banner +
       action buttons, `request*.xhtml` lock indicator.
 - [ ] Phase 5 — Compile, manual smoke test, review with user, merge/deploy

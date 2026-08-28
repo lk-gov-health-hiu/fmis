@@ -24,18 +24,23 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.TemporalType;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.entity.Bill;
+import lk.gov.health.phsp.entity.BillAcceptanceHistory;
 import lk.gov.health.phsp.entity.BillHistory;
 import lk.gov.health.phsp.entity.DataAlterationRequest;
 import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.entity.WebUser;
+import lk.gov.health.phsp.enums.BillAcceptanceStatus;
 import lk.gov.health.phsp.enums.DataAlterationRequestType;
 import lk.gov.health.phsp.enums.FuelTransactionType;
+import lk.gov.health.phsp.enums.InstitutionType;
 import lk.gov.health.phsp.enums.VehicleType;
+import lk.gov.health.phsp.facade.BillAcceptanceHistoryFacade;
 import lk.gov.health.phsp.facade.BillFacade;
 import lk.gov.health.phsp.facade.BillHistoryFacade;
 import lk.gov.health.phsp.facade.DataAlterationRequestFacade;
@@ -65,6 +70,8 @@ public class FuelRequestAndIssueController implements Serializable {
     BillFacade billFacade;
     @EJB
     BillHistoryFacade billHistoryFacade;
+    @EJB
+    BillAcceptanceHistoryFacade billAcceptanceHistoryFacade;
 
     @Inject
     private WebUserController webUserController;
@@ -1369,6 +1376,20 @@ public class FuelRequestAndIssueController implements Serializable {
             return null;
         }
 
+        // Defense in depth: the candidate list is already filtered to
+        // submittedToPayment=false, but re-check against the freshest DB
+        // state immediately before billing so a transaction can never end
+        // up bundled into more than one bill (e.g. two bills built from
+        // stale concurrent page loads).
+        for (FuelTransaction sft : selectedTransactions) {
+            FuelTransaction fresh = fuelTransactionFacade.find(sft.getId());
+            if (fresh != null && fresh.isSubmittedToPayment()) {
+                JsfUtil.addErrorMessage("Transaction " + fresh.getIdString() + " is already included in another bill. Please refresh and retry.");
+                paymentRequestStarted = false;
+                return null;
+            }
+        }
+
         // Proceed to create a bill with the selected transactions if only one combination is found
         fuelPaymentRequestBill = new Bill();
         fuelPaymentRequestBill.setBillDate(new Date());
@@ -1377,6 +1398,7 @@ public class FuelRequestAndIssueController implements Serializable {
         fuelPaymentRequestBill.setBillType("Payment Request From Hospital");
         fuelPaymentRequestBill.setFromInstitution(hospital);
         fuelPaymentRequestBill.setToInstitution(fuelStation);
+        fuelPaymentRequestBill.setAcceptanceStatus(BillAcceptanceStatus.PENDING);
         billFacade.create(fuelPaymentRequestBill);
 
         double qty = 0.0;
@@ -1386,6 +1408,8 @@ public class FuelRequestAndIssueController implements Serializable {
             sft.setSubmittedToPaymentAt(new Date());
             sft.setSubmittedToPaymentBy(webUserController.getLoggedUser());
             sft.setPaymentBill(fuelPaymentRequestBill);
+            sft.setBillAcceptanceStatus(BillAcceptanceStatus.PENDING);
+            sft.setBillAcceptanceStatusAt(new Date());
             if (sft.getIssuedQuantity() != null) {
                 qty += sft.getIssuedQuantity();
             }
@@ -1487,6 +1511,248 @@ public class FuelRequestAndIssueController implements Serializable {
 
         return true;
     }
+
+    // <editor-fold defaultstate="collapsed" desc="CPC Bill Acceptance Workflow">
+    /**
+     * Free-text bound to the "Request Resubmit" dialog - required comments
+     * explaining to the submitting institution what needs correcting.
+     */
+    private String resubmitComments;
+    /**
+     * Free-text bound to the "Cancel Acceptance" dialog.
+     */
+    private String acceptanceCancelledComments;
+
+    public String getResubmitComments() {
+        return resubmitComments;
+    }
+
+    public void setResubmitComments(String resubmitComments) {
+        this.resubmitComments = resubmitComments;
+    }
+
+    public String getAcceptanceCancelledComments() {
+        return acceptanceCancelledComments;
+    }
+
+    public void setAcceptanceCancelledComments(String acceptanceCancelledComments) {
+        this.acceptanceCancelledComments = acceptanceCancelledComments;
+    }
+
+    /**
+     * Only CPC regional/provincial offices and the CPC head office can
+     * decide on a bill - never the fuel station that the bill is addressed
+     * to (no self-approval), and never the submitting/hospital side.
+     */
+    private boolean isAuthorizedToDecideOnBill(Bill bill) {
+        if (bill == null) {
+            return false;
+        }
+        WebUser user = webUserController.getLoggedUser();
+        if (user == null || user.getInstitution() == null) {
+            return false;
+        }
+        Institution decidingInstitution = user.getInstitution();
+        if (decidingInstitution.equals(bill.getToInstitution())) {
+            // The fuel station the bill was addressed to cannot approve its own bill.
+            return false;
+        }
+        InstitutionType type = decidingInstitution.getInstitutionType();
+        if (type == InstitutionType.CPC_Head_Office) {
+            return true;
+        }
+        if (type == InstitutionType.CPC_Provincial_Office || type == InstitutionType.CPC_Depot) {
+            return webUserController.findAutherizedInstitutions().contains(bill.getToInstitution());
+        }
+        return false;
+    }
+
+    /**
+     * Used by the bill view page to decide whether to render the CPC
+     * Accept/Request-Resubmit/Cancel-Acceptance buttons for the currently
+     * logged-in user.
+     */
+    public boolean isCurrentUserAuthorizedForBillDecision() {
+        return isAuthorizedToDecideOnBill(fuelPaymentRequestBill);
+    }
+
+    /**
+     * Pushes a bill's current acceptance status (and the timestamp of that
+     * change) onto every one of its line-item transactions - the same
+     * mirroring pattern already used for {@code submittedToPayment} when the
+     * bill was first created.
+     */
+    private void mirrorAcceptanceStatusToTransactions(Bill bill) {
+        String jpql = "select ft from FuelTransaction ft where ft.paymentBill=:pb";
+        Map<String, Object> m = new HashMap<>();
+        m.put("pb", bill);
+        List<FuelTransaction> lineItems = fuelTransactionFacade.findByJpql(jpql, m);
+        if (lineItems == null) {
+            return;
+        }
+        Date now = new Date();
+        for (FuelTransaction ft : lineItems) {
+            ft.setBillAcceptanceStatus(bill.getAcceptanceStatus());
+            ft.setBillAcceptanceStatusAt(now);
+            fuelTransactionFacade.edit(ft);
+        }
+    }
+
+    private void recordAcceptanceHistory(Bill bill, BillAcceptanceStatus from, BillAcceptanceStatus to, String comments) {
+        BillAcceptanceHistory history = new BillAcceptanceHistory();
+        history.setBill(bill);
+        history.setFromStatus(from);
+        history.setToStatus(to);
+        history.setComments(comments);
+        history.setChangedBy(webUserController.getLoggedUser());
+        history.setChangedAt(new Date());
+        billAcceptanceHistoryFacade.create(history);
+    }
+
+    /**
+     * CPC accepts the currently viewed bill. Once accepted, admins cannot
+     * edit/delete any of its line-item transactions until CPC cancels the
+     * acceptance.
+     */
+    public void acceptBill() {
+        Bill bill = fuelPaymentRequestBill;
+        if (bill == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return;
+        }
+        if (!isAuthorizedToDecideOnBill(bill)) {
+            JsfUtil.addErrorMessage("You are NOT autherized to accept this bill");
+            return;
+        }
+        if (!bill.isPendingDecision()) {
+            JsfUtil.addErrorMessage("This bill is not pending a decision - it is already " + bill.getAcceptanceStatus().getLabel() + ". Refresh and check again.");
+            return;
+        }
+        BillAcceptanceStatus from = bill.getAcceptanceStatus();
+        bill.setAcceptanceStatus(BillAcceptanceStatus.ACCEPTED);
+        bill.setAcceptedBy(webUserController.getLoggedUser());
+        bill.setAcceptedAt(new Date());
+        try {
+            billFacade.edit(bill);
+        } catch (OptimisticLockException ole) {
+            JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
+            return;
+        }
+        mirrorAcceptanceStatusToTransactions(bill);
+        recordAcceptanceHistory(bill, from, BillAcceptanceStatus.ACCEPTED, null);
+        JsfUtil.addSuccessMessage("Bill accepted");
+    }
+
+    /**
+     * CPC asks the submitting institution to resubmit the bill, instead of
+     * accepting it. There is no hard rejection - comments explaining what
+     * to fix are required.
+     */
+    public void requestResubmitOfBill() {
+        Bill bill = fuelPaymentRequestBill;
+        if (bill == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return;
+        }
+        if (!isAuthorizedToDecideOnBill(bill)) {
+            JsfUtil.addErrorMessage("You are NOT autherized to act on this bill");
+            return;
+        }
+        if (!bill.isPendingDecision()) {
+            JsfUtil.addErrorMessage("This bill is not pending a decision - it is already " + bill.getAcceptanceStatus().getLabel() + ". Refresh and check again.");
+            return;
+        }
+        if (resubmitComments == null || resubmitComments.trim().isEmpty()) {
+            JsfUtil.addErrorMessage("Please enter comments explaining what needs to be corrected");
+            return;
+        }
+        BillAcceptanceStatus from = bill.getAcceptanceStatus();
+        bill.setAcceptanceStatus(BillAcceptanceStatus.RESUBMIT_REQUESTED);
+        bill.setResubmitRequestedBy(webUserController.getLoggedUser());
+        bill.setResubmitRequestedAt(new Date());
+        bill.setResubmitComments(resubmitComments);
+        try {
+            billFacade.edit(bill);
+        } catch (OptimisticLockException ole) {
+            JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
+            return;
+        }
+        mirrorAcceptanceStatusToTransactions(bill);
+        recordAcceptanceHistory(bill, from, BillAcceptanceStatus.RESUBMIT_REQUESTED, resubmitComments);
+        resubmitComments = null;
+        JsfUtil.addSuccessMessage("Resubmit requested");
+    }
+
+    /**
+     * CPC cancels a previous acceptance, reopening the bill (and all its
+     * transactions) for admin edits. This is the only way to unlock an
+     * accepted bill's transactions again.
+     */
+    public void cancelBillAcceptance() {
+        Bill bill = fuelPaymentRequestBill;
+        if (bill == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return;
+        }
+        if (!isAuthorizedToDecideOnBill(bill)) {
+            JsfUtil.addErrorMessage("You are NOT autherized to act on this bill");
+            return;
+        }
+        if (!bill.isAccepted()) {
+            JsfUtil.addErrorMessage("This bill is not currently accepted.");
+            return;
+        }
+        if (acceptanceCancelledComments == null || acceptanceCancelledComments.trim().isEmpty()) {
+            JsfUtil.addErrorMessage("Please enter a reason for cancelling the acceptance");
+            return;
+        }
+        BillAcceptanceStatus from = bill.getAcceptanceStatus();
+        bill.setAcceptanceStatus(BillAcceptanceStatus.PENDING);
+        bill.setAcceptanceCancelledBy(webUserController.getLoggedUser());
+        bill.setAcceptanceCancelledAt(new Date());
+        bill.setAcceptanceCancelledComments(acceptanceCancelledComments);
+        try {
+            billFacade.edit(bill);
+        } catch (OptimisticLockException ole) {
+            JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
+            return;
+        }
+        mirrorAcceptanceStatusToTransactions(bill);
+        recordAcceptanceHistory(bill, from, BillAcceptanceStatus.PENDING, acceptanceCancelledComments);
+        acceptanceCancelledComments = null;
+        JsfUtil.addSuccessMessage("Acceptance cancelled - transactions are editable again");
+    }
+
+    /**
+     * The submitting/admin side, after fixing the transactions CPC flagged,
+     * explicitly resubmits the bill so it reappears in CPC's pending queue.
+     * Nothing flips automatically just because a transaction was edited.
+     */
+    public void resubmitBillByAdmin() {
+        Bill bill = fuelPaymentRequestBill;
+        if (bill == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return;
+        }
+        if (!bill.isResubmitRequested()) {
+            JsfUtil.addErrorMessage("This bill does not have a pending resubmit request.");
+            return;
+        }
+        BillAcceptanceStatus from = bill.getAcceptanceStatus();
+        bill.setAcceptanceStatus(BillAcceptanceStatus.PENDING);
+        bill.setResubmittedBy(webUserController.getLoggedUser());
+        bill.setResubmittedAt(new Date());
+        try {
+            billFacade.edit(bill);
+        } catch (OptimisticLockException ole) {
+            JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
+            return;
+        }
+        mirrorAcceptanceStatusToTransactions(bill);
+        recordAcceptanceHistory(bill, from, BillAcceptanceStatus.PENDING, "Resubmitted after corrections");
+        JsfUtil.addSuccessMessage("Bill resubmitted for CPC's decision");
+    }
+    // </editor-fold>
 
     public void listInstitutionRequestsToPay() {
         if (!isSameMonth(getFromDate(), getToDate())) {

@@ -1808,12 +1808,35 @@ public class ReportController implements Serializable {
         return fuelEstimate;
     }
 
+    /**
+     * True once the transaction's payment bill has been accepted by CPC -
+     * admins may not edit/delete it until CPC cancels that acceptance.
+     * Exposed to the edit/view pages so Save/Delete/Reverse-Deletion can be
+     * hidden/disabled with an explanation instead of silently failing.
+     */
+    public boolean isFuelTransactionEditLocked() {
+        return fuelTransaction != null && fuelTransaction.isBillLocked();
+    }
+
+    private boolean blockIfBillLocked() {
+        if (fuelTransaction != null && fuelTransaction.isBillLocked()) {
+            JsfUtil.addErrorMessage("This transaction's bill ("
+                    + fuelTransaction.getPaymentBill().getBillNo()
+                    + ") has been accepted by CPC. Ask CPC to cancel the acceptance before editing.");
+            return true;
+        }
+        return false;
+    }
+
     public void deleteSelected() {
         if (fuelTransaction == null) {
             return;
         }
         if (webUserController.getLoggedUser().getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
             JsfUtil.addErrorMessage("You are NOT autherized");
+            return;
+        }
+        if (blockIfBillLocked()) {
             return;
         }
         fuelTransaction.setRetired(true);
@@ -1831,6 +1854,9 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("You are NOT autherized");
             return;
         }
+        if (blockIfBillLocked()) {
+            return;
+        }
         fuelTransactionFacade.edit(fuelTransaction);
         JsfUtil.addSuccessMessage("Updates");
     }
@@ -1841,6 +1867,9 @@ public class ReportController implements Serializable {
         }
         if (webUserController.getLoggedUser().getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
             JsfUtil.addErrorMessage("You are NOT autherized");
+            return;
+        }
+        if (blockIfBillLocked()) {
             return;
         }
         fuelTransaction.setRetired(false);
