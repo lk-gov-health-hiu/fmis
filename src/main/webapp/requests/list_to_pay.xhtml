@@ -46,13 +46,19 @@
                                         <h:panelGrid columns="1" >
                                             <p:commandButton value="List Requests"
                                                              action="#{fuelRequestAndIssueController.listInstitutionRequestsToPay()}"
-                                                             icon="pi pi-list" 
+                                                             icon="pi pi-list"
                                                              ajax="false"
                                                              class="btn btn-primary w-100 my-2" />
 
 
 
                                         </h:panelGrid>
+
+                                        <div class="p-2 my-2" style="background-color: #fff3cd; color: #664d03; border: 1px solid #ffe69c; border-radius: 4px;">
+                                            <div>If the fuel price changed, take separate payment requests by the price-change date.</div>
+                                            <div class="mt-1">මිල වෙනස් වූ දිනය අනුව ගෙවීම් ඉල්ලීම් වෙන වෙනම ගන්න.</div>
+                                            <div class="mt-1">விலை மாறிய தேதியின்படி கட்டணக் கோரிக்கைகளைத் தனித்தனியாகச் சமர்ப்பிக்கவும்.</div>
+                                        </div>
 
                                         <p:messages ></p:messages>
 

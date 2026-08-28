@@ -111,7 +111,7 @@
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
                                             </p:column>
 
-                                            <p:column headerText="Payment Submission" >
+                                            <p:column headerText="CPC Payment Submission" >
                                                 <h:outputText value="Submitted" style="color: green;" rendered="#{transaction.submittedToPayment}" />
                                                 <h:outputText value="Not Submitted" style="color: red;" rendered="#{not transaction.submittedToPayment}" />
                                             </p:column>

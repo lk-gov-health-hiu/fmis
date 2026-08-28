@@ -406,8 +406,9 @@ public class FuelRequestAndIssueController implements Serializable {
         }
 
         // Validation 1: Reference number must be unique within the same month for this institution
-        if (!isReferenceNumberUnique(selected.getRequestReferenceNumber(), webUserController.getLoggedInstitution(), selected.getRequestedDate())) {
-            JsfUtil.addErrorMessage("Reference number '" + selected.getRequestReferenceNumber() + "' has already been used this month for this institution");
+        FuelTransaction duplicateReferenceTransaction = findDuplicateReferenceTransaction(selected.getRequestReferenceNumber(), webUserController.getLoggedInstitution(), selected.getRequestedDate());
+        if (duplicateReferenceTransaction != null) {
+            JsfUtil.addErrorMessage(buildDuplicateReferenceMessage(selected.getRequestReferenceNumber(), duplicateReferenceTransaction));
             return "";
         }
 
@@ -484,8 +485,9 @@ public class FuelRequestAndIssueController implements Serializable {
         }
 
         // Validation 1: Reference number must be unique within the same month for this institution
-        if (!isReferenceNumberUnique(selected.getRequestReferenceNumber(), selected.getVehicle().getInstitution(), selected.getRequestedDate())) {
-            JsfUtil.addErrorMessage("Reference number '" + selected.getRequestReferenceNumber() + "' has already been used this month for this institution");
+        FuelTransaction duplicateReferenceTransaction = findDuplicateReferenceTransaction(selected.getRequestReferenceNumber(), selected.getVehicle().getInstitution(), selected.getRequestedDate());
+        if (duplicateReferenceTransaction != null) {
+            JsfUtil.addErrorMessage(buildDuplicateReferenceMessage(selected.getRequestReferenceNumber(), duplicateReferenceTransaction));
             return "";
         }
 
@@ -570,9 +572,23 @@ public class FuelRequestAndIssueController implements Serializable {
 
     // ===== Fuel order validation helpers =====
 
-    private boolean isReferenceNumberUnique(String referenceNumber, Institution institution, Date referenceDate) {
+    // Builds a duplicate-reference-number error message that shows the user where the
+    // reference number was already used, so they don't have to go hunting for it.
+    private String buildDuplicateReferenceMessage(String referenceNumber, FuelTransaction duplicate) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
+        String requestedDateStr = duplicate.getRequestedDate() != null ? sdf.format(duplicate.getRequestedDate()) : "unknown date";
+        String vehicleStr = duplicate.getVehicle() != null ? duplicate.getVehicle().getVehicleNumber() : "unknown vehicle";
+        return "Reference number '" + referenceNumber + "' was already used on " + requestedDateStr
+                + " for vehicle " + vehicleStr + ". Please use a different reference number.";
+    }
+
+    // Returns the previous (still active) FuelTransaction using the same reference number
+    // in the same calendar month for this institution, or null if the reference number is
+    // free to use. Used both to validate uniqueness and to show the user which earlier
+    // request is conflicting.
+    private FuelTransaction findDuplicateReferenceTransaction(String referenceNumber, Institution institution, Date referenceDate) {
         if (referenceNumber == null || referenceNumber.trim().isEmpty() || institution == null) {
-            return true;
+            return null;
         }
 
         // Determine the calendar month of the order (start inclusive, next month start exclusive)
@@ -588,15 +604,16 @@ public class FuelRequestAndIssueController implements Serializable {
         cal.add(Calendar.MONTH, 1);
         Date nextMonthStart = cal.getTime();
 
-        // Count orders with the same reference number in the same calendar month for this
+        // Find orders with the same reference number in the same calendar month for this
         // institution, excluding retired (deleted) orders so a reference number freed up
         // by deleting a request can be reused.
-        String jpql = "SELECT COUNT(ft) FROM FuelTransaction ft "
+        String jpql = "SELECT ft FROM FuelTransaction ft "
                 + "WHERE ft.requestReferenceNumber = :refNum "
                 + "AND ft.fromInstitution = :institution "
                 + "AND ft.requestedDate >= :monthStart "
                 + "AND ft.requestedDate < :nextMonthStart "
-                + "AND ft.retired = false";
+                + "AND ft.retired = false "
+                + "ORDER BY ft.requestedDate DESC";
 
         Map<String, Object> params = new HashMap<>();
         params.put("refNum", referenceNumber.trim());
@@ -604,8 +621,7 @@ public class FuelRequestAndIssueController implements Serializable {
         params.put("monthStart", monthStart);
         params.put("nextMonthStart", nextMonthStart);
 
-        Long count = fuelTransactionFacade.countByJpql(jpql, params);
-        return count == null || count == 0;
+        return fuelTransactionFacade.findFirstByJpql(jpql, params);
     }
 
     private boolean isDateNotInFuture(Date date) {
