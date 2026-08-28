@@ -19,7 +19,9 @@
                     /* Styling for A4 Page */
                     @page {
                         size: A4;
-                        margin: 0;
+                        /* A small margin so printers that can't print edge-to-edge
+                           (most of them) don't clip content near the paper border. */
+                        margin: 10mm;
                     }
 
                     .a4-page {
@@ -29,6 +31,24 @@
                         padding: 10mm;
                         background: white;
                         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    }
+
+                    /* Keep the A4 sheet from forcing horizontal overflow on
+                       narrower screens/windows, which otherwise pushes the
+                       Print button out of the visible area. */
+                    @media screen and (max-width: 900px) {
+                        .a4-page {
+                            width: 100%;
+                            max-width: 210mm;
+                        }
+                    }
+
+                    .print-toolbar {
+                        position: sticky;
+                        top: 0;
+                        z-index: 1030;
+                        background: #fff;
+                        padding: 10px 0;
                     }
 
                     @media print {
@@ -127,11 +147,11 @@
 
                 <h:form id="billForm">
                     <!-- Buttons for Print and PDF -->
-                    <p:commandButton value="Print" ajax="false" icon="pi pi-print" styleClass="mr-2">
-                        <p:printer target="panelBill"/>
-                    </p:commandButton>
-
-                   
+                    <div class="print-toolbar">
+                        <p:commandButton value="Print" ajax="false" icon="pi pi-print" styleClass="mr-2">
+                            <p:printer target="panelBill"/>
+                        </p:commandButton>
+                    </div>
 
                     <h:panelGroup id="panelBill" >
                         <div class="a4-page" id="billPanel">

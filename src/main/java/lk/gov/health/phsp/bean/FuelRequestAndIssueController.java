@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import javax.persistence.TemporalType;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.entity.Bill;
+import lk.gov.health.phsp.entity.BillHistory;
 import lk.gov.health.phsp.entity.DataAlterationRequest;
 import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
@@ -36,6 +37,7 @@ import lk.gov.health.phsp.enums.DataAlterationRequestType;
 import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.facade.BillFacade;
+import lk.gov.health.phsp.facade.BillHistoryFacade;
 import lk.gov.health.phsp.facade.DataAlterationRequestFacade;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
 import lk.gov.health.phsp.facade.InstitutionFacade;
@@ -61,6 +63,8 @@ public class FuelRequestAndIssueController implements Serializable {
     DataAlterationRequestFacade dataAlterationRequestFacade;
     @EJB
     BillFacade billFacade;
+    @EJB
+    BillHistoryFacade billHistoryFacade;
 
     @Inject
     private WebUserController webUserController;
@@ -1400,10 +1404,72 @@ public class FuelRequestAndIssueController implements Serializable {
 
         Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
 
+        reconcileBillTotals(fuelPaymentRequestBill, selectedTransactions);
+
         paymentRequestReprint = true;
 
         return "/requests/list_payment?faces-redirect=true";
 
+    }
+
+    /**
+     * Recalculates a payment {@link Bill}'s totals from its current line
+     * items (the {@link FuelTransaction}s linked to it) and corrects the
+     * bill if it has drifted - e.g. an admin edited a transaction's issued
+     * quantity, or deleted a transaction, after the bill was created. Every
+     * correction is recorded in {@link BillHistory} so the change is
+     * auditable.
+     *
+     * Retired (deleted) transactions do not contribute to the total, mirroring
+     * how they are already excluded/struck-through on the printed bill.
+     *
+     * @param billToReconcile the bill to check/update
+     * @param lineItems the transactions currently linked to that bill
+     * @return true if the bill's totals were found to be stale and were corrected
+     */
+    public boolean reconcileBillTotals(Bill billToReconcile, List<FuelTransaction> lineItems) {
+        if (billToReconcile == null) {
+            return false;
+        }
+
+        double recalculatedQty = 0.0;
+        if (lineItems != null) {
+            for (FuelTransaction ft : lineItems) {
+                if (ft.isRetired()) {
+                    continue;
+                }
+                if (ft.getIssuedQuantity() != null) {
+                    recalculatedQty += ft.getIssuedQuantity();
+                }
+            }
+        }
+
+        Double storedQty = billToReconcile.getTotalQty();
+        boolean qtyChanged = storedQty == null || Math.abs(storedQty - recalculatedQty) > 0.0001;
+
+        if (!qtyChanged) {
+            return false;
+        }
+
+        BillHistory history = new BillHistory();
+        history.setBill(billToReconcile);
+        history.setPreviousTotalQty(storedQty);
+        history.setNewTotalQty(recalculatedQty);
+        history.setPreviousTotalValue(billToReconcile.getTotalValue());
+        history.setNewTotalValue(billToReconcile.getTotalValue());
+        history.setChangeReason("Bill total recalculated automatically on reprint - the sum of line item "
+                + "quantities did not match the total stored on the bill (transaction(s) were likely "
+                + "edited or deleted after the bill was created).");
+        history.setChangedBy(webUserController.getLoggedUser());
+        history.setChangedAt(new Date());
+        billHistoryFacade.create(history);
+
+        billToReconcile.setTotalQty(recalculatedQty);
+        billFacade.edit(billToReconcile);
+
+        JsfUtil.addSuccessMessage("Bill total was out of date and has been recalculated to match the current transaction quantities.");
+
+        return true;
     }
 
     public void listInstitutionRequestsToPay() {
