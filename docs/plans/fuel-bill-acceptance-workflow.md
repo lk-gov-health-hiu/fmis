@@ -133,8 +133,105 @@ concept of CPC acceptance — it's just printed. We need:
       `request*.xhtml` (4 pages) lock indicator + disabled/hidden
       Save/Delete/Reverse controls. Compiles clean; all touched XHTML
       verified well-formed.
-- [~] Phase 5 — Compile, manual smoke test, review with user, PR opened
-      for QA. **No deployment** - user will QA and iterate on the PR.
-      PR: https://github.com/lk-gov-health-hiu/fmis/pull/152 (branch
-      `feature/bill-acceptance-workflow`). Remaining: user's manual QA in
-      a running app, any fixes that surfaces, then a merge/deploy decision.
+- [x] Phase 5 — Compile, manual smoke test, review with user, PR opened
+      for QA. PR: https://github.com/lk-gov-health-hiu/fmis/pull/152
+      (branch `feature/bill-acceptance-workflow`). Deployed to a QA
+      instance (`fmis` app on `domain1`, backed by the `fmis_test`
+      database) and smoke-tested live by the user.
+- [x] Phase 6 — Bugs found during live QA, fixed on this branch:
+      - `FuelTransactionLight` (the lightweight DTO backing
+        `reports/cpc/list.xhtml`, `cpc_head_office/list.xhtml`,
+        `reports/list.xhtml`, `list_institution.xhtml`,
+        `institution/reports/list.xhtml`) never got a
+        `billAcceptanceStatus` field/getters added, even though those 5
+        pages already reference `#{transaction.billStatusPending}` etc. —
+        crashed every one of those list pages with
+        `PropertyNotFoundException`. Added the field, three convenience
+        booleans, two new constructor overloads, and updated all three
+        JPQL constructor-select queries in `ReportController.java` to
+        select `ft.billAcceptanceStatus`.
+      - `acceptBill()` / `requestResubmitOfBill()` / `cancelBillAcceptance()`
+        / `resubmitBillByAdmin()` only caught `OptimisticLockException`
+        around `billFacade.edit(bill)`. Under GlassFish/Payara's
+        container-managed transactions, a genuine lock conflict (e.g. a
+        double-click, or two CPC users racing on the same bill) can
+        instead surface as `javax.ejb.EJBTransactionRolledbackException`
+        — a sibling type, not caught by the existing block — producing an
+        uncaught HTTP 500 instead of the intended friendly "someone
+        already acted on this bill" message. Broadened all four catches
+        to `catch (OptimisticLockException | EJBTransactionRolledbackException ole)`.
+      - Added a "Back" button next to Print on `list_payment.xhtml`
+        (`history.back()`) — there was previously no way back to the
+        list except the browser's own back button or re-navigating via
+        the menu.
+      - See §8 below for the schema-backfill step this branch's QA also
+        surfaced as a hard requirement on any database with pre-existing
+        `Bill`/`FuelTransaction` rows.
+
+## 8. Deployment checklist (read this before/after merging to `main`)
+
+EclipseLink's `create-or-extend-tables` (see §2/§3) adds the new columns
+and tables automatically on first deploy against a given database. That
+covers the schema shape, but **does not backfill values into the new
+columns on pre-existing rows** — two things need explicit follow-up:
+
+1. **Mandatory: backfill `Bill.version`.** `Bill.acceptanceStatus` is
+   read through a self-healing getter (`null` → treated as `PENDING`,
+   see `Bill.getAcceptanceStatus()`), so it needs no migration. `version`
+   (the new `@Version` optimistic-lock field) has no such getter — it's
+   read directly by EclipseLink/JPA. A `NULL` version on a pre-existing
+   `Bill` row throws `OptimisticLockException` ("no version number in
+   the identity map") the **first time anyone edits that bill** (accept,
+   resubmit-request, cancel-acceptance, or resubmit-by-admin — any
+   `billFacade.edit(bill)` call). Run this once, right after deploying to
+   any database that already has `Bill` rows (i.e. every real environment
+   except a brand-new empty DB):
+   ```sql
+   UPDATE BILL SET VERSION = 1 WHERE VERSION IS NULL;
+   ```
+   Confirm afterward with `SELECT COUNT(*) FROM BILL WHERE VERSION IS NULL;`
+   (should be 0).
+
+2. **Verify the schema actually landed, don't just trust the deploy log.**
+   On a database with a lot of prior schema drift (an old/rarely-migrated
+   environment), `create-or-extend-tables` can silently skip adding some
+   columns to an existing table and only fail loudly later, when it tries
+   to add a foreign-key constraint that references a column it never
+   added (`SQLSyntaxErrorException: Key column '...' doesn't exist in
+   table`) — by which point other, unrelated missing columns may already
+   have been skipped without any error at all. This bit us hard in QA: a
+   database that hadn't been touched since 2023 was missing 14
+   `FUELTRANSACTION` columns spanning multiple *unrelated* older features
+   (`submittedToPayment`, `paymentBill`, `createdBy`/`createdAt`, etc.),
+   not just this PR's additions. After the first deploy to any database
+   you haven't specifically verified is current, diff every touched
+   entity's fields against the real table:
+   ```sql
+   DESCRIBE BILL; DESCRIBE FUELTRANSACTION;
+   DESCRIBE BILLHISTORY; DESCRIBE BILLACCEPTANCEHISTORY;
+   ```
+   against `Bill.java` / `FuelTransaction.java` (unannotated fields map to
+   `FIELDNAME.toUpperCase()` for scalars, `FIELDNAME_ID` for `@ManyToOne`
+   — an explicit `@Column`/`@JoinColumn` overrides that). `BILLHISTORY`
+   and `BILLACCEPTANCEHISTORY` are brand-new tables so they're created
+   fresh in one shot and don't need this check; `BILL` and
+   `FUELTRANSACTION` are existing tables and do.
+
+Neither step is needed on a genuinely empty/fresh database (nothing to
+backfill, nothing to drift). Both are one-time, per-database — not
+needed again on subsequent deploys once done.
+
+Two more things worth knowing about, but specific to how this branch was
+QA'd rather than something this PR's code needs to fix:
+- If QA-ing behind an nginx reverse proxy, check it for
+  `proxy_redirect http:// https://;` on whatever `location` block fronts
+  this app — that directive rewrites *any* backend redirect to `https://`
+  unconditionally, which breaks every `faces-redirect=true` JSF
+  navigation (35+ in `ReportController.java` alone) if the app isn't
+  actually served over TLS on that listener/port.
+- If pointing a freshly-created JDBC connection pool at this app (rather
+  than reusing an already-tuned production one), give it connection
+  validation (`is-connection-validation-required=true`,
+  `connection-validation-method=auto-commit`) — otherwise a MySQL
+  connection silently dropped for being idle surfaces as a raw
+  `EOFException` instead of being transparently replaced.

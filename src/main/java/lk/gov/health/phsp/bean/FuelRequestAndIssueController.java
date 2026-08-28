@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.ejb.EJBTransactionRolledbackException;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
@@ -1634,7 +1635,7 @@ public class FuelRequestAndIssueController implements Serializable {
         bill.setAcceptedAt(new Date());
         try {
             billFacade.edit(bill);
-        } catch (OptimisticLockException ole) {
+        } catch (OptimisticLockException | EJBTransactionRolledbackException ole) {
             JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
             return;
         }
@@ -1673,7 +1674,7 @@ public class FuelRequestAndIssueController implements Serializable {
         bill.setResubmitComments(resubmitComments);
         try {
             billFacade.edit(bill);
-        } catch (OptimisticLockException ole) {
+        } catch (OptimisticLockException | EJBTransactionRolledbackException ole) {
             JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
             return;
         }
@@ -1713,7 +1714,7 @@ public class FuelRequestAndIssueController implements Serializable {
         bill.setAcceptanceCancelledComments(acceptanceCancelledComments);
         try {
             billFacade.edit(bill);
-        } catch (OptimisticLockException ole) {
+        } catch (OptimisticLockException | EJBTransactionRolledbackException ole) {
             JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
             return;
         }
@@ -1744,7 +1745,7 @@ public class FuelRequestAndIssueController implements Serializable {
         bill.setResubmittedAt(new Date());
         try {
             billFacade.edit(bill);
-        } catch (OptimisticLockException ole) {
+        } catch (OptimisticLockException | EJBTransactionRolledbackException ole) {
             JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
             return;
         }
