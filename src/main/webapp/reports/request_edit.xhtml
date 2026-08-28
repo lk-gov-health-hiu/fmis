@@ -106,11 +106,41 @@
 
                                                         <tr>
                                                             <td><b>Vehicle:</b></td>
-                                                            <td><h:outputText value="#{reportController.fuelTransaction.vehicle.vehicleNumber}" /></td>
+                                                            <td>
+                                                                <p:autoComplete
+                                                                    value="#{reportController.fuelTransaction.vehicle}"
+                                                                    completeMethod="#{vehicleController.completeVehiclesByWords}"
+                                                                    var="v"
+                                                                    class="w-100"
+                                                                    inputStyleClass="w-100"
+                                                                    forceSelection="true"
+                                                                    maxResults="20"
+                                                                    itemLabel="#{v.vehicleNumber} - #{v.institution.name}"
+                                                                    itemValue="#{v}"
+                                                                    required="true"
+                                                                    requiredMessage="Please select a Vehicle"
+                                                                    placeholder="Search vehicle by number">
+                                                                </p:autoComplete>
+                                                            </td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Driver:</b></td>
-                                                            <td><h:outputText value="#{reportController.fuelTransaction.driver.name}" /></td>
+                                                            <td>
+                                                                <p:autoComplete
+                                                                    value="#{reportController.fuelTransaction.driver}"
+                                                                    completeMethod="#{driverController.completeDriversByWords}"
+                                                                    var="d"
+                                                                    class="w-100"
+                                                                    inputStyleClass="w-100"
+                                                                    forceSelection="true"
+                                                                    maxResults="20"
+                                                                    itemLabel="#{d.name} - #{d.institution.name}"
+                                                                    itemValue="#{d}"
+                                                                    required="true"
+                                                                    requiredMessage="Please select a Driver"
+                                                                    placeholder="Search driver by name">
+                                                                </p:autoComplete>
+                                                            </td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Request Quantity:</b></td>
