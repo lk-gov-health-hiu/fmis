@@ -125,7 +125,13 @@ concept of CPC acceptance — it's just printed. We need:
       makePaymentRequest re-check guard. Compiles clean.
 - [x] Phase 3 — Edit-lock enforcement in `ReportController`
       (saveSelected/deleteSelected/reverseDeletionSelected). Compiles clean.
-- [ ] Phase 4 — UI: bill-list status columns, `list_payment.xhtml` banner +
-      action buttons, `request*.xhtml` lock indicator.
-- [ ] Phase 5 — Compile, manual smoke test, review with user, merge/deploy
-      decision.
+- [x] Phase 4 — UI: bill-list status columns (`cpc/payment_requests.xhtml`,
+      `cpc_head_office/payment_requests.xhtml`), transaction-list status
+      columns (6 pages that already showed `submittedToPayment`),
+      `list_payment.xhtml` banner + Accept/Request-Resubmit/
+      Cancel-Acceptance/Resubmit-Bill actions with comment dialogs,
+      `request*.xhtml` (4 pages) lock indicator + disabled/hidden
+      Save/Delete/Reverse controls. Compiles clean; all touched XHTML
+      verified well-formed.
+- [~] Phase 5 — Compile, manual smoke test, review with user, PR opened
+      for QA. **No deployment** - user will QA and iterate on the PR.

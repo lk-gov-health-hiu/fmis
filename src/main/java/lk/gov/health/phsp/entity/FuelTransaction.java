@@ -653,4 +653,17 @@ public class FuelTransaction implements Serializable {
         return billAcceptanceStatus == BillAcceptanceStatus.ACCEPTED;
     }
 
+    // Convenience booleans for EL (avoids relying on enum coercion in views).
+    public boolean isBillStatusPending() {
+        return billAcceptanceStatus == BillAcceptanceStatus.PENDING;
+    }
+
+    public boolean isBillStatusAccepted() {
+        return billAcceptanceStatus == BillAcceptanceStatus.ACCEPTED;
+    }
+
+    public boolean isBillStatusResubmitRequested() {
+        return billAcceptanceStatus == BillAcceptanceStatus.RESUBMIT_REQUESTED;
+    }
+
 }

@@ -225,18 +225,48 @@
                                                         </ui:fragment>
                                                     </table>
 
+                                                    <!-- Payment Bill Status -->
+                                                    <table class="table" style="#{reportController.fuelTransaction.paymentBill == null ? 'display:none;' : ''}">
+                                                        <tr>
+                                                            <th colspan="2" class="text-center bg-primary text-white">
+                                                                Payment Bill Status
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>Bill No:</b></td>
+                                                            <td><h:outputText value="#{reportController.fuelTransaction.paymentBill.billNo}" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><b>CPC Status:</b></td>
+                                                            <td>
+                                                                <h:outputText value="Pending" style="color: #856404; font-weight: bold;" rendered="#{reportController.fuelTransaction.billStatusPending}" />
+                                                                <h:outputText value="Accepted" style="color: #155724; font-weight: bold;" rendered="#{reportController.fuelTransaction.billStatusAccepted}" />
+                                                                <h:outputText value="Resubmit Requested" style="color: #c00; font-weight: bold;" rendered="#{reportController.fuelTransaction.billStatusResubmitRequested}" />
+                                                            </td>
+                                                        </tr>
+                                                        <ui:fragment rendered="#{reportController.fuelTransactionEditLocked}">
+                                                            <tr>
+                                                                <td colspan="2" class="text-center bg-warning">
+                                                                    This transaction's bill has been accepted by CPC.
+                                                                    Ask CPC to cancel the acceptance before editing.
+                                                                </td>
+                                                            </tr>
+                                                        </ui:fragment>
+                                                    </table>
+
                                                     <p:commandButton value="Save" ajax="false"
-                                                                     action="#{reportController.saveSelected}" 
+                                                                     rendered="#{not reportController.fuelTransactionEditLocked}"
+                                                                     action="#{reportController.saveSelected}"
                                                                      class="text-center bg-success text-white w-100">
                                                     </p:commandButton>
 
                                                     <p:commandButton value="Delete" ajax="false"
-                                                                     rendered="#{not reportController.fuelTransaction.retired}"
+                                                                     rendered="#{not reportController.fuelTransaction.retired and not reportController.fuelTransactionEditLocked}"
                                                                      action="#{reportController.deleteSelected()}" class="text-center bg-danger text-white w-100">
                                                     </p:commandButton>
 
                                                     <p:commandButton value="Reverse Deletion" ajax="false"
-                                                                     rendered="#{reportController.fuelTransaction.retired}"
+                                                                     rendered="#{reportController.fuelTransaction.retired and not reportController.fuelTransactionEditLocked}"
                                                                      action="#{reportController.reverseDeletionSelected()}" class="text-center bg-danger text-white w-100">
                                                     </p:commandButton>
 

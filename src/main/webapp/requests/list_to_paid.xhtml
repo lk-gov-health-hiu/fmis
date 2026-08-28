@@ -116,6 +116,12 @@
                                                 <h:outputText value="Not Submitted" style="color: red;" rendered="#{not transaction.submittedToPayment}" />
                                             </p:column>
 
+                                            <p:column headerText="CPC Bill Status" >
+                                                <h:outputText value="Pending" style="color: #856404; font-weight: bold;" rendered="#{transaction.billStatusPending}" />
+                                                <h:outputText value="Accepted" style="color: #155724; font-weight: bold;" rendered="#{transaction.billStatusAccepted}" />
+                                                <h:outputText value="Resubmit Requested" style="color: #c00; font-weight: bold;" rendered="#{transaction.billStatusResubmitRequested}" />
+                                            </p:column>
+
                                             <p:column headerText="Actions" exportable="false" rendered="false" >
                                                 <p:commandButton value="View"
                                                                  ajax="false"
