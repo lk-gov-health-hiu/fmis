@@ -178,6 +178,10 @@
                             <h:outputText value="Resubmit Requested" style="color: #c00; font-weight: bold;" rendered="#{transaction.billStatusResubmitRequested}" />
                         </p:column>
 
+                        <p:column headerText="CPC Bill Status At" sortBy="#{transaction.billAcceptanceStatusAt}" filterBy="#{transaction.billAcceptanceStatusAt}" filterMatchMode="numeric">
+                            <h:outputText value="#{transaction.formattedBillAcceptanceStatusAt}" />
+                        </p:column>
+
                     </p:dataTable>
 
                 </h:form>

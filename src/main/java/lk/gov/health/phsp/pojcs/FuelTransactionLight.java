@@ -52,6 +52,7 @@ public class FuelTransactionLight implements Serializable {
     private Boolean submittedToPayment;
     private Date submittedToPaymentAt;
     private BillAcceptanceStatus billAcceptanceStatus;
+    private Date billAcceptanceStatusAt;
 
     public FuelTransactionLight() {
     }
@@ -176,7 +177,8 @@ public class FuelTransactionLight implements Serializable {
             String fromInstitutionName, String toInstitutionName,
             String driverName,
             String toInstitutionCode,
-            BillAcceptanceStatus billAcceptanceStatus) {
+            BillAcceptanceStatus billAcceptanceStatus,
+            Date billAcceptanceStatusAt) {
         this.id = id;
         this.date = date;
         this.requestReferenceNumber = requestReferenceNumber;
@@ -189,6 +191,7 @@ public class FuelTransactionLight implements Serializable {
         this.driverName = driverName;
         this.toInstitutionCode = toInstitutionCode;
         this.billAcceptanceStatus = billAcceptanceStatus;
+        this.billAcceptanceStatusAt = billAcceptanceStatusAt;
     }
 
     public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
@@ -269,7 +272,8 @@ public class FuelTransactionLight implements Serializable {
             Date issedDate,
             Boolean submittedToPayment,
             Date submittedToPaymentAt,
-            BillAcceptanceStatus billAcceptanceStatus) {
+            BillAcceptanceStatus billAcceptanceStatus,
+            Date billAcceptanceStatusAt) {
         this.id = id;
         this.date = date;
         this.requestReferenceNumber = requestReferenceNumber;
@@ -285,6 +289,7 @@ public class FuelTransactionLight implements Serializable {
         this.submittedToPayment = submittedToPayment;
         this.submittedToPaymentAt = submittedToPaymentAt;
         this.billAcceptanceStatus = billAcceptanceStatus;
+        this.billAcceptanceStatusAt = billAcceptanceStatusAt;
     }
 
     public String getToInstitutionCode() {
@@ -440,6 +445,24 @@ public class FuelTransactionLight implements Serializable {
 
     public void setBillAcceptanceStatus(BillAcceptanceStatus billAcceptanceStatus) {
         this.billAcceptanceStatus = billAcceptanceStatus;
+    }
+
+    public Date getBillAcceptanceStatusAt() {
+        return billAcceptanceStatusAt;
+    }
+
+    public void setBillAcceptanceStatusAt(Date billAcceptanceStatusAt) {
+        this.billAcceptanceStatusAt = billAcceptanceStatusAt;
+    }
+
+    @Transient
+    public String getFormattedBillAcceptanceStatusAt() {
+        if (billAcceptanceStatusAt == null) {
+            return "";
+        }
+        String pattern = "dd MMM yyyy HH:mm";
+        DateFormat sfd = new SimpleDateFormat(pattern);
+        return sfd.format(billAcceptanceStatusAt);
     }
 
     // Convenience booleans for EL (avoids relying on enum coercion in views).

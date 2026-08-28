@@ -763,7 +763,8 @@ public class ReportController implements Serializable {
                 .append("ft.issuedDate, ")
                 .append("ft.submittedToPayment, ")
                 .append("ft.submittedToPaymentAt, ")
-                .append("ft.billAcceptanceStatus) FROM FuelTransaction ft ")
+                .append("ft.billAcceptanceStatus, ")
+                .append("ft.billAcceptanceStatusAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -914,7 +915,8 @@ public class ReportController implements Serializable {
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution name
-                .append("ft.billAcceptanceStatus")
+                .append("ft.billAcceptanceStatus, ")
+                .append("ft.billAcceptanceStatusAt")
                 .append(") FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
@@ -989,7 +991,8 @@ public class ReportController implements Serializable {
                 .append("ft.issuedDate, ")
                 .append("ft.submittedToPayment, ")
                 .append("ft.submittedToPaymentAt, ")
-                .append("ft.billAcceptanceStatus) FROM FuelTransaction ft ")
+                .append("ft.billAcceptanceStatus, ")
+                .append("ft.billAcceptanceStatusAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
