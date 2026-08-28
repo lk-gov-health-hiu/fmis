@@ -135,3 +135,6 @@ concept of CPC acceptance — it's just printed. We need:
       verified well-formed.
 - [~] Phase 5 — Compile, manual smoke test, review with user, PR opened
       for QA. **No deployment** - user will QA and iterate on the PR.
+      PR: https://github.com/lk-gov-health-hiu/fmis/pull/152 (branch
+      `feature/bill-acceptance-workflow`). Remaining: user's manual QA in
+      a running app, any fixes that surfaces, then a merge/deploy decision.
