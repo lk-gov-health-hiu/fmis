@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.inject.Named;
 import javax.enterprise.context.ApplicationScoped;
@@ -78,7 +77,29 @@ public class DashboardApplicationController {
 
     private List<InstitutionCount> orderingCounts;
 
-    Boolean dashboardPrepared;
+    /**
+     * National dashboard aggregates are expensive (full-table scans/group-bys
+     * over FuelTransaction) and only need to be current to within a day, per
+     * product requirement - so each is cached here (shared across all
+     * sessions, since this bean is @ApplicationScoped) and only recomputed
+     * once its cache entry is older than this TTL.
+     */
+    private static final long DASHBOARD_CACHE_DURATION_MILLIS = 24L * 60 * 60 * 1000;
+
+    private Date fuelOrdersByInstitutionCachedAt;
+    private List<InstitutionCount> fuelOrdersByInstitutionCache;
+
+    private Date fuelOrdersByFuelStationsCachedAt;
+    private List<InstitutionCount> fuelOrdersByFuelStationsCache;
+
+    private Date fuelOrdersByPurposeCachedAt;
+    private List<InstitutionCount> fuelOrdersByPurposeCache;
+
+    private Date fuelOrdersByVehicleTypeCachedAt;
+    private List<InstitutionCount> fuelOrdersByVehicleTypeCache;
+
+    private Date totalIssuedQuantityCachedAt;
+    private Double totalIssuedQuantityCache;
 
     /**
      * Creates a new instance of DashboardController
@@ -86,12 +107,23 @@ public class DashboardApplicationController {
     public DashboardApplicationController() {
     }
 
-    @PostConstruct
-    public void updateDashboard() {
-
+    private boolean isCacheStale(Date cachedAt) {
+        return cachedAt == null
+                || System.currentTimeMillis() - cachedAt.getTime() > DASHBOARD_CACHE_DURATION_MILLIS;
     }
 
-    public List<InstitutionCount> fuelOrdersByInstitution(
+    public synchronized List<InstitutionCount> fuelOrdersByInstitution(
+            Date fromDate,
+            Date toDate
+    ) {
+        if (isCacheStale(fuelOrdersByInstitutionCachedAt)) {
+            fuelOrdersByInstitutionCache = queryFuelOrdersByInstitution(fromDate, toDate);
+            fuelOrdersByInstitutionCachedAt = new Date();
+        }
+        return fuelOrdersByInstitutionCache;
+    }
+
+    private List<InstitutionCount> queryFuelOrdersByInstitution(
             Date fromDate,
             Date toDate
     ) {
@@ -110,7 +142,15 @@ public class DashboardApplicationController {
         return tics;
     }
 
-    public List<InstitutionCount> fuelOrdersByPurpose(Date fromDate, Date toDate) {
+    public synchronized List<InstitutionCount> fuelOrdersByPurpose(Date fromDate, Date toDate) {
+        if (isCacheStale(fuelOrdersByPurposeCachedAt)) {
+            fuelOrdersByPurposeCache = queryFuelOrdersByPurpose(fromDate, toDate);
+            fuelOrdersByPurposeCachedAt = new Date();
+        }
+        return fuelOrdersByPurposeCache;
+    }
+
+    private List<InstitutionCount> queryFuelOrdersByPurpose(Date fromDate, Date toDate) {
         Map parameters = new HashMap<>();
         String jpql = "select new lk.gov.health.phsp.pojcs.InstitutionCount(c.vehicle.vehiclePurpose, sum(c.issuedQuantity)) "
                 + "from FuelTransaction c "
@@ -137,7 +177,15 @@ public class DashboardApplicationController {
         return fuelTransactionFacade.findLightsByJpql(jpql, parameters, TemporalType.DATE);
     }
     
-    public List<InstitutionCount> fuelOrdersByVehicleType(Date fromDate, Date toDate) {
+    public synchronized List<InstitutionCount> fuelOrdersByVehicleType(Date fromDate, Date toDate) {
+        if (isCacheStale(fuelOrdersByVehicleTypeCachedAt)) {
+            fuelOrdersByVehicleTypeCache = queryFuelOrdersByVehicleType(fromDate, toDate);
+            fuelOrdersByVehicleTypeCachedAt = new Date();
+        }
+        return fuelOrdersByVehicleTypeCache;
+    }
+
+    private List<InstitutionCount> queryFuelOrdersByVehicleType(Date fromDate, Date toDate) {
         Map parameters = new HashMap<>();
         String jpql = "select new lk.gov.health.phsp.pojcs.InstitutionCount(c.vehicle.vehicleType, sum(c.issuedQuantity)) "
                 + "from FuelTransaction c "
@@ -164,7 +212,15 @@ public class DashboardApplicationController {
         return fuelTransactionFacade.findLightsByJpql(jpql, parameters, TemporalType.DATE);
     }
 
-    public Double totalIssuedQuantity() {
+    public synchronized Double totalIssuedQuantity() {
+        if (isCacheStale(totalIssuedQuantityCachedAt)) {
+            totalIssuedQuantityCache = queryTotalIssuedQuantity();
+            totalIssuedQuantityCachedAt = new Date();
+        }
+        return totalIssuedQuantityCache;
+    }
+
+    private Double queryTotalIssuedQuantity() {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("ret", false);
 
@@ -184,7 +240,18 @@ public class DashboardApplicationController {
         }
     }
 
-    public List<InstitutionCount> fuelSupplyByFuelStations(
+    public synchronized List<InstitutionCount> fuelSupplyByFuelStations(
+            Date fromDate,
+            Date toDate
+    ) {
+        if (isCacheStale(fuelOrdersByFuelStationsCachedAt)) {
+            fuelOrdersByFuelStationsCache = queryFuelSupplyByFuelStations(fromDate, toDate);
+            fuelOrdersByFuelStationsCachedAt = new Date();
+        }
+        return fuelOrdersByFuelStationsCache;
+    }
+
+    private List<InstitutionCount> queryFuelSupplyByFuelStations(
             Date fromDate,
             Date toDate
     ) {
