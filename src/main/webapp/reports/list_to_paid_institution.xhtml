@@ -142,6 +142,30 @@
                                                 <h:outputText value="#{bill.billType}" />
                                             </p:column>
 
+                                            <p:column headerText="CPC Status"
+                                                      exportHeaderValue="true"
+                                                      sortBy="#{bill.acceptanceStatus}" filterBy="#{bill.acceptanceStatus}">
+                                                <f:facet name="header">
+                                                    <h:outputText value="CPC Status" />
+                                                </f:facet>
+                                                <h:outputText value="Pending" style="color: #856404; font-weight: bold;" rendered="#{bill.pendingDecision}" />
+                                                <h:outputText value="Accepted" style="color: #155724; font-weight: bold;" rendered="#{bill.accepted}" />
+                                                <h:outputText value="Resubmit Requested" style="color: #c00; font-weight: bold;" rendered="#{bill.resubmitRequested}" />
+                                            </p:column>
+
+                                            <p:column headerText="CPC Status At"
+                                                      exportHeaderValue="true">
+                                                <f:facet name="header">
+                                                    <h:outputText value="CPC Status At" />
+                                                </f:facet>
+                                                <h:outputText value="#{bill.acceptedAt}" rendered="#{bill.accepted}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                                </h:outputText>
+                                                <h:outputText value="#{bill.resubmitRequestedAt}" rendered="#{bill.resubmitRequested}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                                </h:outputText>
+                                            </p:column>
+
                                             <p:column headerText="Actions"
                                                       exportHeaderValue="true">
                                                 <f:facet name="header">

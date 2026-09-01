@@ -762,7 +762,9 @@ public class ReportController implements Serializable {
                 .append("ti.code, ") // toInstitution name
                 .append("ft.issuedDate, ")
                 .append("ft.submittedToPayment, ")
-                .append("ft.submittedToPaymentAt) FROM FuelTransaction ft ")
+                .append("ft.submittedToPaymentAt, ")
+                .append("ft.billAcceptanceStatus, ")
+                .append("ft.billAcceptanceStatusAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -912,7 +914,9 @@ public class ReportController implements Serializable {
                 .append("fi.name, ") // fromInstitution name
                 .append("ti.name, ") // toInstitution name
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
-                .append("ti.code ") // toInstitution name
+                .append("ti.code, ") // toInstitution name
+                .append("ft.billAcceptanceStatus, ")
+                .append("ft.billAcceptanceStatusAt")
                 .append(") FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
@@ -986,7 +990,9 @@ public class ReportController implements Serializable {
                 .append("ti.code, ") // toInstitution code
                 .append("ft.issuedDate, ")
                 .append("ft.submittedToPayment, ")
-                .append("ft.submittedToPaymentAt) FROM FuelTransaction ft ")
+                .append("ft.submittedToPaymentAt, ")
+                .append("ft.billAcceptanceStatus, ")
+                .append("ft.billAcceptanceStatusAt) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -1808,12 +1814,35 @@ public class ReportController implements Serializable {
         return fuelEstimate;
     }
 
+    /**
+     * True once the transaction's payment bill has been accepted by CPC -
+     * admins may not edit/delete it until CPC cancels that acceptance.
+     * Exposed to the edit/view pages so Save/Delete/Reverse-Deletion can be
+     * hidden/disabled with an explanation instead of silently failing.
+     */
+    public boolean isFuelTransactionEditLocked() {
+        return fuelTransaction != null && fuelTransaction.isBillLocked();
+    }
+
+    private boolean blockIfBillLocked() {
+        if (fuelTransaction != null && fuelTransaction.isBillLocked()) {
+            JsfUtil.addErrorMessage("This transaction's bill ("
+                    + fuelTransaction.getPaymentBill().getBillNo()
+                    + ") has been accepted by CPC. Ask CPC to cancel the acceptance before editing.");
+            return true;
+        }
+        return false;
+    }
+
     public void deleteSelected() {
         if (fuelTransaction == null) {
             return;
         }
         if (webUserController.getLoggedUser().getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
             JsfUtil.addErrorMessage("You are NOT autherized");
+            return;
+        }
+        if (blockIfBillLocked()) {
             return;
         }
         fuelTransaction.setRetired(true);
@@ -1831,6 +1860,9 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("You are NOT autherized");
             return;
         }
+        if (blockIfBillLocked()) {
+            return;
+        }
         fuelTransactionFacade.edit(fuelTransaction);
         JsfUtil.addSuccessMessage("Updates");
     }
@@ -1841,6 +1873,9 @@ public class ReportController implements Serializable {
         }
         if (webUserController.getLoggedUser().getWebUserRole() != WebUserRole.SYSTEM_ADMINISTRATOR) {
             JsfUtil.addErrorMessage("You are NOT autherized");
+            return;
+        }
+        if (blockIfBillLocked()) {
             return;
         }
         fuelTransaction.setRetired(false);
