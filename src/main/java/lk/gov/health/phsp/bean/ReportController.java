@@ -247,24 +247,16 @@ public class ReportController implements Serializable {
         return "/reports/cpc/fuel_station_summary?faces-redirect=true";
     }
 
+    public String navigateToAcceptedBillsForCpcHeadOffice() {
+        return "/reports/cpc_head_office/accepted_bills?faces-redirect=true";
+    }
+
+    public String navigateToAcceptedBillsForCpcRegionalOffice() {
+        return "/reports/cpc/accepted_bills?faces-redirect=true";
+    }
+
     public String navigateToFuelStationSummaryByDayForCpcHeadOffice() {
         return "/reports/cpc_head_office/fuel_station_summary_by_day?faces-redirect=true";
-    }
-
-    public String navigateToListHospitalEstimatessForCpcToPrint() {
-        return "/reports/cpc/national_estimate_print?faces-redirect=true";
-    }
-
-    public String navigateToListHospitalEstimatessForCpcToDownload() {
-        return "/reports/cpc/national_estimate_to_download?faces-redirect=true";
-    }
-
-    public String navigateToListHospitalEstimatessForCpcHeadOfficeToPrint() {
-        return "/reports/cpc_head_office/national_estimate_print?faces-redirect=true";
-    }
-
-    public String navigateToListHospitalEstimatessForCpcHeadOfficeToDownload() {
-        return "/reports/cpc_head_office/national_estimate_to_download?faces-redirect=true";
     }
 
     public String navigateToListHospitalEstimatessToPrint() {
