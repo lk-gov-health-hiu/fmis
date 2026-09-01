@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:cc="http://xmlns.jcp.org/jsf/composite"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:p="http://primefaces.org/ui">
 
     <!-- INTERFACE -->
@@ -14,6 +15,121 @@
     <cc:implementation>
         <h:form>
 
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="card m-1">
+                            <div class="card-header">Fuel Requested (L)</div>
+                            <div class="card-body">
+                                <h3><h:outputText value="#{institutionDashboardController.summary.requestedThisMonth}"><f:convertNumber pattern="#,##0" /></h:outputText></h3>
+                                <p class="text-muted mb-0">
+                                    Last month: <h:outputText value="#{institutionDashboardController.summary.requestedLastMonth}"><f:convertNumber pattern="#,##0" /></h:outputText>
+                                    <h:outputText value=" (#{institutionDashboardController.requestedTrendPercent > 0 ? '+' : ''}#{institutionDashboardController.requestedTrendPercent}%)" rendered="#{institutionDashboardController.requestedTrendPercent ne null}">
+                                        <f:convertNumber pattern="0.0" />
+                                    </h:outputText>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card m-1">
+                            <div class="card-header">Fuel Issued (L)</div>
+                            <div class="card-body">
+                                <h3><h:outputText value="#{institutionDashboardController.summary.issuedThisMonth}"><f:convertNumber pattern="#,##0" /></h:outputText></h3>
+                                <p class="text-muted mb-0">
+                                    Last month: <h:outputText value="#{institutionDashboardController.summary.issuedLastMonth}"><f:convertNumber pattern="#,##0" /></h:outputText>
+                                    <h:outputText value=" (#{institutionDashboardController.issuedTrendPercent > 0 ? '+' : ''}#{institutionDashboardController.issuedTrendPercent}%)" rendered="#{institutionDashboardController.issuedTrendPercent ne null}">
+                                        <f:convertNumber pattern="0.0" />
+                                    </h:outputText>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card m-1">
+                            <div class="card-header">Requested, Not Yet Issued (L)</div>
+                            <div class="card-body">
+                                <h3><h:outputText value="#{institutionDashboardController.summary.pendingIssueQuantity}"><f:convertNumber pattern="#,##0" /></h:outputText></h3>
+                                <p class="text-muted mb-0">Outstanding requests awaiting issue</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3">
+                        <div class="card m-1 #{institutionDashboardController.summary.notSubmittedForPaymentCount > 0 ? 'border-warning' : ''}">
+                            <div class="card-header">Not Submitted for Payment</div>
+                            <div class="card-body">
+                                <h3 class="#{institutionDashboardController.summary.notSubmittedForPaymentCount > 0 ? 'text-warning' : ''}">
+                                    <h:outputText value="#{institutionDashboardController.summary.notSubmittedForPaymentCount}" />
+                                </h3>
+                                <p class="text-muted mb-0">
+                                    Last month's issued transactions (<h:outputText value="#{institutionDashboardController.summary.notSubmittedForPaymentQuantity}"><f:convertNumber pattern="#,##0" /></h:outputText> L) not yet in a payment bill
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="card m-1">
+                            <div class="card-header">Pending CPC Decision</div>
+                            <div class="card-body">
+                                <h3><h:outputText value="#{institutionDashboardController.summary.pendingCpcBillCount}" /></h3>
+                                <p class="text-muted mb-0">Last month's bills awaiting CPC review</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="card m-1 #{institutionDashboardController.summary.rejectedCpcBillCount > 0 ? 'border-danger' : ''}">
+                            <div class="card-header">Resubmit Requested by CPC</div>
+                            <div class="card-body">
+                                <h3 class="#{institutionDashboardController.summary.rejectedCpcBillCount > 0 ? 'text-danger' : ''}">
+                                    <h:outputText value="#{institutionDashboardController.summary.rejectedCpcBillCount}" />
+                                </h3>
+                                <ul class="mb-0 ps-3 small" style="text-align: left;">
+                                    <ui:repeat value="#{institutionDashboardController.rejectedCpcBills}" var="bill">
+                                        <li><strong>#{bill.billNo}</strong>: #{bill.resubmitComments}</li>
+                                    </ui:repeat>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="card m-1">
+                            <div class="card-header">Accepted by CPC</div>
+                            <div class="card-body">
+                                <h3><h:outputText value="#{institutionDashboardController.summary.acceptedCpcBillCount}" /></h3>
+                                <p class="text-muted mb-0">Last month's bills accepted</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="card m-1">
+                            <div class="card-header">Top 10 Vehicles by Fuel Usage - This Month</div>
+                            <div class="card-body">
+                                <p:barChart model="#{institutionDashboardController.vehicleUsageChart}" style="width:100%; min-height:500px;"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card m-1">
+                            <div class="card-header">Top 10 Vehicles by Fuel Use per KM - This Month</div>
+                            <div class="card-body">
+                                <p:barChart model="#{institutionDashboardController.vehicleEfficiencyChart}" style="width:100%; min-height:500px;"/>
+                                <h:outputText styleClass="text-muted small mt-2 d-block"
+                                              rendered="#{institutionDashboardController.summary.vehiclesExcludedFromEfficiencyChart > 0}"
+                                              value="#{institutionDashboardController.summary.vehiclesExcludedFromEfficiencyChart} vehicle(s) excluded - not enough odometer readings this month to compute an average." />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </h:form>
+
     </cc:implementation>
+
 </html>

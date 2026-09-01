@@ -3,6 +3,7 @@ package lk.gov.health.phsp.pojcs;
 import java.util.Date;
 import lk.gov.health.phsp.entity.Area;
 import lk.gov.health.phsp.entity.Institution;
+import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.enums.VehiclePurpose;
 import lk.gov.health.phsp.enums.VehicleType;
 
@@ -13,6 +14,7 @@ public class InstitutionCount {
     private VehicleType vehicleType;
     private Institution institution;
     private Institution fuelStation;
+    private Vehicle vehicle;
     private Area area;
     private Long count;
     private Date date;
@@ -30,13 +32,27 @@ public class InstitutionCount {
         this.vehicleType = vehicleType;
         this.requestedQty = requestedQty;
     }
-    
-    
+
+
 
     public InstitutionCount(Institution institution, Double requestedQty, Double issuedQty) {
         this.institution = institution;
         this.requestedQty = requestedQty;
         this.issuedQty = issuedQty;
+    }
+
+    public InstitutionCount(Vehicle vehicle, Double requestedQty, Double issuedQty) {
+        this.vehicle = vehicle;
+        this.requestedQty = requestedQty;
+        this.issuedQty = issuedQty;
+    }
+
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
     }
 
     public InstitutionCount(String countLabel, Double requestedQty) {
