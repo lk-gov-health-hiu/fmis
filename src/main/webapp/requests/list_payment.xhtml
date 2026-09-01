@@ -193,6 +193,28 @@
                     .acceptance-actions {
                         margin: 10px 0;
                     }
+
+                    .contact-info-panel {
+                        border: 1px solid #dee2e6;
+                        border-radius: 4px;
+                        margin-bottom: 10px;
+                    }
+
+                    .contact-info-panel .card-header {
+                        background: #f4f6f8;
+                    }
+
+                    .contact-info-note {
+                        font-weight: normal;
+                        font-size: 0.85em;
+                        color: #6c757d;
+                    }
+
+                    @media print {
+                        .contact-info-panel {
+                            display: none !important;
+                        }
+                    }
                 </style>
 
                 <h:form id="billForm">
@@ -298,6 +320,34 @@
                             </div>
                         </h:panelGroup>
                     </p:dialog>
+
+                    <!-- Contact Information (not part of the printed bill; for internal reference only) -->
+                    <h:panelGroup id="contactInfoPanel" layout="block" styleClass="contact-info-panel">
+                        <div class="card-header">
+                            <strong>Contact Information</strong>
+                            <span class="contact-info-note">(for reference only, not printed)</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Hospital / Institution</h6>
+                                    <div><strong>Name: </strong><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.name}"/></div>
+                                    <div><strong>Address: </strong><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.address}"/></div>
+                                    <div><strong>Phone: </strong><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.phone}"/></div>
+                                    <div><strong>Mobile: </strong><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.mobile}"/></div>
+                                    <div><strong>Fax: </strong><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.fax}"/></div>
+                                    <div><strong>Email: </strong><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.email}"/></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Created By</h6>
+                                    <div><strong>Name: </strong><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.nameWithTitle}"/></div>
+                                    <div><strong>Phone: </strong><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.phone1}"/></div>
+                                    <div><strong>Mobile: </strong><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.phone2}"/></div>
+                                    <div><strong>Email: </strong><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.email}"/></div>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
 
                     <h:panelGroup id="panelBill" >
                         <div class="a4-page" id="billPanel">
