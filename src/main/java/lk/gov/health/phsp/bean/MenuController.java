@@ -75,7 +75,9 @@ public class MenuController implements Serializable {
     }
 
     public String toIndex() {
-        dashboardController.prepareDashboard();
+        if (!webUserController.isInstitutionLevelUser()) {
+            dashboardController.prepareDashboard();
+        }
         return "/index";
     }
 
