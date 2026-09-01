@@ -654,8 +654,11 @@ public class FuelTransaction implements Serializable {
     }
 
     // Convenience booleans for EL (avoids relying on enum coercion in views).
+    // Bills generated before CPC bill-acceptance tracking existed have no
+    // billAcceptanceStatus - treat those as Pending rather than blank.
     public boolean isBillStatusPending() {
-        return billAcceptanceStatus == BillAcceptanceStatus.PENDING;
+        return billAcceptanceStatus == BillAcceptanceStatus.PENDING
+                || (billAcceptanceStatus == null && submittedToPayment);
     }
 
     public boolean isBillStatusAccepted() {

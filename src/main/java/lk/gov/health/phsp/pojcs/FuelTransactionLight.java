@@ -460,15 +460,18 @@ public class FuelTransactionLight implements Serializable {
         if (billAcceptanceStatusAt == null) {
             return "";
         }
-        String pattern = "dd MMM yyyy HH:mm";
+        String pattern = "dd MMM yyyy";
         DateFormat sfd = new SimpleDateFormat(pattern);
         return sfd.format(billAcceptanceStatusAt);
     }
 
     // Convenience booleans for EL (avoids relying on enum coercion in views).
+    // Bills generated before CPC bill-acceptance tracking existed have no
+    // billAcceptanceStatus - treat those as Pending rather than blank.
     @Transient
     public boolean isBillStatusPending() {
-        return billAcceptanceStatus == BillAcceptanceStatus.PENDING;
+        return billAcceptanceStatus == BillAcceptanceStatus.PENDING
+                || (billAcceptanceStatus == null && Boolean.TRUE.equals(submittedToPayment));
     }
 
     @Transient

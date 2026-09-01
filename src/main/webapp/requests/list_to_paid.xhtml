@@ -111,20 +111,20 @@
                                                 <h:outputText value="#{transaction.issued ? transaction.issuedInstitution.name : 'Not Issued'}" />
                                             </p:column>
 
-                                            <p:column headerText="CPC Payment Submission" >
-                                                <h:outputText value="Submitted" style="color: green;" rendered="#{transaction.submittedToPayment}" />
-                                                <h:outputText value="Not Submitted" style="color: red;" rendered="#{not transaction.submittedToPayment}" />
+                                            <p:column headerText="CPC Payment Request" >
+                                                <h:outputText value="Bill Generated" styleClass="badge bg-success text-wrap" rendered="#{transaction.submittedToPayment}" />
+                                                <h:outputText value="Bill NOT Generated" styleClass="badge bg-secondary text-wrap" rendered="#{not transaction.submittedToPayment}" />
                                             </p:column>
 
                                             <p:column headerText="CPC Bill Status" >
-                                                <h:outputText value="Pending" style="color: #856404; font-weight: bold;" rendered="#{transaction.billStatusPending}" />
-                                                <h:outputText value="Accepted" style="color: #155724; font-weight: bold;" rendered="#{transaction.billStatusAccepted}" />
-                                                <h:outputText value="Resubmit Requested" style="color: #c00; font-weight: bold;" rendered="#{transaction.billStatusResubmitRequested}" />
+                                                <h:outputText value="Pending" styleClass="badge bg-warning text-dark text-wrap" rendered="#{transaction.billStatusPending}" />
+                                                <h:outputText value="Accepted" styleClass="badge bg-success text-wrap" rendered="#{transaction.billStatusAccepted}" />
+                                                <h:outputText value="Resubmit Requested" styleClass="badge bg-danger text-wrap" rendered="#{transaction.billStatusResubmitRequested}" />
                                             </p:column>
 
-                                            <p:column headerText="CPC Bill Status At" >
+                                            <p:column headerText="CPC Bill Status On" >
                                                 <h:outputText value="#{transaction.billAcceptanceStatusAt}">
-                                                    <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                                    <f:convertDateTime pattern="dd MMM yyyy" />
                                                 </h:outputText>
                                             </p:column>
 
