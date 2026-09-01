@@ -104,6 +104,15 @@
                                             </h:outputText>
                                         </p:column>
 
+                                        <p:column headerText="Request Number"
+                                                  exportHeaderValue="true"
+                                                  sortBy="#{bill.billNo}" filterBy="#{bill.billNo}">
+                                            <f:facet name="header">
+                                                <h:outputText value="Request Number" />
+                                            </f:facet>
+                                            <h:outputText value="#{bill.billNo}" />
+                                        </p:column>
+
                                         <p:column headerText="From Institution"
                                                   exportHeaderValue="true"
                                                   sortBy="#{bill.fromInstitution.name}" filterBy="#{bill.fromInstitution.name}">
