@@ -96,6 +96,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
     private List<FuelTransaction> transactions = null;
     private List<Bill> bills;
+    private List<Bill> acceptedBills;
     private List<FuelTransaction> selectedTransactions = null;
     private FuelTransaction selected;
     private String odoWarningMessage;
@@ -1320,6 +1321,57 @@ public class FuelRequestAndIssueController implements Serializable {
         bills = tmpBills;
     }
 
+    public void listAcceptedBillsForCpcRegionalOffice() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.acceptanceStatus = :accepted "
+                + " AND b.acceptedAt BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("accepted", BillAcceptanceStatus.ACCEPTED);
+        if (institution != null) {
+            j += " AND b.fromInstitution=:institution ";
+            params.put("institution", institution);
+        }
+        if (fuelStation != null) {
+            j += " AND b.toInstitution=:fs ";
+            params.put("fs", fuelStation);
+        } else {
+            j += " AND b.toInstitution IN :institutions ";
+            params.put("institutions", webUserController.findAutherizedInstitutions());
+        }
+        j += " ORDER BY b.acceptedAt";
+        params.put("fromDate", fromDate); // fromDate should be set beforehand
+        params.put("toDate", toDate);     // toDate should be set beforehand
+
+        acceptedBills = billFacade.findByJpql(j, params);
+    }
+
+    public void listAcceptedBillsForCpcHeadOffice() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.acceptanceStatus = :accepted "
+                + " AND b.acceptedAt BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("accepted", BillAcceptanceStatus.ACCEPTED);
+        if (institution != null) {
+            j += " AND b.fromInstitution=:institution ";
+            params.put("institution", institution);
+        }
+        if (fuelStation != null) {
+            j += " AND b.toInstitution=:fs ";
+            params.put("fs", fuelStation);
+        }
+        j += " ORDER BY b.acceptedAt";
+        params.put("fromDate", fromDate); // fromDate should be set beforehand
+        params.put("toDate", toDate);     // toDate should be set beforehand
+
+        acceptedBills = billFacade.findByJpql(j, params);
+    }
+
     public void listInstitutionRequests() {
         transactions = findFuelTransactions(null, webUserController.getLoggedInstitution(), null, null, getFromDate(), getToDate(), null, null, null);
     }
@@ -2164,6 +2216,26 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setBills(List<Bill> bills) {
         this.bills = bills;
+    }
+
+    public List<Bill> getAcceptedBills() {
+        return acceptedBills;
+    }
+
+    public void setAcceptedBills(List<Bill> acceptedBills) {
+        this.acceptedBills = acceptedBills;
+    }
+
+    public double getAcceptedBillsTotalQty() {
+        double total = 0.0;
+        if (acceptedBills != null) {
+            for (Bill b : acceptedBills) {
+                if (b.getTotalQty() != null) {
+                    total += b.getTotalQty();
+                }
+            }
+        }
+        return total;
     }
 
     public Institution getFuelStation() {

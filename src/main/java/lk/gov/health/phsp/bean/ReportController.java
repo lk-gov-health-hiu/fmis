@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import lk.gov.health.phsp.entity.Area;
@@ -43,14 +42,12 @@ import lk.gov.health.phsp.enums.FuelTransactionType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.persistence.TemporalType;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.entity.Driver;
 import lk.gov.health.phsp.entity.Upload;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.entity.WebUser;
-import lk.gov.health.phsp.enums.FuelEstimateRowType;
 import lk.gov.health.phsp.enums.InstitutionCategory;
 import lk.gov.health.phsp.enums.InstitutionType;
 import lk.gov.health.phsp.enums.Quarter;
@@ -137,7 +134,6 @@ public class ReportController implements Serializable {
     private Long areaRepCount;
     private List<Institution> hospitals;
     private double totalFuelEstimate;
-    private List<FuelEstimateRow> fuelEstimateRows;
 
     private Upload currentUpload;
     private StreamedContent downloadingFile;
@@ -157,7 +153,6 @@ public class ReportController implements Serializable {
     private Driver driver;
     private InstitutionType institutionType;
     private List<FuelIssuedSummary> issuedSummaries;
-    private FuelEstimate fuelEstimate;
     Long fuelStationId;
     Long healthInstitutionId;
     private Date selectedDate; // This represents the date clicked in the comprehensive report
@@ -247,34 +242,16 @@ public class ReportController implements Serializable {
         return "/reports/cpc/fuel_station_summary?faces-redirect=true";
     }
 
+    public String navigateToAcceptedBillsForCpcHeadOffice() {
+        return "/reports/cpc_head_office/accepted_bills?faces-redirect=true";
+    }
+
+    public String navigateToAcceptedBillsForCpcRegionalOffice() {
+        return "/reports/cpc/accepted_bills?faces-redirect=true";
+    }
+
     public String navigateToFuelStationSummaryByDayForCpcHeadOffice() {
         return "/reports/cpc_head_office/fuel_station_summary_by_day?faces-redirect=true";
-    }
-
-    public String navigateToListHospitalEstimatessForCpcToPrint() {
-        return "/reports/cpc/national_estimate_print?faces-redirect=true";
-    }
-
-    public String navigateToListHospitalEstimatessForCpcToDownload() {
-        return "/reports/cpc/national_estimate_to_download?faces-redirect=true";
-    }
-
-    public String navigateToListHospitalEstimatessForCpcHeadOfficeToPrint() {
-        return "/reports/cpc_head_office/national_estimate_print?faces-redirect=true";
-    }
-
-    public String navigateToListHospitalEstimatessForCpcHeadOfficeToDownload() {
-        return "/reports/cpc_head_office/national_estimate_to_download?faces-redirect=true";
-    }
-
-    public String navigateToListHospitalEstimatessToPrint() {
-        fillAllInstitutionFuelTransactions();
-        return "/reports/national_estimate_print?faces-redirect=true";
-    }
-
-    public String navigateToListHospitalEstimatessToDownload() {
-        fillAllInstitutionFuelTransactions();
-        return "/reports/national_estimate_to_download?faces-redirect=true";
     }
 
     public String navigateToDieselDistributionFuelStationSummaryForFuelDispensor() {
@@ -1080,123 +1057,6 @@ public class ReportController implements Serializable {
         issuedSummaries = fillFuelIssuedSummary(fromInstitution, toInstitution, getFromDate(), getToDate());
     }
 
-    public void fillAllHospitalsEstimatesToDownload() {
-        List<FuelEstimateRow> estimateRows = new ArrayList<>();
-
-        List<InstitutionType> fuelReceivingInstitutionTypes = Arrays.stream(InstitutionType.values())
-                .filter(it -> it.getCategory() == InstitutionCategory.CPC)
-                .collect(Collectors.toList());
-        List<Institution> fuelStations = institutionController.fillInstitutions(fuelReceivingInstitutionTypes);
-
-        for (Institution fuelStation : fuelStations) {
-            List<Institution> suppliedInstitutions = institutionController.findInstitutionsByMainFuelStation(fuelStation);
-
-            if (!suppliedInstitutions.isEmpty()) {
-                // Add fuel station row only if there are supplied institutions
-                FuelEstimateRow fuelStationRow = new FuelEstimateRow();
-                fuelStationRow.setRow(FuelEstimateRowType.FUEL_STATION_HEADING_ROW);
-                fuelStationRow.setFuelStation(fuelStation);
-                estimateRows.add(fuelStationRow);
-
-                double fuelShedTotalEstimate = 0.0;
-
-                for (Institution institution : suppliedInstitutions) {
-                    // Add institution row
-                    FuelEstimateRow institutionRow = new FuelEstimateRow();
-                    institutionRow.setRow(FuelEstimateRowType.INSTITUTION_HEADING_ROW);
-                    institutionRow.setInstitution(institution);
-                    estimateRows.add(institutionRow);
-
-                    List<Vehicle> vehicles = vehicleController.fillVehicles(institution);
-                    double institutionFuelEstimate = 0.0;
-
-                    if (vehicles != null) {
-                        for (Vehicle vehicle : vehicles) {
-                            // Add vehicle row
-                            FuelEstimateRow vehicleRow = new FuelEstimateRow();
-                            vehicleRow.setRow(FuelEstimateRowType.VEHICLE_ROW);
-                            vehicleRow.setVehicle(vehicle);
-                            Double vehicleFuelConsumption = vehicle.getEstiamtedMonthlyFuelConsumption();
-                            vehicleFuelConsumption = vehicleFuelConsumption != null ? vehicleFuelConsumption : 0.0;
-                            vehicleRow.setTotalEstimate(vehicleFuelConsumption);
-                            estimateRows.add(vehicleRow);
-
-                            institutionFuelEstimate += vehicleFuelConsumption;
-                        }
-                    }
-
-                    fuelShedTotalEstimate += institutionFuelEstimate;
-                    institutionRow.setInstitutionEstimate(institutionFuelEstimate);
-                }
-
-                fuelStationRow.setFuelStationEstimate(fuelShedTotalEstimate);
-            }
-        }
-
-        // Add total row
-        FuelEstimateRow totalRow = new FuelEstimateRow();
-        totalRow.setRow(FuelEstimateRowType.TOTAL_ROW);
-        totalRow.setTotalEstimate(estimateRows.stream()
-                .map(FuelEstimateRow::getTotalEstimate)
-                .filter(Objects::nonNull)
-                .mapToDouble(Double::doubleValue)
-                .sum());
-        estimateRows.add(totalRow);
-
-        this.fuelEstimateRows = estimateRows;
-    }
-
-    public void fillAllHospitalsEstimatesToPrint() {
-        fuelEstimate = new FuelEstimate();
-        List<FuelShedEstimate> fuelShedEstimates = new ArrayList<>();
-
-        List<InstitutionType> fuelReceivingInstitutionTypes = Arrays.stream(InstitutionType.values())
-                .filter(it -> it.getCategory() == InstitutionCategory.CPC)
-                .collect(Collectors.toList());
-        List<Institution> fuelStations = institutionController.fillInstitutions(fuelReceivingInstitutionTypes);
-
-        double totalEstimate = 0.0;
-
-        for (Institution fuelStation : fuelStations) {
-            List<Institution> suppliedInstitutions = institutionController.findInstitutionsByMainFuelStation(fuelStation);
-
-            if (!suppliedInstitutions.isEmpty()) { // Only proceed if there are supplied institutions
-                FuelShedEstimate fuelShedEstimate = new FuelShedEstimate();
-                fuelShedEstimate.setFuelStation(fuelStation);
-                List<InstitutionEstimate> institutionEstimates = new ArrayList<>();
-
-                double fuelShedTotalEstimate = 0.0;
-
-                for (Institution institution : suppliedInstitutions) {
-                    InstitutionEstimate institutionEstimate = new InstitutionEstimate();
-                    institutionEstimate.setInstitution(institution);
-
-                    List<Vehicle> vehicles = vehicleController.fillVehicles(institution);
-                    double institutionFuelEstimate = vehicles != null ? vehicles.stream()
-                            .filter(Objects::nonNull)
-                            .mapToDouble(v -> v.getEstiamtedMonthlyFuelConsumption() != null ? v.getEstiamtedMonthlyFuelConsumption() : 0.0)
-                            .sum() : 0.0;
-
-                    institutionEstimate.setVehicles(vehicles);
-                    institutionEstimate.setInstitutionFuelEstimate(institutionFuelEstimate);
-
-                    fuelShedTotalEstimate += institutionFuelEstimate;
-                    institutionEstimates.add(institutionEstimate);
-                }
-
-                if (!institutionEstimates.isEmpty()) {
-                    fuelShedEstimate.setFuelShedEstimate(fuelShedTotalEstimate);
-                    fuelShedEstimate.setInstitutionEstimates(institutionEstimates);
-                    fuelShedEstimates.add(fuelShedEstimate);
-                    totalEstimate += fuelShedTotalEstimate;
-                }
-            }
-        }
-
-        fuelEstimate.setTotalEstimate(totalEstimate);
-        fuelEstimate.setFuelShedEstimates(fuelShedEstimates);
-    }
-
     public List<FuelIssuedSummary> fillFuelIssuedToHealthInstitutionSummary(Date fd, Date td) {
         StringBuilder jpqlBuilder = new StringBuilder();
         jpqlBuilder.append("SELECT new lk.gov.health.phsp.pojcs.FuelIssuedSummary(")
@@ -1810,10 +1670,6 @@ public class ReportController implements Serializable {
         this.totalFuelEstimate = totalFuelEstimate;
     }
 
-    public FuelEstimate getFuelEstimate() {
-        return fuelEstimate;
-    }
-
     /**
      * True once the transaction's payment bill has been accepted by CPC -
      * admins may not edit/delete it until CPC cancels that acceptance.
@@ -1885,11 +1741,6 @@ public class ReportController implements Serializable {
         JsfUtil.addSuccessMessage("Deletion Reversed");
     }
 
-    public void setFuelEstimate(FuelEstimate fuelEstimate) {
-        this.fuelEstimate = fuelEstimate;
-
-    }
-
     public FuelTransactionFacade getFuelTransactionFacade() {
         return fuelTransactionFacade;
     }
@@ -1912,14 +1763,6 @@ public class ReportController implements Serializable {
 
     public void setVehicleController(VehicleController vehicleController) {
         this.vehicleController = vehicleController;
-    }
-
-    public List<FuelEstimateRow> getFuelEstimateRows() {
-        return fuelEstimateRows;
-    }
-
-    public void setFuelEstimateRows(List<FuelEstimateRow> fuelEstimateRows) {
-        this.fuelEstimateRows = fuelEstimateRows;
     }
 
     public UserTransactionController getUserTransactionController() {
@@ -1952,167 +1795,6 @@ public class ReportController implements Serializable {
 
     public void setBillTransactions(List<FuelTransaction> billTransactions) {
         this.billTransactions = billTransactions;
-    }
-
-    public class FuelEstimate {
-
-        private double totalEstimate;
-        private List<FuelShedEstimate> fuelShedEstimates;
-
-        public FuelEstimate() {
-        }
-
-        public double getTotalEstimate() {
-            return totalEstimate;
-        }
-
-        public void setTotalEstimate(double totalEstimate) {
-            this.totalEstimate = totalEstimate;
-        }
-
-        public List<FuelShedEstimate> getFuelShedEstimates() {
-            return fuelShedEstimates;
-        }
-
-        public void setFuelShedEstimates(List<FuelShedEstimate> fuelShedEstimates) {
-            this.fuelShedEstimates = fuelShedEstimates;
-        }
-    }
-
-    public class FuelShedEstimate {
-
-        private double fuelShedEstimate;
-        private Institution fuelStation;
-        private List<InstitutionEstimate> institutionEstimates;
-
-        public FuelShedEstimate() {
-        }
-
-        public double getFuelShedEstimate() {
-            return fuelShedEstimate;
-        }
-
-        public void setFuelShedEstimate(double fuelShedEstimate) {
-            this.fuelShedEstimate = fuelShedEstimate;
-        }
-
-        public List<InstitutionEstimate> getInstitutionEstimates() {
-            return institutionEstimates;
-        }
-
-        public void setInstitutionEstimates(List<InstitutionEstimate> institutionEstimates) {
-            this.institutionEstimates = institutionEstimates;
-        }
-
-        public Institution getFuelStation() {
-            return fuelStation;
-        }
-
-        public void setFuelStation(Institution fuelStation) {
-            this.fuelStation = fuelStation;
-        }
-    }
-
-    public class InstitutionEstimate {
-
-        private Institution institution;
-        private double institutionFuelEstimate;
-        private List<Vehicle> vehicles;
-
-        public InstitutionEstimate() {
-        }
-
-        public Institution getInstitution() {
-            return institution;
-        }
-
-        public void setInstitution(Institution institution) {
-            this.institution = institution;
-        }
-
-        public double getInstitutionFuelEstimate() {
-            return institutionFuelEstimate;
-        }
-
-        public void setInstitutionFuelEstimate(double institutionFuelEstimate) {
-            this.institutionFuelEstimate = institutionFuelEstimate;
-        }
-
-        public List<Vehicle> getVehicles() {
-            return vehicles;
-        }
-
-        public void setVehicles(List<Vehicle> vehicles) {
-            this.vehicles = vehicles;
-        }
-    }
-
-    public class FuelEstimateRow {
-
-        private FuelEstimateRowType row;
-        private Institution fuelStation;
-        private Double fuelStationEstimate;
-        private Institution institution;
-        private Double institutionEstimate;
-        private Vehicle vehicle;
-        private Double totalEstimate;
-
-        public FuelEstimateRowType getRow() {
-            return row;
-        }
-
-        public void setRow(FuelEstimateRowType row) {
-            this.row = row;
-        }
-
-        public Institution getFuelStation() {
-            return fuelStation;
-        }
-
-        public void setFuelStation(Institution fuelStation) {
-            this.fuelStation = fuelStation;
-        }
-
-        public Double getFuelStationEstimate() {
-            return fuelStationEstimate;
-        }
-
-        public void setFuelStationEstimate(Double fuelStationEstimate) {
-            this.fuelStationEstimate = fuelStationEstimate;
-        }
-
-        public Institution getInstitution() {
-            return institution;
-        }
-
-        public void setInstitution(Institution institution) {
-            this.institution = institution;
-        }
-
-        public Double getInstitutionEstimate() {
-            return institutionEstimate;
-        }
-
-        public void setInstitutionEstimate(Double institutionEstimate) {
-            this.institutionEstimate = institutionEstimate;
-        }
-
-        public Vehicle getVehicle() {
-            return vehicle;
-        }
-
-        public void setVehicle(Vehicle vehicle) {
-            this.vehicle = vehicle;
-        }
-
-        public Double getTotalEstimate() {
-            return totalEstimate;
-        }
-
-        public void setTotalEstimate(Double totalEstimate) {
-            this.totalEstimate = totalEstimate;
-        }
-
     }
 
 }
