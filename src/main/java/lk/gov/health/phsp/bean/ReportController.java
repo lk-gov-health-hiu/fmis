@@ -175,121 +175,121 @@ public class ReportController implements Serializable {
     public String navigateToListFuelRequests() {
         if (webUserController.isInstitutionLevelUser()) {
             fillInstitutionFuelTransactions();
-            return "/reports/list_institution?faces-redirect=true;";
+            return "/reports/list_institution?faces-redirect=true";
         }
         fillAllInstitutionFuelTransactions();
-        return "/reports/list?faces-redirect=true;";
+        return "/reports/list?faces-redirect=true";
     }
 
     public String navigateToListPayments() {
         if (webUserController.isInstitutionLevelUser()) {
-            return "/reports/list_to_paid_institution?faces-redirect=true;";
+            return "/reports/list_to_paid_institution?faces-redirect=true";
         }
-        return "/reports/list_to_paid?faces-redirect=true;";
+        return "/reports/list_to_paid?faces-redirect=true";
     }
 
     public String navigateToListFuelRequestsDetails() {
         fillAllInstitutionFuelTransactionsDetailes();
-        return "/reports/list_details?faces-redirect=true;";
+        return "/reports/list_details?faces-redirect=true";
     }
 
     public String navigateToListDeletedFuelRequests() {
         fillAllInstitutionDeletedFuelTransactions();
-        return "/reports/list_deleted?faces-redirect=true;";
+        return "/reports/list_deleted?faces-redirect=true";
     }
 
     public String navigateToDieselDistributionFuelStationSummary() {
         fillDieselDistributionFuelStationSummaryForCPCHedOffice();
-        return "/reports/diesel_distribution_fuel_station_summary?faces-redirect=true;";
+        return "/reports/diesel_distribution_fuel_station_summary?faces-redirect=true";
     }
 
     public String navigateToDieselDistributionHealthInstitutionSummary() {
         fillDieselDistributionHealthInstitutionSummary();
-        return "/reports/diesel_distribution_health_institution_summary?faces-redirect=true;";
+        return "/reports/diesel_distribution_health_institution_summary?faces-redirect=true";
     }
 
     public String navigateToComprehensiveDieselIssuanceSummary() {
         fillComprehensiveDieselIssuanceSummary();
-        return "/reports/comprehensive_diesel_issuance_summary?faces-redirect=true;";
+        return "/reports/comprehensive_diesel_issuance_summary?faces-redirect=true";
     }
 
     public String navigateToComprehensiveDieselIssuanceSummaryForCpcHeadOffice() {
         fillComprehensiveDieselIssuanceSummary();
-        return "/reports/cpc_head_office/comprehensive_diesel_issuance_summary?faces-redirect=true;";
+        return "/reports/cpc_head_office/comprehensive_diesel_issuance_summary?faces-redirect=true";
     }
 
     public String navigateToComprehensiveDieselIssuanceSummaryForCpcRegional() {
         fillComprehensiveDieselIssuanceSummary();
-        return "/reports/cpc/comprehensive_diesel_issuance_summary?faces-redirect=true;";
+        return "/reports/cpc/comprehensive_diesel_issuance_summary?faces-redirect=true";
     }
 
     public String navigateToListFuelRequestsForCpc() {
-        return "/reports/cpc/list?faces-redirect=true;";
+        return "/reports/cpc/list?faces-redirect=true";
     }
 
     public String navigateToListFuelRequestsForCpcHeadOffice() {
-        return "/reports/cpc_head_office/list?faces-redirect=true;";
+        return "/reports/cpc_head_office/list?faces-redirect=true";
     }
 
     public String navigateToFuelStationSummaryForCpcHeadOffice() {
-        return "/reports/cpc_head_office/fuel_station_summary?faces-redirect=true;";
+        return "/reports/cpc_head_office/fuel_station_summary?faces-redirect=true";
     }
 
     public String navigateToPaymentRequestsForCpcHeadOffice() {
-        return "/reports/cpc_head_office/payment_requests?faces-redirect=true;";
+        return "/reports/cpc_head_office/payment_requests?faces-redirect=true";
     }
     
     public String navigateToPaymentRequestsForCpcRegionalOffice() {
-        return "/reports/cpc/payment_requests?faces-redirect=true;";
+        return "/reports/cpc/payment_requests?faces-redirect=true";
     }
 
     public String navigateToFuelStationSummaryForCpcRegional() {
-        return "/reports/cpc/fuel_station_summary?faces-redirect=true;";
+        return "/reports/cpc/fuel_station_summary?faces-redirect=true";
     }
 
     public String navigateToFuelStationSummaryByDayForCpcHeadOffice() {
-        return "/reports/cpc_head_office/fuel_station_summary_by_day?faces-redirect=true;";
+        return "/reports/cpc_head_office/fuel_station_summary_by_day?faces-redirect=true";
     }
 
     public String navigateToListHospitalEstimatessForCpcToPrint() {
-        return "/reports/cpc/national_estimate_print?faces-redirect=true;";
+        return "/reports/cpc/national_estimate_print?faces-redirect=true";
     }
 
     public String navigateToListHospitalEstimatessForCpcToDownload() {
-        return "/reports/cpc/national_estimate_to_download?faces-redirect=true;";
+        return "/reports/cpc/national_estimate_to_download?faces-redirect=true";
     }
 
     public String navigateToListHospitalEstimatessForCpcHeadOfficeToPrint() {
-        return "/reports/cpc_head_office/national_estimate_print?faces-redirect=true;";
+        return "/reports/cpc_head_office/national_estimate_print?faces-redirect=true";
     }
 
     public String navigateToListHospitalEstimatessForCpcHeadOfficeToDownload() {
-        return "/reports/cpc_head_office/national_estimate_to_download?faces-redirect=true;";
+        return "/reports/cpc_head_office/national_estimate_to_download?faces-redirect=true";
     }
 
     public String navigateToListHospitalEstimatessToPrint() {
         fillAllInstitutionFuelTransactions();
-        return "/reports/national_estimate_print?faces-redirect=true;";
+        return "/reports/national_estimate_print?faces-redirect=true";
     }
 
     public String navigateToListHospitalEstimatessToDownload() {
         fillAllInstitutionFuelTransactions();
-        return "/reports/national_estimate_to_download?faces-redirect=true;";
+        return "/reports/national_estimate_to_download?faces-redirect=true";
     }
 
     public String navigateToDieselDistributionFuelStationSummaryForFuelDispensor() {
         fillDieselDistributionFuelStationSummaryForCPCHedOffice();
-        return "/reports/fuel_dispensor/diesel_distribution_fuel_station_summary?faces-redirect=true;";
+        return "/reports/fuel_dispensor/diesel_distribution_fuel_station_summary?faces-redirect=true";
     }
 
     public String navigateToDieselDistributionHealthInstitutionSummaryForFuelDispensor() {
         fillDieselDistributionHealthInstitutionSummary();
-        return "/reports/fuel_dispensor/diesel_distribution_health_institution_summary?faces-redirect=true;";
+        return "/reports/fuel_dispensor/diesel_distribution_health_institution_summary?faces-redirect=true";
     }
 
     public String navigateToComprehensiveDieselIssuanceSummaryForFuelDispensor() {
         fillComprehensiveDieselIssuanceSummary();
-        return "/reports/fuel_dispensor/comprehensive_diesel_issuance_summary?faces-redirect=true;";
+        return "/reports/fuel_dispensor/comprehensive_diesel_issuance_summary?faces-redirect=true";
     }
 
     public String navigateToReportsIndex() {
@@ -346,7 +346,7 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("Error");
             return "";
         }
-        return "/reports/request_view?faces-redirect=true;";
+        return "/reports/request_view?faces-redirect=true";
     }
 
     public String navigateToEditRequest() {
@@ -363,7 +363,7 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("Error");
             return "";
         }
-        return "/reports/request_edit?faces-redirect=true;";
+        return "/reports/request_edit?faces-redirect=true";
     }
 
     public String navigateToDeleteRequest() {
@@ -380,7 +380,7 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("Error");
             return "";
         }
-        return "/reports/request_delete?faces-redirect=true;";
+        return "/reports/request_delete?faces-redirect=true";
     }
 
     public String navigateToEditRequestFromView() {
@@ -388,7 +388,7 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("Error");
             return "";
         }
-        return "/reports/request_edit?faces-redirect=true;";
+        return "/reports/request_edit?faces-redirect=true";
     }
 
     public String navigateToDeleteRequestFromView() {
@@ -396,7 +396,7 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("Error");
             return "";
         }
-        return "/reports/request_delete?faces-redirect=true;";
+        return "/reports/request_delete?faces-redirect=true";
     }
 
     public String navigateToViewRequestFromEdit() {
@@ -404,7 +404,7 @@ public class ReportController implements Serializable {
             JsfUtil.addErrorMessage("Error");
             return "";
         }
-        return "/reports/request_view?faces-redirect=true;";
+        return "/reports/request_view?faces-redirect=true";
     }
 
     public String navigateToComprehensiveSummaryFromFuelStationSummary() {

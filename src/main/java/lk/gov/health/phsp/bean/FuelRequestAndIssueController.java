@@ -114,6 +114,7 @@ public class FuelRequestAndIssueController implements Serializable {
     private WebUser webUser;
     private Date fromDate;
     private Date toDate;
+    private String requestNumber;
 
     private Bill fuelPaymentRequestBill;
 
@@ -1305,6 +1306,10 @@ public class FuelRequestAndIssueController implements Serializable {
             j += " AND b.toInstitution IN :institutions ";
             params.put("institutions", webUserController.findAutherizedInstitutions());
         }
+        if (requestNumber != null && !requestNumber.trim().isEmpty()) {
+            j += " AND b.billNo LIKE :requestNumber ";
+            params.put("requestNumber", "%" + requestNumber.trim() + "%");
+        }
         params.put("fromDate", fromDate); // fromDate should be set beforehand
         params.put("toDate", toDate);     // toDate should be set beforehand
 
@@ -2103,6 +2108,14 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setToDate(Date toDate) {
         this.toDate = toDate;
+    }
+
+    public String getRequestNumber() {
+        return requestNumber;
+    }
+
+    public void setRequestNumber(String requestNumber) {
+        this.requestNumber = requestNumber;
     }
 
     public String navigateToViewInstitutionFuelRequestToSltbDepot() {

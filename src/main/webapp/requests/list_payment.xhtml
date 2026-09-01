@@ -49,6 +49,16 @@
                         z-index: 1030;
                         background: #fff;
                         padding: 10px 0;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        flex-wrap: wrap;
+                        gap: 10px;
+                    }
+
+                    .print-toolbar-actions {
+                        display: flex;
+                        align-items: center;
                     }
 
                     .print-toolbar .ui-button {
@@ -193,15 +203,71 @@
                     .acceptance-actions {
                         margin: 10px 0;
                     }
+
+                    .contact-info-panel {
+                        border: 1px solid #dee2e6;
+                        border-radius: 4px;
+                        background: #f8f9fa;
+                        padding: 6px 12px;
+                        font-size: 0.8em;
+                        max-width: 480px;
+                    }
+
+                    .contact-info-title {
+                        font-weight: bold;
+                        margin-bottom: 4px;
+                    }
+
+                    .contact-info-note {
+                        font-weight: normal;
+                        font-size: 0.9em;
+                        color: #6c757d;
+                    }
+
+                    .contact-info-columns {
+                        display: flex;
+                        gap: 1.5rem;
+                    }
+
+                    @media print {
+                        .contact-info-panel {
+                            display: none !important;
+                        }
+                    }
                 </style>
 
                 <h:form id="billForm">
-                    <!-- Buttons for Print and PDF -->
+                    <!-- Buttons for Print and PDF, plus Contact Information (not part of the printed bill) -->
                     <div class="print-toolbar">
-                        <p:commandButton value="Print" ajax="false" icon="pi pi-print" styleClass="mr-2">
-                            <p:printer target="panelBill"/>
-                        </p:commandButton>
-                        <p:button value="Back" icon="pi pi-arrow-left" styleClass="ui-button-secondary" onclick="history.back(); return false;" />
+                        <div class="print-toolbar-actions">
+                            <p:commandButton value="Print" ajax="false" icon="pi pi-print" styleClass="mr-2">
+                                <p:printer target="panelBill"/>
+                            </p:commandButton>
+                            <p:button value="Back" icon="pi pi-arrow-left" styleClass="ui-button-secondary" onclick="history.back(); return false;" />
+                        </div>
+
+                        <h:panelGroup id="contactInfoPanel" layout="block" styleClass="contact-info-panel">
+                            <div class="contact-info-title">
+                                Contact Information
+                                <span class="contact-info-note">(not printed)</span>
+                            </div>
+                            <div class="contact-info-columns">
+                                <div>
+                                    <strong>Hospital</strong>
+                                    <div><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.name}"/></div>
+                                    <div>Phone: <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.phone}"/></div>
+                                    <div>Mobile: <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.mobile}"/></div>
+                                    <div>Email: <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.email}"/></div>
+                                </div>
+                                <div>
+                                    <strong>Created By</strong>
+                                    <div><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.nameWithTitle}"/></div>
+                                    <div>Phone: <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.phone1}"/></div>
+                                    <div>Mobile: <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.phone2}"/></div>
+                                    <div>Email: <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.email}"/></div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
                     </div>
 
                     <!-- CPC Acceptance Status and Actions (not part of the printed bill) -->
