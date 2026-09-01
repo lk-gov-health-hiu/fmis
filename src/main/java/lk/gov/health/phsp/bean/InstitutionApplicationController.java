@@ -62,6 +62,18 @@ public class InstitutionApplicationController {
     private List<InstitutionType> hospitalTypes;
     private List<InstitutionType> fuelStationsTypes;
     private List<InstitutionType> covidDataHirachiInstitutions;
+
+    /**
+     * findChildrenInstitutions walks the whole institution table (thousands
+     * of rows) recursively in Java on every call. For a high-level
+     * institution (e.g. Ministry of Health) that's expensive and is run on
+     * every login/"Home" click for that user, so cache the result per parent
+     * institution for a day - the hierarchy essentially never changes within
+     * a day.
+     */
+    private static final long CHILDREN_CACHE_DURATION_MILLIS = 24L * 60 * 60 * 1000;
+    private final Map<Long, List<Institution>> childrenInstitutionsCache = new HashMap<>();
+    private final Map<Long, Long> childrenInstitutionsCachedAt = new HashMap<>();
     // </editor-fold>
 
     public InstitutionApplicationController() {
@@ -87,6 +99,8 @@ public class InstitutionApplicationController {
 
     public void resetAllInstitutions() {
         institutions = null;
+        childrenInstitutionsCache.clear();
+        childrenInstitutionsCachedAt.clear();
     }
 
 // </editor-fold>
@@ -279,9 +293,19 @@ public class InstitutionApplicationController {
         return ri;
     }
 
-    public List<Institution> findChildrenInstitutions(Institution parentInstitution) {
-        List<Institution> allInstitutions = getInstitutions();
-        return findChildrenInstitutionsHelper1(parentInstitution, allInstitutions, new HashSet<>());
+    public synchronized List<Institution> findChildrenInstitutions(Institution parentInstitution) {
+        if (parentInstitution == null || parentInstitution.getId() == null) {
+            List<Institution> allInstitutions = getInstitutions();
+            return findChildrenInstitutionsHelper1(parentInstitution, allInstitutions, new HashSet<>());
+        }
+        Long parentId = parentInstitution.getId();
+        Long cachedAt = childrenInstitutionsCachedAt.get(parentId);
+        if (cachedAt == null || System.currentTimeMillis() - cachedAt > CHILDREN_CACHE_DURATION_MILLIS) {
+            List<Institution> allInstitutions = getInstitutions();
+            childrenInstitutionsCache.put(parentId, findChildrenInstitutionsHelper1(parentInstitution, allInstitutions, new HashSet<>()));
+            childrenInstitutionsCachedAt.put(parentId, System.currentTimeMillis());
+        }
+        return childrenInstitutionsCache.get(parentId);
     }
 
     private List<Institution> findChildrenInstitutionsHelper1(Institution parentInstitution, List<Institution> allInstitutions, Set<Institution> processed) {
