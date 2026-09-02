@@ -93,9 +93,15 @@ public class InstitutionDashboardApplicationController {
                 .limit(MAX_REJECTED_BILLS_SHOWN)
                 .collect(Collectors.toList()));
 
-        summary.setTop10VehiclesByUsage(findTop10VehiclesByUsage(institution, thisMonthStart, now));
+        List<InstitutionCount> usageThisMonth = findTop10VehiclesByUsage(institution, thisMonthStart, now);
+        applyKmDriven(usageThisMonth, computeVehicleDistances(institution, thisMonthStart, now));
+        summary.setTop10VehiclesByUsage(usageThisMonth);
 
-        List<VehicleFuelEfficiency> efficiency = computeTop10VehicleEfficiency(institution, thisMonthStart, now, summary);
+        List<InstitutionCount> usageLastMonth = findTop10VehiclesByUsage(institution, lastMonthStart, lastMonthEnd);
+        applyKmDriven(usageLastMonth, computeVehicleDistances(institution, lastMonthStart, lastMonthEnd));
+        summary.setTop10VehiclesByUsageLastMonth(usageLastMonth);
+
+        List<VehicleFuelEfficiency> efficiency = computeTop10VehicleEfficiency(institution, lastMonthStart, lastMonthEnd, summary);
         summary.setTop10VehiclesByLitersPerKm(efficiency);
 
         return summary;
@@ -182,6 +188,45 @@ public class InstitutionDashboardApplicationController {
         List<InstitutionCount> result = fuelTransactionFacade.findLightsByJpql(jpql, params, TemporalType.DATE, 10)
                 .stream().map(o -> (InstitutionCount) o).collect(Collectors.toList());
         return result;
+    }
+
+    private void applyKmDriven(List<InstitutionCount> rows, Map<Long, Double> distancesByVehicleId) {
+        for (InstitutionCount ic : rows) {
+            ic.setKmDriven(distancesByVehicleId.get(ic.getVehicle().getId()));
+        }
+    }
+
+    private Map<Long, Double> computeVehicleDistances(Institution institution, Date from, Date to) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("inst", institution);
+        params.put("excludedTypes", NON_VEHICLE_TYPES);
+        params.put("from", from);
+        params.put("to", to);
+        String jpql = "select ft from FuelTransaction ft "
+                + "where ft.institution = :inst and ft.retired = false and ft.vehicle is not null "
+                + "and ft.vehicle.vehicleType not in :excludedTypes "
+                + "and ft.odoMeterReading is not null and ft.issued = true "
+                + "and ft.requestedDate between :from and :to "
+                + "order by ft.vehicle.id asc, ft.requestedDate asc";
+        List<FuelTransaction> readings = fuelTransactionFacade.findByJpql(jpql, params, TemporalType.DATE);
+
+        Map<Vehicle, List<FuelTransaction>> byVehicle = new LinkedHashMap<>();
+        for (FuelTransaction ft : readings) {
+            byVehicle.computeIfAbsent(ft.getVehicle(), v -> new ArrayList<>()).add(ft);
+        }
+
+        Map<Long, Double> distances = new HashMap<>();
+        for (Map.Entry<Vehicle, List<FuelTransaction>> entry : byVehicle.entrySet()) {
+            List<FuelTransaction> txs = entry.getValue();
+            if (txs.size() < 2) {
+                continue;
+            }
+            double distance = txs.get(txs.size() - 1).getOdoMeterReading() - txs.get(0).getOdoMeterReading();
+            if (distance > 0) {
+                distances.put(entry.getKey().getId(), distance);
+            }
+        }
+        return distances;
     }
 
     private List<VehicleFuelEfficiency> computeTop10VehicleEfficiency(Institution institution, Date from, Date to, InstitutionDashboardSummary summary) {

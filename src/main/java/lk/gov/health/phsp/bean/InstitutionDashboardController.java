@@ -37,16 +37,18 @@ public class InstitutionDashboardController implements Serializable {
 
     private InstitutionDashboardSummary summary;
     private BarChartModel vehicleUsageChart;
+    private BarChartModel vehicleUsageLastMonthChart;
     private BarChartModel vehicleEfficiencyChart;
 
     @PostConstruct
     public void init() {
         summary = institutionDashboardApplicationController.getSummary(webUserController.getLoggedInstitution());
-        vehicleUsageChart = createVehicleUsageChart();
+        vehicleUsageChart = createVehicleUsageChart(summary.getTop10VehiclesByUsage(), "Top 10 Vehicles by Fuel Usage - This Month");
+        vehicleUsageLastMonthChart = createVehicleUsageChart(summary.getTop10VehiclesByUsageLastMonth(), "Top 10 Vehicles by Fuel Usage - Last Month");
         vehicleEfficiencyChart = createVehicleEfficiencyChart();
     }
 
-    private BarChartModel createVehicleUsageChart() {
+    private BarChartModel createVehicleUsageChart(List<InstitutionCount> rows, String titleText) {
         BarChartModel model = new BarChartModel();
         ChartData data = new ChartData();
 
@@ -56,7 +58,6 @@ public class InstitutionDashboardController implements Serializable {
         List<String> labels = new ArrayList<>();
         List<String> bgColors = new ArrayList<>();
 
-        List<InstitutionCount> rows = summary.getTop10VehiclesByUsage();
         if (rows != null) {
             for (InstitutionCount ic : rows) {
                 labels.add(ic.getVehicle().getVehicleNumber() + " (" + ic.getVehicle().getVehicleType().getLabel() + ")");
@@ -74,7 +75,7 @@ public class InstitutionDashboardController implements Serializable {
         BarChartOptions options = new BarChartOptions();
         Title title = new Title();
         title.setDisplay(true);
-        title.setText("Top 10 Vehicles by Fuel Usage - This Month");
+        title.setText(titleText);
         options.setTitle(title);
         Tooltip tooltip = new Tooltip();
         tooltip.setMode("index");
@@ -90,7 +91,7 @@ public class InstitutionDashboardController implements Serializable {
         ChartData data = new ChartData();
 
         BarChartDataSet dataSet = new BarChartDataSet();
-        dataSet.setLabel("Liters per KM");
+        dataSet.setLabel("KM per Liter");
         List<Number> values = new ArrayList<>();
         List<String> labels = new ArrayList<>();
         List<String> bgColors = new ArrayList<>();
@@ -99,7 +100,7 @@ public class InstitutionDashboardController implements Serializable {
         if (rows != null) {
             for (VehicleFuelEfficiency vfe : rows) {
                 labels.add(vfe.getVehicle().getVehicleNumber() + " (" + vfe.getVehicle().getVehicleType().getLabel() + ")");
-                values.add(vfe.getLitersPerKm());
+                values.add(vfe.getKmPerLiter());
                 bgColors.add(vfe.getVehicle().getVehicleType().getColor());
             }
         }
@@ -118,7 +119,7 @@ public class InstitutionDashboardController implements Serializable {
         options.setScales(cScales);
         Title title = new Title();
         title.setDisplay(true);
-        title.setText("Top 10 Vehicles by Fuel Use per KM - This Month");
+        title.setText("Top 10 Vehicles by Fuel Efficiency (KM per Liter) - Last Month");
         options.setTitle(title);
         Tooltip tooltip = new Tooltip();
         tooltip.setMode("index");
@@ -127,6 +128,30 @@ public class InstitutionDashboardController implements Serializable {
         model.setOptions(options);
 
         return model;
+    }
+
+    public String getVehicleUsageChartKmLabelsJson() {
+        return toKmLabelsJson(summary.getTop10VehiclesByUsage());
+    }
+
+    public String getVehicleUsageLastMonthChartKmLabelsJson() {
+        return toKmLabelsJson(summary.getTop10VehiclesByUsageLastMonth());
+    }
+
+    private String toKmLabelsJson(List<InstitutionCount> rows) {
+        if (rows == null) {
+            return "[]";
+        }
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < rows.size(); i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            Double km = rows.get(i).getKmDriven();
+            sb.append(km == null ? "null" : km);
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
     private Double trendPercent(Double current, Double previous) {
@@ -142,6 +167,10 @@ public class InstitutionDashboardController implements Serializable {
 
     public BarChartModel getVehicleUsageChart() {
         return vehicleUsageChart;
+    }
+
+    public BarChartModel getVehicleUsageLastMonthChart() {
+        return vehicleUsageLastMonthChart;
     }
 
     public BarChartModel getVehicleEfficiencyChart() {

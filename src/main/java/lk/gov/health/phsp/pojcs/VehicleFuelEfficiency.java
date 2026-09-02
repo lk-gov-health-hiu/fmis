@@ -38,4 +38,11 @@ public class VehicleFuelEfficiency {
         }
         return totalLiters / totalKm;
     }
+
+    public Double getKmPerLiter() {
+        if (totalLiters == null || totalLiters <= 0) {
+            return 0.0;
+        }
+        return totalKm / totalLiters;
+    }
 }

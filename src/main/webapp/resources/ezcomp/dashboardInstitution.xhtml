@@ -116,14 +116,27 @@
                     </div>
                     <div class="col-6">
                         <div class="card m-1">
-                            <div class="card-header">Top 10 Vehicles by Fuel Use per KM - This Month</div>
+                            <div class="card-header">Top 10 Vehicles by Fuel Usage - Last Month</div>
+                            <div class="card-body">
+                                <p:barChart model="#{institutionDashboardController.vehicleUsageLastMonthChart}" style="width:100%; min-height:500px;"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="card m-1">
+                            <div class="card-header">Top 10 Vehicles by Fuel Efficiency (KM per Liter) - Last Month</div>
                             <div class="card-body">
                                 <p:barChart model="#{institutionDashboardController.vehicleEfficiencyChart}" style="width:100%; min-height:500px;"/>
                                 <h:outputText styleClass="text-muted small mt-2 d-block"
                                               rendered="#{institutionDashboardController.summary.vehiclesExcludedFromEfficiencyChart > 0}"
-                                              value="#{institutionDashboardController.summary.vehiclesExcludedFromEfficiencyChart} vehicle(s) excluded - not enough odometer readings this month to compute an average." />
+                                              value="#{institutionDashboardController.summary.vehiclesExcludedFromEfficiencyChart} vehicle(s) excluded - not enough odometer readings last month to compute an average." />
                             </div>
                         </div>
+                    </div>
+                    <div class="col-6">
                     </div>
                 </div>
             </div>

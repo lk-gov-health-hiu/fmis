@@ -28,6 +28,7 @@ public class InstitutionDashboardSummary implements Serializable {
     private List<Bill> rejectedCpcBills;
 
     private List<InstitutionCount> top10VehiclesByUsage;
+    private List<InstitutionCount> top10VehiclesByUsageLastMonth;
     private List<VehicleFuelEfficiency> top10VehiclesByLitersPerKm;
     private int vehiclesExcludedFromEfficiencyChart;
 
@@ -125,6 +126,14 @@ public class InstitutionDashboardSummary implements Serializable {
 
     public void setTop10VehiclesByUsage(List<InstitutionCount> top10VehiclesByUsage) {
         this.top10VehiclesByUsage = top10VehiclesByUsage;
+    }
+
+    public List<InstitutionCount> getTop10VehiclesByUsageLastMonth() {
+        return top10VehiclesByUsageLastMonth;
+    }
+
+    public void setTop10VehiclesByUsageLastMonth(List<InstitutionCount> top10VehiclesByUsageLastMonth) {
+        this.top10VehiclesByUsageLastMonth = top10VehiclesByUsageLastMonth;
     }
 
     public List<VehicleFuelEfficiency> getTop10VehiclesByLitersPerKm() {
