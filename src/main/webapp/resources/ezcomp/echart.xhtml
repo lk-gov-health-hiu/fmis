@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <!-- INTERFACE -->
+    <cc:interface>
+        <cc:attribute name="option" type="java.lang.String" required="true" />
+        <cc:attribute name="style" type="java.lang.String" default="width:100%; min-height:500px;" />
+    </cc:interface>
+
+    <!-- IMPLEMENTATION -->
+    <cc:implementation>
+        <h:outputScript library="js" name="echarts.min.js" target="head" />
+        <div id="#{cc.clientId}_div" style="#{cc.attrs.style}"></div>
+        <script type="text/javascript">
+            (function () {
+                var el = document.getElementById("#{cc.clientId}_div");
+                var chart = echarts.init(el);
+                chart.setOption(#{cc.attrs.option});
+                window.addEventListener("resize", function () {
+                    chart.resize();
+                });
+            })();
+        </script>
+    </cc:implementation>
+
+</html>

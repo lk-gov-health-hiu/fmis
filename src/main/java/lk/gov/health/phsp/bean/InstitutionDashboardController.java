@@ -1,24 +1,20 @@
 package lk.gov.health.phsp.bean;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import lk.gov.health.phsp.entity.Bill;
 import lk.gov.health.phsp.pojcs.InstitutionCount;
 import lk.gov.health.phsp.pojcs.InstitutionDashboardSummary;
 import lk.gov.health.phsp.pojcs.VehicleFuelEfficiency;
-import org.primefaces.model.charts.ChartData;
-import org.primefaces.model.charts.axes.cartesian.CartesianScales;
-import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearAxes;
-import org.primefaces.model.charts.bar.BarChartDataSet;
-import org.primefaces.model.charts.bar.BarChartModel;
-import org.primefaces.model.charts.bar.BarChartOptions;
-import org.primefaces.model.charts.optionconfig.title.Title;
-import org.primefaces.model.charts.optionconfig.tooltip.Tooltip;
 
 /**
  * Backs dashboardInstitution.xhtml - the fuel-usage/payment-status
@@ -34,124 +30,123 @@ public class InstitutionDashboardController implements Serializable {
     private WebUserController webUserController;
     @Inject
     private InstitutionDashboardApplicationController institutionDashboardApplicationController;
+    @Inject
+    private FuelRequestAndIssueController fuelRequestAndIssueController;
+    @Inject
+    private ReportController reportController;
+
+    private static final String KM_LABEL_PLACEHOLDER = "@@KM_LABEL_FORMATTER@@";
+    // Renders as: '' when km is not computable for a bar, otherwise the rounded km value.
+    private static final String KM_LABEL_FORMATTER_JS
+            = "function(p){var k=p&&p.data?p.data.km:null;"
+            + "return (k===null||k===undefined)?'':(Math.round(k)+' km');}";
 
     private InstitutionDashboardSummary summary;
-    private BarChartModel vehicleUsageChart;
-    private BarChartModel vehicleUsageLastMonthChart;
-    private BarChartModel vehicleEfficiencyChart;
+    private String vehicleUsageChartOption;
+    private String vehicleUsageLastMonthChartOption;
+    private String vehicleEfficiencyChartOption;
+    private String vehicleDistanceChartOption;
 
     @PostConstruct
     public void init() {
         summary = institutionDashboardApplicationController.getSummary(webUserController.getLoggedInstitution());
-        vehicleUsageChart = createVehicleUsageChart(summary.getTop10VehiclesByUsage(), "Top 10 Vehicles by Fuel Usage - This Month");
-        vehicleUsageLastMonthChart = createVehicleUsageChart(summary.getTop10VehiclesByUsageLastMonth(), "Top 10 Vehicles by Fuel Usage - Last Month");
-        vehicleEfficiencyChart = createVehicleEfficiencyChart();
+        vehicleUsageChartOption = buildUsageChartOption(summary.getTop10VehiclesByUsage(), "Top 10 Vehicles by Fuel Usage - This Month");
+        vehicleUsageLastMonthChartOption = buildUsageChartOption(summary.getTop10VehiclesByUsageLastMonth(), "Top 10 Vehicles by Fuel Usage - Last Month");
+        vehicleEfficiencyChartOption = buildEfficiencyChartOption();
+        vehicleDistanceChartOption = buildDistanceChartOption();
     }
 
-    private BarChartModel createVehicleUsageChart(List<InstitutionCount> rows, String titleText) {
-        BarChartModel model = new BarChartModel();
-        ChartData data = new ChartData();
-
-        BarChartDataSet dataSet = new BarChartDataSet();
-        dataSet.setLabel("Issued Quantity (L)");
-        List<Number> values = new ArrayList<>();
-        List<String> labels = new ArrayList<>();
-        List<String> bgColors = new ArrayList<>();
+    private String buildUsageChartOption(List<InstitutionCount> rows, String titleText) {
+        JsonArrayBuilder categories = Json.createArrayBuilder();
+        JsonArrayBuilder data = Json.createArrayBuilder();
 
         if (rows != null) {
             for (InstitutionCount ic : rows) {
-                labels.add(ic.getVehicle().getVehicleNumber() + " (" + ic.getVehicle().getVehicleType().getLabel() + ")");
-                values.add(ic.getIssuedQty());
-                bgColors.add(ic.getVehicle().getVehicleType().getColor());
+                categories.add(ic.getVehicle().getVehicleNumber() + " (" + ic.getVehicle().getVehicleType().getLabel() + ")");
+                JsonObjectBuilder point = Json.createObjectBuilder()
+                        .add("value", ic.getIssuedQty())
+                        .add("itemStyle", Json.createObjectBuilder().add("color", ic.getVehicle().getVehicleType().getColor()));
+                if (ic.getKmDriven() == null) {
+                    point.addNull("km");
+                } else {
+                    point.add("km", ic.getKmDriven());
+                }
+                data.add(point);
             }
         }
 
-        dataSet.setData(values);
-        dataSet.setBackgroundColor(bgColors);
-        data.addChartDataSet(dataSet);
-        data.setLabels(labels);
-        model.setData(data);
+        JsonObjectBuilder series = Json.createObjectBuilder()
+                .add("name", "Issued Quantity (L)")
+                .add("type", "bar")
+                .add("data", data)
+                .add("label", Json.createObjectBuilder()
+                        .add("show", true)
+                        .add("position", "top")
+                        .add("fontSize", 10)
+                        .add("formatter", KM_LABEL_PLACEHOLDER));
 
-        BarChartOptions options = new BarChartOptions();
-        Title title = new Title();
-        title.setDisplay(true);
-        title.setText(titleText);
-        options.setTitle(title);
-        Tooltip tooltip = new Tooltip();
-        tooltip.setMode("index");
-        tooltip.setIntersect(false);
-        options.setTooltip(tooltip);
-        model.setOptions(options);
+        JsonObject option = baseBarOptionBuilder(titleText, categories, series).build();
 
-        return model;
+        return option.toString().replace("\"" + KM_LABEL_PLACEHOLDER + "\"", KM_LABEL_FORMATTER_JS);
     }
 
-    private BarChartModel createVehicleEfficiencyChart() {
-        BarChartModel model = new BarChartModel();
-        ChartData data = new ChartData();
-
-        BarChartDataSet dataSet = new BarChartDataSet();
-        dataSet.setLabel("KM per Liter");
-        List<Number> values = new ArrayList<>();
-        List<String> labels = new ArrayList<>();
-        List<String> bgColors = new ArrayList<>();
+    private String buildEfficiencyChartOption() {
+        JsonArrayBuilder categories = Json.createArrayBuilder();
+        JsonArrayBuilder data = Json.createArrayBuilder();
 
         List<VehicleFuelEfficiency> rows = summary.getTop10VehiclesByLitersPerKm();
         if (rows != null) {
             for (VehicleFuelEfficiency vfe : rows) {
-                labels.add(vfe.getVehicle().getVehicleNumber() + " (" + vfe.getVehicle().getVehicleType().getLabel() + ")");
-                values.add(vfe.getKmPerLiter());
-                bgColors.add(vfe.getVehicle().getVehicleType().getColor());
+                categories.add(vfe.getVehicle().getVehicleNumber() + " (" + vfe.getVehicle().getVehicleType().getLabel() + ")");
+                data.add(Json.createObjectBuilder()
+                        .add("value", vfe.getKmPerLiter())
+                        .add("itemStyle", Json.createObjectBuilder().add("color", vfe.getVehicle().getVehicleType().getColor())));
             }
         }
 
-        dataSet.setData(values);
-        dataSet.setBackgroundColor(bgColors);
-        data.addChartDataSet(dataSet);
-        data.setLabels(labels);
-        model.setData(data);
+        JsonObjectBuilder series = Json.createObjectBuilder()
+                .add("name", "KM per Liter")
+                .add("type", "bar")
+                .add("data", data);
 
-        BarChartOptions options = new BarChartOptions();
-        CartesianScales cScales = new CartesianScales();
-        CartesianLinearAxes linearAxes = new CartesianLinearAxes();
-        linearAxes.setStacked(false);
-        cScales.addYAxesData(linearAxes);
-        options.setScales(cScales);
-        Title title = new Title();
-        title.setDisplay(true);
-        title.setText("Top 10 Vehicles by Fuel Efficiency (KM per Liter) - Last Month");
-        options.setTitle(title);
-        Tooltip tooltip = new Tooltip();
-        tooltip.setMode("index");
-        tooltip.setIntersect(false);
-        options.setTooltip(tooltip);
-        model.setOptions(options);
-
-        return model;
+        JsonObject option = baseBarOptionBuilder("Top 10 Vehicles by Fuel Efficiency (KM per Liter) - Last Month", categories, series).build();
+        return option.toString();
     }
 
-    public String getVehicleUsageChartKmLabelsJson() {
-        return toKmLabelsJson(summary.getTop10VehiclesByUsage());
-    }
+    private String buildDistanceChartOption() {
+        JsonArrayBuilder categories = Json.createArrayBuilder();
+        JsonArrayBuilder data = Json.createArrayBuilder();
 
-    public String getVehicleUsageLastMonthChartKmLabelsJson() {
-        return toKmLabelsJson(summary.getTop10VehiclesByUsageLastMonth());
-    }
-
-    private String toKmLabelsJson(List<InstitutionCount> rows) {
-        if (rows == null) {
-            return "[]";
-        }
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < rows.size(); i++) {
-            if (i > 0) {
-                sb.append(",");
+        List<InstitutionCount> rows = summary.getTop10VehiclesByDistanceLastMonth();
+        if (rows != null) {
+            for (InstitutionCount ic : rows) {
+                categories.add(ic.getVehicle().getVehicleNumber() + " (" + ic.getVehicle().getVehicleType().getLabel() + ")");
+                data.add(Json.createObjectBuilder()
+                        .add("value", ic.getKmDriven())
+                        .add("itemStyle", Json.createObjectBuilder().add("color", ic.getVehicle().getVehicleType().getColor())));
             }
-            Double km = rows.get(i).getKmDriven();
-            sb.append(km == null ? "null" : km);
         }
-        sb.append("]");
-        return sb.toString();
+
+        JsonObjectBuilder series = Json.createObjectBuilder()
+                .add("name", "Distance Traveled (KM)")
+                .add("type", "bar")
+                .add("data", data);
+
+        JsonObject option = baseBarOptionBuilder("Top 10 Vehicles by Distance Traveled (KM) - Last Month", categories, series).build();
+        return option.toString();
+    }
+
+    private JsonObjectBuilder baseBarOptionBuilder(String titleText, JsonArrayBuilder categories, JsonObjectBuilder series) {
+        return Json.createObjectBuilder()
+                .add("title", Json.createObjectBuilder().add("text", titleText).add("left", "center"))
+                .add("tooltip", Json.createObjectBuilder().add("trigger", "axis"))
+                .add("grid", Json.createObjectBuilder().add("containLabel", true))
+                .add("xAxis", Json.createObjectBuilder()
+                        .add("type", "category")
+                        .add("data", categories)
+                        .add("axisLabel", Json.createObjectBuilder().add("interval", 0).add("rotate", 30)))
+                .add("yAxis", Json.createObjectBuilder().add("type", "value"))
+                .add("series", Json.createArrayBuilder().add(series));
     }
 
     private Double trendPercent(Double current, Double previous) {
@@ -161,20 +156,31 @@ public class InstitutionDashboardController implements Serializable {
         return ((current - previous) / previous) * 100;
     }
 
+    private String trendLabel(Double percent) {
+        if (percent == null) {
+            return null;
+        }
+        return String.format(" (%s%.1f%%)", percent > 0 ? "+" : "", percent);
+    }
+
     public InstitutionDashboardSummary getSummary() {
         return summary;
     }
 
-    public BarChartModel getVehicleUsageChart() {
-        return vehicleUsageChart;
+    public String getVehicleUsageChartOption() {
+        return vehicleUsageChartOption;
     }
 
-    public BarChartModel getVehicleUsageLastMonthChart() {
-        return vehicleUsageLastMonthChart;
+    public String getVehicleUsageLastMonthChartOption() {
+        return vehicleUsageLastMonthChartOption;
     }
 
-    public BarChartModel getVehicleEfficiencyChart() {
-        return vehicleEfficiencyChart;
+    public String getVehicleEfficiencyChartOption() {
+        return vehicleEfficiencyChartOption;
+    }
+
+    public String getVehicleDistanceChartOption() {
+        return vehicleDistanceChartOption;
     }
 
     public Double getRequestedTrendPercent() {
@@ -185,7 +191,47 @@ public class InstitutionDashboardController implements Serializable {
         return trendPercent(summary.getIssuedThisMonth(), summary.getIssuedLastMonth());
     }
 
+    public String getRequestedTrendLabel() {
+        return trendLabel(getRequestedTrendPercent());
+    }
+
+    public String getIssuedTrendLabel() {
+        return trendLabel(getIssuedTrendPercent());
+    }
+
     public List<Bill> getRejectedCpcBills() {
         return summary.getRejectedCpcBills();
+    }
+
+    /**
+     * "Requested, Not Yet Issued" card - the pending-issue count/quantity
+     * on the dashboard has no date bound, so widen the search page's date
+     * range to catch everything outstanding rather than just this month.
+     */
+    public String navigateToPendingIssueRequests() {
+        fuelRequestAndIssueController.setFromDate(new Date(0));
+        fuelRequestAndIssueController.setToDate(new Date());
+        return fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark();
+    }
+
+    /**
+     * "Not Submitted for Payment" card is based on last month's issued
+     * transactions, so scope the payment-request page to the same month.
+     */
+    public String navigateToNotSubmittedForPayment() {
+        fuelRequestAndIssueController.setFromDate(CommonController.startOfTheLastMonth());
+        fuelRequestAndIssueController.setToDate(CommonController.endOfTheLastMonth());
+        return fuelRequestAndIssueController.navigateToMakePayment();
+    }
+
+    /**
+     * "Resubmit Requested by CPC" card is based on last month's bills,
+     * so pre-populate the payments list with the same month's bills.
+     */
+    public String navigateToResubmitRequestedBills() {
+        fuelRequestAndIssueController.setFromDate(CommonController.startOfTheLastMonth());
+        fuelRequestAndIssueController.setToDate(CommonController.endOfTheLastMonth());
+        fuelRequestAndIssueController.listPaymentBillsForInstitutionLevel();
+        return reportController.navigateToListPayments();
     }
 }

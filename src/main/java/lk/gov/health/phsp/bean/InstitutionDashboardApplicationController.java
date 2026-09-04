@@ -17,6 +17,7 @@ import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.enums.BillAcceptanceStatus;
+import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.VehicleType;
 import lk.gov.health.phsp.facade.BillFacade;
 import lk.gov.health.phsp.facade.FuelTransactionFacade;
@@ -51,6 +52,18 @@ public class InstitutionDashboardApplicationController {
             .filter(vt -> !vt.isVehicle())
             .collect(Collectors.toList());
 
+    /**
+     * For a SpecialVehicleFuelRequest, ft.institution is overwritten to the
+     * vehicle's owning institution (for fleet tracking), while ft.fromInstitution
+     * stays the institution that actually requested/issued/pays for it. The
+     * dashboard is about this institution's own fuel activity, so it must match
+     * on whichever field reflects that - fromInstitution for special requests,
+     * institution for every other transaction type.
+     */
+    private static final String RESPONSIBLE_INSTITUTION_MATCH
+            = "((ft.transactionType = :specialType and ft.fromInstitution = :inst) "
+            + "or (ft.transactionType <> :specialType and ft.institution = :inst))";
+
     public synchronized InstitutionDashboardSummary getSummary(Institution institution) {
         if (institution == null || institution.getId() == null) {
             return new InstitutionDashboardSummary();
@@ -77,6 +90,7 @@ public class InstitutionDashboardApplicationController {
         summary.setIssuedThisMonth(sumIssuedQuantity(institution, thisMonthStart, now));
         summary.setIssuedLastMonth(sumIssuedQuantity(institution, lastMonthStart, lastMonthEnd));
         summary.setPendingIssueQuantity(sumPendingIssueQuantity(institution));
+        summary.setPendingIssueCount(countPendingIssue(institution));
 
         List<FuelTransaction> notSubmitted = findNotSubmittedForPayment(institution, lastMonthStart, lastMonthEnd);
         summary.setNotSubmittedForPaymentCount((long) notSubmitted.size());
@@ -85,7 +99,6 @@ public class InstitutionDashboardApplicationController {
                 .sum());
 
         List<Bill> lastMonthBills = findBills(institution, lastMonthStart, lastMonthEnd);
-        summary.setPendingCpcBillCount(countByStatus(lastMonthBills, BillAcceptanceStatus.PENDING));
         summary.setRejectedCpcBillCount(countByStatus(lastMonthBills, BillAcceptanceStatus.RESUBMIT_REQUESTED));
         summary.setAcceptedCpcBillCount(countByStatus(lastMonthBills, BillAcceptanceStatus.ACCEPTED));
         summary.setRejectedCpcBills(lastMonthBills.stream()
@@ -104,16 +117,20 @@ public class InstitutionDashboardApplicationController {
         List<VehicleFuelEfficiency> efficiency = computeTop10VehicleEfficiency(institution, lastMonthStart, lastMonthEnd, summary);
         summary.setTop10VehiclesByLitersPerKm(efficiency);
 
+        List<InstitutionCount> distanceLastMonth = computeTop10VehiclesByDistance(institution, lastMonthStart, lastMonthEnd);
+        summary.setTop10VehiclesByDistanceLastMonth(distanceLastMonth);
+
         return summary;
     }
 
     private Double sumRequestQuantity(Institution institution, Date from, Date to) {
         Map<String, Object> params = new HashMap<>();
         params.put("inst", institution);
+        params.put("specialType", FuelTransactionType.SpecialVehicleFuelRequest);
         params.put("from", from);
         params.put("to", to);
         String jpql = "select sum(ft.requestQuantity) from FuelTransaction ft "
-                + "where ft.institution = :inst and ft.retired = false "
+                + "where " + RESPONSIBLE_INSTITUTION_MATCH + " and ft.retired = false "
                 + "and ft.requestedDate between :from and :to";
         return firstDoubleResult(fuelTransactionFacade.findLightsByJpql(jpql, params, TemporalType.DATE));
     }
@@ -121,10 +138,11 @@ public class InstitutionDashboardApplicationController {
     private Double sumIssuedQuantity(Institution institution, Date from, Date to) {
         Map<String, Object> params = new HashMap<>();
         params.put("inst", institution);
+        params.put("specialType", FuelTransactionType.SpecialVehicleFuelRequest);
         params.put("from", from);
         params.put("to", to);
         String jpql = "select sum(ft.issuedQuantity) from FuelTransaction ft "
-                + "where ft.institution = :inst and ft.retired = false and ft.issued = true "
+                + "where " + RESPONSIBLE_INSTITUTION_MATCH + " and ft.retired = false and ft.issued = true "
                 + "and ft.issuedDate between :from and :to";
         return firstDoubleResult(fuelTransactionFacade.findLightsByJpql(jpql, params, TemporalType.DATE));
     }
@@ -132,10 +150,21 @@ public class InstitutionDashboardApplicationController {
     private Double sumPendingIssueQuantity(Institution institution) {
         Map<String, Object> params = new HashMap<>();
         params.put("inst", institution);
+        params.put("specialType", FuelTransactionType.SpecialVehicleFuelRequest);
         String jpql = "select sum(ft.requestQuantity) from FuelTransaction ft "
-                + "where ft.institution = :inst and ft.retired = false "
+                + "where " + RESPONSIBLE_INSTITUTION_MATCH + " and ft.retired = false "
                 + "and ft.issued = false and ft.cancelled = false and ft.rejected = false";
         return firstDoubleResult(fuelTransactionFacade.findLightsByJpql(jpql, params));
+    }
+
+    private Long countPendingIssue(Institution institution) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("inst", institution);
+        params.put("specialType", FuelTransactionType.SpecialVehicleFuelRequest);
+        String jpql = "select count(ft) from FuelTransaction ft "
+                + "where " + RESPONSIBLE_INSTITUTION_MATCH + " and ft.retired = false "
+                + "and ft.issued = false and ft.cancelled = false and ft.rejected = false";
+        return firstLongResult(fuelTransactionFacade.findLightsByJpql(jpql, params));
     }
 
     private Double firstDoubleResult(List<?> result) {
@@ -145,13 +174,21 @@ public class InstitutionDashboardApplicationController {
         return (Double) result.get(0);
     }
 
+    private Long firstLongResult(List<?> result) {
+        if (result == null || result.isEmpty() || result.get(0) == null) {
+            return 0L;
+        }
+        return (Long) result.get(0);
+    }
+
     private List<FuelTransaction> findNotSubmittedForPayment(Institution institution, Date from, Date to) {
         Map<String, Object> params = new HashMap<>();
         params.put("inst", institution);
+        params.put("specialType", FuelTransactionType.SpecialVehicleFuelRequest);
         params.put("from", from);
         params.put("to", to);
         String jpql = "select ft from FuelTransaction ft "
-                + "where ft.institution = :inst and ft.retired = false and ft.issued = true "
+                + "where " + RESPONSIBLE_INSTITUTION_MATCH + " and ft.retired = false and ft.issued = true "
                 + "and ft.submittedToPayment = false "
                 + "and ft.issuedDate between :from and :to";
         return fuelTransactionFacade.findByJpql(jpql, params, TemporalType.DATE);
@@ -175,12 +212,13 @@ public class InstitutionDashboardApplicationController {
     private List<InstitutionCount> findTop10VehiclesByUsage(Institution institution, Date from, Date to) {
         Map<String, Object> params = new HashMap<>();
         params.put("inst", institution);
+        params.put("specialType", FuelTransactionType.SpecialVehicleFuelRequest);
         params.put("excludedTypes", NON_VEHICLE_TYPES);
         params.put("from", from);
         params.put("to", to);
         String jpql = "select new lk.gov.health.phsp.pojcs.InstitutionCount(ft.vehicle, sum(ft.requestQuantity), sum(ft.issuedQuantity)) "
                 + "from FuelTransaction ft "
-                + "where ft.institution = :inst and ft.retired = false and ft.vehicle is not null "
+                + "where " + RESPONSIBLE_INSTITUTION_MATCH + " and ft.retired = false and ft.vehicle is not null "
                 + "and ft.vehicle.vehicleType not in :excludedTypes "
                 + "and ft.requestedDate between :from and :to "
                 + "group by ft.vehicle "
@@ -199,11 +237,12 @@ public class InstitutionDashboardApplicationController {
     private Map<Long, Double> computeVehicleDistances(Institution institution, Date from, Date to) {
         Map<String, Object> params = new HashMap<>();
         params.put("inst", institution);
+        params.put("specialType", FuelTransactionType.SpecialVehicleFuelRequest);
         params.put("excludedTypes", NON_VEHICLE_TYPES);
         params.put("from", from);
         params.put("to", to);
         String jpql = "select ft from FuelTransaction ft "
-                + "where ft.institution = :inst and ft.retired = false and ft.vehicle is not null "
+                + "where " + RESPONSIBLE_INSTITUTION_MATCH + " and ft.retired = false and ft.vehicle is not null "
                 + "and ft.vehicle.vehicleType not in :excludedTypes "
                 + "and ft.odoMeterReading is not null and ft.issued = true "
                 + "and ft.requestedDate between :from and :to "
@@ -232,11 +271,12 @@ public class InstitutionDashboardApplicationController {
     private List<VehicleFuelEfficiency> computeTop10VehicleEfficiency(Institution institution, Date from, Date to, InstitutionDashboardSummary summary) {
         Map<String, Object> params = new HashMap<>();
         params.put("inst", institution);
+        params.put("specialType", FuelTransactionType.SpecialVehicleFuelRequest);
         params.put("excludedTypes", NON_VEHICLE_TYPES);
         params.put("from", from);
         params.put("to", to);
         String jpql = "select ft from FuelTransaction ft "
-                + "where ft.institution = :inst and ft.retired = false and ft.vehicle is not null "
+                + "where " + RESPONSIBLE_INSTITUTION_MATCH + " and ft.retired = false and ft.vehicle is not null "
                 + "and ft.vehicle.vehicleType not in :excludedTypes "
                 + "and ft.odoMeterReading is not null and ft.issued = true "
                 + "and ft.requestedDate between :from and :to "
@@ -270,6 +310,48 @@ public class InstitutionDashboardApplicationController {
 
         return efficiencies.stream()
                 .sorted((a, b) -> Double.compare(b.getLitersPerKm(), a.getLitersPerKm()))
+                .limit(10)
+                .collect(Collectors.toList());
+    }
+
+    private List<InstitutionCount> computeTop10VehiclesByDistance(Institution institution, Date from, Date to) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("inst", institution);
+        params.put("specialType", FuelTransactionType.SpecialVehicleFuelRequest);
+        params.put("excludedTypes", NON_VEHICLE_TYPES);
+        params.put("from", from);
+        params.put("to", to);
+        String jpql = "select ft from FuelTransaction ft "
+                + "where " + RESPONSIBLE_INSTITUTION_MATCH + " and ft.retired = false and ft.vehicle is not null "
+                + "and ft.vehicle.vehicleType not in :excludedTypes "
+                + "and ft.odoMeterReading is not null and ft.issued = true "
+                + "and ft.requestedDate between :from and :to "
+                + "order by ft.vehicle.id asc, ft.requestedDate asc";
+        List<FuelTransaction> readings = fuelTransactionFacade.findByJpql(jpql, params, TemporalType.DATE);
+
+        Map<Vehicle, List<FuelTransaction>> byVehicle = new LinkedHashMap<>();
+        for (FuelTransaction ft : readings) {
+            byVehicle.computeIfAbsent(ft.getVehicle(), v -> new ArrayList<>()).add(ft);
+        }
+
+        List<InstitutionCount> rows = new ArrayList<>();
+        for (Map.Entry<Vehicle, List<FuelTransaction>> entry : byVehicle.entrySet()) {
+            List<FuelTransaction> txs = entry.getValue();
+            if (txs.size() < 2) {
+                continue;
+            }
+            double distance = txs.get(txs.size() - 1).getOdoMeterReading() - txs.get(0).getOdoMeterReading();
+            if (distance <= 0) {
+                continue;
+            }
+            InstitutionCount row = new InstitutionCount();
+            row.setVehicle(entry.getKey());
+            row.setKmDriven(distance);
+            rows.add(row);
+        }
+
+        return rows.stream()
+                .sorted((a, b) -> Double.compare(b.getKmDriven(), a.getKmDriven()))
                 .limit(10)
                 .collect(Collectors.toList());
     }
