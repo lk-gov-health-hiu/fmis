@@ -2,6 +2,7 @@ package lk.gov.health.phsp.bean;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -43,7 +44,7 @@ public class InstitutionDashboardApplicationController {
     private BillFacade billFacade;
 
     private static final long CACHE_DURATION_MILLIS = 24L * 60 * 60 * 1000;
-    private static final int MAX_REJECTED_BILLS_SHOWN = 5;
+    private static final int PENDING_ISSUE_LOOKBACK_DAYS = 60;
 
     private final Map<Long, InstitutionDashboardSummary> summaryCache = new HashMap<>();
     private final Map<Long, Long> summaryCachedAt = new HashMap<>();
@@ -89,8 +90,9 @@ public class InstitutionDashboardApplicationController {
         summary.setRequestedLastMonth(sumRequestQuantity(institution, lastMonthStart, lastMonthEnd));
         summary.setIssuedThisMonth(sumIssuedQuantity(institution, thisMonthStart, now));
         summary.setIssuedLastMonth(sumIssuedQuantity(institution, lastMonthStart, lastMonthEnd));
-        summary.setPendingIssueQuantity(sumPendingIssueQuantity(institution));
-        summary.setPendingIssueCount(countPendingIssue(institution));
+        Date pendingIssueSince = pendingIssueLookbackStart();
+        summary.setPendingIssueQuantity(sumPendingIssueQuantity(institution, pendingIssueSince));
+        summary.setPendingIssueCount(countPendingIssue(institution, pendingIssueSince));
 
         List<FuelTransaction> notSubmitted = findNotSubmittedForPayment(institution, lastMonthStart, lastMonthEnd);
         summary.setNotSubmittedForPaymentCount((long) notSubmitted.size());
@@ -101,10 +103,6 @@ public class InstitutionDashboardApplicationController {
         List<Bill> lastMonthBills = findBills(institution, lastMonthStart, lastMonthEnd);
         summary.setRejectedCpcBillCount(countByStatus(lastMonthBills, BillAcceptanceStatus.RESUBMIT_REQUESTED));
         summary.setAcceptedCpcBillCount(countByStatus(lastMonthBills, BillAcceptanceStatus.ACCEPTED));
-        summary.setRejectedCpcBills(lastMonthBills.stream()
-                .filter(b -> b.getAcceptanceStatus() == BillAcceptanceStatus.RESUBMIT_REQUESTED)
-                .limit(MAX_REJECTED_BILLS_SHOWN)
-                .collect(Collectors.toList()));
 
         List<InstitutionCount> usageThisMonth = findTop10VehiclesByUsage(institution, thisMonthStart, now);
         applyKmDriven(usageThisMonth, computeVehicleDistances(institution, thisMonthStart, now));
@@ -147,24 +145,34 @@ public class InstitutionDashboardApplicationController {
         return firstDoubleResult(fuelTransactionFacade.findLightsByJpql(jpql, params, TemporalType.DATE));
     }
 
-    private Double sumPendingIssueQuantity(Institution institution) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("inst", institution);
-        params.put("specialType", FuelTransactionType.SpecialVehicleFuelRequest);
-        String jpql = "select sum(ft.requestQuantity) from FuelTransaction ft "
-                + "where " + RESPONSIBLE_INSTITUTION_MATCH + " and ft.retired = false "
-                + "and ft.issued = false and ft.cancelled = false and ft.rejected = false";
-        return firstDoubleResult(fuelTransactionFacade.findLightsByJpql(jpql, params));
+    private Date pendingIssueLookbackStart() {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_MONTH, -PENDING_ISSUE_LOOKBACK_DAYS);
+        return c.getTime();
     }
 
-    private Long countPendingIssue(Institution institution) {
+    private Double sumPendingIssueQuantity(Institution institution, Date since) {
         Map<String, Object> params = new HashMap<>();
         params.put("inst", institution);
         params.put("specialType", FuelTransactionType.SpecialVehicleFuelRequest);
+        params.put("since", since);
+        String jpql = "select sum(ft.requestQuantity) from FuelTransaction ft "
+                + "where " + RESPONSIBLE_INSTITUTION_MATCH + " and ft.retired = false "
+                + "and ft.issued = false and ft.cancelled = false and ft.rejected = false "
+                + "and ft.requestedDate >= :since";
+        return firstDoubleResult(fuelTransactionFacade.findLightsByJpql(jpql, params, TemporalType.DATE));
+    }
+
+    private Long countPendingIssue(Institution institution, Date since) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("inst", institution);
+        params.put("specialType", FuelTransactionType.SpecialVehicleFuelRequest);
+        params.put("since", since);
         String jpql = "select count(ft) from FuelTransaction ft "
                 + "where " + RESPONSIBLE_INSTITUTION_MATCH + " and ft.retired = false "
-                + "and ft.issued = false and ft.cancelled = false and ft.rejected = false";
-        return firstLongResult(fuelTransactionFacade.findLightsByJpql(jpql, params));
+                + "and ft.issued = false and ft.cancelled = false and ft.rejected = false "
+                + "and ft.requestedDate >= :since";
+        return firstLongResult(fuelTransactionFacade.findLightsByJpql(jpql, params, TemporalType.DATE));
     }
 
     private Double firstDoubleResult(List<?> result) {

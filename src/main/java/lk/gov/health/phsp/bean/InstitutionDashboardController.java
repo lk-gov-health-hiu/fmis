@@ -1,6 +1,7 @@
 package lk.gov.health.phsp.bean;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -11,7 +12,6 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
-import lk.gov.health.phsp.entity.Bill;
 import lk.gov.health.phsp.pojcs.InstitutionCount;
 import lk.gov.health.phsp.pojcs.InstitutionDashboardSummary;
 import lk.gov.health.phsp.pojcs.VehicleFuelEfficiency;
@@ -34,6 +34,9 @@ public class InstitutionDashboardController implements Serializable {
     private FuelRequestAndIssueController fuelRequestAndIssueController;
     @Inject
     private ReportController reportController;
+
+    // Keep in sync with InstitutionDashboardApplicationController.PENDING_ISSUE_LOOKBACK_DAYS.
+    private static final int PENDING_ISSUE_LOOKBACK_DAYS = 60;
 
     private static final String KM_LABEL_PLACEHOLDER = "@@KM_LABEL_FORMATTER@@";
     // Renders as: '' when km is not computable for a bar, otherwise the rounded km value.
@@ -99,7 +102,7 @@ public class InstitutionDashboardController implements Serializable {
             for (VehicleFuelEfficiency vfe : rows) {
                 categories.add(vfe.getVehicle().getVehicleNumber() + " (" + vfe.getVehicle().getVehicleType().getLabel() + ")");
                 data.add(Json.createObjectBuilder()
-                        .add("value", vfe.getKmPerLiter())
+                        .add("value", Math.round(vfe.getKmPerLiter() * 10.0) / 10.0)
                         .add("itemStyle", Json.createObjectBuilder().add("color", vfe.getVehicle().getVehicleType().getColor())));
             }
         }
@@ -199,17 +202,15 @@ public class InstitutionDashboardController implements Serializable {
         return trendLabel(getIssuedTrendPercent());
     }
 
-    public List<Bill> getRejectedCpcBills() {
-        return summary.getRejectedCpcBills();
-    }
-
     /**
-     * "Requested, Not Yet Issued" card - the pending-issue count/quantity
-     * on the dashboard has no date bound, so widen the search page's date
-     * range to catch everything outstanding rather than just this month.
+     * "Requested, Not Yet Issued" card is scoped to the last 60 days (see
+     * InstitutionDashboardApplicationController.PENDING_ISSUE_LOOKBACK_DAYS),
+     * so match the search page's date range to the same window.
      */
     public String navigateToPendingIssueRequests() {
-        fuelRequestAndIssueController.setFromDate(new Date(0));
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_MONTH, -PENDING_ISSUE_LOOKBACK_DAYS);
+        fuelRequestAndIssueController.setFromDate(c.getTime());
         fuelRequestAndIssueController.setToDate(new Date());
         return fuelRequestAndIssueController.navigateToListInstitutionRequestsToMark();
     }
