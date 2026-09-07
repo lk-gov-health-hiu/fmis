@@ -97,7 +97,17 @@ public class FuelRequestAndIssueController implements Serializable {
     private List<FuelTransaction> transactions = null;
     private List<Bill> bills;
     private List<Bill> acceptedBills;
+    // The transactions currently shown on list_payment.xhtml (either a newly built bill, or
+    // a historical one loaded via viewPaymentRequest()). Kept separate from
+    // paymentCandidateSelection below so the two never clobber each other.
     private List<FuelTransaction> selectedTransactions = null;
+    // The Make-Payment page's (list_to_pay.xhtml) dataTable checkbox selection - candidate
+    // transactions the user is choosing to bundle into a new bill. This used to be the same
+    // field as selectedTransactions; because PrimeFaces writes this field on every postback of
+    // that page's form (even an unrelated "List Requests" click, submitting as empty), it would
+    // occasionally wipe out selectedTransactions if the same session also had a bill open on
+    // list_payment.xhtml, making that bill appear to have zero line items.
+    private List<FuelTransaction> paymentCandidateSelection = null;
     private FuelTransaction selected;
     // If the new ODO reading jumps more than this above the previous reading, it is more
     // likely to be a data-entry typo than a genuine reading - warn instead of blocking.
@@ -1464,11 +1474,12 @@ public class FuelRequestAndIssueController implements Serializable {
             paymentRequestStarted = false;
             return null;
         }
-        if (selectedTransactions == null || selectedTransactions.isEmpty()) {
+        if (paymentCandidateSelection == null || paymentCandidateSelection.isEmpty()) {
             JsfUtil.addErrorMessage("Nothing Selected");
             paymentRequestStarted = false;
             return null;
         }
+        List<FuelTransaction> candidates = paymentCandidateSelection;
 
         Institution hospital = null;
         Institution fuelStation = null;
@@ -1476,7 +1487,7 @@ public class FuelRequestAndIssueController implements Serializable {
         boolean moreThanOneCombinationOfHospitalAndFuelStation = false;
         boolean hasTrasnsactionNotYetMarkedAsIssued = false;
 
-        for (FuelTransaction sft : selectedTransactions) {
+        for (FuelTransaction sft : candidates) {
             if (firstTransaction) {
                 hospital = sft.getFromInstitution();
                 fuelStation = sft.getToInstitution();
@@ -1509,7 +1520,7 @@ public class FuelRequestAndIssueController implements Serializable {
         // state immediately before billing so a transaction can never end
         // up bundled into more than one bill (e.g. two bills built from
         // stale concurrent page loads).
-        for (FuelTransaction sft : selectedTransactions) {
+        for (FuelTransaction sft : candidates) {
             FuelTransaction fresh = fuelTransactionFacade.find(sft.getId());
             if (fresh != null && fresh.isSubmittedToPayment()) {
                 JsfUtil.addErrorMessage("Transaction " + fresh.getIdString() + " is already included in another bill. Please refresh and retry.");
@@ -1531,7 +1542,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
         double qty = 0.0;
 
-        for (FuelTransaction sft : selectedTransactions) {
+        for (FuelTransaction sft : candidates) {
             sft.setSubmittedToPayment(true);
             sft.setSubmittedToPaymentAt(new Date());
             sft.setSubmittedToPaymentBy(webUserController.getLoggedUser());
@@ -1548,8 +1559,10 @@ public class FuelRequestAndIssueController implements Serializable {
         billFacade.edit(fuelPaymentRequestBill);
         paymentRequestStarted = false;
         paymentRequestReprint = false;
+        paymentCandidateSelection = null;
 
-        Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
+        Collections.sort(candidates, Comparator.comparing(FuelTransaction::getRequestedDate));
+        selectedTransactions = candidates;
 
         return "/requests/list_payment?faces-redirect=true";
 
@@ -2176,6 +2189,14 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setSelectedTransactions(List<FuelTransaction> selectedTransactions) {
         this.selectedTransactions = selectedTransactions;
+    }
+
+    public List<FuelTransaction> getPaymentCandidateSelection() {
+        return paymentCandidateSelection;
+    }
+
+    public void setPaymentCandidateSelection(List<FuelTransaction> paymentCandidateSelection) {
+        this.paymentCandidateSelection = paymentCandidateSelection;
     }
 
     public FuelTransactionHistory getSelectedTransactionHistory() {
