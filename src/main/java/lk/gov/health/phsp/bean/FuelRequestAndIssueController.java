@@ -99,6 +99,10 @@ public class FuelRequestAndIssueController implements Serializable {
     private List<Bill> acceptedBills;
     private List<FuelTransaction> selectedTransactions = null;
     private FuelTransaction selected;
+    // If the new ODO reading jumps more than this above the previous reading, it is more
+    // likely to be a data-entry typo than a genuine reading - warn instead of blocking.
+    private static final double ODO_READING_JUMP_WARNING_THRESHOLD = 1000.0;
+
     private String odoWarningMessage;
     private boolean odoWarningAcknowledged;
     private String issuedDateWarningMessage;
@@ -428,12 +432,9 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
 
-        // Validation 3: ODO reading must be greater than the previous reading.
+        // Validation 3: ODO reading sanity checks against the previous reading.
         // Not blocked outright - the user is warned and can confirm to proceed anyway.
-        Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
-        if (previousOdoReading != null && selected.getOdoMeterReading() != null
-                && selected.getOdoMeterReading() <= previousOdoReading && !odoWarningAcknowledged) {
-            odoWarningMessage = "ODO Meter Reading (" + selected.getOdoMeterReading() + ") is not greater than the previous reading (" + previousOdoReading + "). Do you want to continue anyway?";
+        if (raiseOdoWarningIfNeeded(selected)) {
             return "";
         }
         odoWarningMessage = null;
@@ -507,12 +508,9 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
 
-        // Validation 3: ODO reading must be greater than the previous reading.
+        // Validation 3: ODO reading sanity checks against the previous reading.
         // Not blocked outright - the user is warned and can confirm to proceed anyway.
-        Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
-        if (previousOdoReading != null && selected.getOdoMeterReading() != null
-                && selected.getOdoMeterReading() <= previousOdoReading && !odoWarningAcknowledged) {
-            odoWarningMessage = "ODO Meter Reading (" + selected.getOdoMeterReading() + ") is not greater than the previous reading (" + previousOdoReading + "). Do you want to continue anyway?";
+        if (raiseOdoWarningIfNeeded(selected)) {
             return "";
         }
         odoWarningMessage = null;
@@ -711,6 +709,37 @@ public class FuelRequestAndIssueController implements Serializable {
             Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, "Error getting previous ODO reading for vehicle: " + vehicle.getId(), e);
         }
         return null;
+    }
+
+    // Checks the new ODO reading against the previous one and sets odoWarningMessage if it
+    // looks wrong: not increasing (likely re-entering an old value), or an implausibly large
+    // jump (likely a typo, e.g. an extra digit). Neither case blocks submission outright -
+    // the user is warned via odoWarningMessage/isOdoWarningPending and can confirm to
+    // proceed anyway, which sets odoWarningAcknowledged and skips this check on retry.
+    // Returns true if a warning was raised and submission should stop here.
+    private boolean raiseOdoWarningIfNeeded(FuelTransaction selected) {
+        if (odoWarningAcknowledged) {
+            return false;
+        }
+
+        Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
+        Double newReading = selected.getOdoMeterReading();
+        if (previousOdoReading == null || newReading == null) {
+            return false;
+        }
+
+        if (newReading <= previousOdoReading) {
+            odoWarningMessage = "ODO Meter Reading (" + newReading + ") is not greater than the previous reading (" + previousOdoReading + "). Do you want to continue anyway?";
+            return true;
+        }
+
+        if (newReading - previousOdoReading > ODO_READING_JUMP_WARNING_THRESHOLD) {
+            odoWarningMessage = "ODO Meter Reading (" + newReading + ") is more than " + (long) ODO_READING_JUMP_WARNING_THRESHOLD
+                    + " above the previous reading (" + previousOdoReading + "). This may be a typo - please check the value again. Do you want to continue anyway?";
+            return true;
+        }
+
+        return false;
     }
 
     private boolean isRequestQuantityWithinTypeLimit(Vehicle vehicle, Double requestQuantity) {
