@@ -18,18 +18,20 @@ public class InstitutionDashboardSummary implements Serializable {
     private Double issuedThisMonth;
     private Double issuedLastMonth;
     private Double pendingIssueQuantity;
+    private Long pendingIssueCount;
 
     private Long notSubmittedForPaymentCount;
     private Double notSubmittedForPaymentQuantity;
 
-    private Long pendingCpcBillCount;
     private Long rejectedCpcBillCount;
     private Long acceptedCpcBillCount;
     private List<Bill> rejectedCpcBills;
 
     private List<InstitutionCount> top10VehiclesByUsage;
+    private List<InstitutionCount> top10VehiclesByUsageLastMonth;
     private List<VehicleFuelEfficiency> top10VehiclesByLitersPerKm;
     private int vehiclesExcludedFromEfficiencyChart;
+    private List<InstitutionCount> top10VehiclesByDistanceLastMonth;
 
     public Double getRequestedThisMonth() {
         return requestedThisMonth;
@@ -71,6 +73,14 @@ public class InstitutionDashboardSummary implements Serializable {
         this.pendingIssueQuantity = pendingIssueQuantity;
     }
 
+    public Long getPendingIssueCount() {
+        return pendingIssueCount;
+    }
+
+    public void setPendingIssueCount(Long pendingIssueCount) {
+        this.pendingIssueCount = pendingIssueCount;
+    }
+
     public Long getNotSubmittedForPaymentCount() {
         return notSubmittedForPaymentCount;
     }
@@ -85,14 +95,6 @@ public class InstitutionDashboardSummary implements Serializable {
 
     public void setNotSubmittedForPaymentQuantity(Double notSubmittedForPaymentQuantity) {
         this.notSubmittedForPaymentQuantity = notSubmittedForPaymentQuantity;
-    }
-
-    public Long getPendingCpcBillCount() {
-        return pendingCpcBillCount;
-    }
-
-    public void setPendingCpcBillCount(Long pendingCpcBillCount) {
-        this.pendingCpcBillCount = pendingCpcBillCount;
     }
 
     public Long getRejectedCpcBillCount() {
@@ -127,6 +129,14 @@ public class InstitutionDashboardSummary implements Serializable {
         this.top10VehiclesByUsage = top10VehiclesByUsage;
     }
 
+    public List<InstitutionCount> getTop10VehiclesByUsageLastMonth() {
+        return top10VehiclesByUsageLastMonth;
+    }
+
+    public void setTop10VehiclesByUsageLastMonth(List<InstitutionCount> top10VehiclesByUsageLastMonth) {
+        this.top10VehiclesByUsageLastMonth = top10VehiclesByUsageLastMonth;
+    }
+
     public List<VehicleFuelEfficiency> getTop10VehiclesByLitersPerKm() {
         return top10VehiclesByLitersPerKm;
     }
@@ -141,5 +151,13 @@ public class InstitutionDashboardSummary implements Serializable {
 
     public void setVehiclesExcludedFromEfficiencyChart(int vehiclesExcludedFromEfficiencyChart) {
         this.vehiclesExcludedFromEfficiencyChart = vehiclesExcludedFromEfficiencyChart;
+    }
+
+    public List<InstitutionCount> getTop10VehiclesByDistanceLastMonth() {
+        return top10VehiclesByDistanceLastMonth;
+    }
+
+    public void setTop10VehiclesByDistanceLastMonth(List<InstitutionCount> top10VehiclesByDistanceLastMonth) {
+        this.top10VehiclesByDistanceLastMonth = top10VehiclesByDistanceLastMonth;
     }
 }

@@ -24,6 +24,7 @@ public class InstitutionCount {
     private Double totalGrant; //have to be assigned from a preferance
     private Double toBeIssuedQty; // requested qty - issuedQty
     private Double remainingQty; //Total grant value minus (issued + to be issue)
+    private Double kmDriven; // Distance driven in the period, from odometer readings - null when not computable
 
     public InstitutionCount() {
     }
@@ -53,6 +54,14 @@ public class InstitutionCount {
 
     public void setVehicle(Vehicle vehicle) {
         this.vehicle = vehicle;
+    }
+
+    public Double getKmDriven() {
+        return kmDriven;
+    }
+
+    public void setKmDriven(Double kmDriven) {
+        this.kmDriven = kmDriven;
     }
 
     public InstitutionCount(String countLabel, Double requestedQty) {
