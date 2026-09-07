@@ -32,6 +32,7 @@ import lk.gov.health.phsp.entity.Bill;
 import lk.gov.health.phsp.entity.BillAcceptanceHistory;
 import lk.gov.health.phsp.entity.BillHistory;
 import lk.gov.health.phsp.entity.DataAlterationRequest;
+import lk.gov.health.phsp.entity.FuelPrice;
 import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
@@ -90,6 +91,8 @@ public class FuelRequestAndIssueController implements Serializable {
     WebUserApplicationController webUserApplicationController;
     @Inject
     QRCodeController qrCodeController;
+    @Inject
+    FuelPriceApplicationController fuelPriceApplicationController;
 
     private DataAlterationRequest dataAlterationRequest;
     private List<DataAlterationRequest> dataAlterationRequests;
@@ -1515,6 +1518,28 @@ public class FuelRequestAndIssueController implements Serializable {
             return null;
         }
 
+        // Fuel prices can change mid-month. A bill's quantities are billed at a single
+        // price, so every candidate's issued date must resolve to the same FuelPrice
+        // block - otherwise CPC cannot tell which price to apply to the whole bill.
+        List<Date> candidateIssuedDates = new ArrayList<>();
+        for (FuelTransaction sft : candidates) {
+            candidateIssuedDates.add(sft.getIssuedDate());
+        }
+        List<FuelPrice> pricesSpanned = fuelPriceApplicationController.distinctPricesFor(candidateIssuedDates);
+        if (pricesSpanned.size() > 1) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
+            StringBuilder sb = new StringBuilder("Selected transactions span more than one fuel price period. Please create separate bills split at: ");
+            for (int i = 1; i < pricesSpanned.size(); i++) {
+                if (i > 1) {
+                    sb.append(", ");
+                }
+                sb.append(sdf.format(pricesSpanned.get(i).getEffectiveFrom()));
+            }
+            JsfUtil.addErrorMessage(sb.toString());
+            paymentRequestStarted = false;
+            return null;
+        }
+
         // Defense in depth: the candidate list is already filtered to
         // submittedToPayment=false, but re-check against the freshest DB
         // state immediately before billing so a transaction can never end
@@ -2181,6 +2206,34 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setTransactions(List<FuelTransaction> transactions) {
         this.transactions = transactions;
+    }
+
+    /**
+     * Null when the currently listed (list_to_pay.xhtml) transactions all fall under a
+     * single fuel price; otherwise a warning naming the price-change date(s) within them,
+     * so the account-branch user knows to split their selection into separate bills.
+     */
+    public String getPriceChangeWarning() {
+        if (transactions == null || transactions.isEmpty()) {
+            return null;
+        }
+        List<Date> issuedDates = new ArrayList<>();
+        for (FuelTransaction ft : transactions) {
+            issuedDates.add(ft.getIssuedDate());
+        }
+        List<FuelPrice> pricesSpanned = fuelPriceApplicationController.distinctPricesFor(issuedDates);
+        if (pricesSpanned.size() <= 1) {
+            return null;
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
+        StringBuilder sb = new StringBuilder("The fuel price changed within this listing. Please make separate payment requests split at: ");
+        for (int i = 1; i < pricesSpanned.size(); i++) {
+            if (i > 1) {
+                sb.append(", ");
+            }
+            sb.append(sdf.format(pricesSpanned.get(i).getEffectiveFrom()));
+        }
+        return sb.toString();
     }
 
     public List<FuelTransaction> getSelectedTransactions() {
