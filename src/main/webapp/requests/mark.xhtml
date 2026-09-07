@@ -272,6 +272,43 @@
                                 </div>
                             </div>
 
+                            <!-- Issued Quantity warning dialog: shown instead of blocking submission outright -->
+                            <p:dialog header="Issued Quantity Warning"
+                                      widgetVar="issuedQuantityWarningDialog"
+                                      modal="true"
+                                      closable="false"
+                                      responsive="true"
+                                      visible="#{fuelRequestAndIssueController.issuedQuantityWarningPending}">
+                                <div class="p-3">
+                                    <p class="text-danger">
+                                        <i class="pi pi-exclamation-triangle" />
+                                        <h:outputText value=" #{fuelRequestAndIssueController.issuedQuantityWarningMessage}" />
+                                    </p>
+                                    <table class="table mt-2">
+                                        <tr>
+                                            <td><b>Requested Quantity:</b></td>
+                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Issued Quantity:</b></td>
+                                            <td><h:outputText value="#{fuelRequestAndIssueController.selected.issuedQuantity}" /></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="text-center mt-3 mb-3">
+                                    <p:commandButton value="Mark as Issued Anyway"
+                                                     icon="pi pi-check"
+                                                     styleClass="ui-button-raised ui-button-warning mx-1"
+                                                     action="#{fuelRequestAndIssueController.acknowledgeIssuedQuantityWarningAndSubmitMark}"
+                                                     ajax="false" />
+                                    <p:commandButton value="Go Back and Edit"
+                                                     icon="pi pi-times"
+                                                     styleClass="ui-button-raised ui-button-secondary mx-1"
+                                                     action="#{fuelRequestAndIssueController.cancelIssuedQuantityWarning}"
+                                                     ajax="false" />
+                                </div>
+                            </p:dialog>
+
                             <!-- Issued Date warning dialog: shown instead of blocking submission outright -->
                             <p:dialog header="Issued Date Warning"
                                       widgetVar="issuedDateWarningDialog"
