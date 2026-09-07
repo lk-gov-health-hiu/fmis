@@ -103,10 +103,16 @@ public class FuelRequestAndIssueController implements Serializable {
     // likely to be a data-entry typo than a genuine reading - warn instead of blocking.
     private static final double ODO_READING_JUMP_WARNING_THRESHOLD = 1000.0;
 
+    // If the issued quantity differs from the requested quantity by more than this, it is
+    // more likely to be a data-entry mistake than a genuine partial issue - warn instead of blocking.
+    private static final double ISSUED_QUANTITY_MISMATCH_WARNING_THRESHOLD = 1.0;
+
     private String odoWarningMessage;
     private boolean odoWarningAcknowledged;
     private String issuedDateWarningMessage;
     private boolean issuedDateWarningAcknowledged;
+    private String issuedQuantityWarningMessage;
+    private boolean issuedQuantityWarningAcknowledged;
 
     private FuelTransactionHistory selectedTransactionHistory;
     private List<FuelTransactionHistory> selectedTransactionHistories;
@@ -291,6 +297,8 @@ public class FuelRequestAndIssueController implements Serializable {
     public String navigateToMarkVehicleFuelRequest() {
         issuedDateWarningMessage = null;
         issuedDateWarningAcknowledged = false;
+        issuedQuantityWarningMessage = null;
+        issuedQuantityWarningAcknowledged = false;
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
             return "";
@@ -578,6 +586,25 @@ public class FuelRequestAndIssueController implements Serializable {
         return issuedDateWarningMessage != null;
     }
 
+    public String acknowledgeIssuedQuantityWarningAndSubmitMark() {
+        issuedQuantityWarningAcknowledged = true;
+        return submitMarkVehicleFuelRequestIssue();
+    }
+
+    public String cancelIssuedQuantityWarning() {
+        issuedQuantityWarningMessage = null;
+        issuedQuantityWarningAcknowledged = false;
+        return "";
+    }
+
+    public String getIssuedQuantityWarningMessage() {
+        return issuedQuantityWarningMessage;
+    }
+
+    public boolean isIssuedQuantityWarningPending() {
+        return issuedQuantityWarningMessage != null;
+    }
+
     // ===== Fuel order validation helpers =====
 
     // Builds a duplicate-reference-number error message that shows the user where the
@@ -838,6 +865,20 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Wrong Qty");
             return "";
         }
+
+        // Validation: Issued Quantity should match the Requested Quantity.
+        // Not blocked outright - the user is warned and can confirm to proceed anyway.
+        if (!issuedQuantityWarningAcknowledged) {
+            double qtyDiff = selected.getRequestQuantity() - selected.getIssuedQuantity();
+            if (qtyDiff > ISSUED_QUANTITY_MISMATCH_WARNING_THRESHOLD) {
+                issuedQuantityWarningMessage = "The Issued Quantity (" + selected.getIssuedQuantity()
+                        + ") does not match the Requested Quantity (" + selected.getRequestQuantity()
+                        + "). Please double check the value. Do you want to continue anyway?";
+                return "";
+            }
+        }
+        issuedQuantityWarningAcknowledged = false;
+
         if (selected.getIssuedDate() == null) {
             JsfUtil.addErrorMessage("Need Issued Date");
             return "";
