@@ -87,11 +87,6 @@
                                         <h:outputText value="#{institutionDashboardController.summary.rejectedCpcBillCount}" />
                                     </h3>
                                     <p class="text-muted mb-0">Last month's bills sent back by CPC for resubmission</p>
-                                    <ul class="mb-0 ps-3 small" style="text-align: left;">
-                                        <ui:repeat value="#{institutionDashboardController.rejectedCpcBills}" var="bill">
-                                            <li><strong>#{bill.billNo}</strong>: #{bill.resubmitComments}</li>
-                                        </ui:repeat>
-                                    </ul>
                                 </div>
                             </div>
                         </h:commandLink>

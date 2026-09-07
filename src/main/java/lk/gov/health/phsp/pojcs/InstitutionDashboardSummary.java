@@ -2,7 +2,6 @@ package lk.gov.health.phsp.pojcs;
 
 import java.io.Serializable;
 import java.util.List;
-import lk.gov.health.phsp.entity.Bill;
 
 /**
  * Precomputed numbers and chart data for one institution's dashboard.
@@ -25,7 +24,6 @@ public class InstitutionDashboardSummary implements Serializable {
 
     private Long rejectedCpcBillCount;
     private Long acceptedCpcBillCount;
-    private List<Bill> rejectedCpcBills;
 
     private List<InstitutionCount> top10VehiclesByUsage;
     private List<InstitutionCount> top10VehiclesByUsageLastMonth;
@@ -111,14 +109,6 @@ public class InstitutionDashboardSummary implements Serializable {
 
     public void setAcceptedCpcBillCount(Long acceptedCpcBillCount) {
         this.acceptedCpcBillCount = acceptedCpcBillCount;
-    }
-
-    public List<Bill> getRejectedCpcBills() {
-        return rejectedCpcBills;
-    }
-
-    public void setRejectedCpcBills(List<Bill> rejectedCpcBills) {
-        this.rejectedCpcBills = rejectedCpcBills;
     }
 
     public List<InstitutionCount> getTop10VehiclesByUsage() {
