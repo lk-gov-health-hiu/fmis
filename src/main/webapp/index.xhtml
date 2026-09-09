@@ -14,8 +14,8 @@
         <ui:composition template="./template.xhtml">
             <ui:define name="content" >
                 <ez:dashboardInstitution ></ez:dashboardInstitution>
-            
-                <ez:dashboardNational ></ez:dashboardNational>
+
+                <ez:dashboardNational rendered="#{!webUserController.isInstitutionLevelUser()}"></ez:dashboardNational>
 
 
 
