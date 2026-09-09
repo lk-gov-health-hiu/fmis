@@ -1462,7 +1462,15 @@ public class FuelRequestAndIssueController implements Serializable {
         return paymentRequestReprint;
     }
 
-    public String makePaymentRequest() {
+    // synchronized: paymentRequestStarted was a check-then-set guard against double submission
+    // (e.g. an impatient double-click on the ajax="false" "Make Payment Request" button), but the
+    // check and the set were not atomic, so two near-simultaneous requests from the same session
+    // could both pass it, both pass the "defense in depth" re-check below, and both go on to claim
+    // the same candidate transactions - the transaction rows end up linked to whichever bill
+    // committed last, leaving the other, earlier-created bill with a non-zero recorded total but
+    // zero actual line items (shows blank when viewed). Since this bean is @SessionScoped, this
+    // only serializes requests within one user's session, which is exactly the double-click case.
+    public synchronized String makePaymentRequest() {
         if (paymentRequestStarted) {
             JsfUtil.addErrorMessage("Already started");
             return null;
@@ -1634,6 +1642,19 @@ public class FuelRequestAndIssueController implements Serializable {
             return false;
         }
 
+        Double storedQty = billToReconcile.getTotalQty();
+
+        // No line items at all, despite a non-zero recorded total, is not a normal edit/delete
+        // drift - it means this bill's transactions could not be found (most likely they ended
+        // up linked to a different bill - see the double-submission guard on makePaymentRequest()).
+        // Don't silently zero out the bill's recorded total in that case; just warn.
+        if ((lineItems == null || lineItems.isEmpty()) && storedQty != null && storedQty > 0.0001) {
+            JsfUtil.addErrorMessage("This bill's transactions could not be found, even though it has a recorded "
+                    + "total of " + storedQty + " L. They may have been reassigned to another bill. "
+                    + "The recorded total is preserved below, but individual line items cannot be shown - please investigate.");
+            return false;
+        }
+
         double recalculatedQty = 0.0;
         if (lineItems != null) {
             for (FuelTransaction ft : lineItems) {
@@ -1646,7 +1667,6 @@ public class FuelRequestAndIssueController implements Serializable {
             }
         }
 
-        Double storedQty = billToReconcile.getTotalQty();
         boolean qtyChanged = storedQty == null || Math.abs(storedQty - recalculatedQty) > 0.0001;
 
         if (!qtyChanged) {
