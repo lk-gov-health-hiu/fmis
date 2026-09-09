@@ -874,15 +874,11 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Wrong Qty");
             return "";
         }
-        if (selected.getIssuedQuantity() > selected.getRequestQuantity()) {
-            JsfUtil.addErrorMessage("Wrong Qty");
-            return "";
-        }
 
-        // Validation: Issued Quantity should match the Requested Quantity.
+        // Validation: Issued Quantity should match the Requested Quantity, in either direction.
         // Not blocked outright - the user is warned and can confirm to proceed anyway.
         if (!issuedQuantityWarningAcknowledged) {
-            double qtyDiff = selected.getRequestQuantity() - selected.getIssuedQuantity();
+            double qtyDiff = Math.abs(selected.getRequestQuantity() - selected.getIssuedQuantity());
             if (qtyDiff > ISSUED_QUANTITY_MISMATCH_WARNING_THRESHOLD) {
                 issuedQuantityWarningMessage = "The Issued Quantity (" + selected.getIssuedQuantity()
                         + ") does not match the Requested Quantity (" + selected.getRequestQuantity()
