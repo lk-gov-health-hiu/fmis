@@ -37,6 +37,14 @@
                                     <h:outputText value="#{reportController.bill.toInstitution.name}" />
                                     <h:outputText value="Total Quantity:" />
                                     <h:outputText value="#{reportController.bill.totalQty}" />
+                                    <h:outputText value="Price / Liter (Rs.):" rendered="#{reportController.bill.pricePerLiter ne null}" />
+                                    <h:outputText value="#{reportController.bill.pricePerLiter}" rendered="#{reportController.bill.pricePerLiter ne null}">
+                                        <f:convertNumber pattern="#,##0.00" />
+                                    </h:outputText>
+                                    <h:outputText value="Total Amount (Rs.):" rendered="#{reportController.bill.totalValue ne null}" />
+                                    <h:outputText value="#{reportController.bill.totalValue}" rendered="#{reportController.bill.totalValue ne null}">
+                                        <f:convertNumber pattern="#,##0.00" />
+                                    </h:outputText>
 
                                 </p:panelGrid>
 

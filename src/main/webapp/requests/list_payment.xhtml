@@ -418,6 +418,18 @@
                                                     <h:outputText value="Total Quantity:"/>
                                                     <h:outputText
                                                         value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}"/>
+                                                    <h:outputText value="Price / Liter (Rs.):"
+                                                                  rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.pricePerLiter ne null}"/>
+                                                    <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.pricePerLiter}"
+                                                                  rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.pricePerLiter ne null}">
+                                                        <f:convertNumber pattern="#,##0.00"/>
+                                                    </h:outputText>
+                                                    <h:outputText value="Total Amount (Rs.):"
+                                                                  rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalValue ne null}"/>
+                                                    <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalValue}"
+                                                                  rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalValue ne null}">
+                                                        <f:convertNumber pattern="#,##0.00"/>
+                                                    </h:outputText>
                                                     <h:outputText value="Requested Date &amp; Time:"/>
                                                     <h:panelGroup>
                                                         <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billDate}">

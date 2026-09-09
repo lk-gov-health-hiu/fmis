@@ -140,6 +140,17 @@
                                             <h:outputText value="#{bill.totalQty}" />
                                         </p:column>
 
+                                        <p:column headerText="Amount (Rs.)"
+                                                  exportHeaderValue="true"
+                                                  sortBy="#{bill.totalValue}" filterBy="#{bill.totalValue}">
+                                            <f:facet name="header">
+                                                <h:outputText value="Amount (Rs.)" />
+                                            </f:facet>
+                                            <h:outputText value="#{bill.totalValue}">
+                                                <f:convertNumber pattern="#,##0.00" />
+                                            </h:outputText>
+                                        </p:column>
+
                                         <p:column headerText="CPC Status"
                                                   exportHeaderValue="true"
                                                   sortBy="#{bill.acceptanceStatus}" filterBy="#{bill.acceptanceStatus}">
