@@ -47,13 +47,21 @@
 
                                     <p:outputLabel value="Requested from Fuel Station" >
                                     </p:outputLabel>
-                                    <p:autoComplete 
-                                        value="#{fuelRequestAndIssueController.fuelStation}" 
+                                    <p:autoComplete
+                                        value="#{fuelRequestAndIssueController.fuelStation}"
                                         completeMethod="#{institutionController.completeFuelStations}"
                                         var="fs"
                                         itemLabel="#{fs.name}"
                                         itemValue="#{fs}"
                                         ></p:autoComplete>
+                                    <div class="form-group">
+                                        <label for="requestNumber">Request Number</label>
+                                        <p:inputText
+                                            id="requestNumber"
+                                            value="#{fuelRequestAndIssueController.requestNumber}"
+                                            placeholder="Full or partial request number"
+                                            class="w-100 m-1" />
+                                    </div>
                                     <div class="form-group d-flex justify-content-center">
                                         <p:commandButton value="List Requests"
                                                          action="#{fuelRequestAndIssueController.listPaymentBillsForCpcRegionalOffice()}"
@@ -96,6 +104,15 @@
                                             </h:outputText>
                                         </p:column>
 
+                                        <p:column headerText="Request Number"
+                                                  exportHeaderValue="true"
+                                                  sortBy="#{bill.billNo}" filterBy="#{bill.billNo}">
+                                            <f:facet name="header">
+                                                <h:outputText value="Request Number" />
+                                            </f:facet>
+                                            <h:outputText value="#{bill.billNo}" />
+                                        </p:column>
+
                                         <p:column headerText="From Institution"
                                                   exportHeaderValue="true"
                                                   sortBy="#{bill.fromInstitution.name}" filterBy="#{bill.fromInstitution.name}">
@@ -114,13 +131,35 @@
                                             <h:outputText value="#{bill.toInstitution.name}" />
                                         </p:column>
 
-                                        <p:column headerText="Bill Type"
+                                        <p:column headerText="Total Qty"
                                                   exportHeaderValue="true"
-                                                  sortBy="#{bill.billType}" filterBy="#{bill.billType}">
+                                                  sortBy="#{bill.totalQty}" filterBy="#{bill.totalQty}">
                                             <f:facet name="header">
-                                                <h:outputText value="Bill Type" />
+                                                <h:outputText value="Total Qty" />
                                             </f:facet>
-                                            <h:outputText value="#{bill.billType}" />
+                                            <h:outputText value="#{bill.totalQty}" />
+                                        </p:column>
+
+                                        <p:column headerText="Amount (Rs.)"
+                                                  exportHeaderValue="true"
+                                                  sortBy="#{bill.totalValue}" filterBy="#{bill.totalValue}">
+                                            <f:facet name="header">
+                                                <h:outputText value="Amount (Rs.)" />
+                                            </f:facet>
+                                            <h:outputText value="#{bill.totalValue}">
+                                                <f:convertNumber pattern="#,##0.00" />
+                                            </h:outputText>
+                                        </p:column>
+
+                                        <p:column headerText="CPC Status"
+                                                  exportHeaderValue="true"
+                                                  sortBy="#{bill.acceptanceStatus}" filterBy="#{bill.acceptanceStatus}">
+                                            <f:facet name="header">
+                                                <h:outputText value="CPC Status" />
+                                            </f:facet>
+                                            <h:outputText value="Pending" style="color: #856404; font-weight: bold;" rendered="#{bill.pendingDecision}" />
+                                            <h:outputText value="Accepted" style="color: #155724; font-weight: bold;" rendered="#{bill.accepted}" />
+                                            <h:outputText value="Resubmit Requested" style="color: #c00; font-weight: bold;" rendered="#{bill.resubmitRequested}" />
                                         </p:column>
 
                                         <p:column headerText="Actions"

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2024 Dr M H B Ariyaratne <buddhika.ari at gmail.com>.
+ * Copyright 2026 Dr M H B Ariyaratne<buddhika.ari@gmail.com>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,15 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package lk.gov.health.phsp.enums;
+package lk.gov.health.phsp.facade;
+
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import lk.gov.health.phsp.entity.BillAcceptanceHistory;
 
 /**
  *
- * @author Dr M H B Ariyaratne <buddhika.ari at gmail.com>
+ * @author Dr M H B Ariyaratne
  */
-public enum FuelEstimateRowType {
-    FUEL_STATION_HEADING_ROW,
-    INSTITUTION_HEADING_ROW,
-    VEHICLE_ROW,
-    TOTAL_ROW;
+@Stateless
+public class BillAcceptanceHistoryFacade extends AbstractFacade<BillAcceptanceHistory> {
+
+    @PersistenceContext(unitName = "hmisPU")
+    private EntityManager em;
+
+    @Override
+    protected EntityManager getEntityManager() {
+        return em;
+    }
+
+    public BillAcceptanceHistoryFacade() {
+        super(BillAcceptanceHistory.class);
+    }
+
 }

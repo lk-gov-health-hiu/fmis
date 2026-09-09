@@ -26,8 +26,9 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <p:commandButton value="Save" ajax="false"
-                                                                 action="#{reportController.saveSelected}" 
-                                                                 icon="fa fa-save" 
+                                                                 rendered="#{not reportController.fuelTransactionEditLocked}"
+                                                                 action="#{reportController.saveSelected}"
+                                                                 icon="fa fa-save"
                                                                  styleClass="ui-button-success ui-button-raised m-1">
                                                 </p:commandButton>
 
@@ -52,8 +53,12 @@
                                     </div>
                                     <div class="card-body" >
 
-
-
+                                        <ui:fragment rendered="#{reportController.fuelTransactionEditLocked}">
+                                            <div class="alert alert-warning text-center">
+                                                This transaction's bill (<h:outputText value="#{reportController.fuelTransaction.paymentBill.billNo}" />)
+                                                has been accepted by CPC. Ask CPC to cancel the acceptance before editing.
+                                            </div>
+                                        </ui:fragment>
 
                                         <!-- Request Details -->
                                         <div class="container-fluid w-100">
@@ -74,12 +79,13 @@
                                                         <tr>
                                                             <td><b>Requested Fuel Station:</b></td>
                                                             <td>
-                                                                <p:autoComplete 
-                                                                    value="#{reportController.fuelTransaction.toInstitution}" 
+                                                                <p:autoComplete
+                                                                    value="#{reportController.fuelTransaction.toInstitution}"
                                                                     completeMethod="#{institutionController.completeFuelStations}"
                                                                     var="fs"
                                                                     itemLabel="#{fs.name}"
                                                                     itemValue="#{fs}"
+                                                                    disabled="#{reportController.fuelTransactionEditLocked}"
                                                                     ></p:autoComplete>
 
 
@@ -91,12 +97,13 @@
                                                         <tr>
                                                             <td><b>Issued Fuel Station:</b></td>
                                                             <td>
-                                                                <p:autoComplete 
-                                                                    value="#{reportController.fuelTransaction.issuedInstitution}" 
+                                                                <p:autoComplete
+                                                                    value="#{reportController.fuelTransaction.issuedInstitution}"
                                                                     completeMethod="#{institutionController.completeFuelStations}"
                                                                     var="fs1"
                                                                     itemLabel="#{fs1.name}"
                                                                     itemValue="#{fs1}"
+                                                                    disabled="#{reportController.fuelTransactionEditLocked}"
                                                                     ></p:autoComplete>
 
 
@@ -119,6 +126,7 @@
                                                                     itemValue="#{v}"
                                                                     required="true"
                                                                     requiredMessage="Please select a Vehicle"
+                                                                    disabled="#{reportController.fuelTransactionEditLocked}"
                                                                     placeholder="Search vehicle by number">
                                                                 </p:autoComplete>
                                                             </td>
@@ -138,29 +146,30 @@
                                                                     itemValue="#{d}"
                                                                     required="true"
                                                                     requiredMessage="Please select a Driver"
+                                                                    disabled="#{reportController.fuelTransactionEditLocked}"
                                                                     placeholder="Search driver by name">
                                                                 </p:autoComplete>
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Request Quantity:</b></td>
-                                                            <td><p:inputText value="#{reportController.fuelTransaction.requestQuantity}" /></td>
+                                                            <td><p:inputText value="#{reportController.fuelTransaction.requestQuantity}" disabled="#{reportController.fuelTransactionEditLocked}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Request Created Date &amp; Time :</b></td>
-                                                            <td><p:calendar value="#{reportController.fuelTransaction.requestedDate}" pattern="dd MMMM yyyy"/></td>
+                                                            <td><p:calendar value="#{reportController.fuelTransaction.requestedDate}" pattern="dd MMMM yyyy" disabled="#{reportController.fuelTransactionEditLocked}"/></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>ODO Reading:</b></td>
-                                                            <td><p:inputText value="#{reportController.fuelTransaction.odoMeterReading}" /></td>
+                                                            <td><p:inputText value="#{reportController.fuelTransaction.odoMeterReading}" disabled="#{reportController.fuelTransactionEditLocked}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Request Reference No.:</b></td>
-                                                            <td><p:inputText value="#{reportController.fuelTransaction.requestReferenceNumber}" /></td>
+                                                            <td><p:inputText value="#{reportController.fuelTransaction.requestReferenceNumber}" disabled="#{reportController.fuelTransactionEditLocked}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Comments:</b></td>
-                                                            <td><p:inputTextarea class="w-100" value="#{reportController.fuelTransaction.comments}" /></td>
+                                                            <td><p:inputTextarea class="w-100" value="#{reportController.fuelTransaction.comments}" disabled="#{reportController.fuelTransactionEditLocked}" /></td>
                                                         </tr>
                                                         <tr>
                                                             <td><b>Requested User:</b></td>
@@ -196,11 +205,11 @@
                                                             <!-- Other table rows for request details -->
                                                             <tr>
                                                                 <td><b>Issued Quantity:</b></td>
-                                                                <td><p:inputText value="#{reportController.fuelTransaction.issuedQuantity}" /></td>
+                                                                <td><p:inputText value="#{reportController.fuelTransaction.issuedQuantity}" disabled="#{reportController.fuelTransactionEditLocked}" /></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><b>Invoice No:</b></td>
-                                                                <td><p:inputText value="#{reportController.fuelTransaction.issueReferenceNumber}" /></td>
+                                                                <td><p:inputText value="#{reportController.fuelTransaction.issueReferenceNumber}" disabled="#{reportController.fuelTransactionEditLocked}" /></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><b>Issued From:</b></td>
@@ -213,7 +222,7 @@
                                                             <tr>
                                                                 <td><b>Recorded At:</b></td>
                                                                 <td>
-                                                                    <p:calendar value="#{reportController.fuelTransaction.issuedDate}" pattern="dd MM yyyy HH:mm a" >
+                                                                    <p:calendar value="#{reportController.fuelTransaction.issuedDate}" pattern="dd MM yyyy HH:mm a" disabled="#{reportController.fuelTransactionEditLocked}" >
                                                                     </p:calendar>
                                                                 </td>
                                                             </tr>

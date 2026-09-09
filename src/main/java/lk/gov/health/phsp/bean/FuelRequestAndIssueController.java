@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.ejb.EJBTransactionRolledbackException;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
@@ -24,18 +25,24 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.TemporalType;
 import lk.gov.health.phsp.bean.util.JsfUtil;
 import lk.gov.health.phsp.entity.Bill;
+import lk.gov.health.phsp.entity.BillAcceptanceHistory;
 import lk.gov.health.phsp.entity.BillHistory;
 import lk.gov.health.phsp.entity.DataAlterationRequest;
+import lk.gov.health.phsp.entity.FuelPrice;
 import lk.gov.health.phsp.entity.FuelTransactionHistory;
 import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.entity.WebUser;
+import lk.gov.health.phsp.enums.BillAcceptanceStatus;
 import lk.gov.health.phsp.enums.DataAlterationRequestType;
 import lk.gov.health.phsp.enums.FuelTransactionType;
+import lk.gov.health.phsp.enums.InstitutionType;
 import lk.gov.health.phsp.enums.VehicleType;
+import lk.gov.health.phsp.facade.BillAcceptanceHistoryFacade;
 import lk.gov.health.phsp.facade.BillFacade;
 import lk.gov.health.phsp.facade.BillHistoryFacade;
 import lk.gov.health.phsp.facade.DataAlterationRequestFacade;
@@ -65,6 +72,8 @@ public class FuelRequestAndIssueController implements Serializable {
     BillFacade billFacade;
     @EJB
     BillHistoryFacade billHistoryFacade;
+    @EJB
+    BillAcceptanceHistoryFacade billAcceptanceHistoryFacade;
 
     @Inject
     private WebUserController webUserController;
@@ -82,18 +91,41 @@ public class FuelRequestAndIssueController implements Serializable {
     WebUserApplicationController webUserApplicationController;
     @Inject
     QRCodeController qrCodeController;
+    @Inject
+    FuelPriceApplicationController fuelPriceApplicationController;
 
     private DataAlterationRequest dataAlterationRequest;
     private List<DataAlterationRequest> dataAlterationRequests;
 
     private List<FuelTransaction> transactions = null;
     private List<Bill> bills;
+    private List<Bill> acceptedBills;
+    // The transactions currently shown on list_payment.xhtml (either a newly built bill, or
+    // a historical one loaded via viewPaymentRequest()). Kept separate from
+    // paymentCandidateSelection below so the two never clobber each other.
     private List<FuelTransaction> selectedTransactions = null;
+    // The Make-Payment page's (list_to_pay.xhtml) dataTable checkbox selection - candidate
+    // transactions the user is choosing to bundle into a new bill. This used to be the same
+    // field as selectedTransactions; because PrimeFaces writes this field on every postback of
+    // that page's form (even an unrelated "List Requests" click, submitting as empty), it would
+    // occasionally wipe out selectedTransactions if the same session also had a bill open on
+    // list_payment.xhtml, making that bill appear to have zero line items.
+    private List<FuelTransaction> paymentCandidateSelection = null;
     private FuelTransaction selected;
+    // If the new ODO reading jumps more than this above the previous reading, it is more
+    // likely to be a data-entry typo than a genuine reading - warn instead of blocking.
+    private static final double ODO_READING_JUMP_WARNING_THRESHOLD = 1000.0;
+
+    // If the issued quantity differs from the requested quantity by more than this, it is
+    // more likely to be a data-entry mistake than a genuine partial issue - warn instead of blocking.
+    private static final double ISSUED_QUANTITY_MISMATCH_WARNING_THRESHOLD = 1.0;
+
     private String odoWarningMessage;
     private boolean odoWarningAcknowledged;
     private String issuedDateWarningMessage;
     private boolean issuedDateWarningAcknowledged;
+    private String issuedQuantityWarningMessage;
+    private boolean issuedQuantityWarningAcknowledged;
 
     private FuelTransactionHistory selectedTransactionHistory;
     private List<FuelTransactionHistory> selectedTransactionHistories;
@@ -106,6 +138,7 @@ public class FuelRequestAndIssueController implements Serializable {
     private WebUser webUser;
     private Date fromDate;
     private Date toDate;
+    private String requestNumber;
 
     private Bill fuelPaymentRequestBill;
 
@@ -277,6 +310,8 @@ public class FuelRequestAndIssueController implements Serializable {
     public String navigateToMarkVehicleFuelRequest() {
         issuedDateWarningMessage = null;
         issuedDateWarningAcknowledged = false;
+        issuedQuantityWarningMessage = null;
+        issuedQuantityWarningAcknowledged = false;
         if (selected == null) {
             JsfUtil.addErrorMessage("Nothing selected");
             return "";
@@ -418,12 +453,9 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
 
-        // Validation 3: ODO reading must be greater than the previous reading.
+        // Validation 3: ODO reading sanity checks against the previous reading.
         // Not blocked outright - the user is warned and can confirm to proceed anyway.
-        Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
-        if (previousOdoReading != null && selected.getOdoMeterReading() != null
-                && selected.getOdoMeterReading() <= previousOdoReading && !odoWarningAcknowledged) {
-            odoWarningMessage = "ODO Meter Reading (" + selected.getOdoMeterReading() + ") is not greater than the previous reading (" + previousOdoReading + "). Do you want to continue anyway?";
+        if (raiseOdoWarningIfNeeded(selected)) {
             return "";
         }
         odoWarningMessage = null;
@@ -497,12 +529,9 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
 
-        // Validation 3: ODO reading must be greater than the previous reading.
+        // Validation 3: ODO reading sanity checks against the previous reading.
         // Not blocked outright - the user is warned and can confirm to proceed anyway.
-        Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
-        if (previousOdoReading != null && selected.getOdoMeterReading() != null
-                && selected.getOdoMeterReading() <= previousOdoReading && !odoWarningAcknowledged) {
-            odoWarningMessage = "ODO Meter Reading (" + selected.getOdoMeterReading() + ") is not greater than the previous reading (" + previousOdoReading + "). Do you want to continue anyway?";
+        if (raiseOdoWarningIfNeeded(selected)) {
             return "";
         }
         odoWarningMessage = null;
@@ -568,6 +597,25 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public boolean isIssuedDateWarningPending() {
         return issuedDateWarningMessage != null;
+    }
+
+    public String acknowledgeIssuedQuantityWarningAndSubmitMark() {
+        issuedQuantityWarningAcknowledged = true;
+        return submitMarkVehicleFuelRequestIssue();
+    }
+
+    public String cancelIssuedQuantityWarning() {
+        issuedQuantityWarningMessage = null;
+        issuedQuantityWarningAcknowledged = false;
+        return "";
+    }
+
+    public String getIssuedQuantityWarningMessage() {
+        return issuedQuantityWarningMessage;
+    }
+
+    public boolean isIssuedQuantityWarningPending() {
+        return issuedQuantityWarningMessage != null;
     }
 
     // ===== Fuel order validation helpers =====
@@ -703,6 +751,37 @@ public class FuelRequestAndIssueController implements Serializable {
         return null;
     }
 
+    // Checks the new ODO reading against the previous one and sets odoWarningMessage if it
+    // looks wrong: not increasing (likely re-entering an old value), or an implausibly large
+    // jump (likely a typo, e.g. an extra digit). Neither case blocks submission outright -
+    // the user is warned via odoWarningMessage/isOdoWarningPending and can confirm to
+    // proceed anyway, which sets odoWarningAcknowledged and skips this check on retry.
+    // Returns true if a warning was raised and submission should stop here.
+    private boolean raiseOdoWarningIfNeeded(FuelTransaction selected) {
+        if (odoWarningAcknowledged) {
+            return false;
+        }
+
+        Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
+        Double newReading = selected.getOdoMeterReading();
+        if (previousOdoReading == null || newReading == null) {
+            return false;
+        }
+
+        if (newReading <= previousOdoReading) {
+            odoWarningMessage = "ODO Meter Reading (" + newReading + ") is not greater than the previous reading (" + previousOdoReading + "). Do you want to continue anyway?";
+            return true;
+        }
+
+        if (newReading - previousOdoReading > ODO_READING_JUMP_WARNING_THRESHOLD) {
+            odoWarningMessage = "ODO Meter Reading (" + newReading + ") is more than " + (long) ODO_READING_JUMP_WARNING_THRESHOLD
+                    + " above the previous reading (" + previousOdoReading + "). This may be a typo - please check the value again. Do you want to continue anyway?";
+            return true;
+        }
+
+        return false;
+    }
+
     private boolean isRequestQuantityWithinTypeLimit(Vehicle vehicle, Double requestQuantity) {
         // Skip validation if vehicle or request quantity is null
         if (vehicle == null || requestQuantity == null) {
@@ -795,10 +874,20 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("Wrong Qty");
             return "";
         }
-        if (selected.getIssuedQuantity() > selected.getRequestQuantity()) {
-            JsfUtil.addErrorMessage("Wrong Qty");
-            return "";
+
+        // Validation: Issued Quantity should match the Requested Quantity, in either direction.
+        // Not blocked outright - the user is warned and can confirm to proceed anyway.
+        if (!issuedQuantityWarningAcknowledged) {
+            double qtyDiff = Math.abs(selected.getRequestQuantity() - selected.getIssuedQuantity());
+            if (qtyDiff > ISSUED_QUANTITY_MISMATCH_WARNING_THRESHOLD) {
+                issuedQuantityWarningMessage = "The Issued Quantity (" + selected.getIssuedQuantity()
+                        + ") does not match the Requested Quantity (" + selected.getRequestQuantity()
+                        + "). Please double check the value. Do you want to continue anyway?";
+                return "";
+            }
         }
+        issuedQuantityWarningAcknowledged = false;
+
         if (selected.getIssuedDate() == null) {
             JsfUtil.addErrorMessage("Need Issued Date");
             return "";
@@ -1297,6 +1386,10 @@ public class FuelRequestAndIssueController implements Serializable {
             j += " AND b.toInstitution IN :institutions ";
             params.put("institutions", webUserController.findAutherizedInstitutions());
         }
+        if (requestNumber != null && !requestNumber.trim().isEmpty()) {
+            j += " AND b.billNo LIKE :requestNumber ";
+            params.put("requestNumber", "%" + requestNumber.trim() + "%");
+        }
         params.put("fromDate", fromDate); // fromDate should be set beforehand
         params.put("toDate", toDate);     // toDate should be set beforehand
 
@@ -1305,6 +1398,57 @@ public class FuelRequestAndIssueController implements Serializable {
 
         List<Bill> tmpBills = billFacade.findByJpql(j, params);
         bills = tmpBills;
+    }
+
+    public void listAcceptedBillsForCpcRegionalOffice() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.acceptanceStatus = :accepted "
+                + " AND b.acceptedAt BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("accepted", BillAcceptanceStatus.ACCEPTED);
+        if (institution != null) {
+            j += " AND b.fromInstitution=:institution ";
+            params.put("institution", institution);
+        }
+        if (fuelStation != null) {
+            j += " AND b.toInstitution=:fs ";
+            params.put("fs", fuelStation);
+        } else {
+            j += " AND b.toInstitution IN :institutions ";
+            params.put("institutions", webUserController.findAutherizedInstitutions());
+        }
+        j += " ORDER BY b.acceptedAt";
+        params.put("fromDate", fromDate); // fromDate should be set beforehand
+        params.put("toDate", toDate);     // toDate should be set beforehand
+
+        acceptedBills = billFacade.findByJpql(j, params);
+    }
+
+    public void listAcceptedBillsForCpcHeadOffice() {
+        String j = "SELECT b "
+                + " FROM Bill b "
+                + " WHERE b.retired = false "
+                + " AND b.acceptanceStatus = :accepted "
+                + " AND b.acceptedAt BETWEEN :fromDate AND :toDate";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("accepted", BillAcceptanceStatus.ACCEPTED);
+        if (institution != null) {
+            j += " AND b.fromInstitution=:institution ";
+            params.put("institution", institution);
+        }
+        if (fuelStation != null) {
+            j += " AND b.toInstitution=:fs ";
+            params.put("fs", fuelStation);
+        }
+        j += " ORDER BY b.acceptedAt";
+        params.put("fromDate", fromDate); // fromDate should be set beforehand
+        params.put("toDate", toDate);     // toDate should be set beforehand
+
+        acceptedBills = billFacade.findByJpql(j, params);
     }
 
     public void listInstitutionRequests() {
@@ -1318,7 +1462,15 @@ public class FuelRequestAndIssueController implements Serializable {
         return paymentRequestReprint;
     }
 
-    public String makePaymentRequest() {
+    // synchronized: paymentRequestStarted was a check-then-set guard against double submission
+    // (e.g. an impatient double-click on the ajax="false" "Make Payment Request" button), but the
+    // check and the set were not atomic, so two near-simultaneous requests from the same session
+    // could both pass it, both pass the "defense in depth" re-check below, and both go on to claim
+    // the same candidate transactions - the transaction rows end up linked to whichever bill
+    // committed last, leaving the other, earlier-created bill with a non-zero recorded total but
+    // zero actual line items (shows blank when viewed). Since this bean is @SessionScoped, this
+    // only serializes requests within one user's session, which is exactly the double-click case.
+    public synchronized String makePaymentRequest() {
         if (paymentRequestStarted) {
             JsfUtil.addErrorMessage("Already started");
             return null;
@@ -1329,11 +1481,12 @@ public class FuelRequestAndIssueController implements Serializable {
             paymentRequestStarted = false;
             return null;
         }
-        if (selectedTransactions == null || selectedTransactions.isEmpty()) {
+        if (paymentCandidateSelection == null || paymentCandidateSelection.isEmpty()) {
             JsfUtil.addErrorMessage("Nothing Selected");
             paymentRequestStarted = false;
             return null;
         }
+        List<FuelTransaction> candidates = paymentCandidateSelection;
 
         Institution hospital = null;
         Institution fuelStation = null;
@@ -1341,7 +1494,7 @@ public class FuelRequestAndIssueController implements Serializable {
         boolean moreThanOneCombinationOfHospitalAndFuelStation = false;
         boolean hasTrasnsactionNotYetMarkedAsIssued = false;
 
-        for (FuelTransaction sft : selectedTransactions) {
+        for (FuelTransaction sft : candidates) {
             if (firstTransaction) {
                 hospital = sft.getFromInstitution();
                 fuelStation = sft.getToInstitution();
@@ -1369,6 +1522,42 @@ public class FuelRequestAndIssueController implements Serializable {
             return null;
         }
 
+        // Fuel prices can change mid-month. A bill's quantities are billed at a single
+        // price, so every candidate's issued date must resolve to the same FuelPrice
+        // block - otherwise CPC cannot tell which price to apply to the whole bill.
+        List<Date> candidateIssuedDates = new ArrayList<>();
+        for (FuelTransaction sft : candidates) {
+            candidateIssuedDates.add(sft.getIssuedDate());
+        }
+        List<FuelPrice> pricesSpanned = fuelPriceApplicationController.distinctPricesFor(candidateIssuedDates);
+        if (pricesSpanned.size() > 1) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
+            StringBuilder sb = new StringBuilder("Selected transactions span more than one fuel price period. Please create separate bills split at: ");
+            for (int i = 1; i < pricesSpanned.size(); i++) {
+                if (i > 1) {
+                    sb.append(", ");
+                }
+                sb.append(sdf.format(pricesSpanned.get(i).getEffectiveFrom()));
+            }
+            JsfUtil.addErrorMessage(sb.toString());
+            paymentRequestStarted = false;
+            return null;
+        }
+
+        // Defense in depth: the candidate list is already filtered to
+        // submittedToPayment=false, but re-check against the freshest DB
+        // state immediately before billing so a transaction can never end
+        // up bundled into more than one bill (e.g. two bills built from
+        // stale concurrent page loads).
+        for (FuelTransaction sft : candidates) {
+            FuelTransaction fresh = fuelTransactionFacade.find(sft.getId());
+            if (fresh != null && fresh.isSubmittedToPayment()) {
+                JsfUtil.addErrorMessage("Transaction " + fresh.getIdString() + " is already included in another bill. Please refresh and retry.");
+                paymentRequestStarted = false;
+                return null;
+            }
+        }
+
         // Proceed to create a bill with the selected transactions if only one combination is found
         fuelPaymentRequestBill = new Bill();
         fuelPaymentRequestBill.setBillDate(new Date());
@@ -1377,15 +1566,18 @@ public class FuelRequestAndIssueController implements Serializable {
         fuelPaymentRequestBill.setBillType("Payment Request From Hospital");
         fuelPaymentRequestBill.setFromInstitution(hospital);
         fuelPaymentRequestBill.setToInstitution(fuelStation);
+        fuelPaymentRequestBill.setAcceptanceStatus(BillAcceptanceStatus.PENDING);
         billFacade.create(fuelPaymentRequestBill);
 
         double qty = 0.0;
 
-        for (FuelTransaction sft : selectedTransactions) {
+        for (FuelTransaction sft : candidates) {
             sft.setSubmittedToPayment(true);
             sft.setSubmittedToPaymentAt(new Date());
             sft.setSubmittedToPaymentBy(webUserController.getLoggedUser());
             sft.setPaymentBill(fuelPaymentRequestBill);
+            sft.setBillAcceptanceStatus(BillAcceptanceStatus.PENDING);
+            sft.setBillAcceptanceStatusAt(new Date());
             if (sft.getIssuedQuantity() != null) {
                 qty += sft.getIssuedQuantity();
             }
@@ -1393,11 +1585,20 @@ public class FuelRequestAndIssueController implements Serializable {
         }
 
         fuelPaymentRequestBill.setTotalQty(qty);
+        if (!pricesSpanned.isEmpty()) {
+            Double price = pricesSpanned.get(0).getPricePerLiter();
+            fuelPaymentRequestBill.setPricePerLiter(price);
+            if (price != null) {
+                fuelPaymentRequestBill.setTotalValue(qty * price);
+            }
+        }
         billFacade.edit(fuelPaymentRequestBill);
         paymentRequestStarted = false;
         paymentRequestReprint = false;
+        paymentCandidateSelection = null;
 
-        Collections.sort(selectedTransactions, Comparator.comparing(FuelTransaction::getRequestedDate));
+        Collections.sort(candidates, Comparator.comparing(FuelTransaction::getRequestedDate));
+        selectedTransactions = candidates;
 
         return "/requests/list_payment?faces-redirect=true";
 
@@ -1448,6 +1649,19 @@ public class FuelRequestAndIssueController implements Serializable {
             return false;
         }
 
+        Double storedQty = billToReconcile.getTotalQty();
+
+        // No line items at all, despite a non-zero recorded total, is not a normal edit/delete
+        // drift - it means this bill's transactions could not be found (most likely they ended
+        // up linked to a different bill - see the double-submission guard on makePaymentRequest()).
+        // Don't silently zero out the bill's recorded total in that case; just warn.
+        if ((lineItems == null || lineItems.isEmpty()) && storedQty != null && storedQty > 0.0001) {
+            JsfUtil.addErrorMessage("This bill's transactions could not be found, even though it has a recorded "
+                    + "total of " + storedQty + " L. They may have been reassigned to another bill. "
+                    + "The recorded total is preserved below, but individual line items cannot be shown - please investigate.");
+            return false;
+        }
+
         double recalculatedQty = 0.0;
         if (lineItems != null) {
             for (FuelTransaction ft : lineItems) {
@@ -1460,19 +1674,21 @@ public class FuelRequestAndIssueController implements Serializable {
             }
         }
 
-        Double storedQty = billToReconcile.getTotalQty();
         boolean qtyChanged = storedQty == null || Math.abs(storedQty - recalculatedQty) > 0.0001;
 
         if (!qtyChanged) {
             return false;
         }
 
+        Double price = billToReconcile.getPricePerLiter();
+        Double recalculatedValue = price != null ? recalculatedQty * price : null;
+
         BillHistory history = new BillHistory();
         history.setBill(billToReconcile);
         history.setPreviousTotalQty(storedQty);
         history.setNewTotalQty(recalculatedQty);
         history.setPreviousTotalValue(billToReconcile.getTotalValue());
-        history.setNewTotalValue(billToReconcile.getTotalValue());
+        history.setNewTotalValue(recalculatedValue);
         history.setChangeReason("Bill total recalculated automatically on reprint - the sum of line item "
                 + "quantities did not match the total stored on the bill (transaction(s) were likely "
                 + "edited or deleted after the bill was created).");
@@ -1481,12 +1697,255 @@ public class FuelRequestAndIssueController implements Serializable {
         billHistoryFacade.create(history);
 
         billToReconcile.setTotalQty(recalculatedQty);
+        billToReconcile.setTotalValue(recalculatedValue);
         billFacade.edit(billToReconcile);
 
         JsfUtil.addSuccessMessage("Bill total was out of date and has been recalculated to match the current transaction quantities.");
 
         return true;
     }
+
+    // <editor-fold defaultstate="collapsed" desc="CPC Bill Acceptance Workflow">
+    /**
+     * Free-text bound to the "Request Resubmit" dialog - required comments
+     * explaining to the submitting institution what needs correcting.
+     */
+    private String resubmitComments;
+    /**
+     * Free-text bound to the "Cancel Acceptance" dialog.
+     */
+    private String acceptanceCancelledComments;
+
+    public String getResubmitComments() {
+        return resubmitComments;
+    }
+
+    public void setResubmitComments(String resubmitComments) {
+        this.resubmitComments = resubmitComments;
+    }
+
+    public String getAcceptanceCancelledComments() {
+        return acceptanceCancelledComments;
+    }
+
+    public void setAcceptanceCancelledComments(String acceptanceCancelledComments) {
+        this.acceptanceCancelledComments = acceptanceCancelledComments;
+    }
+
+    /**
+     * Only CPC regional/provincial offices and the CPC head office can
+     * decide on a bill - never the fuel station that the bill is addressed
+     * to (no self-approval), and never the submitting/hospital side.
+     */
+    private boolean isAuthorizedToDecideOnBill(Bill bill) {
+        if (bill == null) {
+            return false;
+        }
+        WebUser user = webUserController.getLoggedUser();
+        if (user == null || user.getInstitution() == null) {
+            return false;
+        }
+        Institution decidingInstitution = user.getInstitution();
+        if (decidingInstitution.equals(bill.getToInstitution())) {
+            // The fuel station the bill was addressed to cannot approve its own bill.
+            return false;
+        }
+        InstitutionType type = decidingInstitution.getInstitutionType();
+        if (type == InstitutionType.CPC_Head_Office) {
+            return true;
+        }
+        if (type == InstitutionType.CPC_Provincial_Office || type == InstitutionType.CPC_Depot) {
+            return webUserController.findAutherizedInstitutions().contains(bill.getToInstitution());
+        }
+        return false;
+    }
+
+    /**
+     * Used by the bill view page to decide whether to render the CPC
+     * Accept/Request-Resubmit/Cancel-Acceptance buttons for the currently
+     * logged-in user.
+     */
+    public boolean isCurrentUserAuthorizedForBillDecision() {
+        return isAuthorizedToDecideOnBill(fuelPaymentRequestBill);
+    }
+
+    /**
+     * Pushes a bill's current acceptance status (and the timestamp of that
+     * change) onto every one of its line-item transactions - the same
+     * mirroring pattern already used for {@code submittedToPayment} when the
+     * bill was first created.
+     */
+    private void mirrorAcceptanceStatusToTransactions(Bill bill) {
+        String jpql = "select ft from FuelTransaction ft where ft.paymentBill=:pb";
+        Map<String, Object> m = new HashMap<>();
+        m.put("pb", bill);
+        List<FuelTransaction> lineItems = fuelTransactionFacade.findByJpql(jpql, m);
+        if (lineItems == null) {
+            return;
+        }
+        Date now = new Date();
+        for (FuelTransaction ft : lineItems) {
+            ft.setBillAcceptanceStatus(bill.getAcceptanceStatus());
+            ft.setBillAcceptanceStatusAt(now);
+            fuelTransactionFacade.edit(ft);
+        }
+    }
+
+    private void recordAcceptanceHistory(Bill bill, BillAcceptanceStatus from, BillAcceptanceStatus to, String comments) {
+        BillAcceptanceHistory history = new BillAcceptanceHistory();
+        history.setBill(bill);
+        history.setFromStatus(from);
+        history.setToStatus(to);
+        history.setComments(comments);
+        history.setChangedBy(webUserController.getLoggedUser());
+        history.setChangedAt(new Date());
+        billAcceptanceHistoryFacade.create(history);
+    }
+
+    /**
+     * CPC accepts the currently viewed bill. Once accepted, admins cannot
+     * edit/delete any of its line-item transactions until CPC cancels the
+     * acceptance.
+     */
+    public void acceptBill() {
+        Bill bill = fuelPaymentRequestBill;
+        if (bill == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return;
+        }
+        if (!isAuthorizedToDecideOnBill(bill)) {
+            JsfUtil.addErrorMessage("You are NOT autherized to accept this bill");
+            return;
+        }
+        if (!bill.isPendingDecision()) {
+            JsfUtil.addErrorMessage("This bill is not pending a decision - it is already " + bill.getAcceptanceStatus().getLabel() + ". Refresh and check again.");
+            return;
+        }
+        BillAcceptanceStatus from = bill.getAcceptanceStatus();
+        bill.setAcceptanceStatus(BillAcceptanceStatus.ACCEPTED);
+        bill.setAcceptedBy(webUserController.getLoggedUser());
+        bill.setAcceptedAt(new Date());
+        try {
+            billFacade.edit(bill);
+        } catch (OptimisticLockException | EJBTransactionRolledbackException ole) {
+            JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
+            return;
+        }
+        mirrorAcceptanceStatusToTransactions(bill);
+        recordAcceptanceHistory(bill, from, BillAcceptanceStatus.ACCEPTED, null);
+        JsfUtil.addSuccessMessage("Bill accepted");
+    }
+
+    /**
+     * CPC asks the submitting institution to resubmit the bill, instead of
+     * accepting it. There is no hard rejection - comments explaining what
+     * to fix are required.
+     */
+    public void requestResubmitOfBill() {
+        Bill bill = fuelPaymentRequestBill;
+        if (bill == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return;
+        }
+        if (!isAuthorizedToDecideOnBill(bill)) {
+            JsfUtil.addErrorMessage("You are NOT autherized to act on this bill");
+            return;
+        }
+        if (!bill.isPendingDecision()) {
+            JsfUtil.addErrorMessage("This bill is not pending a decision - it is already " + bill.getAcceptanceStatus().getLabel() + ". Refresh and check again.");
+            return;
+        }
+        if (resubmitComments == null || resubmitComments.trim().isEmpty()) {
+            JsfUtil.addErrorMessage("Please enter comments explaining what needs to be corrected");
+            return;
+        }
+        BillAcceptanceStatus from = bill.getAcceptanceStatus();
+        bill.setAcceptanceStatus(BillAcceptanceStatus.RESUBMIT_REQUESTED);
+        bill.setResubmitRequestedBy(webUserController.getLoggedUser());
+        bill.setResubmitRequestedAt(new Date());
+        bill.setResubmitComments(resubmitComments);
+        try {
+            billFacade.edit(bill);
+        } catch (OptimisticLockException | EJBTransactionRolledbackException ole) {
+            JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
+            return;
+        }
+        mirrorAcceptanceStatusToTransactions(bill);
+        recordAcceptanceHistory(bill, from, BillAcceptanceStatus.RESUBMIT_REQUESTED, resubmitComments);
+        resubmitComments = null;
+        JsfUtil.addSuccessMessage("Resubmit requested");
+    }
+
+    /**
+     * CPC cancels a previous acceptance, reopening the bill (and all its
+     * transactions) for admin edits. This is the only way to unlock an
+     * accepted bill's transactions again.
+     */
+    public void cancelBillAcceptance() {
+        Bill bill = fuelPaymentRequestBill;
+        if (bill == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return;
+        }
+        if (!isAuthorizedToDecideOnBill(bill)) {
+            JsfUtil.addErrorMessage("You are NOT autherized to act on this bill");
+            return;
+        }
+        if (!bill.isAccepted()) {
+            JsfUtil.addErrorMessage("This bill is not currently accepted.");
+            return;
+        }
+        if (acceptanceCancelledComments == null || acceptanceCancelledComments.trim().isEmpty()) {
+            JsfUtil.addErrorMessage("Please enter a reason for cancelling the acceptance");
+            return;
+        }
+        BillAcceptanceStatus from = bill.getAcceptanceStatus();
+        bill.setAcceptanceStatus(BillAcceptanceStatus.PENDING);
+        bill.setAcceptanceCancelledBy(webUserController.getLoggedUser());
+        bill.setAcceptanceCancelledAt(new Date());
+        bill.setAcceptanceCancelledComments(acceptanceCancelledComments);
+        try {
+            billFacade.edit(bill);
+        } catch (OptimisticLockException | EJBTransactionRolledbackException ole) {
+            JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
+            return;
+        }
+        mirrorAcceptanceStatusToTransactions(bill);
+        recordAcceptanceHistory(bill, from, BillAcceptanceStatus.PENDING, acceptanceCancelledComments);
+        acceptanceCancelledComments = null;
+        JsfUtil.addSuccessMessage("Acceptance cancelled - transactions are editable again");
+    }
+
+    /**
+     * The submitting/admin side, after fixing the transactions CPC flagged,
+     * explicitly resubmits the bill so it reappears in CPC's pending queue.
+     * Nothing flips automatically just because a transaction was edited.
+     */
+    public void resubmitBillByAdmin() {
+        Bill bill = fuelPaymentRequestBill;
+        if (bill == null) {
+            JsfUtil.addErrorMessage("Nothing selected");
+            return;
+        }
+        if (!bill.isResubmitRequested()) {
+            JsfUtil.addErrorMessage("This bill does not have a pending resubmit request.");
+            return;
+        }
+        BillAcceptanceStatus from = bill.getAcceptanceStatus();
+        bill.setAcceptanceStatus(BillAcceptanceStatus.PENDING);
+        bill.setResubmittedBy(webUserController.getLoggedUser());
+        bill.setResubmittedAt(new Date());
+        try {
+            billFacade.edit(bill);
+        } catch (OptimisticLockException | EJBTransactionRolledbackException ole) {
+            JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
+            return;
+        }
+        mirrorAcceptanceStatusToTransactions(bill);
+        recordAcceptanceHistory(bill, from, BillAcceptanceStatus.PENDING, "Resubmitted after corrections");
+        JsfUtil.addSuccessMessage("Bill resubmitted for CPC's decision");
+    }
+    // </editor-fold>
 
     public void listInstitutionRequestsToPay() {
         if (!isSameMonth(getFromDate(), getToDate())) {
@@ -1776,12 +2235,48 @@ public class FuelRequestAndIssueController implements Serializable {
         this.transactions = transactions;
     }
 
+    /**
+     * Null when the currently listed (list_to_pay.xhtml) transactions all fall under a
+     * single fuel price; otherwise a warning naming the price-change date(s) within them,
+     * so the account-branch user knows to split their selection into separate bills.
+     */
+    public String getPriceChangeWarning() {
+        if (transactions == null || transactions.isEmpty()) {
+            return null;
+        }
+        List<Date> issuedDates = new ArrayList<>();
+        for (FuelTransaction ft : transactions) {
+            issuedDates.add(ft.getIssuedDate());
+        }
+        List<FuelPrice> pricesSpanned = fuelPriceApplicationController.distinctPricesFor(issuedDates);
+        if (pricesSpanned.size() <= 1) {
+            return null;
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
+        StringBuilder sb = new StringBuilder("The fuel price changed within this listing. Please make separate payment requests split at: ");
+        for (int i = 1; i < pricesSpanned.size(); i++) {
+            if (i > 1) {
+                sb.append(", ");
+            }
+            sb.append(sdf.format(pricesSpanned.get(i).getEffectiveFrom()));
+        }
+        return sb.toString();
+    }
+
     public List<FuelTransaction> getSelectedTransactions() {
         return selectedTransactions;
     }
 
     public void setSelectedTransactions(List<FuelTransaction> selectedTransactions) {
         this.selectedTransactions = selectedTransactions;
+    }
+
+    public List<FuelTransaction> getPaymentCandidateSelection() {
+        return paymentCandidateSelection;
+    }
+
+    public void setPaymentCandidateSelection(List<FuelTransaction> paymentCandidateSelection) {
+        this.paymentCandidateSelection = paymentCandidateSelection;
     }
 
     public FuelTransactionHistory getSelectedTransactionHistory() {
@@ -1838,6 +2333,14 @@ public class FuelRequestAndIssueController implements Serializable {
         this.toDate = toDate;
     }
 
+    public String getRequestNumber() {
+        return requestNumber;
+    }
+
+    public void setRequestNumber(String requestNumber) {
+        this.requestNumber = requestNumber;
+    }
+
     public String navigateToViewInstitutionFuelRequestToSltbDepot() {
         return "/requests/requested";
     }
@@ -1884,6 +2387,38 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public void setBills(List<Bill> bills) {
         this.bills = bills;
+    }
+
+    public List<Bill> getAcceptedBills() {
+        return acceptedBills;
+    }
+
+    public void setAcceptedBills(List<Bill> acceptedBills) {
+        this.acceptedBills = acceptedBills;
+    }
+
+    public double getAcceptedBillsTotalQty() {
+        double total = 0.0;
+        if (acceptedBills != null) {
+            for (Bill b : acceptedBills) {
+                if (b.getTotalQty() != null) {
+                    total += b.getTotalQty();
+                }
+            }
+        }
+        return total;
+    }
+
+    public double getAcceptedBillsTotalValue() {
+        double total = 0.0;
+        if (acceptedBills != null) {
+            for (Bill b : acceptedBills) {
+                if (b.getTotalValue() != null) {
+                    total += b.getTotalValue();
+                }
+            }
+        }
+        return total;
     }
 
     public Institution getFuelStation() {

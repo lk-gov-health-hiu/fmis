@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:p="http://primefaces.org/ui" xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+        <ui:composition template="/cpc/admin/index.xhtml">
+            <ui:define name="admin">
+                <h:form>
+                    <p:messages></p:messages>
+
+                    <div class="p-2 my-2" style="background-color: #cfe2ff; color: #084298; border: 1px solid #9ec5fe; border-radius: 4px;">
+                        A price is in effect from 00:00:00 of its "Effective From" date until the day before the next price's
+                        "Effective From" date. If the actual price change happened at midnight going into, say, the 14th,
+                        enter the 14th here - not the 13th.
+                    </div>
+
+                    <p:commandButton value="Add New Fuel Price" icon="pi pi-plus"
+                                      rendered="#{fuelPriceController.priceManager}"
+                                      ajax="false" class="btn btn-primary my-2"
+                                      action="#{fuelPriceController.toAddFuelPrice()}" />
+
+                    <p:dataTable value="#{fuelPriceController.items}" var="item" rowKey="#{item.id}"
+                                  paginator="true" rows="15"
+                                  paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                  rowsPerPageTemplate="10,15,50,{ShowAll|'All'}">
+
+                        <p:column headerText="Effective From" sortBy="#{item.effectiveFrom}">
+                            <h:outputText value="#{item.effectiveFrom}">
+                                <f:convertDateTime pattern="dd MMMM yyyy" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Price / Liter" sortBy="#{item.pricePerLiter}">
+                            <h:outputText value="#{item.pricePerLiter}">
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Remarks">
+                            <h:outputText value="#{item.remarks}" />
+                        </p:column>
+
+                        <p:column headerText="Entered By">
+                            <h:outputText value="#{item.creater.name}" />
+                            <h:outputText value=" on " rendered="#{item.createdAt ne null}" />
+                            <h:outputText value="#{item.createdAt}" rendered="#{item.createdAt ne null}">
+                                <f:convertDateTime pattern="dd MMM yyyy" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Actions" rendered="#{fuelPriceController.priceManager}">
+                            <p:commandButton value="Edit" ajax="false" class="btn btn-outline-primary btn-sm"
+                                              action="#{fuelPriceController.toEditFuelPrice()}">
+                                <f:setPropertyActionListener value="#{item}" target="#{fuelPriceController.selected}" />
+                            </p:commandButton>
+                        </p:column>
+
+                    </p:dataTable>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </body>
+</html>

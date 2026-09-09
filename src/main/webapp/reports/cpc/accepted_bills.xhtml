@@ -1,0 +1,209 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:body>
+        <ui:composition template="/reports/cpc/index.xhtml">
+            <ui:define name="reports">
+                <style>
+                    @media print {
+                        .d-print-none {
+                            display: none !important;
+                        }
+                        .accepted-bills-report table {
+                            width: 100%;
+                            border-collapse: collapse;
+                        }
+                        .accepted-bills-report th,
+                        .accepted-bills-report td {
+                            border: 1px solid #000 !important;
+                            font-size: 11px;
+                            padding: 3px 5px;
+                        }
+                        .accepted-bills-report tr {
+                            page-break-inside: avoid;
+                        }
+                    }
+                    .accepted-bills-report table {
+                        width: 100%;
+                    }
+                    .accepted-bills-report th,
+                    .accepted-bills-report td {
+                        border: 1px solid #ccc;
+                        padding: 4px 6px;
+                    }
+                    .accepted-bills-report .ui-datatable-footer,
+                    .accepted-bills-report tfoot td {
+                        font-weight: bold;
+                        background: #f5f5f5;
+                    }
+                    .report-letterhead {
+                        text-align: center;
+                        margin-bottom: 15px;
+                    }
+                </style>
+
+                <h:form>
+                    <div class="card d-print-none">
+                        <div class="card-header">
+                            <h2><h:outputText value="Accepted Bills Report" /></h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-2">
+                                    <div class="form-group">
+                                        <label for="fromDate">From Date</label>
+                                        <p:calendar
+                                            id="fromDate"
+                                            value="#{fuelRequestAndIssueController.fromDate}"
+                                            showButtonPanel="true"
+                                            class="w-100 m-1"
+                                            pattern="dd MMMM yyyy"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="toDate">To Date</label>
+                                        <p:calendar
+                                            id="toDate"
+                                            value="#{fuelRequestAndIssueController.toDate}"
+                                            showButtonPanel="true"
+                                            pattern="dd MMMM yyyy"
+                                            class="w-100 m-1" />
+                                    </div>
+                                    <p:outputLabel value="Hospital" />
+                                    <p:autoComplete
+                                        value="#{fuelRequestAndIssueController.institution}"
+                                        completeMethod="#{institutionController.completeFuelRequestingFromInstitutions}"
+                                        var="fi"
+                                        itemLabel="#{fi.name}"
+                                        itemValue="#{fi}"
+                                        class="w-100" />
+
+                                    <p:outputLabel value="Fuel Station" />
+                                    <p:autoComplete
+                                        value="#{fuelRequestAndIssueController.fuelStation}"
+                                        completeMethod="#{institutionController.completeFuelStations}"
+                                        var="fs"
+                                        itemLabel="#{fs.name}"
+                                        itemValue="#{fs}"
+                                        class="w-100" />
+
+                                    <div class="form-group d-flex justify-content-center">
+                                        <p:commandButton value="List Accepted Bills"
+                                                         action="#{fuelRequestAndIssueController.listAcceptedBillsForCpcRegionalOffice()}"
+                                                         icon="pi pi-list"
+                                                         ajax="false"
+                                                         class="btn btn-primary w-100 my-2" />
+                                    </div>
+                                    <div class="form-group d-flex justify-content-center">
+                                        <p:commandButton ajax="false" value="Print" type="button" icon="pi pi-print"
+                                                         class="btn btn-secondary w-100 my-2">
+                                            <p:printer target="printArea" />
+                                        </p:commandButton>
+                                    </div>
+                                    <div class="form-group d-flex justify-content-center">
+                                        <p:commandButton
+                                            value="Export to Excel"
+                                            class="btn btn-success w-100 my-2"
+                                            ajax="false" icon="pi pi-file-excel">
+                                            <p:dataExporter type="xlsx" target="tbl" fileName="Accepted Bills Report" />
+                                        </p:commandButton>
+                                    </div>
+                                    <div class="form-group d-flex justify-content-center">
+                                        <p:commandButton
+                                            value="Export to PDF"
+                                            class="btn btn-danger w-100 my-2"
+                                            ajax="false" icon="pi pi-file-pdf">
+                                            <p:dataExporter type="pdf" target="tbl" fileName="Accepted Bills Report" />
+                                        </p:commandButton>
+                                    </div>
+                                </div>
+
+                                <div class="col-10">
+                                    <h:panelGroup id="printArea" layout="block" styleClass="accepted-bills-report">
+                                        <div class="report-letterhead">
+                                            <h4><h:outputText value="#{webUserController.loggedUser.institution.name}" /></h4>
+                                            <h5><h:outputText value="Accepted Bills Report" /></h5>
+                                            <p>
+                                                <h:outputText value="Period: " />
+                                                <h:outputText value="#{fuelRequestAndIssueController.fromDate}">
+                                                    <f:convertDateTime pattern="dd MMMM yyyy" />
+                                                </h:outputText>
+                                                <h:outputText value=" to " />
+                                                <h:outputText value="#{fuelRequestAndIssueController.toDate}">
+                                                    <f:convertDateTime pattern="dd MMMM yyyy" />
+                                                </h:outputText>
+                                            </p>
+                                        </div>
+
+                                        <p:dataTable
+                                            id="tbl"
+                                            value="#{fuelRequestAndIssueController.acceptedBills}"
+                                            var="bill"
+                                            rowIndexVar="rn"
+                                            rowKey="#{bill.id}"
+                                            paginator="false">
+
+                                            <p:column headerText="#" style="width:3em; text-align:center;">
+                                                <f:facet name="footer">
+                                                    <h:outputText value="Total: #{fuelRequestAndIssueController.acceptedBills.size()}" />
+                                                </f:facet>
+                                                <h:outputText value="#{rn + 1}" />
+                                            </p:column>
+
+                                            <p:column headerText="Accepted Date">
+                                                <h:outputText value="#{bill.acceptedAt}">
+                                                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                                                </h:outputText>
+                                            </p:column>
+
+                                            <p:column headerText="Bill Date">
+                                                <h:outputText value="#{bill.billDate}">
+                                                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                                                </h:outputText>
+                                            </p:column>
+
+                                            <p:column headerText="From Institution (Hospital)">
+                                                <h:outputText value="#{bill.fromInstitution.name}" />
+                                            </p:column>
+
+                                            <p:column headerText="Fuel Station">
+                                                <h:outputText value="#{bill.toInstitution.name} (#{bill.toInstitution.code})" />
+                                            </p:column>
+
+                                            <p:column headerText="Total Qty" style="text-align:right;">
+                                                <f:facet name="footer">
+                                                    <h:outputText value="#{fuelRequestAndIssueController.acceptedBillsTotalQty}">
+                                                        <f:convertNumber pattern="#,##0.00" />
+                                                    </h:outputText>
+                                                </f:facet>
+                                                <h:outputText value="#{bill.totalQty}">
+                                                    <f:convertNumber pattern="#,##0.00" />
+                                                </h:outputText>
+                                            </p:column>
+
+                                            <p:column headerText="Amount (Rs.)" style="text-align:right;">
+                                                <f:facet name="footer">
+                                                    <h:outputText value="#{fuelRequestAndIssueController.acceptedBillsTotalValue}">
+                                                        <f:convertNumber pattern="#,##0.00" />
+                                                    </h:outputText>
+                                                </f:facet>
+                                                <h:outputText value="#{bill.totalValue}">
+                                                    <f:convertNumber pattern="#,##0.00" />
+                                                </h:outputText>
+                                            </p:column>
+
+                                        </p:dataTable>
+                                    </h:panelGroup>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

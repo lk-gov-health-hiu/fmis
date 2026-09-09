@@ -142,6 +142,30 @@
                                                 <h:outputText value="#{bill.billType}" />
                                             </p:column>
 
+                                            <p:column headerText="CPC Status"
+                                                      exportHeaderValue="true"
+                                                      sortBy="#{bill.acceptanceStatus}" filterBy="#{bill.acceptanceStatus}">
+                                                <f:facet name="header">
+                                                    <h:outputText value="CPC Status" />
+                                                </f:facet>
+                                                <h:outputText value="Pending" style="color: #856404; font-weight: bold;" rendered="#{bill.pendingDecision}" />
+                                                <h:outputText value="Accepted" style="color: #155724; font-weight: bold;" rendered="#{bill.accepted}" />
+                                                <h:outputText value="Resubmit Requested" style="color: #c00; font-weight: bold;" rendered="#{bill.resubmitRequested}" />
+                                            </p:column>
+
+                                            <p:column headerText="CPC Status At"
+                                                      exportHeaderValue="true">
+                                                <f:facet name="header">
+                                                    <h:outputText value="CPC Status At" />
+                                                </f:facet>
+                                                <h:outputText value="#{bill.acceptedAt}" rendered="#{bill.accepted}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                                </h:outputText>
+                                                <h:outputText value="#{bill.resubmitRequestedAt}" rendered="#{bill.resubmitRequested}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                                </h:outputText>
+                                            </p:column>
+
                                             <p:column headerText="Actions"
                                                       exportHeaderValue="true">
                                                 <f:facet name="header">
@@ -159,6 +183,12 @@
                                             </p:column>
 
                                         </p:dataTable>
+
+                                        <div class="alert alert-info small mt-3" role="alert">
+                                            <p class="mb-1"><strong>Note:</strong> "From Date" and "To Date" filter by the date the CPC payment bill was created &#8212; not by the dates of the individual fuel orders included in it.</p>
+                                            <p class="mb-1" lang="si">සටහන: "සිට දිනය" සහ "දක්වා දිනය" පෙරහන් වන්නේ CPC ගෙවීම් බිල්පත සකස් කළ දිනය අනුව මිස, එයට ඇතුළත් වූ තනි ඉන්ධන ඉල්ලීම්වල දිනයන් අනුව නොවේ.</p>
+                                            <p class="mb-0" lang="ta">குறிப்பு: "தொடக்க திகதி" மற்றும் "முடிவு திகதி" ஆகியவை CPC கட்டண பில் உருவாக்கப்பட்ட திகதியின்படி வடிகட்டப்படுகின்றன — அதில் உள்ள தனிப்பட்ட எரிபொருள் கோரிக்கைகளின் திகதிகளின்படி அல்ல.</p>
+                                        </div>
 
                                     </div>
                                 </div>

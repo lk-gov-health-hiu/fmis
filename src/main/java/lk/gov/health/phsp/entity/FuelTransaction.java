@@ -35,6 +35,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
+import lk.gov.health.phsp.enums.BillAcceptanceStatus;
 import lk.gov.health.phsp.enums.FuelTransactionType;
 
 /**
@@ -153,6 +154,19 @@ public class FuelTransaction implements Serializable {
     private WebUser submittedToPaymentBy;
     @ManyToOne
     private Bill paymentBill;
+
+    /**
+     * Mirrors {@code paymentBill.acceptanceStatus} at the time it last
+     * changed - kept in lock-step (same pattern as
+     * {@link #submittedToPayment}/{@link #submittedToPaymentAt} above)
+     * purely so transaction-level lists/views can show the bill's
+     * acceptance status without joining to {@link Bill}. {@code null}
+     * until the transaction is submitted to payment.
+     */
+    @Enumerated(EnumType.STRING)
+    private BillAcceptanceStatus billAcceptanceStatus;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date billAcceptanceStatusAt;
 
     public String getIdString() {
         if (id == null) {
@@ -612,6 +626,47 @@ public class FuelTransaction implements Serializable {
 
     public void setPaymentBill(Bill paymentBill) {
         this.paymentBill = paymentBill;
+    }
+
+    public BillAcceptanceStatus getBillAcceptanceStatus() {
+        return billAcceptanceStatus;
+    }
+
+    public void setBillAcceptanceStatus(BillAcceptanceStatus billAcceptanceStatus) {
+        this.billAcceptanceStatus = billAcceptanceStatus;
+    }
+
+    public Date getBillAcceptanceStatusAt() {
+        return billAcceptanceStatusAt;
+    }
+
+    public void setBillAcceptanceStatusAt(Date billAcceptanceStatusAt) {
+        this.billAcceptanceStatusAt = billAcceptanceStatusAt;
+    }
+
+    /**
+     * True once the bill this transaction was bundled into has been
+     * accepted by CPC - at which point admins may no longer edit or delete
+     * this transaction until CPC cancels that acceptance.
+     */
+    public boolean isBillLocked() {
+        return billAcceptanceStatus == BillAcceptanceStatus.ACCEPTED;
+    }
+
+    // Convenience booleans for EL (avoids relying on enum coercion in views).
+    // Bills generated before CPC bill-acceptance tracking existed have no
+    // billAcceptanceStatus - treat those as Pending rather than blank.
+    public boolean isBillStatusPending() {
+        return billAcceptanceStatus == BillAcceptanceStatus.PENDING
+                || (billAcceptanceStatus == null && submittedToPayment);
+    }
+
+    public boolean isBillStatusAccepted() {
+        return billAcceptanceStatus == BillAcceptanceStatus.ACCEPTED;
+    }
+
+    public boolean isBillStatusResubmitRequested() {
+        return billAcceptanceStatus == BillAcceptanceStatus.RESUBMIT_REQUESTED;
     }
 
 }

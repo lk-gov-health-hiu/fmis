@@ -27,16 +27,21 @@ import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
+import lk.gov.health.phsp.enums.BillAcceptanceStatus;
 
 /**
  *
@@ -88,13 +93,56 @@ public class Bill implements Serializable {
     private Date retiredAt;
     
     private Double totalQty;
+    /**
+     * The fuel price/liter in effect when this bill was created (see
+     * FuelPrice) - a snapshot, so it stays fixed even if the price schedule
+     * is later edited. Null for bills created before fuel prices existed.
+     */
+    private Double pricePerLiter;
     private Double totalValue;
-    
+
     @ManyToOne
     private WebUser billUser;
-    
-    
-    
+
+    /**
+     * Optimistic lock - guards against two concurrent requests (e.g. two
+     * accidental double-clicks on Accept) both succeeding on the same bill.
+     */
+    @Version
+    private Long version;
+
+    @Enumerated(EnumType.STRING)
+    private BillAcceptanceStatus acceptanceStatus;
+
+    @ManyToOne
+    private WebUser acceptedBy;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date acceptedAt;
+
+    @ManyToOne
+    private WebUser resubmitRequestedBy;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date resubmitRequestedAt;
+    @Lob
+    private String resubmitComments;
+
+    @ManyToOne
+    private WebUser acceptanceCancelledBy;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date acceptanceCancelledAt;
+    @Lob
+    private String acceptanceCancelledComments;
+
+    /**
+     * Set when the submitting (admin/hospital) side has fixed the flagged
+     * transactions and explicitly resubmits the bill for another CPC
+     * decision - moves {@link #acceptanceStatus} back to
+     * {@link BillAcceptanceStatus#PENDING}.
+     */
+    @ManyToOne
+    private WebUser resubmittedBy;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date resubmittedAt;
 
     @PrePersist
     private void generateBillNo() {
@@ -220,6 +268,14 @@ public class Bill implements Serializable {
         this.totalQty = totalQty;
     }
 
+    public Double getPricePerLiter() {
+        return pricePerLiter;
+    }
+
+    public void setPricePerLiter(Double pricePerLiter) {
+        this.pricePerLiter = pricePerLiter;
+    }
+
     public Double getTotalValue() {
         return totalValue;
     }
@@ -235,5 +291,121 @@ public class Bill implements Serializable {
     public void setBillUser(WebUser billUser) {
         this.billUser = billUser;
     }
-    
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    /**
+     * Legacy bills created before this field existed have no stored value -
+     * they are treated as {@code PENDING}, exactly as they behaved before
+     * the acceptance workflow existed.
+     */
+    public BillAcceptanceStatus getAcceptanceStatus() {
+        if (acceptanceStatus == null) {
+            acceptanceStatus = BillAcceptanceStatus.PENDING;
+        }
+        return acceptanceStatus;
+    }
+
+    public void setAcceptanceStatus(BillAcceptanceStatus acceptanceStatus) {
+        this.acceptanceStatus = acceptanceStatus;
+    }
+
+    public boolean isPendingDecision() {
+        return getAcceptanceStatus() == BillAcceptanceStatus.PENDING;
+    }
+
+    public boolean isAccepted() {
+        return getAcceptanceStatus() == BillAcceptanceStatus.ACCEPTED;
+    }
+
+    public boolean isResubmitRequested() {
+        return getAcceptanceStatus() == BillAcceptanceStatus.RESUBMIT_REQUESTED;
+    }
+
+    public WebUser getAcceptedBy() {
+        return acceptedBy;
+    }
+
+    public void setAcceptedBy(WebUser acceptedBy) {
+        this.acceptedBy = acceptedBy;
+    }
+
+    public Date getAcceptedAt() {
+        return acceptedAt;
+    }
+
+    public void setAcceptedAt(Date acceptedAt) {
+        this.acceptedAt = acceptedAt;
+    }
+
+    public WebUser getResubmitRequestedBy() {
+        return resubmitRequestedBy;
+    }
+
+    public void setResubmitRequestedBy(WebUser resubmitRequestedBy) {
+        this.resubmitRequestedBy = resubmitRequestedBy;
+    }
+
+    public Date getResubmitRequestedAt() {
+        return resubmitRequestedAt;
+    }
+
+    public void setResubmitRequestedAt(Date resubmitRequestedAt) {
+        this.resubmitRequestedAt = resubmitRequestedAt;
+    }
+
+    public String getResubmitComments() {
+        return resubmitComments;
+    }
+
+    public void setResubmitComments(String resubmitComments) {
+        this.resubmitComments = resubmitComments;
+    }
+
+    public WebUser getAcceptanceCancelledBy() {
+        return acceptanceCancelledBy;
+    }
+
+    public void setAcceptanceCancelledBy(WebUser acceptanceCancelledBy) {
+        this.acceptanceCancelledBy = acceptanceCancelledBy;
+    }
+
+    public Date getAcceptanceCancelledAt() {
+        return acceptanceCancelledAt;
+    }
+
+    public void setAcceptanceCancelledAt(Date acceptanceCancelledAt) {
+        this.acceptanceCancelledAt = acceptanceCancelledAt;
+    }
+
+    public String getAcceptanceCancelledComments() {
+        return acceptanceCancelledComments;
+    }
+
+    public void setAcceptanceCancelledComments(String acceptanceCancelledComments) {
+        this.acceptanceCancelledComments = acceptanceCancelledComments;
+    }
+
+    public WebUser getResubmittedBy() {
+        return resubmittedBy;
+    }
+
+    public void setResubmittedBy(WebUser resubmittedBy) {
+        this.resubmittedBy = resubmittedBy;
+    }
+
+    public Date getResubmittedAt() {
+        return resubmittedAt;
+    }
+
+    public void setResubmittedAt(Date resubmittedAt) {
+        this.resubmittedAt = resubmittedAt;
+    }
+
 }

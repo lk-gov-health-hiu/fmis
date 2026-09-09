@@ -49,6 +49,16 @@
                         z-index: 1030;
                         background: #fff;
                         padding: 10px 0;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        flex-wrap: wrap;
+                        gap: 10px;
+                    }
+
+                    .print-toolbar-actions {
+                        display: flex;
+                        align-items: center;
                     }
 
                     .print-toolbar .ui-button {
@@ -92,6 +102,10 @@
 
                         .my-2 {
                             margin: 0 !important;
+                        }
+
+                        .acceptance-actions {
+                            display: none !important;
                         }
                     }
 
@@ -152,15 +166,204 @@
                         padding: 6px;
                         margin-bottom: 10px;
                     }
+
+                    .acceptance-status-banner {
+                        text-align: center;
+                        font-weight: bold;
+                        font-size: 1.05em;
+                        padding: 8px;
+                        margin-bottom: 10px;
+                        border-radius: 4px;
+                    }
+
+                    .acceptance-status-pending {
+                        border: 2px solid #e0a800;
+                        color: #856404;
+                        background: #fff8e1;
+                    }
+
+                    .acceptance-status-accepted {
+                        border: 2px solid #28a745;
+                        color: #155724;
+                        background: #eaf6ec;
+                    }
+
+                    .acceptance-status-resubmit {
+                        border: 2px solid #c00;
+                        color: #c00;
+                        background: #fdeeee;
+                    }
+
+                    .acceptance-comments {
+                        font-weight: normal;
+                        font-size: 0.95em;
+                        margin-top: 4px;
+                    }
+
+                    .acceptance-actions {
+                        margin: 10px 0;
+                    }
+
+                    .contact-info-panel {
+                        border: 1px solid #dee2e6;
+                        border-radius: 4px;
+                        background: #f8f9fa;
+                        padding: 6px 12px;
+                        font-size: 0.8em;
+                        max-width: 480px;
+                    }
+
+                    .contact-info-title {
+                        font-weight: bold;
+                        margin-bottom: 4px;
+                    }
+
+                    .contact-info-note {
+                        font-weight: normal;
+                        font-size: 0.9em;
+                        color: #6c757d;
+                    }
+
+                    .contact-info-columns {
+                        display: flex;
+                        gap: 1.5rem;
+                    }
+
+                    @media print {
+                        .contact-info-panel {
+                            display: none !important;
+                        }
+                    }
                 </style>
 
                 <h:form id="billForm">
-                    <!-- Buttons for Print and PDF -->
+                    <!-- Buttons for Print and PDF, plus Contact Information (not part of the printed bill) -->
                     <div class="print-toolbar">
-                        <p:commandButton value="Print" ajax="false" icon="pi pi-print" styleClass="mr-2">
-                            <p:printer target="panelBill"/>
-                        </p:commandButton>
+                        <div class="print-toolbar-actions">
+                            <p:commandButton value="Print" ajax="false" icon="pi pi-print" styleClass="mr-2">
+                                <p:printer target="panelBill"/>
+                            </p:commandButton>
+                            <p:button value="Back" icon="pi pi-arrow-left" styleClass="ui-button-secondary" onclick="history.back(); return false;" />
+                        </div>
+
+                        <h:panelGroup id="contactInfoPanel" layout="block" styleClass="contact-info-panel">
+                            <div class="contact-info-title">
+                                Contact Information
+                                <span class="contact-info-note">(not printed)</span>
+                            </div>
+                            <div class="contact-info-columns">
+                                <div>
+                                    <strong>Hospital</strong>
+                                    <div><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.name}"/></div>
+                                    <div>Phone: <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.phone}"/></div>
+                                    <div>Mobile: <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.mobile}"/></div>
+                                    <div>Email: <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.email}"/></div>
+                                </div>
+                                <div>
+                                    <strong>Created By</strong>
+                                    <div><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.nameWithTitle}"/></div>
+                                    <div>Phone: <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.phone1}"/></div>
+                                    <div>Mobile: <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.phone2}"/></div>
+                                    <div>Email: <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billUser.person.email}"/></div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
                     </div>
+
+                    <!-- CPC Acceptance Status and Actions (not part of the printed bill) -->
+                    <h:panelGroup id="acceptancePanel" layout="block">
+                        <ui:fragment rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.pendingDecision}">
+                            <div class="acceptance-status-banner acceptance-status-pending">
+                                PENDING CPC DECISION
+                            </div>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.accepted}">
+                            <div class="acceptance-status-banner acceptance-status-accepted">
+                                ACCEPTED BY CPC
+                                <div class="acceptance-comments">
+                                    <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.acceptedBy.person.nameWithTitle}" />
+                                    <h:outputText value=" on " />
+                                    <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.acceptedAt}">
+                                        <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                    </h:outputText>
+                                </div>
+                            </div>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.resubmitRequested}">
+                            <div class="acceptance-status-banner acceptance-status-resubmit">
+                                RESUBMIT REQUESTED BY CPC
+                                <div class="acceptance-comments">
+                                    <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.resubmitRequestedBy.person.nameWithTitle}" />
+                                    <h:outputText value=" on " />
+                                    <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.resubmitRequestedAt}">
+                                        <f:convertDateTime pattern="dd MMM yyyy HH:mm" />
+                                    </h:outputText>
+                                    <br/>
+                                    <h:outputText value="Comments: #{fuelRequestAndIssueController.fuelPaymentRequestBill.resubmitComments}" />
+                                </div>
+                            </div>
+                        </ui:fragment>
+
+                        <!-- CPC decision actions (regional/head office only - never the fuel station itself) -->
+                        <ui:fragment rendered="#{fuelRequestAndIssueController.currentUserAuthorizedForBillDecision and fuelRequestAndIssueController.fuelPaymentRequestBill.pendingDecision}">
+                            <div class="acceptance-actions d-flex justify-content-center">
+                                <p:commandButton value="Accept Bill" icon="pi pi-check" styleClass="ui-button-raised ui-button-success mx-1"
+                                                 action="#{fuelRequestAndIssueController.acceptBill}"
+                                                 update="acceptancePanel" />
+                                <p:commandButton value="Request Resubmit" icon="pi pi-undo" styleClass="ui-button-raised ui-button-warning mx-1"
+                                                 type="button" onclick="PF('resubmitDialog').show();" />
+                            </div>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{fuelRequestAndIssueController.currentUserAuthorizedForBillDecision and fuelRequestAndIssueController.fuelPaymentRequestBill.accepted}">
+                            <div class="acceptance-actions d-flex justify-content-center">
+                                <p:commandButton value="Cancel Acceptance" icon="pi pi-replay" styleClass="ui-button-raised ui-button-danger mx-1"
+                                                 type="button" onclick="PF('cancelAcceptanceDialog').show();" />
+                            </div>
+                        </ui:fragment>
+
+                        <!-- Submitting/admin side action: resubmit after fixing the flagged transactions -->
+                        <ui:fragment rendered="#{not fuelRequestAndIssueController.currentUserAuthorizedForBillDecision and fuelRequestAndIssueController.fuelPaymentRequestBill.resubmitRequested}">
+                            <div class="acceptance-actions d-flex justify-content-center">
+                                <p:commandButton value="Resubmit Bill" icon="pi pi-send" styleClass="ui-button-raised ui-button-warning mx-1"
+                                                 action="#{fuelRequestAndIssueController.resubmitBillByAdmin}"
+                                                 update="acceptancePanel" />
+                            </div>
+                        </ui:fragment>
+                    </h:panelGroup>
+
+                    <!-- Request Resubmit dialog -->
+                    <p:dialog header="Request Resubmit" widgetVar="resubmitDialog" modal="true" closable="true" responsive="true">
+                        <h:panelGroup layout="block" styleClass="p-3">
+                            <p:outputLabel for="resubmitCommentsInput" value="Explain what needs to be corrected:" />
+                            <p:inputTextarea id="resubmitCommentsInput" rows="3" styleClass="w-100"
+                                              value="#{fuelRequestAndIssueController.resubmitComments}" />
+                            <div class="text-center mt-3">
+                                <p:commandButton value="Submit" icon="pi pi-check" styleClass="ui-button-raised ui-button-warning mx-1"
+                                                 action="#{fuelRequestAndIssueController.requestResubmitOfBill}"
+                                                 update="acceptancePanel"
+                                                 oncomplete="if (!args.validationFailed) PF('resubmitDialog').hide();" />
+                                <p:commandButton value="Cancel" type="button" styleClass="ui-button-raised ui-button-secondary mx-1"
+                                                 onclick="PF('resubmitDialog').hide();" />
+                            </div>
+                        </h:panelGroup>
+                    </p:dialog>
+
+                    <!-- Cancel Acceptance dialog -->
+                    <p:dialog header="Cancel Acceptance" widgetVar="cancelAcceptanceDialog" modal="true" closable="true" responsive="true">
+                        <h:panelGroup layout="block" styleClass="p-3">
+                            <p:outputLabel for="cancelAcceptanceCommentsInput" value="Reason for cancelling the acceptance:" />
+                            <p:inputTextarea id="cancelAcceptanceCommentsInput" rows="3" styleClass="w-100"
+                                              value="#{fuelRequestAndIssueController.acceptanceCancelledComments}" />
+                            <div class="text-center mt-3">
+                                <p:commandButton value="Submit" icon="pi pi-check" styleClass="ui-button-raised ui-button-danger mx-1"
+                                                 action="#{fuelRequestAndIssueController.cancelBillAcceptance}"
+                                                 update="acceptancePanel"
+                                                 oncomplete="if (!args.validationFailed) PF('cancelAcceptanceDialog').hide();" />
+                                <p:commandButton value="Cancel" type="button" styleClass="ui-button-raised ui-button-secondary mx-1"
+                                                 onclick="PF('cancelAcceptanceDialog').hide();" />
+                            </div>
+                        </h:panelGroup>
+                    </p:dialog>
 
                     <h:panelGroup id="panelBill" >
                         <div class="a4-page" id="billPanel">
@@ -215,6 +418,18 @@
                                                     <h:outputText value="Total Quantity:"/>
                                                     <h:outputText
                                                         value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}"/>
+                                                    <h:outputText value="Price / Liter (Rs.):"
+                                                                  rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.pricePerLiter ne null}"/>
+                                                    <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.pricePerLiter}"
+                                                                  rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.pricePerLiter ne null}">
+                                                        <f:convertNumber pattern="#,##0.00"/>
+                                                    </h:outputText>
+                                                    <h:outputText value="Total Amount (Rs.):"
+                                                                  rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalValue ne null}"/>
+                                                    <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalValue}"
+                                                                  rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalValue ne null}">
+                                                        <f:convertNumber pattern="#,##0.00"/>
+                                                    </h:outputText>
                                                     <h:outputText value="Requested Date &amp; Time:"/>
                                                     <h:panelGroup>
                                                         <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.billDate}">
@@ -226,6 +441,16 @@
                                                         </h:outputText>
                                                     </h:panelGroup>
                                                 </p:panelGrid>
+
+                                                <!-- Shown instead of a silently-empty table when this bill's line items
+                                                     could not be found (see reconcileBillTotals()) -->
+                                                <h:panelGroup layout="block" styleClass="p-2 my-2"
+                                                              style="background-color: #f8d7da; color: #58151c; border: 1px solid #f1aeb5; border-radius: 4px;"
+                                                              rendered="#{empty fuelRequestAndIssueController.selectedTransactions and fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty gt 0}">
+                                                    This bill's individual transactions could not be found. The recorded
+                                                    Total Quantity above (<h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}"/> L)
+                                                    is preserved, but the line items are missing - please contact support before relying on this bill.
+                                                </h:panelGroup>
 
                                                 <!-- Transactions Table -->
                                                 <p:dataTable var="transaction"

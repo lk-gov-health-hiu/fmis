@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import javax.persistence.Transient;
+import lk.gov.health.phsp.enums.BillAcceptanceStatus;
 
 /**
  *
@@ -50,6 +51,8 @@ public class FuelTransactionLight implements Serializable {
     private String driverName;
     private Boolean submittedToPayment;
     private Date submittedToPaymentAt;
+    private BillAcceptanceStatus billAcceptanceStatus;
+    private Date billAcceptanceStatusAt;
 
     public FuelTransactionLight() {
     }
@@ -167,7 +170,30 @@ public class FuelTransactionLight implements Serializable {
         this.driverName = driverName;
         this.toInstitutionCode = toInstitutionCode;
     }
-    
+
+    public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
+            String vehicleNumber, Double requestQuantity,
+            Double issuedQuantity, String issueReferenceNumber,
+            String fromInstitutionName, String toInstitutionName,
+            String driverName,
+            String toInstitutionCode,
+            BillAcceptanceStatus billAcceptanceStatus,
+            Date billAcceptanceStatusAt) {
+        this.id = id;
+        this.date = date;
+        this.requestReferenceNumber = requestReferenceNumber;
+        this.vehicleNumber = vehicleNumber;
+        this.requestQuantity = requestQuantity;
+        this.issuedQuantity = issuedQuantity;
+        this.issueReferenceNumber = issueReferenceNumber;
+        this.fromInstitutionName = fromInstitutionName;
+        this.toInstitutionName = toInstitutionName;
+        this.driverName = driverName;
+        this.toInstitutionCode = toInstitutionCode;
+        this.billAcceptanceStatus = billAcceptanceStatus;
+        this.billAcceptanceStatusAt = billAcceptanceStatusAt;
+    }
+
     public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
             String vehicleNumber, Double requestQuantity,
             Double issuedQuantity, String issueReferenceNumber,
@@ -235,6 +261,35 @@ public class FuelTransactionLight implements Serializable {
         this.issuedDate = issedDate;
         this.submittedToPayment = submittedToPayment;
         this.submittedToPaymentAt = submittedToPaymentAt;
+    }
+
+    public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
+            String vehicleNumber, Double requestQuantity,
+            Double issuedQuantity, String issueReferenceNumber,
+            String fromInstitutionName, String toInstitutionName,
+            String driverName,
+            String toInstitutionCode,
+            Date issedDate,
+            Boolean submittedToPayment,
+            Date submittedToPaymentAt,
+            BillAcceptanceStatus billAcceptanceStatus,
+            Date billAcceptanceStatusAt) {
+        this.id = id;
+        this.date = date;
+        this.requestReferenceNumber = requestReferenceNumber;
+        this.vehicleNumber = vehicleNumber;
+        this.requestQuantity = requestQuantity;
+        this.issuedQuantity = issuedQuantity;
+        this.issueReferenceNumber = issueReferenceNumber;
+        this.fromInstitutionName = fromInstitutionName;
+        this.toInstitutionName = toInstitutionName;
+        this.driverName = driverName;
+        this.toInstitutionCode = toInstitutionCode;
+        this.issuedDate = issedDate;
+        this.submittedToPayment = submittedToPayment;
+        this.submittedToPaymentAt = submittedToPaymentAt;
+        this.billAcceptanceStatus = billAcceptanceStatus;
+        this.billAcceptanceStatusAt = billAcceptanceStatusAt;
     }
 
     public String getToInstitutionCode() {
@@ -382,6 +437,51 @@ public class FuelTransactionLight implements Serializable {
         String pattern = "dd MMMM yyyy";
         DateFormat sfd = new SimpleDateFormat(pattern);
         return sfd.format(submittedToPaymentAt);
+    }
+
+    public BillAcceptanceStatus getBillAcceptanceStatus() {
+        return billAcceptanceStatus;
+    }
+
+    public void setBillAcceptanceStatus(BillAcceptanceStatus billAcceptanceStatus) {
+        this.billAcceptanceStatus = billAcceptanceStatus;
+    }
+
+    public Date getBillAcceptanceStatusAt() {
+        return billAcceptanceStatusAt;
+    }
+
+    public void setBillAcceptanceStatusAt(Date billAcceptanceStatusAt) {
+        this.billAcceptanceStatusAt = billAcceptanceStatusAt;
+    }
+
+    @Transient
+    public String getFormattedBillAcceptanceStatusAt() {
+        if (billAcceptanceStatusAt == null) {
+            return "";
+        }
+        String pattern = "dd MMM yyyy";
+        DateFormat sfd = new SimpleDateFormat(pattern);
+        return sfd.format(billAcceptanceStatusAt);
+    }
+
+    // Convenience booleans for EL (avoids relying on enum coercion in views).
+    // Bills generated before CPC bill-acceptance tracking existed have no
+    // billAcceptanceStatus - treat those as Pending rather than blank.
+    @Transient
+    public boolean isBillStatusPending() {
+        return billAcceptanceStatus == BillAcceptanceStatus.PENDING
+                || (billAcceptanceStatus == null && Boolean.TRUE.equals(submittedToPayment));
+    }
+
+    @Transient
+    public boolean isBillStatusAccepted() {
+        return billAcceptanceStatus == BillAcceptanceStatus.ACCEPTED;
+    }
+
+    @Transient
+    public boolean isBillStatusResubmitRequested() {
+        return billAcceptanceStatus == BillAcceptanceStatus.RESUBMIT_REQUESTED;
     }
 
 }

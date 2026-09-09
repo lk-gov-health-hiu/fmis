@@ -36,15 +36,21 @@
                                     ajax="false"></p:commandButton>
 
 
-                                 <p:commandButton 
-                                    value="Payment Requests"   
+                                 <p:commandButton
+                                    value="Payment Requests"
                                     class="w-100 m-1"
                                     action="#{reportController.navigateToPaymentRequestsForCpcRegionalOffice()}"
                                     ajax="false"></p:commandButton>
-                                
-                                <p:commandButton 
+
+                                <p:commandButton
+                                    value="Accepted Bills Report"
+                                    class="w-100 m-1"
+                                    action="#{reportController.navigateToAcceptedBillsForCpcRegionalOffice()}"
+                                    ajax="false"></p:commandButton>
+
+                                <p:commandButton
                                     rendered="false"
-                                    value="Diesel Distribution to Fuel Stations Summary"   
+                                    value="Diesel Distribution to Fuel Stations Summary"
                                     class="w-100 m-1"
                                     action="#{reportController.navigateToDieselDistributionFuelStationSummaryForFuelDispensor()}"
                                     ajax="false"></p:commandButton>
@@ -63,18 +69,6 @@
                                     action="#{reportController.navigateToComprehensiveDieselIssuanceSummaryForFuelDispensor()}"
                                     ajax="false"></p:commandButton>
 
-
-                                <hr/>
-                                <p:commandButton 
-                                    value="National Estimates to Print"   
-                                    class="w-100 m-1"
-                                    action="#{reportController.navigateToListHospitalEstimatessForCpcToPrint()}"
-                                    ajax="false"></p:commandButton>
-                                <p:commandButton 
-                                    value="National Estimates to Download"   
-                                    class="w-100 m-1"
-                                    action="#{reportController.navigateToListHospitalEstimatessForCpcToDownload()}"
-                                    ajax="false"></p:commandButton>
 
                             </h:form>
                         </div>

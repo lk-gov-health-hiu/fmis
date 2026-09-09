@@ -60,6 +60,12 @@
                                             <div class="mt-1">விலை மாறிய தேதியின்படி கட்டணக் கோரிக்கைகளைத் தனித்தனியாகச் சமர்ப்பிக்கவும்.</div>
                                         </div>
 
+                                        <h:panelGroup layout="block" class="p-2 my-2"
+                                                      style="background-color: #f8d7da; color: #58151c; border: 1px solid #f1aeb5; border-radius: 4px;"
+                                                      rendered="#{fuelRequestAndIssueController.priceChangeWarning ne null}">
+                                            <h:outputText value="#{fuelRequestAndIssueController.priceChangeWarning}" />
+                                        </h:panelGroup>
+
                                         <p:messages ></p:messages>
 
 
@@ -83,7 +89,7 @@
                                             value="#{fuelRequestAndIssueController.transactions}" var="transaction" rowKey="#{transaction.id}" 
                                             rows="5"
                                             rowIndexVar="no"
-                                            selection="#{fuelRequestAndIssueController.selectedTransactions}"
+                                            selection="#{fuelRequestAndIssueController.paymentCandidateSelection}"
                                             paginator="true"
                                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                             currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
