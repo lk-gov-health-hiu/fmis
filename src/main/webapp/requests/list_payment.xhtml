@@ -430,6 +430,16 @@
                                                     </h:panelGroup>
                                                 </p:panelGrid>
 
+                                                <!-- Shown instead of a silently-empty table when this bill's line items
+                                                     could not be found (see reconcileBillTotals()) -->
+                                                <h:panelGroup layout="block" styleClass="p-2 my-2"
+                                                              style="background-color: #f8d7da; color: #58151c; border: 1px solid #f1aeb5; border-radius: 4px;"
+                                                              rendered="#{empty fuelRequestAndIssueController.selectedTransactions and fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty gt 0}">
+                                                    This bill's individual transactions could not be found. The recorded
+                                                    Total Quantity above (<h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}"/> L)
+                                                    is preserved, but the line items are missing - please contact support before relying on this bill.
+                                                </h:panelGroup>
+
                                                 <!-- Transactions Table -->
                                                 <p:dataTable var="transaction"
                                                              value="#{fuelRequestAndIssueController.selectedTransactions}"
