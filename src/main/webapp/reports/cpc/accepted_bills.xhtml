@@ -185,6 +185,17 @@
                                                 </h:outputText>
                                             </p:column>
 
+                                            <p:column headerText="Amount (Rs.)" style="text-align:right;">
+                                                <f:facet name="footer">
+                                                    <h:outputText value="#{fuelRequestAndIssueController.acceptedBillsTotalValue}">
+                                                        <f:convertNumber pattern="#,##0.00" />
+                                                    </h:outputText>
+                                                </f:facet>
+                                                <h:outputText value="#{bill.totalValue}">
+                                                    <f:convertNumber pattern="#,##0.00" />
+                                                </h:outputText>
+                                            </p:column>
+
                                         </p:dataTable>
                                     </h:panelGroup>
                                 </div>

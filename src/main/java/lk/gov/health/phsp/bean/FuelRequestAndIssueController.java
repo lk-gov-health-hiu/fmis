@@ -1577,6 +1577,13 @@ public class FuelRequestAndIssueController implements Serializable {
         }
 
         fuelPaymentRequestBill.setTotalQty(qty);
+        if (!pricesSpanned.isEmpty()) {
+            Double price = pricesSpanned.get(0).getPricePerLiter();
+            fuelPaymentRequestBill.setPricePerLiter(price);
+            if (price != null) {
+                fuelPaymentRequestBill.setTotalValue(qty * price);
+            }
+        }
         billFacade.edit(fuelPaymentRequestBill);
         paymentRequestStarted = false;
         paymentRequestReprint = false;
@@ -1653,12 +1660,15 @@ public class FuelRequestAndIssueController implements Serializable {
             return false;
         }
 
+        Double price = billToReconcile.getPricePerLiter();
+        Double recalculatedValue = price != null ? recalculatedQty * price : null;
+
         BillHistory history = new BillHistory();
         history.setBill(billToReconcile);
         history.setPreviousTotalQty(storedQty);
         history.setNewTotalQty(recalculatedQty);
         history.setPreviousTotalValue(billToReconcile.getTotalValue());
-        history.setNewTotalValue(billToReconcile.getTotalValue());
+        history.setNewTotalValue(recalculatedValue);
         history.setChangeReason("Bill total recalculated automatically on reprint - the sum of line item "
                 + "quantities did not match the total stored on the bill (transaction(s) were likely "
                 + "edited or deleted after the bill was created).");
@@ -1667,6 +1677,7 @@ public class FuelRequestAndIssueController implements Serializable {
         billHistoryFacade.create(history);
 
         billToReconcile.setTotalQty(recalculatedQty);
+        billToReconcile.setTotalValue(recalculatedValue);
         billFacade.edit(billToReconcile);
 
         JsfUtil.addSuccessMessage("Bill total was out of date and has been recalculated to match the current transaction quantities.");
@@ -2372,6 +2383,18 @@ public class FuelRequestAndIssueController implements Serializable {
             for (Bill b : acceptedBills) {
                 if (b.getTotalQty() != null) {
                     total += b.getTotalQty();
+                }
+            }
+        }
+        return total;
+    }
+
+    public double getAcceptedBillsTotalValue() {
+        double total = 0.0;
+        if (acceptedBills != null) {
+            for (Bill b : acceptedBills) {
+                if (b.getTotalValue() != null) {
+                    total += b.getTotalValue();
                 }
             }
         }

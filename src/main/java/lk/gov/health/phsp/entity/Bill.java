@@ -93,8 +93,14 @@ public class Bill implements Serializable {
     private Date retiredAt;
     
     private Double totalQty;
+    /**
+     * The fuel price/liter in effect when this bill was created (see
+     * FuelPrice) - a snapshot, so it stays fixed even if the price schedule
+     * is later edited. Null for bills created before fuel prices existed.
+     */
+    private Double pricePerLiter;
     private Double totalValue;
-    
+
     @ManyToOne
     private WebUser billUser;
 
@@ -260,6 +266,14 @@ public class Bill implements Serializable {
 
     public void setTotalQty(Double totalQty) {
         this.totalQty = totalQty;
+    }
+
+    public Double getPricePerLiter() {
+        return pricePerLiter;
+    }
+
+    public void setPricePerLiter(Double pricePerLiter) {
+        this.pricePerLiter = pricePerLiter;
     }
 
     public Double getTotalValue() {
