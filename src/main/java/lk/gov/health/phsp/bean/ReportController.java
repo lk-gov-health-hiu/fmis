@@ -505,7 +505,7 @@ public class ReportController implements Serializable {
         Sheet sheet = workbook.createSheet("Transactions");
 
         Row headerRow = sheet.createRow(0);
-        String[] columnHeaders = {"Date", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No", "Payment Submission", "Submitted On"};
+        String[] columnHeaders = {"Date", "Institution", "Fuel Station", "Dealer Number", "Requested Reference No", "Vehicle Number", "Driver Name", "Requested Qty", "Issued Qty", "Issue Reference No", "Payment Submission", "Submitted On", "Order Type", "ODO Meter Reading"};
         for (int i = 0; i < columnHeaders.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(columnHeaders[i]);
@@ -532,6 +532,10 @@ public class ReportController implements Serializable {
             row.createCell(10).setCellValue(transaction.isSubmittedForPayment() ? "Submitted for Payment" : "Not Submitted");
             if (transaction.getSubmittedToPaymentAt() != null) {
                 row.createCell(11).setCellValue(transaction.getFormattedSubmittedToPaymentAt());
+            }
+            row.createCell(12).setCellValue(transaction.isSpecialOrder() ? "Special" : "Normal");
+            if (transaction.getOdoMeterReading() != null) {
+                row.createCell(13).setCellValue(transaction.getOdoMeterReading());
             }
         }
 
@@ -741,7 +745,9 @@ public class ReportController implements Serializable {
                 .append("ft.submittedToPayment, ")
                 .append("ft.submittedToPaymentAt, ")
                 .append("ft.billAcceptanceStatus, ")
-                .append("ft.billAcceptanceStatusAt) FROM FuelTransaction ft ")
+                .append("ft.billAcceptanceStatusAt, ")
+                .append("ft.odoMeterReading, ")
+                .append("ft.transactionType) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
@@ -969,7 +975,9 @@ public class ReportController implements Serializable {
                 .append("ft.submittedToPayment, ")
                 .append("ft.submittedToPaymentAt, ")
                 .append("ft.billAcceptanceStatus, ")
-                .append("ft.billAcceptanceStatusAt) FROM FuelTransaction ft ")
+                .append("ft.billAcceptanceStatusAt, ")
+                .append("ft.odoMeterReading, ")
+                .append("ft.transactionType) FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")
                 .append("LEFT JOIN ft.fromInstitution fi ")
