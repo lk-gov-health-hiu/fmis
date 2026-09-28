@@ -90,8 +90,22 @@
                             </p:commandLink>
                         </p:column>
 
+                        <p:column headerText="N/S" title="Order Type: N = Normal, S = Special"
+                                  style="width:2.5rem; padding-left:2px; padding-right:2px; text-align:center;"
+                                  sortBy="#{transaction.orderTypeCode}">
+                            <h:outputText value="#{transaction.orderTypeCode}"
+                                          title="#{transaction.specialOrder ? 'Special Order' : 'Normal Order'}"
+                                          styleClass="#{transaction.specialOrder ? 'badge bg-warning text-dark' : 'badge bg-light text-dark'}" />
+                        </p:column>
+
                         <p:column headerText="Vehicle Number" sortBy="#{transaction.vehicleNumber}" filterBy="#{transaction.vehicleNumber}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.vehicleNumber}" />
+                        </p:column>
+
+                        <p:column headerText="ODO Meter" sortBy="#{transaction.odoMeterReading}" filterBy="#{transaction.odoMeterReading}" filterMatchMode="contains">
+                            <h:outputText value="#{transaction.odoMeterReading}">
+                                <f:convertNumber pattern="#,##0" />
+                            </h:outputText>
                         </p:column>
 
                         <p:column headerText="Driver Name" sortBy="#{transaction.driverName}" filterBy="#{transaction.driverName}" filterMatchMode="contains">

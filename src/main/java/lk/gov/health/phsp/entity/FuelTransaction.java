@@ -344,6 +344,15 @@ public class FuelTransaction implements Serializable {
         this.comments = comments;
     }
 
+    public boolean isSpecialOrder() {
+        return transactionType == FuelTransactionType.SpecialVehicleFuelRequest;
+    }
+
+    // Single-letter code (N = Normal, S = Special) for compact table columns
+    public String getOrderTypeCode() {
+        return isSpecialOrder() ? "S" : "N";
+    }
+
     public FuelTransactionType getTransactionType() {
         return transactionType;
     }

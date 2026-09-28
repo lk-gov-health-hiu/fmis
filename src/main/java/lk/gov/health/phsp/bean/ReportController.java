@@ -564,7 +564,8 @@ public class ReportController implements Serializable {
             "Vehicle Make", "Vehicle Type", "Vehicle Purpose",
             "Driver NIC",
             "Institution Type", "Governed By",
-            "District"
+            "District",
+            "Order Type", "ODO Meter Reading"
         };
 
         Row headerRow = sheet.createRow(0);
@@ -621,6 +622,10 @@ public class ReportController implements Serializable {
             row.createCell(14).setCellValue(fromInstitutionType);
             row.createCell(15).setCellValue(governedBy);
             row.createCell(16).setCellValue(districtName);
+            row.createCell(17).setCellValue(transaction.isSpecialOrder() ? "Special" : "Normal");
+            if (transaction.getOdoMeterReading() != null) {
+                row.createCell(18).setCellValue(transaction.getOdoMeterReading());
+            }
 
             // Autosize columns after filling data
             for (int i = 0; i < columnHeaders.length; i++) {
@@ -899,7 +904,9 @@ public class ReportController implements Serializable {
                 .append("COALESCE(d.name, 'No Driver'), ") // driver name or 'No Driver' if null
                 .append("ti.code, ") // toInstitution name
                 .append("ft.billAcceptanceStatus, ")
-                .append("ft.billAcceptanceStatusAt")
+                .append("ft.billAcceptanceStatusAt, ")
+                .append("ft.odoMeterReading, ")
+                .append("ft.transactionType")
                 .append(") FROM FuelTransaction ft ")
                 .append("LEFT JOIN ft.vehicle v ")
                 .append("LEFT JOIN ft.driver d ")

@@ -122,6 +122,9 @@ public class FuelRequestAndIssueController implements Serializable {
 
     private String odoWarningMessage;
     private boolean odoWarningAcknowledged;
+    // The earlier request whose ODO reading triggered odoWarningMessage - shown in the
+    // warning dialog so the user can see who entered it, from where, and when.
+    private FuelTransaction previousOdoTransaction;
     private String issuedDateWarningMessage;
     private boolean issuedDateWarningAcknowledged;
     private String issuedQuantityWarningMessage;
@@ -459,6 +462,7 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
         odoWarningMessage = null;
+        previousOdoTransaction = null;
 
         // Validation 4: Request quantity must not exceed the vehicle type's maximum
         if (!isRequestQuantityWithinTypeLimit(selected.getVehicle(), selected.getRequestQuantity())) {
@@ -535,6 +539,7 @@ public class FuelRequestAndIssueController implements Serializable {
             return "";
         }
         odoWarningMessage = null;
+        previousOdoTransaction = null;
 
         // Validation 4: Request quantity must not exceed the vehicle type's maximum
         if (!isRequestQuantityWithinTypeLimit(selected.getVehicle(), selected.getRequestQuantity())) {
@@ -568,6 +573,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public String cancelOdoWarning() {
         odoWarningMessage = null;
+        previousOdoTransaction = null;
         odoWarningAcknowledged = false;
         return "";
     }
@@ -578,6 +584,10 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public boolean isOdoWarningPending() {
         return odoWarningMessage != null;
+    }
+
+    public FuelTransaction getPreviousOdoTransaction() {
+        return previousOdoTransaction;
     }
 
     public String acknowledgeIssuedDateWarningAndSubmitMark() {
@@ -726,7 +736,9 @@ public class FuelRequestAndIssueController implements Serializable {
         return true;
     }
 
-    private Double getPreviousOdoReading(Vehicle vehicle) {
+    // Latest non-retired request with an ODO reading for this vehicle, excluding the request
+    // being edited (so editing a request is not compared against its own saved reading).
+    private FuelTransaction findPreviousOdoTransaction(Vehicle vehicle, Long excludeTransactionId) {
         if (vehicle == null || vehicle.getId() == null) {
             return null;
         }
@@ -735,15 +747,19 @@ public class FuelRequestAndIssueController implements Serializable {
             String jpql = "SELECT ft FROM FuelTransaction ft "
                     + "WHERE ft.vehicle.id = :vehicleId "
                     + "AND ft.retired = false "
-                    + "AND ft.odoMeterReading IS NOT NULL "
-                    + "ORDER BY ft.requestedDate DESC";
+                    + "AND ft.odoMeterReading IS NOT NULL ";
 
             Map<String, Object> params = new HashMap<>();
             params.put("vehicleId", vehicle.getId());
+            if (excludeTransactionId != null) {
+                jpql += "AND ft.id <> :excludeId ";
+                params.put("excludeId", excludeTransactionId);
+            }
+            jpql += "ORDER BY ft.requestedDate DESC, ft.id DESC";
 
             List<FuelTransaction> results = fuelTransactionFacade.findByJpql(jpql, params, 1);
             if (results != null && !results.isEmpty()) {
-                return results.get(0).getOdoMeterReading();
+                return results.get(0);
             }
         } catch (Exception e) {
             Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, "Error getting previous ODO reading for vehicle: " + vehicle.getId(), e);
@@ -762,9 +778,11 @@ public class FuelRequestAndIssueController implements Serializable {
             return false;
         }
 
-        Double previousOdoReading = getPreviousOdoReading(selected.getVehicle());
+        previousOdoTransaction = findPreviousOdoTransaction(selected.getVehicle(), selected.getId());
+        Double previousOdoReading = previousOdoTransaction == null ? null : previousOdoTransaction.getOdoMeterReading();
         Double newReading = selected.getOdoMeterReading();
         if (previousOdoReading == null || newReading == null) {
+            previousOdoTransaction = null;
             return false;
         }
 
@@ -1022,6 +1040,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public String navigateToAddVehicleFuelRequest() {
         odoWarningMessage = null;
+        previousOdoTransaction = null;
         odoWarningAcknowledged = false;
         selected = new FuelTransaction();
         selected.setRequestAt(new Date());
@@ -1160,6 +1179,7 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public String navigateToAddSpecialVehicleFuelRequest() {
         odoWarningMessage = null;
+        previousOdoTransaction = null;
         odoWarningAcknowledged = false;
         selected = new FuelTransaction();
         selected.setRequestAt(new Date());

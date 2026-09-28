@@ -114,6 +114,44 @@
                                             <i class="pi pi-exclamation-triangle" />
                                             <h:outputText value=" #{fuelRequestAndIssueController.odoWarningMessage}" />
                                         </p>
+                                        <h:panelGroup layout="block" styleClass="border rounded p-2 bg-light"
+                                                      rendered="#{fuelRequestAndIssueController.previousOdoTransaction ne null}">
+                                            <div class="fw-bold mb-2">Previous ODO reading for this vehicle</div>
+                                            <h:panelGrid columns="2" cellpadding="3" styleClass="w-100">
+                                                <h:outputText value="ODO Meter Reading" styleClass="text-muted" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.previousOdoTransaction.odoMeterReading}" styleClass="fw-bold">
+                                                    <f:convertNumber pattern="#,##0" />
+                                                </h:outputText>
+
+                                                <h:outputText value="Order Type" styleClass="text-muted" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.previousOdoTransaction.specialOrder ? 'Special Order' : 'Normal Order'}"
+                                                              styleClass="#{fuelRequestAndIssueController.previousOdoTransaction.specialOrder ? 'badge bg-warning text-dark' : 'badge bg-secondary'}" />
+
+                                                <h:outputText value="Reference No" styleClass="text-muted" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.previousOdoTransaction.requestReferenceNumber}" />
+
+                                                <h:outputText value="Requested Date" styleClass="text-muted" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.previousOdoTransaction.requestedDate}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy" />
+                                                </h:outputText>
+
+                                                <h:outputText value="Requested From" styleClass="text-muted" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.previousOdoTransaction.fromInstitution.name}" />
+
+                                                <h:outputText value="Fuel Station" styleClass="text-muted" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.previousOdoTransaction.toInstitution.name}" />
+
+                                                <h:outputText value="Created By" styleClass="text-muted" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.previousOdoTransaction.createdBy.displayName} (#{fuelRequestAndIssueController.previousOdoTransaction.createdBy.name})"
+                                                              rendered="#{fuelRequestAndIssueController.previousOdoTransaction.createdBy ne null}" />
+                                                <h:outputText value="-" rendered="#{fuelRequestAndIssueController.previousOdoTransaction.createdBy eq null}" />
+
+                                                <h:outputText value="Created At" styleClass="text-muted" />
+                                                <h:outputText value="#{fuelRequestAndIssueController.previousOdoTransaction.createdAt}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy hh:mm a" />
+                                                </h:outputText>
+                                            </h:panelGrid>
+                                        </h:panelGroup>
                                     </div>
                                     <div class="text-center mt-3 mb-3">
                                         <p:commandButton value="Continue Anyway"
