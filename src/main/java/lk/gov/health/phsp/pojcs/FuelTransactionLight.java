@@ -30,6 +30,7 @@ import java.util.Calendar;
 import java.util.Date;
 import javax.persistence.Transient;
 import lk.gov.health.phsp.enums.BillAcceptanceStatus;
+import lk.gov.health.phsp.enums.FuelTransactionType;
 
 /**
  *
@@ -53,6 +54,8 @@ public class FuelTransactionLight implements Serializable {
     private Date submittedToPaymentAt;
     private BillAcceptanceStatus billAcceptanceStatus;
     private Date billAcceptanceStatusAt;
+    private Double odoMeterReading;
+    private FuelTransactionType transactionType;
 
     public FuelTransactionLight() {
     }
@@ -292,6 +295,27 @@ public class FuelTransactionLight implements Serializable {
         this.billAcceptanceStatusAt = billAcceptanceStatusAt;
     }
 
+    public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
+            String vehicleNumber, Double requestQuantity,
+            Double issuedQuantity, String issueReferenceNumber,
+            String fromInstitutionName, String toInstitutionName,
+            String driverName,
+            String toInstitutionCode,
+            Date issedDate,
+            Boolean submittedToPayment,
+            Date submittedToPaymentAt,
+            BillAcceptanceStatus billAcceptanceStatus,
+            Date billAcceptanceStatusAt,
+            Double odoMeterReading,
+            FuelTransactionType transactionType) {
+        this(id, date, requestReferenceNumber, vehicleNumber, requestQuantity,
+                issuedQuantity, issueReferenceNumber, fromInstitutionName, toInstitutionName,
+                driverName, toInstitutionCode, issedDate, submittedToPayment, submittedToPaymentAt,
+                billAcceptanceStatus, billAcceptanceStatusAt);
+        this.odoMeterReading = odoMeterReading;
+        this.transactionType = transactionType;
+    }
+
     public String getToInstitutionCode() {
         return toInstitutionCode;
     }
@@ -482,6 +506,33 @@ public class FuelTransactionLight implements Serializable {
     @Transient
     public boolean isBillStatusResubmitRequested() {
         return billAcceptanceStatus == BillAcceptanceStatus.RESUBMIT_REQUESTED;
+    }
+
+    public Double getOdoMeterReading() {
+        return odoMeterReading;
+    }
+
+    public void setOdoMeterReading(Double odoMeterReading) {
+        this.odoMeterReading = odoMeterReading;
+    }
+
+    public FuelTransactionType getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(FuelTransactionType transactionType) {
+        this.transactionType = transactionType;
+    }
+
+    @Transient
+    public boolean isSpecialOrder() {
+        return transactionType == FuelTransactionType.SpecialVehicleFuelRequest;
+    }
+
+    // Single-letter code (N = Normal, S = Special) for compact table columns
+    @Transient
+    public String getOrderTypeCode() {
+        return isSpecialOrder() ? "S" : "N";
     }
 
 }
