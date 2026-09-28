@@ -203,6 +203,23 @@ public class FuelTransactionLight implements Serializable {
             String fromInstitutionName, String toInstitutionName,
             String driverName,
             String toInstitutionCode,
+            BillAcceptanceStatus billAcceptanceStatus,
+            Date billAcceptanceStatusAt,
+            Double odoMeterReading,
+            FuelTransactionType transactionType) {
+        this(id, date, requestReferenceNumber, vehicleNumber, requestQuantity,
+                issuedQuantity, issueReferenceNumber, fromInstitutionName, toInstitutionName,
+                driverName, toInstitutionCode, billAcceptanceStatus, billAcceptanceStatusAt);
+        this.odoMeterReading = odoMeterReading;
+        this.transactionType = transactionType;
+    }
+
+    public FuelTransactionLight(Long id, Date date, String requestReferenceNumber,
+            String vehicleNumber, Double requestQuantity,
+            Double issuedQuantity, String issueReferenceNumber,
+            String fromInstitutionName, String toInstitutionName,
+            String driverName,
+            String toInstitutionCode,
             Date issedDate) {
         this.id = id;
         this.date = date;
