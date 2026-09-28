@@ -54,6 +54,14 @@
                                         itemLabel="#{fs.name}"
                                         itemValue="#{fs}"
                                         ></p:autoComplete>
+                                    <div class="form-group">
+                                        <label for="requestNumber">Request Number</label>
+                                        <p:inputText
+                                            id="requestNumber"
+                                            value="#{fuelRequestAndIssueController.requestNumber}"
+                                            placeholder="Full or partial request number"
+                                            class="w-100 m-1" />
+                                    </div>
                                     <div class="form-group d-flex justify-content-center">
                                         <p:commandButton value="List Requests"
                                                          action="#{fuelRequestAndIssueController.listPaymentBillsForCpcHeadOffice()}"
@@ -94,6 +102,15 @@
                                             </h:outputText>
                                         </p:column>
 
+                                        <p:column headerText="Request Number"
+                                                  exportHeaderValue="true"
+                                                  sortBy="#{bill.billNo}" filterBy="#{bill.billNo}">
+                                            <f:facet name="header">
+                                                <h:outputText value="Request Number" />
+                                            </f:facet>
+                                            <h:outputText value="#{bill.billNo}" />
+                                        </p:column>
+
                                         <p:column headerText="From Institution"
                                                   exportHeaderValue="true"
                                                   sortBy="#{bill.fromInstitution.name}" filterBy="#{bill.fromInstitution.name}">
@@ -112,14 +129,35 @@
                                             <h:outputText value="#{bill.toInstitution.name}" />
                                         </p:column>
 
-                                        <p:column headerText="Bill Type"
+                                        <p:column headerText="Dealer Number"
                                                   exportHeaderValue="true"
-                                                  sortBy="#{bill.billType}" filterBy="#{bill.billType}">
+                                                  sortBy="#{bill.toInstitution.code}" filterBy="#{bill.toInstitution.code}"
+                                                  filterMatchMode="contains">
                                             <f:facet name="header">
-                                                <h:outputText value="Bill Type" />
+                                                <h:outputText value="Dealer Number" />
                                             </f:facet>
-                                            <h:outputText value="#{bill.billType}" />
+                                            <h:outputText value="#{bill.toInstitution.code}" />
                                         </p:column>
+
+                                        <p:column headerText="Province"
+                                                  exportHeaderValue="true"
+                                                  sortBy="#{bill.toInstitution.provinceName}" filterBy="#{bill.toInstitution.provinceName}"
+                                                  filterMatchMode="contains">
+                                            <f:facet name="header">
+                                                <h:outputText value="Province" />
+                                            </f:facet>
+                                            <h:outputText value="#{bill.toInstitution.provinceName}" />
+                                        </p:column>
+
+                                        <p:column headerText="Total Qty"
+                                                  exportHeaderValue="true"
+                                                  sortBy="#{bill.totalQty}" filterBy="#{bill.totalQty}">
+                                            <f:facet name="header">
+                                                <h:outputText value="Total Qty" />
+                                            </f:facet>
+                                            <h:outputText value="#{bill.totalQty}" />
+                                        </p:column>
+
 
                                         <p:column headerText="CPC Status"
                                                   exportHeaderValue="true"

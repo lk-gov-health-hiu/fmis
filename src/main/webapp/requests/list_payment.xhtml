@@ -200,6 +200,12 @@
                         margin-top: 4px;
                     }
 
+                    .acceptance-number {
+                        font-size: 1.15em;
+                        letter-spacing: 1px;
+                        margin-top: 4px;
+                    }
+
                     .acceptance-actions {
                         margin: 10px 0;
                     }
@@ -275,11 +281,19 @@
                         <ui:fragment rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.pendingDecision}">
                             <div class="acceptance-status-banner acceptance-status-pending">
                                 PENDING CPC DECISION
+                                <h:panelGroup layout="block" styleClass="acceptance-comments"
+                                              rendered="#{not empty fuelRequestAndIssueController.fuelPaymentRequestBill.previousAcceptanceNumber}">
+                                    <h:outputText value="Previous acceptance no. #{fuelRequestAndIssueController.fuelPaymentRequestBill.previousAcceptanceNumber} (cancelled)" />
+                                </h:panelGroup>
                             </div>
                         </ui:fragment>
                         <ui:fragment rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.accepted}">
                             <div class="acceptance-status-banner acceptance-status-accepted">
                                 ACCEPTED BY CPC
+                                <h:panelGroup layout="block" styleClass="acceptance-number"
+                                              rendered="#{not empty fuelRequestAndIssueController.fuelPaymentRequestBill.acceptanceNumber}">
+                                    <h:outputText value="Acceptance No: #{fuelRequestAndIssueController.fuelPaymentRequestBill.acceptanceNumber}" />
+                                </h:panelGroup>
                                 <div class="acceptance-comments">
                                     <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.acceptedBy.person.nameWithTitle}" />
                                     <h:outputText value=" on " />
@@ -308,8 +322,7 @@
                         <ui:fragment rendered="#{fuelRequestAndIssueController.currentUserAuthorizedForBillDecision and fuelRequestAndIssueController.fuelPaymentRequestBill.pendingDecision}">
                             <div class="acceptance-actions d-flex justify-content-center">
                                 <p:commandButton value="Accept Bill" icon="pi pi-check" styleClass="ui-button-raised ui-button-success mx-1"
-                                                 action="#{fuelRequestAndIssueController.acceptBill}"
-                                                 update="acceptancePanel" />
+                                                 type="button" onclick="PF('acceptDialog').show();" />
                                 <p:commandButton value="Request Resubmit" icon="pi pi-undo" styleClass="ui-button-raised ui-button-warning mx-1"
                                                  type="button" onclick="PF('resubmitDialog').show();" />
                             </div>
@@ -326,10 +339,38 @@
                             <div class="acceptance-actions d-flex justify-content-center">
                                 <p:commandButton value="Resubmit Bill" icon="pi pi-send" styleClass="ui-button-raised ui-button-warning mx-1"
                                                  action="#{fuelRequestAndIssueController.resubmitBillByAdmin}"
-                                                 update="acceptancePanel" />
+                                                 update=":globalMessages acceptancePanel" />
                             </div>
                         </ui:fragment>
                     </h:panelGroup>
+
+                    <!-- Accept Bill confirmation. The confirm button is disabled and the
+                         dialog blocked while the request runs, so it cannot be double-submitted. -->
+                    <p:dialog header="Accept Bill" widgetVar="acceptDialog" modal="true" closable="true" responsive="true">
+                        <h:panelGroup id="acceptDialogContent" layout="block" styleClass="p-3">
+                            <p>
+                                Accept this bill from
+                                <strong><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.fromInstitution.name}" /></strong>
+                                to
+                                <strong><h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.toInstitution.name}" /></strong>?
+                            </p>
+                            <p class="text-muted mb-0">A new acceptance number will be issued.</p>
+                            <div class="text-center mt-3">
+                                <p:commandButton id="btnConfirmAccept" widgetVar="confirmAcceptButton"
+                                                 value="Yes, Accept" icon="pi pi-check" styleClass="ui-button-raised ui-button-success mx-1"
+                                                 action="#{fuelRequestAndIssueController.acceptBill}"
+                                                 update=":globalMessages acceptancePanel"
+                                                 onstart="PF('confirmAcceptButton').disable(); PF('cancelAcceptButton').disable();"
+                                                 oncomplete="PF('confirmAcceptButton').enable(); PF('cancelAcceptButton').enable(); PF('acceptDialog').hide();" />
+                                <p:commandButton widgetVar="cancelAcceptButton" value="Cancel" type="button"
+                                                 styleClass="ui-button-raised ui-button-secondary mx-1"
+                                                 onclick="PF('acceptDialog').hide();" />
+                            </div>
+                        </h:panelGroup>
+                        <p:blockUI block="acceptDialogContent" trigger="btnConfirmAccept">
+                            <i class="pi pi-spin pi-spinner" /> Accepting...
+                        </p:blockUI>
+                    </p:dialog>
 
                     <!-- Request Resubmit dialog -->
                     <p:dialog header="Request Resubmit" widgetVar="resubmitDialog" modal="true" closable="true" responsive="true">
@@ -340,7 +381,7 @@
                             <div class="text-center mt-3">
                                 <p:commandButton value="Submit" icon="pi pi-check" styleClass="ui-button-raised ui-button-warning mx-1"
                                                  action="#{fuelRequestAndIssueController.requestResubmitOfBill}"
-                                                 update="acceptancePanel"
+                                                 update=":globalMessages acceptancePanel"
                                                  oncomplete="if (!args.validationFailed) PF('resubmitDialog').hide();" />
                                 <p:commandButton value="Cancel" type="button" styleClass="ui-button-raised ui-button-secondary mx-1"
                                                  onclick="PF('resubmitDialog').hide();" />
@@ -357,7 +398,7 @@
                             <div class="text-center mt-3">
                                 <p:commandButton value="Submit" icon="pi pi-check" styleClass="ui-button-raised ui-button-danger mx-1"
                                                  action="#{fuelRequestAndIssueController.cancelBillAcceptance}"
-                                                 update="acceptancePanel"
+                                                 update=":globalMessages acceptancePanel"
                                                  oncomplete="if (!args.validationFailed) PF('cancelAcceptanceDialog').hide();" />
                                 <p:commandButton value="Cancel" type="button" styleClass="ui-button-raised ui-button-secondary mx-1"
                                                  onclick="PF('cancelAcceptanceDialog').hide();" />
@@ -440,6 +481,10 @@
                                                             <f:convertDateTime pattern="HH:mm:ss"/>
                                                         </h:outputText>
                                                     </h:panelGroup>
+                                                    <!-- Left blank on purpose: the acceptance number is written in by hand
+                                                         (it is shown on screen in the acceptance banner, never printed) -->
+                                                    <h:outputText value="Acceptance No:"/>
+                                                    <h:panelGroup layout="block" style="min-height: 2.2em;"/>
                                                 </p:panelGrid>
 
                                                 <!-- Shown instead of a silently-empty table when this bill's line items

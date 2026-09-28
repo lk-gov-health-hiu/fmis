@@ -24,6 +24,7 @@
 package lk.gov.health.phsp.entity;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -118,6 +119,12 @@ public class Bill implements Serializable {
     private WebUser acceptedBy;
     @Temporal(TemporalType.TIMESTAMP)
     private Date acceptedAt;
+    // CPC acceptance number, <province code>/<serial> e.g. WP/000123. Issued on
+    // every acceptance from a per-province counter that never resets; cleared
+    // when the acceptance is cancelled (the old number moves to
+    // previousAcceptanceNumber and to BillAcceptanceHistory).
+    private String acceptanceNumber;
+    private String previousAcceptanceNumber;
 
     @ManyToOne
     private WebUser resubmitRequestedBy;
@@ -406,6 +413,31 @@ public class Bill implements Serializable {
 
     public void setResubmittedAt(Date resubmittedAt) {
         this.resubmittedAt = resubmittedAt;
+    }
+
+    public String getAcceptanceNumber() {
+        return acceptanceNumber;
+    }
+
+    public void setAcceptanceNumber(String acceptanceNumber) {
+        this.acceptanceNumber = acceptanceNumber;
+    }
+
+    public String getPreviousAcceptanceNumber() {
+        return previousAcceptanceNumber;
+    }
+
+    public void setPreviousAcceptanceNumber(String previousAcceptanceNumber) {
+        this.previousAcceptanceNumber = previousAcceptanceNumber;
+    }
+
+    // Dates as shown in reports (dd/MM/yyyy), so table column filters can match what is displayed
+    public String getAcceptedAtText() {
+        return acceptedAt == null ? "" : new SimpleDateFormat("dd/MM/yyyy").format(acceptedAt);
+    }
+
+    public String getBillDateText() {
+        return billDate == null ? "" : new SimpleDateFormat("dd/MM/yyyy").format(billDate);
     }
 
 }

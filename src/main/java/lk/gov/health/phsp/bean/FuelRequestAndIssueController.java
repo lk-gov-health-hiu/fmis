@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.ejb.EJBTransactionRolledbackException;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
@@ -38,6 +39,7 @@ import lk.gov.health.phsp.entity.Institution;
 import lk.gov.health.phsp.entity.Vehicle;
 import lk.gov.health.phsp.entity.WebUser;
 import lk.gov.health.phsp.enums.BillAcceptanceStatus;
+import lk.gov.health.phsp.enums.SriLankaProvince;
 import lk.gov.health.phsp.enums.DataAlterationRequestType;
 import lk.gov.health.phsp.enums.FuelTransactionType;
 import lk.gov.health.phsp.enums.InstitutionType;
@@ -100,6 +102,8 @@ public class FuelRequestAndIssueController implements Serializable {
     private List<FuelTransaction> transactions = null;
     private List<Bill> bills;
     private List<Bill> acceptedBills;
+    // Rows left after the accepted bills table's column filters (null = not filtered)
+    private List<Bill> filteredAcceptedBills;
     // The transactions currently shown on list_payment.xhtml (either a newly built bill, or
     // a historical one loaded via viewPaymentRequest()). Kept separate from
     // paymentCandidateSelection below so the two never clobber each other.
@@ -1378,6 +1382,10 @@ public class FuelRequestAndIssueController implements Serializable {
             j += " AND b.toInstitution=:fs ";
             params.put("fs", fuelStation);
         }
+        if (requestNumber != null && !requestNumber.trim().isEmpty()) {
+            j += " AND b.billNo LIKE :requestNumber ";
+            params.put("requestNumber", "%" + requestNumber.trim() + "%");
+        }
         params.put("fromDate", fromDate); // fromDate should be set beforehand
         params.put("toDate", toDate);     // toDate should be set beforehand
 
@@ -1445,6 +1453,7 @@ public class FuelRequestAndIssueController implements Serializable {
         params.put("toDate", toDate);     // toDate should be set beforehand
 
         acceptedBills = billFacade.findByJpql(j, params);
+        filteredAcceptedBills = null;
     }
 
     public void listAcceptedBillsForCpcHeadOffice() {
@@ -1469,6 +1478,7 @@ public class FuelRequestAndIssueController implements Serializable {
         params.put("toDate", toDate);     // toDate should be set beforehand
 
         acceptedBills = billFacade.findByJpql(j, params);
+        filteredAcceptedBills = null;
     }
 
     public void listInstitutionRequests() {
@@ -1811,12 +1821,26 @@ public class FuelRequestAndIssueController implements Serializable {
         }
     }
 
+    private boolean isCausedByOptimisticLock(Throwable t) {
+        for (int depth = 0; t != null && depth < 20; depth++, t = t.getCause()) {
+            if (t instanceof OptimisticLockException) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void recordAcceptanceHistory(Bill bill, BillAcceptanceStatus from, BillAcceptanceStatus to, String comments) {
         BillAcceptanceHistory history = new BillAcceptanceHistory();
         history.setBill(bill);
         history.setFromStatus(from);
         history.setToStatus(to);
         history.setComments(comments);
+        if (to == BillAcceptanceStatus.ACCEPTED) {
+            history.setAcceptanceNumber(bill.getAcceptanceNumber());
+        } else if (from == BillAcceptanceStatus.ACCEPTED) {
+            history.setAcceptanceNumber(bill.getPreviousAcceptanceNumber());
+        }
         history.setChangedBy(webUserController.getLoggedUser());
         history.setChangedAt(new Date());
         billAcceptanceHistoryFacade.create(history);
@@ -1841,19 +1865,28 @@ public class FuelRequestAndIssueController implements Serializable {
             JsfUtil.addErrorMessage("This bill is not pending a decision - it is already " + bill.getAcceptanceStatus().getLabel() + ". Refresh and check again.");
             return;
         }
-        BillAcceptanceStatus from = bill.getAcceptanceStatus();
-        bill.setAcceptanceStatus(BillAcceptanceStatus.ACCEPTED);
-        bill.setAcceptedBy(webUserController.getLoggedUser());
-        bill.setAcceptedAt(new Date());
-        try {
-            billFacade.edit(bill);
-        } catch (OptimisticLockException | EJBTransactionRolledbackException ole) {
-            JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
+        SriLankaProvince province = bill.getToInstitution() == null ? null : bill.getToInstitution().getSriLankaProvince();
+        if (province == null) {
+            JsfUtil.addErrorMessage("Cannot find the province of the fuel station, so no acceptance number can be issued. Set the fuel station's district (or its CPC provincial office) and try again.");
             return;
         }
+        BillAcceptanceStatus from = bill.getAcceptanceStatus();
+        try {
+            bill = billFacade.acceptWithNumber(bill, province, webUserController.getLoggedUser(), new Date());
+        } catch (OptimisticLockException | EJBException e) {
+            // EJBException also covers EJBTransactionRolledbackException
+            if (isCausedByOptimisticLock(e)) {
+                JsfUtil.addErrorMessage("This bill was just changed by someone else. Please refresh and try again.");
+            } else {
+                Logger.getLogger(FuelRequestAndIssueController.class.getName()).log(Level.SEVERE, "Accepting bill " + bill.getId() + " failed", e);
+                JsfUtil.addErrorMessage("The bill could not be accepted due to a system error. No acceptance number was used. Please try again.");
+            }
+            return;
+        }
+        fuelPaymentRequestBill = bill;
         mirrorAcceptanceStatusToTransactions(bill);
         recordAcceptanceHistory(bill, from, BillAcceptanceStatus.ACCEPTED, null);
-        JsfUtil.addSuccessMessage("Bill accepted");
+        JsfUtil.addSuccessMessage("Bill accepted - acceptance number " + bill.getAcceptanceNumber());
     }
 
     /**
@@ -1924,6 +1957,9 @@ public class FuelRequestAndIssueController implements Serializable {
         bill.setAcceptanceCancelledBy(webUserController.getLoggedUser());
         bill.setAcceptanceCancelledAt(new Date());
         bill.setAcceptanceCancelledComments(acceptanceCancelledComments);
+        // Acceptance numbers are never reused - a later re-acceptance gets a new one
+        bill.setPreviousAcceptanceNumber(bill.getAcceptanceNumber());
+        bill.setAcceptanceNumber(null);
         try {
             billFacade.edit(bill);
         } catch (OptimisticLockException | EJBTransactionRolledbackException ole) {
@@ -2417,10 +2453,30 @@ public class FuelRequestAndIssueController implements Serializable {
         this.acceptedBills = acceptedBills;
     }
 
+    public List<Bill> getFilteredAcceptedBills() {
+        return filteredAcceptedBills;
+    }
+
+    public void setFilteredAcceptedBills(List<Bill> filteredAcceptedBills) {
+        this.filteredAcceptedBills = filteredAcceptedBills;
+    }
+
+    // The accepted bills currently shown - after column filters, if any - so the
+    // report's footer totals match the visible rows
+    private List<Bill> getShownAcceptedBills() {
+        return filteredAcceptedBills != null ? filteredAcceptedBills : acceptedBills;
+    }
+
+    public int getAcceptedBillsShownCount() {
+        List<Bill> shown = getShownAcceptedBills();
+        return shown == null ? 0 : shown.size();
+    }
+
     public double getAcceptedBillsTotalQty() {
         double total = 0.0;
-        if (acceptedBills != null) {
-            for (Bill b : acceptedBills) {
+        List<Bill> shown = getShownAcceptedBills();
+        if (shown != null) {
+            for (Bill b : shown) {
                 if (b.getTotalQty() != null) {
                     total += b.getTotalQty();
                 }
@@ -2431,8 +2487,9 @@ public class FuelRequestAndIssueController implements Serializable {
 
     public double getAcceptedBillsTotalValue() {
         double total = 0.0;
-        if (acceptedBills != null) {
-            for (Bill b : acceptedBills) {
+        List<Bill> shown = getShownAcceptedBills();
+        if (shown != null) {
+            for (Bill b : shown) {
                 if (b.getTotalValue() != null) {
                     total += b.getTotalValue();
                 }
