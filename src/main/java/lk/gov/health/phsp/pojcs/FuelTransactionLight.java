@@ -368,7 +368,7 @@ public class FuelTransactionLight implements Serializable {
         if (date == null) {
             return "";
         }
-        String pattern = "dd MMMM yyyy";
+        String pattern = "dd/MM/yy";
         DateFormat sfd = new SimpleDateFormat(pattern);
         return sfd.format(date);
     }
@@ -475,7 +475,7 @@ public class FuelTransactionLight implements Serializable {
         if (submittedToPaymentAt == null) {
             return "";
         }
-        String pattern = "dd MMMM yyyy";
+        String pattern = "dd/MM/yy";
         DateFormat sfd = new SimpleDateFormat(pattern);
         return sfd.format(submittedToPaymentAt);
     }
@@ -501,7 +501,7 @@ public class FuelTransactionLight implements Serializable {
         if (billAcceptanceStatusAt == null) {
             return "";
         }
-        String pattern = "dd MMM yyyy";
+        String pattern = "dd/MM/yy";
         DateFormat sfd = new SimpleDateFormat(pattern);
         return sfd.format(billAcceptanceStatusAt);
     }

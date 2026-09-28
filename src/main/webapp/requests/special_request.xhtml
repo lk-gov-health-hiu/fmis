@@ -26,11 +26,12 @@
                                     class="w-100">
                                     <f:facet name="header" >
                                         <h2><h:outputText value="Special Vehicle Fuel Request"></h:outputText>
-                                            <h:commandButton  value="Submit" 
-                                                              style="float: right;"
-                                                              class="btn btn-primary"
-                                                              action="#{fuelRequestAndIssueController.submitSpecialVehicleFuelRequest()}" >
-                                            </h:commandButton>
+                                            <p:commandButton value="Submit"
+                                                             styleClass="btn btn-primary"
+                                                             style="float: right;"
+                                                             process="@form"
+                                                             update=":globalMessages confirmDialogPanel"
+                                                             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('confirmDialog').show();" />
                                         </h2>
                                     </f:facet>
                                     <p:outputLabel 
@@ -170,6 +171,75 @@
 
 
                                 </p:panelGrid>
+
+                                <!-- Confirmation dialog: shown after client-side validation passes -->
+                                <p:dialog header="Confirm Special Fuel Request"
+                                          widgetVar="confirmDialog"
+                                          modal="true"
+                                          closable="true"
+                                          responsive="true">
+                                    <h:panelGroup id="confirmDialogPanel" layout="block">
+                                        <div class="p-3">
+                                            <h5>Please confirm the following details:</h5>
+                                            <div class="row mb-2">
+                                                <div class="col-6 font-weight-bold">Date:</div>
+                                                <div class="col-6">
+                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.requestedDate}">
+                                                        <f:convertDateTime pattern="dd MMM yyyy" />
+                                                    </h:outputText>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-6 font-weight-bold">Vehicle:</div>
+                                                <div class="col-6"><h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.vehicleNumber}" /></div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-6 font-weight-bold">Institution:</div>
+                                                <div class="col-6"><h:outputText value="#{fuelRequestAndIssueController.selected.vehicle.institution.name}" /></div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-6 font-weight-bold">Driver:</div>
+                                                <div class="col-6"><h:outputText value="#{fuelRequestAndIssueController.selected.driver.name}" /></div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-6 font-weight-bold">Fuel Station / Depot:</div>
+                                                <div class="col-6"><h:outputText value="#{fuelRequestAndIssueController.selected.toInstitution.name}" /></div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-6 font-weight-bold">Requesting Quantity (Liters):</div>
+                                                <div class="col-6">
+                                                    <h:outputText value="#{fuelRequestAndIssueController.selected.requestQuantity}">
+                                                        <f:convertNumber pattern="#,##0.00" />
+                                                    </h:outputText>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-6 font-weight-bold">ODO Meter Reading / Generator Hours:</div>
+                                                <div class="col-6"><h:outputText value="#{fuelRequestAndIssueController.selected.odoMeterReading}" /></div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-6 font-weight-bold">Reference Number:</div>
+                                                <div class="col-6"><h:outputText value="#{fuelRequestAndIssueController.selected.requestReferenceNumber}" /></div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-6 font-weight-bold">Comments:</div>
+                                                <div class="col-6"><h:outputText value="#{fuelRequestAndIssueController.selected.comments}" /></div>
+                                            </div>
+                                        </div>
+                                        <div class="text-center mt-3 mb-3">
+                                            <p:commandButton value="Confirm and Submit"
+                                                             icon="pi pi-check"
+                                                             styleClass="ui-button-raised ui-button-success mx-1"
+                                                             action="#{fuelRequestAndIssueController.submitSpecialVehicleFuelRequest()}"
+                                                             ajax="false" />
+                                            <p:commandButton value="Cancel"
+                                                             icon="pi pi-times"
+                                                             type="button"
+                                                             styleClass="ui-button-raised ui-button-secondary mx-1"
+                                                             onclick="PF('confirmDialog').hide();" />
+                                        </div>
+                                    </h:panelGroup>
+                                </p:dialog>
 
                                 <!-- ODO warning dialog: shown instead of blocking submission outright -->
                                 <p:dialog header="ODO Meter Reading Warning"

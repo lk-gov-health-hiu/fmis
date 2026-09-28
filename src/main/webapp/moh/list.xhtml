@@ -74,7 +74,7 @@
 
                                             <p:column headerText="Requested At" sortBy="#{transaction.requestedDate}" filterBy="#{transaction.requestedDate}">
                                                 <h:outputText value="#{transaction.requestedDate}">
-                                                    <f:convertDateTime pattern="dd MMMM yyyy" />
+                                                    <f:convertDateTime pattern="dd/MM/yy" />
                                                 </h:outputText>
                                             </p:column>
 
@@ -84,7 +84,7 @@
 
                                             <p:column headerText="Issued At" sortBy="#{transaction.issuedAt}" filterBy="#{transaction.issuedAt}">
                                                 <h:outputText value="#{transaction.issuedAt}">
-                                                    <f:convertDateTime pattern="dd MMMM yyyy hh:mm a" />
+                                                    <f:convertDateTime pattern="dd/MM/yy hh:mm a" />
                                                 </h:outputText>
                                                 <h:outputText value="Not Issued" style="color: red;" rendered="#{not transaction.issued}" />
                                             </p:column>
