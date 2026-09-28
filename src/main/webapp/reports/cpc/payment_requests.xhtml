@@ -131,6 +131,26 @@
                                             <h:outputText value="#{bill.toInstitution.name}" />
                                         </p:column>
 
+                                        <p:column headerText="Dealer Number"
+                                                  exportHeaderValue="true"
+                                                  sortBy="#{bill.toInstitution.code}" filterBy="#{bill.toInstitution.code}"
+                                                  filterMatchMode="contains">
+                                            <f:facet name="header">
+                                                <h:outputText value="Dealer Number" />
+                                            </f:facet>
+                                            <h:outputText value="#{bill.toInstitution.code}" />
+                                        </p:column>
+
+                                        <p:column headerText="Province"
+                                                  exportHeaderValue="true"
+                                                  sortBy="#{bill.toInstitution.provinceName}" filterBy="#{bill.toInstitution.provinceName}"
+                                                  filterMatchMode="contains">
+                                            <f:facet name="header">
+                                                <h:outputText value="Province" />
+                                            </f:facet>
+                                            <h:outputText value="#{bill.toInstitution.provinceName}" />
+                                        </p:column>
+
                                         <p:column headerText="Total Qty"
                                                   exportHeaderValue="true"
                                                   sortBy="#{bill.totalQty}" filterBy="#{bill.totalQty}">
@@ -140,16 +160,6 @@
                                             <h:outputText value="#{bill.totalQty}" />
                                         </p:column>
 
-                                        <p:column headerText="Amount (Rs.)"
-                                                  exportHeaderValue="true"
-                                                  sortBy="#{bill.totalValue}" filterBy="#{bill.totalValue}">
-                                            <f:facet name="header">
-                                                <h:outputText value="Amount (Rs.)" />
-                                            </f:facet>
-                                            <h:outputText value="#{bill.totalValue}">
-                                                <f:convertNumber pattern="#,##0.00" />
-                                            </h:outputText>
-                                        </p:column>
 
                                         <p:column headerText="CPC Status"
                                                   exportHeaderValue="true"

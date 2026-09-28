@@ -76,6 +76,9 @@ public class BillAcceptanceHistory implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date changedAt;
 
+    // Acceptance number issued (on acceptance) or voided (on cancellation) by this change
+    private String acceptanceNumber;
+
     public Long getId() {
         return id;
     }
@@ -154,6 +157,14 @@ public class BillAcceptanceHistory implements Serializable {
 
     public void setChangedAt(Date changedAt) {
         this.changedAt = changedAt;
+    }
+
+    public String getAcceptanceNumber() {
+        return acceptanceNumber;
+    }
+
+    public void setAcceptanceNumber(String acceptanceNumber) {
+        this.acceptanceNumber = acceptanceNumber;
     }
 
 }

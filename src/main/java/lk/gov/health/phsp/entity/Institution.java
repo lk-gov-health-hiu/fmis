@@ -37,6 +37,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import lk.gov.health.phsp.enums.OwnershipType;
+import lk.gov.health.phsp.enums.SriLankaProvince;
 import lk.gov.health.phsp.pojcs.Nameable;
 
 /**
@@ -430,6 +431,32 @@ public class Institution implements Serializable, Nameable {
 
     public void setProvince(Area province) {
         this.province = province;
+    }
+
+    // The institution's own province if set, otherwise derived from its district.
+    public String getProvinceName() {
+        if (province != null && province.getName() != null) {
+            return province.getName();
+        }
+        SriLankaProvince p = getSriLankaProvince();
+        return p == null ? "" : p.getLabel();
+    }
+
+    // Resolved from, in order: the institution's own province, its district, and
+    // the nearest CPC provincial office above it (fuel stations sit under one).
+    public SriLankaProvince getSriLankaProvince() {
+        SriLankaProvince p = province == null ? null : SriLankaProvince.fromName(province.getName());
+        if (p == null && district != null) {
+            p = SriLankaProvince.fromDistrictName(district.getName());
+        }
+        Institution ancestor = parent;
+        for (int depth = 0; p == null && ancestor != null && depth < 10; depth++) {
+            if (ancestor.getInstitutionType() == InstitutionType.CPC_Provincial_Office) {
+                p = SriLankaProvince.fromName(ancestor.getName());
+            }
+            ancestor = ancestor.getParent();
+        }
+        return p;
     }
 
     public Area getPdhsArea() {

@@ -27,6 +27,9 @@
                         .accepted-bills-report tr {
                             page-break-inside: avoid;
                         }
+                        .accepted-bills-report .ui-column-filter {
+                            display: none !important;
+                        }
                     }
                     .accepted-bills-report table {
                         width: 100%;
@@ -47,7 +50,7 @@
                     }
                 </style>
 
-                <h:form>
+                <h:form id="form">
                     <div class="card d-print-none">
                         <div class="card-header">
                             <h2><h:outputText value="Accepted Bills Report" /></h2>
@@ -145,38 +148,54 @@
                                             var="bill"
                                             rowIndexVar="rn"
                                             rowKey="#{bill.id}"
+                                            filteredValue="#{fuelRequestAndIssueController.filteredAcceptedBills}"
                                             paginator="false">
+
+                                            <p:ajax event="filter" process="tbl"
+                                                    update=":form:tbl:footCount :form:tbl:footQty :form:tbl:footValue" />
 
                                             <p:column headerText="#" style="width:3em; text-align:center;">
                                                 <f:facet name="footer">
-                                                    <h:outputText value="Total: #{fuelRequestAndIssueController.acceptedBills.size()}" />
+                                                    <h:outputText id="footCount" value="Total: #{fuelRequestAndIssueController.acceptedBillsShownCount}" />
                                                 </f:facet>
                                                 <h:outputText value="#{rn + 1}" />
                                             </p:column>
 
-                                            <p:column headerText="Accepted Date">
+                                            <p:column headerText="Accepted Date" filterBy="#{bill.acceptedAtText}" filterMatchMode="contains">
                                                 <h:outputText value="#{bill.acceptedAt}">
                                                     <f:convertDateTime pattern="dd/MM/yyyy" />
                                                 </h:outputText>
                                             </p:column>
 
-                                            <p:column headerText="Bill Date">
+                                            <p:column headerText="Acceptance No" filterBy="#{bill.acceptanceNumber}" filterMatchMode="contains">
+                                                <h:outputText value="#{bill.acceptanceNumber}" />
+                                            </p:column>
+
+                                            <p:column headerText="Bill Date" filterBy="#{bill.billDateText}" filterMatchMode="contains">
                                                 <h:outputText value="#{bill.billDate}">
                                                     <f:convertDateTime pattern="dd/MM/yyyy" />
                                                 </h:outputText>
                                             </p:column>
 
-                                            <p:column headerText="From Institution (Hospital)">
+                                            <p:column headerText="From Institution (Hospital)" filterBy="#{bill.fromInstitution.name}" filterMatchMode="contains">
                                                 <h:outputText value="#{bill.fromInstitution.name}" />
                                             </p:column>
 
-                                            <p:column headerText="Fuel Station">
-                                                <h:outputText value="#{bill.toInstitution.name} (#{bill.toInstitution.code})" />
+                                            <p:column headerText="Fuel Station" filterBy="#{bill.toInstitution.name}" filterMatchMode="contains">
+                                                <h:outputText value="#{bill.toInstitution.name}" />
                                             </p:column>
 
-                                            <p:column headerText="Total Qty" style="text-align:right;">
+                                            <p:column headerText="Dealer Number" filterBy="#{bill.toInstitution.code}" filterMatchMode="contains">
+                                                <h:outputText value="#{bill.toInstitution.code}" />
+                                            </p:column>
+
+                                            <p:column headerText="Province" filterBy="#{bill.toInstitution.provinceName}" filterMatchMode="contains">
+                                                <h:outputText value="#{bill.toInstitution.provinceName}" />
+                                            </p:column>
+
+                                            <p:column headerText="Total Qty" style="text-align:right;" filterBy="#{bill.totalQty}" filterMatchMode="contains">
                                                 <f:facet name="footer">
-                                                    <h:outputText value="#{fuelRequestAndIssueController.acceptedBillsTotalQty}">
+                                                    <h:outputText id="footQty" value="#{fuelRequestAndIssueController.acceptedBillsTotalQty}">
                                                         <f:convertNumber pattern="#,##0.00" />
                                                     </h:outputText>
                                                 </f:facet>
@@ -185,9 +204,9 @@
                                                 </h:outputText>
                                             </p:column>
 
-                                            <p:column headerText="Amount (Rs.)" style="text-align:right;">
+                                            <p:column headerText="Amount (Rs.)" style="text-align:right;" filterBy="#{bill.totalValue}" filterMatchMode="contains">
                                                 <f:facet name="footer">
-                                                    <h:outputText value="#{fuelRequestAndIssueController.acceptedBillsTotalValue}">
+                                                    <h:outputText id="footValue" value="#{fuelRequestAndIssueController.acceptedBillsTotalValue}">
                                                         <f:convertNumber pattern="#,##0.00" />
                                                     </h:outputText>
                                                 </f:facet>
