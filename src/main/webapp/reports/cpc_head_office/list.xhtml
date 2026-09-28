@@ -88,7 +88,7 @@
 
                         <p:column headerText="Date" sortBy="#{transaction.date}" filterBy="#{transaction.date}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.date}">
-                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                                <f:convertDateTime pattern="dd MM yy HH:mm" />
                             </h:outputText>
                         </p:column>
 
@@ -142,7 +142,7 @@
                         
                         <p:column headerText="Issued Date *" sortBy="#{transaction.issuedDate}" filterBy="#{transaction.issuedDate}" filterMatchMode="numeric">
                             <h:outputText value="#{transaction.issuedDate}" >
-                                <f:convertDateTime pattern="yyyy MMMM dd" ></f:convertDateTime>
+                                <f:convertDateTime pattern="dd MM yy" ></f:convertDateTime>
                             </h:outputText>
                         </p:column>
 

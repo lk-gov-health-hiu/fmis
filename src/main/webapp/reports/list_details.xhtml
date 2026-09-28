@@ -109,7 +109,7 @@
 
                         <p:column headerText="Date" sortBy="#{transaction.requestedDate}" filterBy="#{transaction.requestedDate}" filterMatchMode="contains">
                             <h:outputText value="#{transaction.requestedDate}">
-                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                                <f:convertDateTime pattern="dd MM yy" />
                             </h:outputText>
                         </p:column>
 
