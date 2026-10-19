@@ -80,8 +80,11 @@
                                             icon="pi pi-dollar" 
                                             ajax="false"
                                             class="ui-button-danger my-2"
-                                            onclick="if (!confirm('Are you sure you want to make a payment request?'))
-                                                        return false;" />
+                                            widgetVar="btnMakePaymentRequest"
+                                            onclick="if (window.paymentRequestSubmitting) return false;
+                                                     if (!confirm('Are you sure you want to make a payment request?')) return false;
+                                                     window.paymentRequestSubmitting = true;
+                                                     PF('btnMakePaymentRequest').disable();" />
 
 
                                         <p:dataTable 
