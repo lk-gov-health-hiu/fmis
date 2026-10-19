@@ -155,7 +155,9 @@
                                             <f:facet name="header">
                                                 <h:outputText value="Total Qty" />
                                             </f:facet>
-                                            <h:outputText value="#{bill.totalQty}" />
+                                            <h:outputText value="#{bill.totalQty}">
+                                                <f:convertNumber pattern="#,##0.00" />
+                                            </h:outputText>
                                         </p:column>
 
 

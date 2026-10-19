@@ -458,7 +458,9 @@
                                                         value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.toInstitution.name}"/>
                                                     <h:outputText value="Total Quantity:"/>
                                                     <h:outputText
-                                                        value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}"/>
+                                                        value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}">
+                                                        <f:convertNumber pattern="#,##0.00"/>
+                                                    </h:outputText>
                                                     <h:outputText value="Price / Liter (Rs.):"
                                                                   rendered="#{fuelRequestAndIssueController.fuelPaymentRequestBill.pricePerLiter ne null}"/>
                                                     <h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.pricePerLiter}"
@@ -493,7 +495,7 @@
                                                               style="background-color: #f8d7da; color: #58151c; border: 1px solid #f1aeb5; border-radius: 4px;"
                                                               rendered="#{empty fuelRequestAndIssueController.selectedTransactions and fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty gt 0}">
                                                     This bill's individual transactions could not be found. The recorded
-                                                    Total Quantity above (<h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}"/> L)
+                                                    Total Quantity above (<h:outputText value="#{fuelRequestAndIssueController.fuelPaymentRequestBill.totalQty}"><f:convertNumber pattern="#,##0.00"/></h:outputText> L)
                                                     is preserved, but the line items are missing - please contact support before relying on this bill.
                                                 </h:panelGroup>
 
