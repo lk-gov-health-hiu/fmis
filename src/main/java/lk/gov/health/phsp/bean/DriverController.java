@@ -295,6 +295,23 @@ public class DriverController implements Serializable {
             JsfUtil.addErrorMessage("Nothing to select");
             return "";
         }
+        if (webUserController.isInstitutionLevelUser()) {
+            Institution institution = selected.getInstitution();
+            if (!webUserController.isInstitutionChangeAllowed()) {
+                // Hospitals can not move drivers; keep the stored institution
+                if (selected.getId() == null) {
+                    institution = webUserController.getLoggedInstitution();
+                } else {
+                    Driver stored = getFacade().find(selected.getId());
+                    institution = stored == null ? null : stored.getInstitution();
+                }
+            }
+            if (institution == null || !webUserController.findAutherizedInstitutions().contains(institution)) {
+                JsfUtil.addErrorMessage("Please select an institution you manage");
+                return "";
+            }
+            selected.setInstitution(institution);
+        }
         if (selected.getName() == null || selected.getName().trim().equals("")) {
             JsfUtil.addErrorMessage("Number is required");
             return "";

@@ -24,6 +24,8 @@
 package lk.gov.health.phsp.entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.persistence.Column;
@@ -273,6 +275,17 @@ public class Bill implements Serializable {
 
     public void setTotalQty(Double totalQty) {
         this.totalQty = totalQty;
+    }
+
+    /**
+     * Total quantity cut (not rounded) to 2 decimal places for display, so
+     * bills stored before truncation also show e.g. 1.588 L as 1.58 L.
+     */
+    public Double getTotalQtyTruncated() {
+        if (totalQty == null) {
+            return null;
+        }
+        return BigDecimal.valueOf(totalQty).setScale(2, RoundingMode.DOWN).doubleValue();
     }
 
     public Double getPricePerLiter() {
