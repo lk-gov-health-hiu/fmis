@@ -231,7 +231,50 @@ public class WebUserController implements Serializable {
         }
         return loggedUser.getWebUserRoleLevel() == WebUserRoleLevel.FUEL_REQUESTING_INSTITUTION;
     }
-    
+
+    /**
+     * Institution level users of supervising institutions (RDHS, PDHS,
+     * Ayurvedic / Indigenous Medicine departments and MoH). They may move
+     * vehicles between the institutions they manage, but not change any other
+     * vehicle details.
+     */
+    public boolean isRegionalLevelInstitutionUser() {
+        if (!isInstitutionLevelUser()) {
+            return false;
+        }
+        if (loggedUser.getInstitution() == null || loggedUser.getInstitution().getInstitutionType() == null) {
+            return false;
+        }
+        switch (loggedUser.getInstitution().getInstitutionType()) {
+            case Regional_Department_of_Health_Department:
+            case Provincial_Department_of_Health_Services:
+            case Provincial_Ayurvedic_Department:
+            case District_Ayurvedic_Department:
+            case Ayurvedic_Department:
+            case Indigenous_Medicine_Department:
+            case Ministry_of_Health:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Institution level users (hospitals, RDHS, PDHS, etc.) can not add,
+     * delete or change the details of vehicles.
+     */
+    public boolean isVehicleDetailsLocked() {
+        return isInstitutionLevelUser();
+    }
+
+    /**
+     * Only national level users and RDHS/PDHS level institution users can move
+     * vehicles and drivers between institutions.
+     */
+    public boolean isInstitutionChangeAllowed() {
+        return !isVehicleDetailsLocked() || isRegionalLevelInstitutionUser();
+    }
+
     public boolean isDieselFuelRequestMenuAvailable() {
         if (loggedUser == null) {
             return false;

@@ -30,7 +30,7 @@
                             </f:facet>
 
 
-                            <h:outputLabel value="Institution:" for="ins" />
+                            <h:outputLabel value="Institution:" />
 
                             <p:selectOneMenu 
                                 filter="true"
@@ -38,6 +38,7 @@
                                 filterMatchMode="contains"
                                 id="institution" 
                                 class="form-control form-control-sm w-100" 
+                                rendered="#{webUserController.institutionChangeAllowed}"
                                 required="true">
                                 <f:selectItem itemLabel="Please Select" ></f:selectItem>
                                 <f:selectItems value="#{webUserController.loggableInstitutions}"
@@ -45,6 +46,8 @@
                                                itemLabel="#{ins.name}"
                                                itemValue="#{ins}" ></f:selectItems>
                             </p:selectOneMenu>
+                            <h:outputText value="#{driverController.selected.institution.name}"
+                                          rendered="#{!webUserController.institutionChangeAllowed}" />
 
 
 
