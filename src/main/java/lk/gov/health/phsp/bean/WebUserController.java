@@ -267,7 +267,11 @@ public class WebUserController implements Serializable {
         return isInstitutionLevelUser();
     }
 
-    public boolean isVehicleInstitutionChangeAllowed() {
+    /**
+     * Only national level users and RDHS/PDHS level institution users can move
+     * vehicles and drivers between institutions.
+     */
+    public boolean isInstitutionChangeAllowed() {
         return !isVehicleDetailsLocked() || isRegionalLevelInstitutionUser();
     }
 

@@ -126,7 +126,7 @@ public class VehicleController implements Serializable {
             JsfUtil.addErrorMessage("Please select");
             return "";
         }
-        if (!webUserController.isVehicleInstitutionChangeAllowed()) {
+        if (!webUserController.isInstitutionChangeAllowed()) {
             JsfUtil.addErrorMessage("You are not allowed to edit vehicle details");
             return "";
         }
@@ -478,7 +478,7 @@ public class VehicleController implements Serializable {
      * the stored one, so any other submitted changes are discarded.
      */
     private String changeVehicleInstitution() {
-        if (!webUserController.isVehicleInstitutionChangeAllowed()) {
+        if (!webUserController.isInstitutionChangeAllowed()) {
             JsfUtil.addErrorMessage("You are not allowed to change vehicle details");
             return null;
         }
