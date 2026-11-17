@@ -4,6 +4,8 @@ import lk.gov.health.phsp.entity.FuelTransaction;
 import lk.gov.health.phsp.facade.FuelTransactionHistoryFacade;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1599,7 +1601,7 @@ public class FuelRequestAndIssueController implements Serializable {
         fuelPaymentRequestBill.setAcceptanceStatus(BillAcceptanceStatus.PENDING);
         billFacade.create(fuelPaymentRequestBill);
 
-        double qty = 0.0;
+        BigDecimal rawQty = BigDecimal.ZERO;
 
         for (FuelTransaction sft : candidates) {
             sft.setSubmittedToPayment(true);
@@ -1609,11 +1611,12 @@ public class FuelRequestAndIssueController implements Serializable {
             sft.setBillAcceptanceStatus(BillAcceptanceStatus.PENDING);
             sft.setBillAcceptanceStatusAt(new Date());
             if (sft.getIssuedQuantity() != null) {
-                qty += sft.getIssuedQuantity();
+                rawQty = rawQty.add(BigDecimal.valueOf(sft.getIssuedQuantity()));
             }
             fuelTransactionFacade.edit(sft);
         }
 
+        double qty = truncateQuantity(rawQty);
         fuelPaymentRequestBill.setTotalQty(qty);
         if (!pricesSpanned.isEmpty()) {
             Double price = pricesSpanned.get(0).getPricePerLiter();
@@ -1660,6 +1663,14 @@ public class FuelRequestAndIssueController implements Serializable {
     }
 
     /**
+     * CPC pays for the total quantity cut (not rounded) to 2 decimal places,
+     * e.g. 1.588 L becomes 1.58 L.
+     */
+    static double truncateQuantity(BigDecimal quantity) {
+        return quantity.setScale(2, RoundingMode.DOWN).doubleValue();
+    }
+
+    /**
      * Recalculates a payment {@link Bill}'s totals from its current line
      * items (the {@link FuelTransaction}s linked to it) and corrects the
      * bill if it has drifted - e.g. an admin edited a transaction's issued
@@ -1692,19 +1703,23 @@ public class FuelRequestAndIssueController implements Serializable {
             return false;
         }
 
-        double recalculatedQty = 0.0;
+        BigDecimal rawQty = BigDecimal.ZERO;
         if (lineItems != null) {
             for (FuelTransaction ft : lineItems) {
                 if (ft.isRetired()) {
                     continue;
                 }
                 if (ft.getIssuedQuantity() != null) {
-                    recalculatedQty += ft.getIssuedQuantity();
+                    rawQty = rawQty.add(BigDecimal.valueOf(ft.getIssuedQuantity()));
                 }
             }
         }
+        double recalculatedQty = truncateQuantity(rawQty);
 
-        boolean qtyChanged = storedQty == null || Math.abs(storedQty - recalculatedQty) > 0.0001;
+        // Bills created before quantities were truncated hold the raw sum; treat that as up to date too
+        boolean qtyChanged = storedQty == null
+                || (Math.abs(storedQty - recalculatedQty) > 0.0001
+                && Math.abs(storedQty - rawQty.doubleValue()) > 0.0001);
 
         if (!qtyChanged) {
             return false;
