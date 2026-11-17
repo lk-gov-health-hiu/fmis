@@ -15,58 +15,34 @@
 
                     <p:panelGrid 
                         columns="2" 
-                        rendered="#{vehicleController.selected != null}" class="w-100">
+                        rendered="#{vehicleController.selected != null and webUserController.vehicleInstitutionChangeAllowed}" class="w-100">
 
                         <f:facet name="header" >
-                            <h:outputText value="Vehicle / Generator" ></h:outputText>
+                            <h:outputText value="Change Institution of Vehicle / Generator" ></h:outputText>
                             <p:commandButton 
                                 ajax="false"
                                 style="float: right;" 
                                 class="btn btn-success" 
                                 action="#{vehicleController.saveOrUpdateVehicle()}" 
                                 value="Save"/>
-
                         </f:facet>
 
-                        <h:outputLabel value="Number:" for="number" />
-                        <h:inputText id="number" 
-                                     required="true"
-                                     requiredMessage="Please enter the number"
-                                     autocomplete="off"
-                                     class="form-control"
-                                     value="#{vehicleController.selected.vehicleNumber}" 
-                                     title="Number" />
+                        <h:outputLabel value="Number:" />
+                        <h:outputText value="#{vehicleController.selected.vehicleNumber}" />
 
-                        <h:outputLabel value="Type:" for="vehicleType" />
-                        <p:selectOneMenu id="vehicleType" 
-                                         class="form-control"
-                                         filter="true"
-                                         filterMatchMode="contains"
-                                         required="true" 
-                                         requiredMessage="Please select a Type"
-                                         value="#{vehicleController.selected.vehicleType}" title="VehicleType">
-                            <f:selectItem itemLabel="Select Vehicle Type" ></f:selectItem>
-                            <f:selectItems value="#{applicationController.vehicleTypes}" 
-                                           var="vt"
-                                           itemValue="#{vt}"
-                                           itemLabel="#{vt.label}"/>
-                            <p:ajax update="makeLabel makeSelect"  process="@this" />
-                        </p:selectOneMenu>
+                        <h:outputLabel value="Type:" />
+                        <h:outputText value="#{vehicleController.selected.vehicleType.label}" />
 
-                        <h:outputLabel value="Main Purpose:" for="vehiclePurpose" />
-                        <h:selectOneMenu id="vehiclePurpose" 
-                                         class="form-control"
-                                         required="true"
-                                         requiredMessage="Please select the Main Purpose the vehicle is used for"
-                                         value="#{vehicleController.selected.vehiclePurpose}" title="VehiclePurpose">
-                            <f:selectItems value="#{applicationController.vehiclePurposes}" 
-                                           var="vp"
-                                           itemValue="#{vp}"
-                                           itemLabel="#{vp.label}"/>
-                        </h:selectOneMenu>
+                        <h:outputLabel value="Main Purpose:" />
+                        <h:outputText value="#{vehicleController.selected.vehiclePurpose.label}" />
+
+                        <h:outputLabel value="Make:" />
+                        <h:outputText value="#{vehicleController.selected.vehicleType.vehicle ? vehicleController.selected.make : vehicleController.selected.vehicleMake}" />
+
+                        <h:outputLabel value="Estimated Monthly Fuel Consumption:" />
+                        <h:outputText value="#{vehicleController.selected.estiamtedMonthlyFuelConsumption}" />
 
                         <h:outputLabel value="Institution:" for="ins" />
-
                         <p:selectOneMenu 
                             id="ins"
                             filter="true"
@@ -82,47 +58,9 @@
                                            itemValue="#{ins}" ></f:selectItems>
                         </p:selectOneMenu>
 
-
-                        <h:panelGroup id="makeLabel">
-                            <h:outputLabel for="make" value="Make:" rendered="#{vehicleController.selected.vehicleType.vehicle}" />
-                            <h:outputLabel for="makeName" value="Make:" rendered="#{!vehicleController.selected.vehicleType.vehicle}" />
-
-                        </h:panelGroup>
-
-                        <h:panelGroup id="makeSelect">
-                            <p:selectOneMenu id="make" 
-                                             filter="true"
-                                             filterMatchMode="contains"
-                                             class="form-control"
-                                             value="#{vehicleController.selected.make}" 
-                                             title="Make" 
-                                             rendered="#{vehicleController.selected.vehicleType.vehicle}">
-                                <f:selectItem itemLabel="Select" ></f:selectItem>
-                                <f:selectItems value="#{commonController.vehicleMakes}" ></f:selectItems>
-                            </p:selectOneMenu>
-                            <h:inputText id="makeName" 
-                                         autocomplete="off"
-                                         class="form-control"
-                                         value="#{vehicleController.selected.vehicleMake}" 
-                                         title="Name"
-                                         rendered="#{!vehicleController.selected.vehicleType.vehicle}" />
-                        </h:panelGroup>
-
-                        <h:outputLabel value="Estimated Monthly Fuel Consumption" for="model" />
-                        <h:inputText id="model" 
-                                     autocomplete="off"
-                                     class="form-control"
-                                     value="#{vehicleController.selected.estiamtedMonthlyFuelConsumption}" 
-                                     title="Estimated Monthly Fuel Consumption" />
-
                     </p:panelGrid>
-
-
-
-
                 </h:form>
             </ui:define>
         </ui:composition>
-
     </h:body>
 </html>

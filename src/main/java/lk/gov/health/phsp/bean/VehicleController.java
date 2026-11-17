@@ -126,12 +126,20 @@ public class VehicleController implements Serializable {
             JsfUtil.addErrorMessage("Please select");
             return "";
         }
+        if (!webUserController.isVehicleInstitutionChangeAllowed()) {
+            JsfUtil.addErrorMessage("You are not allowed to edit vehicle details");
+            return "";
+        }
         return menuController.toEditVehicle();
     }
 
     public String deleteVehicle() {
         if (deleting == null) {
             JsfUtil.addErrorMessage("Please select");
+            return "";
+        }
+        if (webUserController.isVehicleDetailsLocked()) {
+            JsfUtil.addErrorMessage("You are not allowed to delete vehicles");
             return "";
         }
 
@@ -435,6 +443,9 @@ public class VehicleController implements Serializable {
             JsfUtil.addErrorMessage("Nothing to select");
             return null;
         }
+        if (webUserController.isVehicleDetailsLocked()) {
+            return changeVehicleInstitution();
+        }
         if (selected.getVehicleNumber() == null || selected.getVehicleNumber().trim().equals("")) {
             JsfUtil.addErrorMessage("Number is required");
             return null;
@@ -457,6 +468,44 @@ public class VehicleController implements Serializable {
             getFacade().edit(selected);
             JsfUtil.addSuccessMessage("Updated");
         }
+        vehicleApplicationController.fillAllVehicles();
+        return menuController.toListVehicles();
+    }
+
+    /**
+     * Institution level users may only move a vehicle to another institution
+     * they manage. Only the institution is copied from the edited vehicle to
+     * the stored one, so any other submitted changes are discarded.
+     */
+    private String changeVehicleInstitution() {
+        if (!webUserController.isVehicleInstitutionChangeAllowed()) {
+            JsfUtil.addErrorMessage("You are not allowed to change vehicle details");
+            return null;
+        }
+        if (selected.getId() == null) {
+            JsfUtil.addErrorMessage("You are not allowed to add vehicles");
+            return null;
+        }
+        Vehicle stored = getFacade().find(selected.getId());
+        if (stored == null) {
+            JsfUtil.addErrorMessage("Vehicle not found");
+            return null;
+        }
+        List<Institution> managedInstitutions = webUserController.findAutherizedInstitutions();
+        if (!managedInstitutions.contains(stored.getInstitution())) {
+            JsfUtil.addErrorMessage("This vehicle does not belong to an institution you manage");
+            return null;
+        }
+        if (selected.getInstitution() == null || !managedInstitutions.contains(selected.getInstitution())) {
+            JsfUtil.addErrorMessage("Please select an institution you manage");
+            return null;
+        }
+        stored.setInstitution(selected.getInstitution());
+        stored.setEditedAt(new Date());
+        stored.setEditer(webUserController.getLoggedUser());
+        getFacade().edit(stored);
+        selected = stored;
+        JsfUtil.addSuccessMessage("Institution Updated");
         vehicleApplicationController.fillAllVehicles();
         return menuController.toListVehicles();
     }

@@ -76,15 +76,15 @@
                             <p:column sortBy="#{item.vehiclePurpose}" 
                                       filterBy="#{item.vehiclePurpose}" filterMatchMode="contains" >
                                 <f:facet name="header">
-                                    <h:outputText value="Type"/>
+                                    <h:outputText value="Purpose"/>
                                 </f:facet>
                                 <h:outputText value="#{item.vehiclePurpose.label}"/>
                             </p:column>
 
 
-                            <p:column headerText="Actions" >
+                            <p:column headerText="Actions" exportable="false" rendered="#{webUserController.vehicleInstitutionChangeAllowed}" >
                                 <h:commandLink class="btn btn-primary m-2" id="editButton"
-                                               value="Edit"
+                                               value="Change Institution"
                                                action="#{vehicleController.toEditVehicle()}">
                                     <f:setPropertyActionListener value="#{item}" target="#{vehicleController.selected}" ></f:setPropertyActionListener>
                                     <i class="bi bi-pencil m-2"></i>
